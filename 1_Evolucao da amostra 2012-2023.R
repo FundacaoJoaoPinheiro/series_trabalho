@@ -6,8 +6,6 @@
 
 # Diretório principal
 
-setwd("D:/FJP2425/Programacao")
-
 library(PNADcIBGE)
 library(survey)
 library(tidyverse)
