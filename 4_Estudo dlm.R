@@ -207,7 +207,7 @@ legend("bottomright", legend = c("Observed",
 ################################################################################
 #### TESTE - TAXA DE DESOCUPAÇÃO BH
 
-arquivos <- list.files("data/estimativas", pattern = "\\.RDS$", full.names = TRUE)
+arquivos <- list.files("D:/FJP2425/Programacao/data/estimativas", pattern = "\\.RDS$", full.names = TRUE)
 
 pnadcrds <- lapply(arquivos, readRDS)
 
@@ -330,7 +330,7 @@ buildFun <- function(x) {
   return(dlmtxdbh)
 }
 
-(fit <- dlmMLE(txbh, parm = rep(0, 3), build = buildFun))$conv
+(fit <- dlmMLE(txbh, parm = rep(0, 3), build = buildFun))$conv  ## Verificar se convergiu para 0
 
 dlmtxdbh <- buildFun(fit$par)
 drop(V(dlmtxdbh))
@@ -348,10 +348,36 @@ legend("topleft", legend = c("Taxa de Desocupação - BH", "Tendência"), col = 
 
 
 
-## Como modelar o erro amostral?
+## Testando a implementação do erro amostral (passo a passo)
+  ## Se baseando em scripts anteriores
 
+bh_sdtxd<-ts(bh$sd_txd[1:51],start=c(2012,1),frequency = 4)
 
+  ## Modelo Estrutural:
+    ## dlmModPoly(2) indica que é ordem = 2 (LLT), Sazonalidade no formato trigonométrico
 
+# f.modelo_bsm_error_1<-function(y,i0){
+  modelo<- list("fn"=function(params){
+    m = dlmModPoly(2) + dlmModTrig(4) +dlmModReg(bh_sdtxd,addInt = FALSE) ## Qual é o erro padrão nomeado como "se_db"?
+    m$GG[6,6] <- par_ar_erro                                                ## Momentâneamente, substituí pelo erro padrão da taxa de desemprego
+    W = matrix(0,6,6)
+    W[1, 1] <- exp(params[1])
+    W[2, 2] <- exp(params[2])
+    W[3, 3] <- exp(params[3])
+    W[6, 6] <- 1
+    m$W <- W
+    V =  exp(params[4])
+    m$V <- V
+    return(m)
+  })
+
+  modelo$initial<-i0      # Chamada da função que omiti
+
+  ## Estimando os hiperparâmetros (via MLE)
+  
+  modelo$fit <- dlmMLE(txbh, modelo$initial,modelo$fn, hessian=T,control = list(maxit = 10^8))
+  
+  
 
 ################################################################################
 ###   Estimação Bayesiana
