@@ -207,6 +207,8 @@ legend("bottomright", legend = c("Observed",
 ################################################################################
 #### TESTE - TAXA DE DESOCUPAÇÃO BH
 
+basemg_k<-readRDS("D:/FJP2425/Programacao/data/baseMG_k.RDS")
+
 arquivos <- list.files("D:/FJP2425/Programacao/data/estimativas", pattern = "\\.RDS$", full.names = TRUE)
 
 pnadcrds <- lapply(arquivos, readRDS)
