@@ -13,6 +13,7 @@ library(srvyr)
 library(dplyr)
 library(tidyr)
 library(purrr)
+library(tidyverse)
 
 ################################################################################
 ### PRIMEIRO PASSO: AVALIANDO O ARQUIVO "GABARITO"
@@ -111,7 +112,8 @@ calcula_ocup_desocup_k<-function(mesano){
   
 }
 
-### Teste para apenas um único trimestre
+################################################################################
+#### Teste para apenas um único trimestre
 
 lista2<-c(012012)
 
@@ -122,9 +124,71 @@ teste1 <- readRDS("D:/FJP2425/Programacao/data/rotacao/resultados_012012.RDS")
 View(teste1)
 
 
+### Reorganizando o DF:
+
+funorg <- function(df) {
+  
+  ## Total MG (sem rotação):
+  
+  total_mg <- df %>%
+    filter(is.na(V1016)) %>%
+    select(periodo, ocupada, se_ocupada, desocupada, se_desocupada) %>%
+    mutate(regioes = "11 - Minas Gerais") %>% 
+    select(-6)
+  
+  ## Regiões:
+  
+  regioes_df <- df %>%
+    filter(!is.na(V1016)) %>%
+    pivot_wider(
+      names_from = V1016,
+      values_from = c(ocupada, se_ocupada, desocupada, se_desocupada),
+      names_glue = "{.value}_{V1016}"
+    ) %>%
+    select(-regioes) %>%
+    relocate(
+      order(colnames(.) %in% c("ocupada_", "se_ocupada_", "desocupada_", "se_desocupada_")),
+      .after = periodo
+    ) %>%
+    arrange(periodo)
+  
+  ## Separando os dados por região:
+  regioes_split <- split(regioes_df, df$regioes[!is.na(df$regioes)])
+  
+  ## Incluindo o total de Minas Gerais no resultado final:
+  regioes_split[["11 - Minas Gerais"]] <- total_mg
+  
+  return(regioes_split)
+}
+
+baserot012012 <-funorg(teste1)
 
 
 
+################################################################################
+#### TESTE PARA DOIS ANOS
 
+lista3<-c(012012,022012,032012,042012,012013,022013,032013,042013)
+
+sapply(lista3, function(i) calcula_ocup_desocup_k(i))
+
+teste3<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
+
+data_list <- lapply(teste3, readRDS)
+
+base8trim <- lapply(data_list, funorg)
+
+result_comb <- do.call(rbind, lapply(base8trim, function(lista_trimestre) {
+  lapply(names(lista_trimestre), function(regiao) {
+    df <- lista_trimestre[[regiao]]
+    if (regiao == "11 - Minas Gerais") {
+      df[, c("periodo", "ocupada", "se_ocupada", "desocupada", "se_desocupada")]
+    } else {
+      df
+    }
+  }) %>% bind_rows()
+}))
+
+baseteste3<-split(result_comb, rep(names(base8trim[[1]]), each = 8))
 
 
