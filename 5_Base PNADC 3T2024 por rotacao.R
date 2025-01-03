@@ -12,7 +12,6 @@ library(tictoc)
 library(srvyr)
 library(dplyr)
 library(tidyr)
-library(purrr)
 library(tidyverse)
 
 ################################################################################
@@ -101,6 +100,9 @@ calcula_ocup_desocup_k<-function(mesano){
     mutate(periodo = paste0(substr(mesano, 2, 5), "_0", substr(mesano, 1, 1))) %>%
     bind_rows(total_mg)
   
+  estimativas <- estimativas %>%
+    arrange(regioes, V1016)
+  
   # Save
   
   saveRDS(estimativas, paste0("D:/FJP2425/Programacao/data/rotacao/resultados_0", mesano, ".RDS"))
@@ -110,19 +112,18 @@ calcula_ocup_desocup_k<-function(mesano){
   
   paste("Concluído:", mesano)
   
-}
+}        
 
 ################################################################################
 #### Teste para apenas um único trimestre
 
-lista2<-c(012012)
+# lista2<-c(012012)
 
-sapply(lista2, function(i) calcula_ocup_desocup_k(i))
+# sapply(lista2, function(i) calcula_ocup_desocup_k(i))
 
 teste1 <- readRDS("D:/FJP2425/Programacao/data/rotacao/resultados_012012.RDS")
 
 View(teste1)
-
 
 ### Reorganizando o DF:
 
@@ -166,29 +167,86 @@ baserot012012 <-funorg(teste1)
 
 
 ################################################################################
-#### TESTE PARA DOIS ANOS
+#### TESTE PARA TRÊS TRIMESTRES
 
-lista3<-c(012012,022012,032012,042012,012013,022013,032013,042013)
+lista3<-c(012012,022012,032012)
 
 sapply(lista3, function(i) calcula_ocup_desocup_k(i))
 
+
+## Correção do desalinhamento -> se necessário
+
+corrigir_rotacao <- function(df) {
+  df <- df %>%
+    mutate(
+      V1016 = case_when(
+        V1016 == "1" ~ "2",   # Grupo 1 vai para o grupo 2
+        V1016 == "2" ~ "3",   # Grupo 2 vai para o grupo 3
+        V1016 == "3" ~ "4",   # Grupo 3 vai para o grupo 4
+        V1016 == "4" ~ "5",   # Grupo 4 vai para o grupo 5
+        V1016 == "5" ~ "1",   # Grupo 5 vai para o grupo 1
+        TRUE ~ V1016          # Manter os demais inalterados
+      )
+    )
+  
+  return(df)
+}
+
+# Leitura
+
 teste3<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
+
+lapply(teste3, function(file_path) {
+  estimativas <- readRDS(file_path)  
+  estimativas_corrigida <- corrigir_rotacao(estimativas)  
+  saveRDS(estimativas_corrigida, file_path)  
+  paste("Desalinhamento corrigido em:", file_path)
+})
 
 data_list <- lapply(teste3, readRDS)
 
 base8trim <- lapply(data_list, funorg)
 
-result_comb <- do.call(rbind, lapply(base8trim, function(lista_trimestre) {
-  lapply(names(lista_trimestre), function(regiao) {
-    df <- lista_trimestre[[regiao]]
-    if (regiao == "11 - Minas Gerais") {
-      df[, c("periodo", "ocupada", "se_ocupada", "desocupada", "se_desocupada")]
-    } else {
-      df
-    }
-  }) %>% bind_rows()
-}))
 
-baseteste3<-split(result_comb, rep(names(base8trim[[1]]), each = 8))
+# Função para organização dos arquivos lidos
+
+comb <- function(list_of_dataframes) {
+  combined <- vector("list", length = 11)
+  names(combined) <- c(
+    "01-Belo Horizonte",
+    "02-Entorno metropolitano de BH",
+    "03-Colar metropolitano de BH",
+    "04-RIDE de Brasília em Minas",
+    "05-Sul de Minas",
+    "06-Triângulo Mineiro",
+    "07-Mata de Minas Gerais",
+    "08-Norte de Minas",
+    "09-Vale do Rio Doce",
+    "10-Central",
+    "11 - Minas Gerais"
+  )
+  
+  # Itera sobre cada lista de dataframes (um para cada trimestre)
+  for (df_list in list_of_dataframes) {
+    for (region_name in names(df_list)) {
+      if (is.null(combined[[region_name]])) {
+        combined[[region_name]] <- df_list[[region_name]]
+      } else {
+      combined[[region_name]] <- bind_rows(combined[[region_name]], df_list[[region_name]])
+      }
+    }
+  }
+  
+  # Ordena os dataframes de cada região pela coluna `periodo`
+  combined <- lapply(combined, function(df) {
+    df %>% arrange(periodo)
+  })
+  
+  return(combined)
+}
+
+baseteste3<-comb(base8trim)
+
+sapply(baseteste3, dim)
 
 
