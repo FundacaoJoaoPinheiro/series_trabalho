@@ -25,7 +25,7 @@ View(baseMG_k[["01-Belo Horizonte"]])
 
 
 ################################################################################
-### TESTANDO FUNÇÃO BASE DE ROTAÇÃO ATUALIZADA ATÉ O TERCEIRO TRIMESTRE DE 2024
+### FUNÇÃO BASE DE ROTAÇÃO ATUALIZADA ATÉ O TERCEIRO TRIMESTRE DE 2024
 
 ## Estabelecimento das variáveis:
     
@@ -38,8 +38,9 @@ View(baseMG_k[["01-Belo Horizonte"]])
   # Pode ser incluído na função ou separadamente
 
 
-### Função para os grupos de rotação:
+### Função para criar os arquivos .RDS por grupo de rotação:
 # Essa função segue os mesmos moldes da função que criou a base da PNADC no arquivo "2_PNADC 2T2024 RDS"
+# Primeiro, ela irá criar os .RDS de cada trimestre
 
 calcula_ocup_desocup_k<-function(mesano){
   pnadc <- pnadc_design(read_pnadc(
@@ -114,18 +115,10 @@ calcula_ocup_desocup_k<-function(mesano){
   
 }        
 
-################################################################################
-#### Teste para apenas um único trimestre
 
-# lista2<-c(012012)
-
-# sapply(lista2, function(i) calcula_ocup_desocup_k(i))
-
-teste1 <- readRDS("D:/FJP2425/Programacao/data/rotacao/resultados_012012.RDS")
-
-View(teste1)
-
-### Reorganizando o DF:
+#### Funções que reorganizam os dfs:"
+  ## Funorg -> organiza os dataframes conforme o formato do arquivo "baseMG_k"
+  ## Comb -> combina múiltiplos trimestres em um único arquivo e os organiza por estrato
 
 funorg <- function(df) {
   
@@ -145,13 +138,7 @@ funorg <- function(df) {
       names_from = V1016,
       values_from = c(ocupada, se_ocupada, desocupada, se_desocupada),
       names_glue = "{.value}_{V1016}"
-    ) %>%
-    select(-regioes) %>%
-    relocate(
-      order(colnames(.) %in% c("ocupada_", "se_ocupada_", "desocupada_", "se_desocupada_")),
-      .after = periodo
-    ) %>%
-    arrange(periodo)
+    )
   
   ## Separando os dados por região:
   regioes_split <- split(regioes_df, df$regioes[!is.na(df$regioes)])
@@ -161,54 +148,6 @@ funorg <- function(df) {
   
   return(regioes_split)
 }
-
-baserot012012 <-funorg(teste1)
-
-
-
-################################################################################
-#### TESTE PARA TRÊS TRIMESTRES
-
-lista3<-c(012012,022012,032012)
-
-sapply(lista3, function(i) calcula_ocup_desocup_k(i))
-
-
-## Correção do desalinhamento -> se necessário
-
-corrigir_rotacao <- function(df) {
-  df <- df %>%
-    mutate(
-      V1016 = case_when(
-        V1016 == "1" ~ "2",   # Grupo 1 vai para o grupo 2
-        V1016 == "2" ~ "3",   # Grupo 2 vai para o grupo 3
-        V1016 == "3" ~ "4",   # Grupo 3 vai para o grupo 4
-        V1016 == "4" ~ "5",   # Grupo 4 vai para o grupo 5
-        V1016 == "5" ~ "1",   # Grupo 5 vai para o grupo 1
-        TRUE ~ V1016          # Manter os demais inalterados
-      )
-    )
-  
-  return(df)
-}
-
-# Leitura
-
-teste3<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
-
-lapply(teste3, function(file_path) {
-  estimativas <- readRDS(file_path)  
-  estimativas_corrigida <- corrigir_rotacao(estimativas)  
-  saveRDS(estimativas_corrigida, file_path)  
-  paste("Desalinhamento corrigido em:", file_path)
-})
-
-data_list <- lapply(teste3, readRDS)
-
-base8trim <- lapply(data_list, funorg)
-
-
-# Função para organização dos arquivos lidos
 
 comb <- function(list_of_dataframes) {
   combined <- vector("list", length = 11)
@@ -232,7 +171,7 @@ comb <- function(list_of_dataframes) {
       if (is.null(combined[[region_name]])) {
         combined[[region_name]] <- df_list[[region_name]]
       } else {
-      combined[[region_name]] <- bind_rows(combined[[region_name]], df_list[[region_name]])
+        combined[[region_name]] <- bind_rows(combined[[region_name]], df_list[[region_name]])
       }
     }
   }
@@ -244,6 +183,33 @@ comb <- function(list_of_dataframes) {
   
   return(combined)
 }
+
+
+
+################################################################################
+#### Teste para apenas um único trimestre
+
+# lista2<-c(012012)
+
+# sapply(lista2, function(i) calcula_ocup_desocup_k(i))
+
+teste1 <- readRDS("D:/FJP2425/Programacao/data/rotacao/resultados_012012.RDS")
+
+View(teste1)
+
+
+################################################################################
+#### TESTE PARA TRÊS TRIMESTRES
+
+lista3<-c(012012,022012,032012)
+
+sapply(lista3, function(i) calcula_ocup_desocup_k(i))
+
+teste3<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
+
+data_list <- lapply(teste3, readRDS)
+
+base8trim <- lapply(data_list, funorg)
 
 baseteste3<-comb(base8trim)
 
