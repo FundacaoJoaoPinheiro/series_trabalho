@@ -118,40 +118,9 @@ calcula_ocup_desocup_k<-function(mesano){
 
 #### Funções que reorganizam os dfs:"
   ## Funorg -> organiza os dataframes conforme o formato do arquivo "baseMG_k"
-  ## Comb -> combina múiltiplos trimestres em um único arquivo e os organiza por estrato
 
-funorg <- function(df) {
-  
-  ## Total MG (sem rotação):
-  
-  total_mg <- df %>%
-    filter(is.na(V1016)) %>%
-    select(periodo, ocupada, se_ocupada, desocupada, se_desocupada) %>%
-    mutate(regioes = "11 - Minas Gerais") %>% 
-    select(-6)
-  
-  ## Regiões:
-  
-  regioes_df <- df %>%
-    filter(!is.na(V1016)) %>%
-    pivot_wider(
-      names_from = V1016,
-      values_from = c(ocupada, se_ocupada, desocupada, se_desocupada),
-      names_glue = "{.value}_{V1016}"
-    )
-  
-  ## Separando os dados por região:
-  regioes_split <- split(regioes_df, df$regioes[!is.na(df$regioes)])
-  
-  ## Incluindo o total de Minas Gerais no resultado final:
-  regioes_split[["11 - Minas Gerais"]] <- total_mg
-  
-  return(regioes_split)
-}
-
-comb <- function(list_of_dataframes) {
-  combined <- vector("list", length = 11)
-  names(combined) <- c(
+funorg <- function(data_list) {
+  regioes <- c(
     "01-Belo Horizonte",
     "02-Entorno metropolitano de BH",
     "03-Colar metropolitano de BH",
@@ -165,25 +134,63 @@ comb <- function(list_of_dataframes) {
     "11 - Minas Gerais"
   )
   
-  # Itera sobre cada lista de dataframes (um para cada trimestre)
-  for (df_list in list_of_dataframes) {
-    for (region_name in names(df_list)) {
-      if (is.null(combined[[region_name]])) {
-        combined[[region_name]] <- df_list[[region_name]]
-      } else {
-        combined[[region_name]] <- bind_rows(combined[[region_name]], df_list[[region_name]])
-      }
-    }
+  # Definição das colunas esperadas
+  colunas_esperadas <- c(
+    "periodo",
+    paste0(rep(c("ocupada_", "se_ocupada_"), each = 5), 1:5),
+    paste0(rep(c("desocupada_", "se_desocupada_"), each = 5), 1:5)
+  )
+  
+  resultados <- list()
+  
+  for (regiao in regioes[1:10]) {
+    dados_regiao <- lapply(data_list, function(df) df[df$regioes == regiao, ])
+    
+    # Por V1016
+    df_regiao <- do.call(rbind, lapply(dados_regiao, function(df) {
+      
+      ## Organização para se assemelhar ao formato do baseMG_k
+      wide_data <- reshape(
+        df,
+        idvar = "periodo",
+        timevar = "V1016",
+        direction = "wide",
+        sep = "_"
+      )
+      
+          # Mudando os nomes
+      colnames(wide_data) <- gsub("\\.ocupada", "ocupada", colnames(wide_data))
+      colnames(wide_data) <- gsub("\\.se\\.ocupada", "se_ocupada", colnames(wide_data))
+      colnames(wide_data) <- gsub("\\.desocupada", "desocupada", colnames(wide_data))
+      colnames(wide_data) <- gsub("\\.se\\.desocupada", "se_desocupada", colnames(wide_data))
+      
+          # Lidando com NAs (caso necessário)
+      colunas_faltantes <- setdiff(colunas_esperadas, colnames(wide_data))
+      wide_data[colunas_faltantes] <- NA
+      
+          # Reordenação
+      wide_data <- wide_data[, colunas_esperadas, drop = FALSE]
+      
+      return(wide_data)
+    }))
+    
+    # Ordenar as linhas pelos trimestres
+    df_regiao <- df_regiao[order(df_regiao$periodo), ]
+    
+    resultados[[regiao]] <- df_regiao
   }
   
-  # Ordena os dataframes de cada região pela coluna `periodo`
-  combined <- lapply(combined, function(df) {
-    df %>% arrange(periodo)
-  })
+  # Sublista para o total MG e organização final
   
-  return(combined)
+  dados_totais <- lapply(data_list, function(df) df[df$regioes == "11 - Minas Gerais", ])
+  df_total <- do.call(rbind, dados_totais)
+  df_total <- df_total[, !colnames(df_total) %in% "V1016"]
+  df_total <- df_total[, c("periodo", "ocupada", "se_ocupada", "desocupada", "se_desocupada")]
+  df_total <- df_total[order(df_total$periodo), ]
+  resultados[["11 - Minas Gerais"]] <- df_total
+  
+  return(resultados)
 }
-
 
 
 ################################################################################
@@ -203,16 +210,30 @@ View(teste1)
 
 lista3<-c(012012,022012,032012)
 
-sapply(lista3, function(i) calcula_ocup_desocup_k(i))
+#sapply(lista3, function(i) calcula_ocup_desocup_k(i))
 
 teste3<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
 
 data_list <- lapply(teste3, readRDS)
 
-base8trim <- lapply(data_list, funorg)
+teste3a<-funorg(data_list)
 
-baseteste3<-comb(base8trim)
 
-sapply(baseteste3, dim)
+################################################################################
+#### TESTE PARA DEZESSEIS TRIMESTRES
+
+lista4<-c(012012,012013,012014,012015,
+          022012,022013,022014,022015,
+          032012,032013,032014,032015,
+          042012,042013,042014,042015)
+
+# sapply(lista4, function(i) calcula_ocup_desocup_k(i))
+
+teste4<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
+
+data_list16 <- lapply(teste4, readRDS)
+
+teste4a<-funorg(data_list16)
+
 
 
