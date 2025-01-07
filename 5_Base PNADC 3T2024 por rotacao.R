@@ -194,6 +194,27 @@ funorg <- function(data_list) {
 
 
 ################################################################################
+#### Montagem da base:
+
+#lista<-lista <- c(012012,012013,012014,012015,012016,012017,012018,012019,012020,012021,012022,012023,012024,
+#                  022012,022013,022014,022015,022016,022017,022018,022019,022020,022021,022022,022023,022024,
+#                  032012,032013,032014,032015,032016,032017,032018,032019,032020,032021,032022,032023,032024,
+#                  042012,042013,042014,042015,042016,042017,042018,042019,042020,042021,042022,042023)
+
+# sapply(lista, function(i) calcula_ocup_desocup_k(i))
+
+dados<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
+
+lista_dados<-lapply(dados, readRDS)
+
+baserot0324<-funorg(lista_dados)
+
+saveRDS(baserot0324, file = "D:/FJP2425/Programacao/data/baserot0324.rds")
+
+leitura<-readRDS("D:/FJP2425/Programacao/data/baserot0324.RDS")
+
+
+################################################################################
 #### Teste para apenas um único trimestre
 
 # lista2<-c(012012)
@@ -234,6 +255,7 @@ teste4<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
 data_list16 <- lapply(teste4, readRDS)
 
 teste4a<-funorg(data_list16)
+
 
 
 
