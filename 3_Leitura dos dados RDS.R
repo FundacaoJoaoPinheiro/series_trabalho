@@ -966,3 +966,12 @@ cvmedestratos2 <- lapply(estratos, function(df) {
 print(cvmedestratos2)
 
 
+### SALVANDO ARQUIVO LISTA #####################################################
+
+baseestr0324<-list("01-Belo Horizonte"=bh,"02-Entorno metropolitano de BH"=entornobh,"03-Colar metropolitano de BH"=colarbh,
+                   "04-RIDE de Brasília em Minas"=RIDE, "05-Sul de Minas"=sulmg, "06-Triângulo Mineiro"=trng,
+                   "07-Mata de Minas Gerais"=zonamata, "08-Norte de Minas"=nortemg, "09-Vale do Rio Doce"=riodoce,
+                   "10-Central"=central, "11 - Minas Gerais"=mg)
+
+saveRDS(baseestr0324,file = "D:/FJP2425/Programacao/data/baseestr0324.rds")
+
