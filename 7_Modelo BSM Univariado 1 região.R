@@ -7,6 +7,10 @@ library(tidyverse)
 library(beepr)
 library(parallel)
 
+### BELO HORIZONTE - OCUPADA ###################################################
+
+### TESTE INICIAL - MODELO "POR EXTENSO" #######################################
+
 ## Funções
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
@@ -14,12 +18,6 @@ source("data/funcoes/02_modelo_bsm.R")
 source("data/funcoes/03_modelo_bsm_error.R")
 source("data/funcoes/04_modelo_bsm_error_1.R")
 source("data/funcoes/05_teste_H.R")
-
-
-
-### BELO HORIZONTE - OCUPADA ###################################################
-
-  #### TESTE INICIAL - MODELO "POR EXTENSO"
 
 ## Carregando bases e definindo objeto para BH
 
@@ -216,49 +214,86 @@ summary(a$irregular)
 modelo_bsm<- modelos_bsm_ini[[which(a$log_like==min(a$log_like,na.rm = TRUE))]]
 
 
+### TESTE MODELO UTILIZANDO DIRETAMENTE A FUNÇÃO ###############################
 
-# Estatísticas de interesse
+rm(list = ls())
 
-## Processamento paralelo e criação de clusters
+## Funções
 
-numCores<-detectCores()
-numCores
+source("data/funcoes/01_funcoes_pseudo_erro.R")
+source("data/funcoes/02_modelo_bsm.R")
+source("data/funcoes/03_modelo_bsm_error.R")
+source("data/funcoes/04_modelo_bsm_error_1.R")
+source("data/funcoes/05_teste_H.R")
 
-cl<- makeCluster(numCores-1)
+## Carregando bases e definindo objeto para BH
+
+baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
+bh<-baseestr0324$`01-Belo Horizonte`
+baserot <- readRDS("D:/FJP2425/Programacao/data/baserot0324.RDS")
+dtbh<-baserot$`01-Belo Horizonte` ## Arquivo "cru", saída direta da rotina da base por rotação
+dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/01_params_bh.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+
+## Definindo variáveis e inputs:
+
+y <- bh$Total.de.ocupados
+se_db <- bh$sd_o
+cv_db <- bh$CV.ocupados
+par_ar_erro <- dbbh$parerro_o
+plot(y, type="l")
+plot(cv_db*100, type="l")
+
+## Estipulando parâmetros iniciais:
+  # Conforme recomendação, estipulando inicialmente seq(1)
+  # Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
+
+par_1<-seq(-6,6,3)
+par_2<-seq(-6,6,3)
+par_3<-seq(-6,6,3)
+par_4<-c(0)
 
 
-## Salvamento de imagem:
+## Possibilidades do modelo
 
-save.image("partial.Rdata")
+grid <- expand.grid(par_1,par_2,par_3)
+grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
+comb1 <- expand.grid(par_1, par_2, par_3)
+colnames(comb1) <- c("par_1", "par_2", "par_3")
 
-## Uso da imagem nos clusters
-
-clusterEvalQ(cl,{load("partial.Rdata")
-  library(dlm)
-})
-
+comb2<-expand.grid(par_1, par_2, par_3, par_4)
+colnames(comb2) <- c("par_1", "par_2", "par_3", "par_4")
 
 ## Start nos modelos:
 
+# Por que ao rodar com apenas 3 parâmetros temos um erro no modelo?
+
 start_time <- Sys.time()
-modelos_bsm_ini<-parLapply(cl,1:nrow(grid), function(i)  tryCatch(f.modelo_bsm(y,grid[i,]),error=function(e) {rep(NA,3)}))
+modelos_bsm_ini <- lapply(1:nrow(comb1), function(i) {
+  tryCatch({
+    linha <- as.numeric(comb1[i, ])
+    f.modelo_bsm(y, linha)
+  }, error = function(e) {
+    rep(NA, 3)
+  })
+})
+end_time <- Sys.time()
+print(end_time - start_time)
+
+start_time <- Sys.time()
+modelos_bsm_ini <- lapply(1:nrow(grid), function(i) tryCatch(f.modelo_bsm(y, grid[i, ]), error = function(e) rep(NA, 3)))
 end_time <- Sys.time()
 end_time - start_time
 
 start_time <- Sys.time()
-modelos_bsm_error_ini<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.modelo_bsm_error(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+modelos_bsm_error_ini <- lapply(1:nrow(grid_error), function(i) tryCatch(f.modelo_bsm_error(y, grid_error[i, ]), error = function(e) rep(NA, 4)))
 end_time <- Sys.time()
 end_time - start_time
 
 start_time <- Sys.time()
-modelos_bsm_error_1_ini<-parLapply(cl,1:nrow(grid), function(i)  tryCatch(f.modelo_bsm_error_1(y,grid[i,]),error=function(e) {rep(NA,4)}))
+modelos_bsm_error_1_ini <- lapply(1:nrow(grid), function(i) tryCatch(f.modelo_bsm_error_1(y, grid[i, ]), error = function(e) rep(NA, 4)))
 end_time <- Sys.time()
 end_time - start_time
-
-# stop cluster
-stopCluster(cl)
-showConnections()
 
 
 ## Etapa de avaliação:
