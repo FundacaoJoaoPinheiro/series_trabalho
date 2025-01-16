@@ -69,7 +69,7 @@ modelo<- list("fn"=function(params){
   return(m)
 })
 
-i0 <- as.numeric(grid_error[1, ])
+i0 <- as.numeric(grid_error[1, ]) # Com três parâmetros, a função também deu erro
 
 modelo$initial<-i0
 
@@ -251,6 +251,7 @@ par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
 par_3<-seq(-6,6,3)
 par_4<-c(0)
+par_5<-c(1)
 
 
 ## Possibilidades do modelo
@@ -258,20 +259,25 @@ par_4<-c(0)
 grid <- expand.grid(par_1,par_2,par_3)
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
+# No momento, essa repetição foi feita para realizar testes ao longo do código
+
 comb1 <- expand.grid(par_1, par_2, par_3)
 colnames(comb1) <- c("par_1", "par_2", "par_3")
 
 comb2<-expand.grid(par_1, par_2, par_3, par_4)
 colnames(comb2) <- c("par_1", "par_2", "par_3", "par_4")
 
+comb3<-expand.grid(par_1, par_2, par_3, par_4, par_5)
+colnames(comb3) <- c("par_1", "par_2", "par_3", "par_4","par_5")
+
 ## Start nos modelos:
 
-# Por que ao rodar com apenas 3 parâmetros temos um erro no modelo?
+# Por que ao rodar com apenas 3 parâmetros temos um erro no primeiro modelo?
 
 start_time <- Sys.time()
-modelos_bsm_ini <- lapply(1:nrow(comb1), function(i) {
+modelos_bsm_ini <- lapply(1:nrow(comb2), function(i) {
   tryCatch({
-    linha <- as.numeric(comb1[i, ])
+    linha <- as.numeric(comb2[i, ])
     f.modelo_bsm(y, linha)
   }, error = function(e) {
     rep(NA, 3)
@@ -280,33 +286,43 @@ modelos_bsm_ini <- lapply(1:nrow(comb1), function(i) {
 end_time <- Sys.time()
 print(end_time - start_time)
 
-start_time <- Sys.time()
-modelos_bsm_ini <- lapply(1:nrow(grid), function(i) tryCatch(f.modelo_bsm(y, grid[i, ]), error = function(e) rep(NA, 3)))
-end_time <- Sys.time()
-end_time - start_time
+# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
+  # Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
 
 start_time <- Sys.time()
-modelos_bsm_error_ini <- lapply(1:nrow(grid_error), function(i) tryCatch(f.modelo_bsm_error(y, grid_error[i, ]), error = function(e) rep(NA, 4)))
+modelos_bsm_error_ini <- lapply(1:nrow(comb3), function(i){
+  tryCatch({
+    linha <-as.numeric(comb3[i, ])
+    f.modelo_bsm_error(y,linha)
+  }, error = function(e){
+    rep(NA,4)
+  })
+})
 end_time <- Sys.time()
-end_time - start_time
+print(end_time - start_time)
 
 start_time <- Sys.time()
-modelos_bsm_error_1_ini <- lapply(1:nrow(grid), function(i) tryCatch(f.modelo_bsm_error_1(y, grid[i, ]), error = function(e) rep(NA, 4)))
+modelos_bsm_error_1_ini <- lapply(1:nrow(comb3), function(i){
+  tryCatch({
+    linha <-as.numeric(comb3[i, ])
+    f.modelo_bsm_error_1(y,linha)
+  }, error = function(e){
+    rep(NA,4)
+  })
+})
 end_time <- Sys.time()
-end_time - start_time
+print(end_time - start_time)
 
 
 ## Etapa de avaliação:
   # Hiperparâmetros iniciais vs estimados
   # Convergência
 
-a <- cbind(round(exp(grid),4),
-           t(sapply(1:nrow(grid), function(i) tryCatch( c(round(exp(modelos_bsm_ini[[i]][["fit"]][["par"]]),4),
+a <- cbind(round(exp(comb2),4),
+           t(sapply(1:nrow(comb2), function(i) tryCatch( c(round(exp(modelos_bsm_ini[[i]][["fit"]][["par"]]),4),
                                                           modelos_bsm_ini[[i]][["fit"]][["convergence"]],
                                                           modelos_bsm_ini[[i]][["fit"]][["value"]]),error=function(e) {rep(NA,6)})))
 )
-  ## Em "a", foi necessário mudar o número de colunas para 7 para igualar o vetor de nomes
-
 colnames(a) <- c("level_ini","slope_ini","seasonal_ini","irregual_ini",
                  "level","slope","seasonal","irregular",
                  "convergence","log_like")
@@ -327,5 +343,154 @@ boxplot(a$irregular)
 summary(a$irregular)
 
 
+b <- cbind(round(exp(comb3),4),
+           t(sapply(1:nrow(comb3), function(i) tryCatch( c(round(exp(modelos_bsm_error_ini[[i]][["fit"]][["par"]]),4),
+                                                                modelos_bsm_error_ini[[i]][["fit"]][["convergence"]],
+                                                                modelos_bsm_error_ini[[i]][["fit"]][["value"]]),error=function(e) {rep(NA,7)})))
+)
+colnames(b) <- c("level_ini","slope_ini","seasonal_ini","irregual_ini","sampl_error_ini",
+                 "level","slope","seasonal","irregular", "sampl_error",
+                 "convergence","log_like")
+hist(b$level)
+boxplot(b$level)
+summary(b$level)
+
+hist(b$slope)
+boxplot(b$slope)
+summary(b$slope)
+
+hist(b$seasonal)
+boxplot(b$seasonal)
+summary(b$seasonal)
+
+hist(b$irregular)
+boxplot(b$irregular)
+summary(b$irregular)
+
+hist(b$sampl_error)
+boxplot(b$sampl_error)
+summary(b$sampl_error)
+
+
+c <- cbind(round(exp(grid),4),
+           t(sapply(1:nrow(grid), function(i) tryCatch( c(round(exp(modelos_bsm_error_1_ini[[i]][["fit"]][["par"]]),4),
+                                                          modelos_bsm_error_1_ini[[i]][["fit"]][["convergence"]],
+                                                          modelos_bsm_error_1_ini[[i]][["fit"]][["value"]]),error=function(e) {rep(NA,6)})))
+)
+colnames(c) <- c("level_ini","slope_ini","seasonal_ini","irregual_ini",
+                 "level","slope","seasonal","irregular",
+                 "convergence","log_like")
+hist(c$level)
+boxplot(c$level)
+summary(c$level)
+
+hist(c$slope)
+boxplot(c$slope)
+summary(c$slope)
+
+hist(c$seasonal)
+boxplot(c$seasonal)
+summary(c$seasonal)
+
+hist(c$irregular)
+boxplot(c$irregular)
+summary(c$irregular)
+
+### Observação: no momento, o código não está rodando o modelo "c". A partir desse ponto,
+    # a rotina foi alterada retirando esse modelo e seus resultados
+
+## Estimação dos modelos após valores iniciais
+
+modelo_bsm<- modelos_bsm_ini[[which(a$log_like==min(a$log_like,na.rm = TRUE))]]
+modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
+# modelo_bsm_error_1<- modelos_bsm_error_1_ini[[which(c$log_like==min(c$log_like,na.rm = TRUE))]]
+
+
+## Verificando a convergência
+
+convergencia<-rbind(modelo_bsm$fit$convergence,
+                    modelo_bsm_error$fit$convergence
+)
+
+colnames(convergencia)<-c("convergence")
+
+
+## Parâmetros estimados:
+
+parametros<-rbind(c(round(exp(modelo_bsm$fit$par),4),NA),
+                  c(round(exp(modelo_bsm_error$fit$par),4))
+)
+row.names(parametros)<-c(
+  "BSM",
+  "BSM_error"
+)
+colnames(parametros)<-c("Level","Slope","Seasonal","Irregular","Sampling Error")
+
+# Critérios de informação: AIC e BIC
+
+AIC<-rbind(
+  2*(modelo_bsm$fit$value)+2*4,
+  2*(modelo_bsm_error$fit$value)+2*5)
+colnames(AIC)<-"AIC"
+
+#BIC<-rbind(
+#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error_1$T),
+#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T),
+#  2*(modelo_bsm_error_1$fit$value)+2*4*log(modelo_bsm_error_1$T))
+#colnames(BIC)<-"BIC"
+
+
+# Avaliando a matriz hessiana
+  # Deve ser positiva definida
+
+all(eigen(modelo_bsm$fit$hessian, only.values = TRUE)$values > 0)
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0)
+#all(eigen(modelo_bsm_error_1$fit$hessian, only.values = TRUE)$values > 0)
+
+# Diagnosticando os resíduos
+
+lista_modelos<-list( modelo_bsm,
+                     modelo_bsm_error)
+testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
+row.names(testes)<-c(
+  "BSM",
+  "BSM_error")
+colnames(testes)<-c("Shapiro","Box","H")
+
+resultados<-cbind(convergencia,parametros,testes, AIC, BIC)
+resultados
+
+#save.image(paste("results/modelo3_D_",RG,"_1T2023.RData",sep=""))
+#write.csv(resultados,paste("results/modelo3_D_resultados_",RG,"_1T2023.csv",sep=""))
+
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Design-based unemployment",
+                             "Signal model-based unemployment",
+                             "Trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_bsm_error$cv.original*100,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV design-based unemployment",
+                              "CV signal model-based unemployment",
+                              "CV trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
 
 
