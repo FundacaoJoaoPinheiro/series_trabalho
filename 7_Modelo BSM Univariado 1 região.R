@@ -45,12 +45,25 @@ par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
 par_3<-seq(-6,6,3)
 par_4<-c(0)
+par_5<-c(1)
 
+## Possibilidades do modelo
 
 ## Possibilidades do modelo
 
 grid <- expand.grid(par_1,par_2,par_3)
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
+
+# No momento, essa repetição foi feita para realizar testes ao longo do código
+
+comb1 <- expand.grid(par_1, par_2, par_3)
+colnames(comb1) <- c("par_1", "par_2", "par_3")
+
+comb2<-expand.grid(par_1, par_2, par_3, par_4)
+colnames(comb2) <- c("par_1", "par_2", "par_3", "par_4")
+
+comb3<-expand.grid(par_1, par_2, par_3, par_4, par_5)
+colnames(comb3) <- c("par_1", "par_2", "par_3", "par_4","par_5")
 
 
 ## Início do estudo da função
@@ -69,7 +82,7 @@ modelo<- list("fn"=function(params){
   return(m)
 })
 
-i0 <- as.numeric(grid_error[1, ]) # Com três parâmetros, a função também deu erro
+#i0 <- as.numeric(comb2[1, ]) # Com três parâmetros, a função também deu erro
 
 modelo$initial<-i0
 
@@ -225,6 +238,10 @@ source("data/funcoes/02_modelo_bsm.R")
 source("data/funcoes/03_modelo_bsm_error.R")
 source("data/funcoes/04_modelo_bsm_error_1.R")
 source("data/funcoes/05_teste_H.R")
+source("data/funcoes/06_teste_bsm.R")
+source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/08_teste_bsm_error_1.R")
+
 
 ## Carregando bases e definindo objeto para BH
 
@@ -240,18 +257,18 @@ y <- bh$Total.de.ocupados
 se_db <- bh$sd_o
 cv_db <- bh$CV.ocupados
 par_ar_erro <- dbbh$parerro_o
-plot(y, type="l")
-plot(cv_db*100, type="l")
+#plot(y, type="l")
+#plot(cv_db*100, type="l")
 
 ## Estipulando parâmetros iniciais:
   # Conforme recomendação, estipulando inicialmente seq(1)
   # Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
 
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0)
-par_5<-c(1)
+par_1<-seq(-6,6,6)
+par_2<-seq(-6,6,6)
+par_3<-seq(-6,6,6)
+par_4<-seq(-6,6,6) # estava: c(0)
+par_5<-seq(-6,6,6) # Para teste # Estava: c(1)
 
 
 ## Possibilidades do modelo
@@ -270,7 +287,52 @@ colnames(comb2) <- c("par_1", "par_2", "par_3", "par_4")
 comb3<-expand.grid(par_1, par_2, par_3, par_4, par_5)
 colnames(comb3) <- c("par_1", "par_2", "par_3", "par_4","par_5")
 
-## Start nos modelos:
+numCores<-detectCores()
+numCores
+
+# criando clusters
+cl<- makeCluster(numCores-1)
+
+# salva imagem
+save.image("partial.Rdata")
+
+# envia dados para cada um dos cluster
+clusterEvalQ(cl,{load("partial.Rdata")
+  library(dlm)
+})
+
+## Modelos com processamento paralelo
+
+# Primeiro modelo: por que ao rodar com apenas 3 parâmetros temos um erro no primeiro modelo?
+
+start_time <- Sys.time()
+modelos_bsm_ini<-parLapply(cl,1:nrow(comb2), function(i)  tryCatch(f.teste_bsm(y,comb2[i,]),error=function(e) {rep(NA,3)}))
+end_time <- Sys.time()
+end_time - start_time
+
+# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
+  # Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
+
+start_time <- Sys.time()
+modelos_bsm_error_ini<-parLapply(cl,1:nrow(comb3), function(i)  tryCatch(f.modelo_bsm_error(y,comb3[i,]),error=function(e) {rep(NA,4)}))
+end_time <- Sys.time()
+end_time - start_time
+
+# Terceiro modelo:
+  # Maior tempo de processamento
+
+start_time <- Sys.time()
+modelos_bsm_error_1_ini<-parLapply(cl,1:nrow(comb3), function(i)  tryCatch(f.modelo_bsm_error_1(y,comb3[i,]),error=function(e) {rep(NA,4)}))
+end_time <- Sys.time()
+end_time - start_time
+
+# stop cluster
+stopCluster(cl)
+showConnections()
+
+
+## Modelos sem processamento paralelo:
+  # Essas linhas também são opção para o caso em que o objeto "grid" apresente algum erro
 
 # Por que ao rodar com apenas 3 parâmetros temos um erro no primeiro modelo?
 
@@ -285,9 +347,6 @@ modelos_bsm_ini <- lapply(1:nrow(comb2), function(i) {
 })
 end_time <- Sys.time()
 print(end_time - start_time)
-
-# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
-  # Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
 
 start_time <- Sys.time()
 modelos_bsm_error_ini <- lapply(1:nrow(comb3), function(i){
