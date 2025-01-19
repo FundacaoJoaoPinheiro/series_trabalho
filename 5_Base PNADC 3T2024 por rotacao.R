@@ -195,6 +195,7 @@ funorg <- function(data_list) {
 
 ################################################################################
 #### Montagem da base:
+  # Alguns comandos estão ocultados por conta da fase de testes
 
 #lista<-lista <- c(012012,012013,012014,012015,012016,012017,012018,012019,012020,012021,012022,012023,012024,
 #                  022012,022013,022014,022015,022016,022017,022018,022019,022020,022021,022022,022023,022024,
@@ -203,15 +204,149 @@ funorg <- function(data_list) {
 
 # sapply(lista, function(i) calcula_ocup_desocup_k(i))
 
-dados<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
+# dados<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
 
-lista_dados<-lapply(dados, readRDS)
+# lista_dados<-lapply(dados, readRDS)
 
-baserot0324<-funorg(lista_dados)
+# baserot0324<-funorg(lista_dados)
 
-saveRDS(baserot0324, file = "D:/FJP2425/Programacao/data/baserot0324.rds")
+# saveRDS(baserot0324, file = "D:/FJP2425/Programacao/data/baserot0324.rds")
 
-leitura<-readRDS("D:/FJP2425/Programacao/data/baserot0324.RDS")
+datarot<-readRDS("D:/FJP2425/Programacao/data/baserot0324.RDS")
+
+### AJUSTE DE DESALINHAMENTO DA BASE ###########################################
+
+## O primeiro passo é dividir a base nos seguintes subgrupos:
+  # Ocupada; se_ocupada; desocupada; se_desocupada
+    # Importante para aplicar a função org posteriormente
+
+ocupada <- lapply(datarot[-11], function(sublista) {
+  sublista[, grepl("^ocupada_", names(sublista))]
+})
+
+se_ocupada <- lapply(datarot[-11], function(sublista) {
+  sublista[, grep("^se_ocupada_", colnames(sublista))]
+})
+
+desocupada<- lapply(datarot[-11], function(sublista) {
+  sublista[, grep("^desocupada_", colnames(sublista))]
+})
+
+se_desocupada<- lapply(datarot[-11], function(sublista) {
+  sublista[, grep("^se_desocupada_", colnames(sublista))]
+})
+
+  # Fazendo o mesmo para baseMG_k para verificação posterior:
+
+ocMG_k <- lapply(baseMG_k, function(sublista) {
+  sublista[, grepl("^ocupada.", names(sublista))]
+})
+
+desMG_k <- lapply(baseMG_k, function(sublista) {
+  sublista[, grepl("^desocupada.", names(sublista))]
+})
+
+
+## Transformando essas novas bases em numéricas:
+
+ocupada <- lapply(ocupada, as.matrix)
+
+se_ocupada <- lapply(se_ocupada, as.matrix)
+
+desocupada <- lapply(desocupada, as.matrix)
+
+se_desocupada <- lapply(se_desocupada, as.matrix)
+
+## a<-as.matrix(baserot0324[["01-Belo Horizonte"]][,2:6])%*%diag(5)
+
+## a <- as.matrix(as.data.frame(lapply(baserot0324[["01-Belo Horizonte"]][, 2:6], as.numeric)))
+
+
+## Criando a função para alinhar o banco de dados:
+
+# Criando a matriz identidade de tamanho 5
+identity_matrix <- diag(5)
+
+# Número de vezes que queremos repetir a diagonal
+repetitions <- 20
+
+t <- nrow(datarot$`01-Belo Horizonte`)
+
+# Repetindo as diagonais uma embaixo da outra
+
+organiza_base<-function(matriz){
+  org <- do.call(rbind, replicate(repetitions, identity_matrix, simplify = FALSE))
+  org1<- org[1:t,] # Aqui é uma generalização
+  org2<- org[2:(t+1),]
+  org3<- org[3:(t+2),]
+  org4<- org[4:(t+3),]
+  org5<- org[5:(t+4),]
+  
+  col1<-rowSums(matriz*org1)
+  col2<-rowSums(matriz*org2)
+  col3<-rowSums(matriz*org3)
+  col4<-rowSums(matriz*org4)
+  col5<-rowSums(matriz*org5)
+  
+  
+  matrizfinal<-cbind(col1,col2,col3,col4,col5)
+  
+  return(matrizfinal)
+  
+}
+  
+ocuporg <- lapply(ocupada, function(sublista) {
+  resultado <- organiza_base(sublista)
+  colnames(resultado) <- c("ocupada_1", "ocupada_2", "ocupada_3", "ocupada_4", "ocupada_5")
+  return(resultado)
+})
+
+se_ocuporg <- lapply(se_ocupada, function(sublista) {
+  resultado <- organiza_base(sublista)
+  colnames(resultado) <- c("se_ocupada_1", "se_ocupada_2", "se_ocupada_3", "se_ocupada_4", "se_ocupada_5")
+  return(resultado)
+})
+
+desocuporg <- lapply(desocupada, function(sublista) {
+  resultado <- organiza_base(sublista)
+  colnames(resultado) <- c("desocupada_1", "desocupada_2", "desocupada_3", "desocupada_4", "desocupada_5")
+  return(resultado)
+})
+
+se_desocuporg <- lapply(se_desocupada, function(sublista) {
+  resultado <- organiza_base(sublista)
+  colnames(resultado) <- c("se_desocupada_1", "se_desocupada_2", "se_desocupada_3", "se_desocupada_4", "se_desocupada_5")
+  return(resultado)
+})
+
+
+# Juntando as 4 bases por região e adicionando o total MG:
+
+basetotal <- Map(cbind, ocuporg, se_ocuporg, desocuporg, se_desocuporg)
+
+a <- as.matrix(as.data.frame(lapply(datarot[["11 - Minas Gerais"]][, 2:5], as.numeric)))
+
+basetotal <- append(basetotal, list(a))
+
+names(basetotal)[11] <- "11 - Minas Gerais"
+
+basetotal <- lapply(basetotal, as.data.frame)
+
+
+# Adicionando novamente a coluna "periodo" e salvando o objeto
+
+periodo <- paste0(rep(2012:2024, each = 4), "Q", 1:4)
+periodo <- periodo[1:51]  # 51 Trimestres -> importante porque ainda não temos os dados do 4T2024
+
+# Adicionar a coluna "periodo" a cada sub-data.frame e posicioná-la na primeira posição
+basetotal <- lapply(basetotal, function(df) {
+  df <- cbind(periodo = periodo, df)
+  return(df)
+})
+
+saveRDS(basetotal, file = "D:/FJP2425/Programacao/data/basealinhada0324.rds")
+
+dados<-readRDS("D:/FJP2425/Programacao/data/basealinhada0324.rds")
 
 
 ################################################################################
