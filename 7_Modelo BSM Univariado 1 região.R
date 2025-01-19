@@ -18,6 +18,9 @@ source("data/funcoes/02_modelo_bsm.R")
 source("data/funcoes/03_modelo_bsm_error.R")
 source("data/funcoes/04_modelo_bsm_error_1.R")
 source("data/funcoes/05_teste_H.R")
+source("data/funcoes/06_teste_bsm.R")
+source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/08_teste_bsm_error_1.R")
 
 ## Carregando bases e definindo objeto para BH
 
@@ -33,8 +36,8 @@ y <- bh$Total.de.ocupados
 se_db <- bh$sd_o
 cv_db <- bh$CV.ocupados
 par_ar_erro <- dbbh$parerro_o
-plot(y, type="l")
-plot(cv_db*100, type="l")
+#plot(y, type="l")
+#plot(cv_db*100, type="l")
 
 
 ## Estipulando parâmetros iniciais:
@@ -65,6 +68,10 @@ colnames(comb2) <- c("par_1", "par_2", "par_3", "par_4")
 comb3<-expand.grid(par_1, par_2, par_3, par_4, par_5)
 colnames(comb3) <- c("par_1", "par_2", "par_3", "par_4","par_5")
 
+## Ajuste do formato dos valores iniciais para o modelo
+
+inicial <- as.matrix(comb2)
+
 
 ## Início do estudo da função
 
@@ -82,7 +89,7 @@ modelo<- list("fn"=function(params){
   return(m)
 })
 
-#i0 <- as.numeric(comb2[1, ]) # Com três parâmetros, a função também deu erro
+i0 <- inicial[1:75,] # Com três parâmetros, a função também deu erro
 
 modelo$initial<-i0
 
@@ -177,35 +184,22 @@ modelo$cv.sm.signal<- modelo$se.sm.signal/modelo$ts.sm.signal*100
 
 # Objeto para armazenar resultados:
 
-a <- cbind(
-  round(exp(grid_error), 4),  
-  t(sapply(1:nrow(grid_error), function(i) {
-    tryCatch({
-      
-      i0 <- as.numeric(grid_error[i, ])
-      
-      # Ajustando o modelo
-      modelo$initial <- i0
-      modelo$fit <- dlmMLE(y, modelo$initial, modelo$fn, hessian = TRUE, control = list(maxit = 10^8))
-      
-      # Coletando resultados
-      c(
-        round(exp(modelo$fit$par), 4),  
-        modelo$fit$convergence,       
-        modelo$fit$value               
-      )
-    }, error = function(e) {
-      rep(NA, 6)  # Retorna NA se houver erro
-    })
-  }))
+a<-data.frame(
+  level_ini = modelo$initial[,1],
+  slope_ini = modelo$initial[,2],  
+  seasonal_ini = modelo$initial[,3], 
+  irregular_ini = modelo$initial[,4],
+  
+  level = modelo$fit$par[,1],  
+  slope = modelo$fit$par[,2],  
+  seasonal = modelo$fit$par[,3], 
+  irregular = modelo$fit$par[,4],
+  
+  convergence = modelo$fit$convergence,
+  log_like = modelo$fit$value 
 )
 
-
-colnames(a) <- c(
-  "level_ini", "slope_ini", "seasonal_ini", "irregular_ini",  
-  "level", "slope", "seasonal", "irregular",                 
-  "convergence", "log_like"                                  
-)
+# Avaliações
 
 hist(a$level)
 boxplot(a$level)
@@ -224,7 +218,37 @@ boxplot(a$irregular)
 summary(a$irregular)
 
 
-modelo_bsm<- modelos_bsm_ini[[which(a$log_like==min(a$log_like,na.rm = TRUE))]]
+modelo_bsm<- modelo$fit$value # Falha: log_like apresentou um único resultado
+
+convergencia <- rbind (c(modelo$fit$convergence))
+
+parametros<-rbind(c(round(exp(modelo$fit$par),4),NA))
+
+row.names(parametros)<-c(
+  "BSM")
+
+# AIC e BIC
+AIC<-rbind(
+  2*(modelo$fit$value)+2*4)
+colnames(AIC)<-"AIC"
+
+#BIC<-rbind(
+#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error_1$T),
+#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T),
+#  2*(modelo_bsm_error_1$fit$value)+2*4*log(modelo_bsm_error_1$T))
+#colnames(BIC)<-"BIC"
+
+# verificar se é positiva definida
+
+all(eigen(modelo$fit$hessian, only.values = TRUE)$values > 0) # Nessa abordagem, não foi positiva definida. Talvez o erro esteja na otimização
+
+# Diagnóstico dos resíduos:
+
+testes<-sapply(modelo, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
 
 
 ### TESTE MODELO UTILIZANDO DIRETAMENTE A FUNÇÃO ###############################
@@ -264,11 +288,11 @@ par_ar_erro <- dbbh$parerro_o
   # Conforme recomendação, estipulando inicialmente seq(1)
   # Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
 
-par_1<-seq(-6,6,6)
-par_2<-seq(-6,6,6)
-par_3<-seq(-6,6,6)
-par_4<-seq(-6,6,6) # estava: c(0)
-par_5<-seq(-6,6,6) # Para teste # Estava: c(1)
+par_1<-seq(-6,6,3)
+par_2<-seq(-6,6,3)
+par_3<-seq(-6,6,3)
+par_4<-seq(0) # estava: c(0)
+par_5<-seq(0) # Para teste # Estava: c(1)
 
 
 ## Possibilidades do modelo
@@ -306,7 +330,7 @@ clusterEvalQ(cl,{load("partial.Rdata")
 # Primeiro modelo: por que ao rodar com apenas 3 parâmetros temos um erro no primeiro modelo?
 
 start_time <- Sys.time()
-modelos_bsm_ini<-parLapply(cl,1:nrow(comb2), function(i)  tryCatch(f.teste_bsm(y,comb2[i,]),error=function(e) {rep(NA,3)}))
+modelos_bsm_ini<-parLapply(cl,1:nrow(comb2), function(i)  tryCatch(f.teste_bsm(y,comb2[i,]),error=function(e) {rep(NA,3)})) # Posso desconsiderar
 end_time <- Sys.time()
 end_time - start_time
 
@@ -320,6 +344,7 @@ end_time - start_time
 
 # Terceiro modelo:
   # Maior tempo de processamento
+    # Também posso desconsiderar
 
 start_time <- Sys.time()
 modelos_bsm_error_1_ini<-parLapply(cl,1:nrow(comb3), function(i)  tryCatch(f.modelo_bsm_error_1(y,comb3[i,]),error=function(e) {rep(NA,4)}))
@@ -431,30 +456,6 @@ boxplot(b$sampl_error)
 summary(b$sampl_error)
 
 
-c <- cbind(round(exp(grid),4),
-           t(sapply(1:nrow(grid), function(i) tryCatch( c(round(exp(modelos_bsm_error_1_ini[[i]][["fit"]][["par"]]),4),
-                                                          modelos_bsm_error_1_ini[[i]][["fit"]][["convergence"]],
-                                                          modelos_bsm_error_1_ini[[i]][["fit"]][["value"]]),error=function(e) {rep(NA,6)})))
-)
-colnames(c) <- c("level_ini","slope_ini","seasonal_ini","irregual_ini",
-                 "level","slope","seasonal","irregular",
-                 "convergence","log_like")
-hist(c$level)
-boxplot(c$level)
-summary(c$level)
-
-hist(c$slope)
-boxplot(c$slope)
-summary(c$slope)
-
-hist(c$seasonal)
-boxplot(c$seasonal)
-summary(c$seasonal)
-
-hist(c$irregular)
-boxplot(c$irregular)
-summary(c$irregular)
-
 ### Observação: no momento, o código não está rodando o modelo "c". A partir desse ponto,
     # a rotina foi alterada retirando esse modelo e seus resultados
 
@@ -493,9 +494,8 @@ AIC<-rbind(
 colnames(AIC)<-"AIC"
 
 #BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error_1$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T),
-#  2*(modelo_bsm_error_1$fit$value)+2*4*log(modelo_bsm_error_1$T))
+#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error$T),
+#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T),
 #colnames(BIC)<-"BIC"
 
 
