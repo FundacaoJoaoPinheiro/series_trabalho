@@ -7,6 +7,7 @@ library(srvyr)
 library(dplyr)
 library(tidyr)
 library(tidyverse)
+library(forecast)
 
 options(scipen=999)
 
@@ -121,7 +122,6 @@ box()
 axis(1, cex.axis = 1)
 axis(2, cex.axis = 1)
 mtext("lag", side = 1, line = 3)}
-
 
 # Desocupada: autocov, fac e facp
 
