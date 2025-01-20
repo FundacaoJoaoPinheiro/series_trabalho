@@ -271,8 +271,8 @@ source("data/funcoes/08_teste_bsm_error_1.R")
 
 baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
 bh<-baseestr0324$`01-Belo Horizonte`
-baserot <- readRDS("D:/FJP2425/Programacao/data/baserot0324.RDS")
-dtbh<-baserot$`01-Belo Horizonte` ## Arquivo "cru", saída direta da rotina da base por rotação
+baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
+dtbh<-baseal0324$`01-Belo Horizonte` ## Arquivo "cru", saída direta da rotina da base por rotação
 dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/01_params_bh.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 ## Definindo variáveis e inputs:
@@ -292,7 +292,7 @@ par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
 par_3<-seq(-6,6,3)
 par_4<-seq(0) # estava: c(0)
-par_5<-seq(0) # Para teste # Estava: c(1)
+#par_5<-seq(0) # Para teste # Estava: c(1)
 
 
 ## Possibilidades do modelo
