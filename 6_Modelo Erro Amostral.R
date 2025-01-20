@@ -12,7 +12,7 @@ options(scipen=999)
 
 ## Leitura da base de dados:
 
-base <- readRDS("D:/FJP2425/Programacao/data/baserot0324.RDS")
+base <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
 
 ## Utilizando conjunto de funções já prontas para o script
 
@@ -28,7 +28,6 @@ dbbh<-base[["01-Belo Horizonte"]]
     # Foi necessário ajustar conforme a base
       # Por mais que o arqv baserot0324 seja semelhante ao baseMG_k, ele contém os erros padrão para cada
       # grupo de rotação
-
 
 colnames(dbbh)
 t = c(1:nrow(dbbh))
@@ -217,7 +216,7 @@ dbent$media_ocupada = dbent %>%  select(starts_with("ocupada")) %>%
 dbent$media_desocupada = dbent %>%  select(starts_with("desocupada")) %>%  
   replace(.==0, NA) %>%  rowMeans(.,na.rm = TRUE)
 
-View(dbent) #Verificação
+#View(dbent) #Verificação
 
 # Matriz de pseudo erros
 
@@ -233,7 +232,7 @@ dbent$pseudo3_desocupada = dbent$desocupada_3 - dbent$media_desocupada
 dbent$pseudo4_desocupada = dbent$desocupada_4 - dbent$media_desocupada
 dbent$pseudo5_desocupada = dbent$desocupada_5 - dbent$media_desocupada
 
-View(dbent)
+#View(dbent)
 
 # Ocupada: Autocov; FAC e FACP
 
@@ -249,7 +248,7 @@ clc_o_ent$Ch3 = Pcov2(dbent$pseudo3_ocupada, lag = lags + 1)
 clc_o_ent$Ch4 = Pcov2(dbent$pseudo4_ocupada, lag = lags + 1)
 clc_o_ent$Ch5 = Pcov2(dbent$pseudo5_ocupada, lag = lags + 1)
 
-View(clc_o_ent)
+#View(clc_o_ent)
 
       # Soma das autocovs dos pseudo-erros:
 
@@ -268,7 +267,7 @@ clc_o_ent$facp[2:25] = facp_acf(clc_o_ent$fac,lags)
 
 clc_o_ent$esttest = nrow(dbent)*clc_o_ent$facp ^ 2 
 clc_o_ent$pvalor = teste(clc_o_ent$facp,nrow(dbbh))
-View(clc_o_ent)
+#View(clc_o_ent)
 
           # Plots
 
