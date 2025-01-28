@@ -70,9 +70,9 @@ t_cvnrt_tx<-ts(dados$`08-Norte de Minas`$CV.taxa, start=c(2012,1), frequency = 4
 
 # Vale:
 
-t_cvvl_o<-ts(dados$`09-Vale do Rio Doce`$CV.ocupados, start=c(2012,1), frequency = 4)
-t_cvvl_d<-ts(dados$`09-Vale do Rio Doce`$CV.desocupados, start=c(2012,1), frequency = 4)
-t_cvvl_tx<-ts(dados$`09-Vale do Rio Doce`$CV.taxa, start=c(2012,1), frequency = 4)
+t_cvval_o<-ts(dados$`09-Vale do Rio Doce`$CV.ocupados, start=c(2012,1), frequency = 4)
+t_cvval_d<-ts(dados$`09-Vale do Rio Doce`$CV.desocupados, start=c(2012,1), frequency = 4)
+t_cvval_tx<-ts(dados$`09-Vale do Rio Doce`$CV.taxa, start=c(2012,1), frequency = 4)
 
 # Central:
 
@@ -168,179 +168,322 @@ plot.ts(a_cvbh_o*100,col = "black", xlab="Ano", ylab="CV(%)",main="01 - Belo Hor
 
 # Duplas:
 
+# Limites:
+
+y_min_o<- 0
+y_max_o<- 18
+
 # Ocupada
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvbh_o*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvbh_o,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("1 - Belo Horizonte (Total de Ocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvbh_o * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvbh_o, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("1 - Belo Horizonte (Total de Ocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvent_o*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvent_o,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("2 - Entorno de Belo Horizonte (Total de Ocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvent_o * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvent_o, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("2 - Entorno Metropolitano de Belo Horizonte (Total de Ocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvcol_o*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvcol_o,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("3 - Colar Metropolitano de Belo Horizonte (Total de Ocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvcol_o * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvcol_o, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("3 - Colar Metropolitano de Belo Horizonte (Total de Ocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvrid_o*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvrid_o,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("4 - RIDE de Brasília em Minas (Total de Ocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvrid_o * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvrid_o, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("4 - RIDE de Brasília em Minas Gerais (Total de Ocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvsul_o*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvsul_o,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("5 - Sul de Minas (Total de Ocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvsul_o * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvsul_o, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("5 - Sul de Minas (Total de Ocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvtrg_o*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvtrg_o,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("6 - Triângulo Mineiro (Total de Ocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvtrg_o * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvtrg_o, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("6 - Triângulo Mineiro (Total de Ocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvmat_o*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvmat_o,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("7 - Zona da Mata (Total de Ocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvmat_o * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvmat_o, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("7 - Zona da Mata (Total de Ocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvbh_o*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvbh_o,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("8 - Norte de Minas (Total de Ocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvnrt_o * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvnrt_o, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("8 - Norte de Minas (Total de Ocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvnrt_o*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvnrt_o,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("9 - Norte de Minas (Total de Ocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvval_o * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvval_o, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("9 - Vale do Rio Doce (Total de Ocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvcen_o*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvcen_o,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("10 - Central (Total de Ocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvcen_o * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvcen_o, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("10 - Central (Total de Ocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvmg_o), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvmg_o,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("11 - Minas Gerais (Total de Ocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvmg_o), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvmg_o, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_o, y_max_o), yaxt = "n")
+  axis(2, at = seq(y_min_o, y_max_o, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("11 - Minas Gerais (Total de Ocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
 
 # Desocupada:
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvbh_d*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvbh_d,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("1 - Belo Horizonte (Total de Desocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+y_min_d<- 0
+y_max_d<- 60
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvent_d*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvent_d,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("2 - Entorno de Belo Horizonte (Total de Desocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvcol_d*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvcol_d,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("3 - Colar Metropolitano de Belo Horizonte (Total de Desocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvbh_d * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvbh_d, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("1 - Belo Horizonte (Total de Desocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvrid_d*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvrid_d,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("4 - RIDE de Brasília em Minas (Total de Desocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvent_d * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvent_d, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("2 - Entorno Metropolitano de Belo Horizonte (Total de Desocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvsul_d*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvsul_d,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("5 - Sul de Minas (Total de Desocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvcol_d * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvcol_d, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("3 - Colar Metropolitano de Belo Horizonte (Total de Desocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvtrg_d*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvtrg_d,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("6 - Triângulo Mineiro (Total de Desocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvrid_d * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvrid_d, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("4 - RIDE de Brasília em Minas Gerais (Total de Desocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvmat_d*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvmat_d,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("7 - Zona da Mata (Total de Desocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvsul_d * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvsul_d, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("5 - Sul de Minas (Total de Desocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvbh_d*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvbh_d,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("8 - Norte de Minas (Total de Desocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvtrg_d * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvtrg_d, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("6 - Triângulo Mineiro (Total de Desocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvnrt_d*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvnrt_d,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("9 - Norte de Minas (Total de Desocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvmat_d * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvmat_d, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("7 - Zona da Mata (Total de Desocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvcen_d*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvcen_d,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("10 - Central (Total de Desocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvnrt_d * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvnrt_d, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("8 - Norte de Minas (Total de Desocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvmg_d), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvmg_d,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("11 - Minas Gerais (Total de Desocupados)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvval_d * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvval_d, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("9 - Vale do Rio Doce (Total de Desocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
+
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvcen_d * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvcen_d, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("10 - Central (Total de Desocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
+
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvmg_d), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvmg_d, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("11 - Minas Gerais (Total de Desocupados)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
 
 # Taxa de desemprego:
 
+y_min_d<- 0
+y_max_d<- 60
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvbh_tx*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvbh_tx,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("1 - Belo Horizonte (Taxa de Desocupação)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvbh_tx * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvbh_tx, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("1 - Belo Horizonte (Taxa de Desocupação)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvent_tx*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvent_tx,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("2 - Entorno de Belo Horizonte (Taxa de Desocupação)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvent_tx * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvent_tx, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("2 - Entorno Metropolitano de Belo Horizonte (Taxa de Desocupação)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvcol_tx*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvcol_tx,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("3 - Colar Metropolitano de Belo Horizonte (Taxa de Desocupação)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvcol_tx * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvcol_tx, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("3 - Colar Metropolitano de Belo Horizonte (Taxa de Desocupação)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvrid_tx*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvrid_tx,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("4 - RIDE de Brasília em Minas (Taxa de Desocupação)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvrid_tx * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvrid_tx, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("4 - RIDE de Brasília em Minas Gerais (Taxa de Desocupação)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvsul_tx*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvsul_tx,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("5 - Sul de Minas (Taxa de Desocupação)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvsul_tx * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvsul_tx, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("5 - Sul de Minas (Taxa de Desocupação)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvtrg_tx*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvtrg_tx,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("6 - Triângulo Mineiro (Taxa de Desocupação)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvtrg_tx * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvtrg_tx, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("6 - Triângulo Mineiro (Taxa de Desocupação)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvmat_tx*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvmat_tx,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("7 - Zona da Mata (Taxa de Desocupação)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvmat_tx * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvmat_tx, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("7 - Zona da Mata (Taxa de Desocupação)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvbh_tx*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvbh_tx,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("8 - Norte de Minas (Taxa de Desocupação)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvnrt_tx * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvnrt_tx, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("8 - Norte de Minas (Taxa de Desocupação)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvnrt_tx*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvnrt_tx,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("9 - Norte de Minas (Taxa de Desocupação)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvval_tx * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvval_tx, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("9 - Vale do Rio Doce (Taxa de Desocupação)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvcen_tx*100), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvcen_tx,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("10 - Central (Taxa de Desocupação)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvcen_tx * 100), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvcen_tx, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("10 - Central (Taxa de Desocupação)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
-{par(mfrow=c(1,2),oma = c(2, 2, 3, 2))
-  plot.ts((a_cvmg_tx), col = "black", xlab="Ano", ylab="CV(%)",main="",lwd=2)
-  plot.ts(t_cvmg_tx,col = "blue", xlab="Ano", ylab="CV(%)",main="", lwd=2)
-  mtext("11 - Minas Gerais (Taxa de Desocupação)", outer=TRUE, line =-2,cex=1.5,font=2)}
+{par(mfrow = c(1, 2), oma = c(2, 2, 2, 2), mgp = c(2, 0.5, 0))
+  plot.ts((a_cvmg_tx), col = "black", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Anual", line = 0.5, cex.main = 1.2)
+  plot.ts(t_cvmg_tx, col = "blue", xlab = "Ano", ylab = "CV(%)", main = "", lwd = 2, ylim = c(y_min_d, y_max_d), yaxt = "n")
+  axis(2, at = seq(y_min_d, y_max_d, by = 2))
+  title(main = "Trimestral", line = 0.5, cex.main = 1.2)
+  mtext("11 - Minas Gerais (Taxa de Desocupação)", outer = TRUE, line = -1.5, cex = 1.5, font = 2)}
 
 
 
