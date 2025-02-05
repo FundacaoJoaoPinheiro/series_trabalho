@@ -2,14 +2,8 @@
 ##                           ESTUDO DO PACOTE DLM                             ##
 ################################################################################
 
-# Diretório principal
-
-setwd("D:/FJP2425/Programacao")
-
 library(dlm)
-library(PNADcIBGE)
 library(tidyverse)
-
 
 ################################################################################
 ## MODELO POLINOMIAL DE PRIMEIRA ORDEM:
@@ -204,55 +198,22 @@ legend("bottomright", legend = c("Observed",
 
 
 
-################################################################################
-#### TESTE - TAXA DE DESOCUPAÇÃO BH
+### TESTE - TAXA DE DESOCUPAÇÃO BH #############################################
 
-basemg_k<-readRDS("D:/FJP2425/Programacao/data/baseMG_k.RDS")
+# Dados:
 
-arquivos <- list.files("D:/FJP2425/Programacao/data/estimativas", pattern = "\\.RDS$", full.names = TRUE)
+baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
+bh<-baseestr0324$`01-Belo Horizonte`
+baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
+dtbh<-baseal0324$`01-Belo Horizonte` ## Arquivo "cru", saída direta da rotina da base por rotação
+dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/01_params_bh.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
-pnadcrds <- lapply(arquivos, readRDS)
+## Definindo variáveis e inputs:
 
-dadosestr <- function(pnadcrds){
-  indices<-list(mg=11,bh=1,entorno=2,colar=3,RIDE=4,sul=5,trng=6,mata=7,norte=8,riodoce=9,central=10)
-  
-  lapply(indices, function(linha) {
-    df_result<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
-                                     2,15,28,41,
-                                     3,16,29,42,
-                                     4,17,30,43,
-                                     5,18,31,44,
-                                     6,19,32,45,
-                                     7,20,33,46,
-                                     8,21,34,47,
-                                     9,22,35,48,
-                                     10,23,36,49,
-                                     11,24,37,50,
-                                     12,25,38,51,
-                                     13,26,39)], function(df) {
-                                       data.frame(
-                                         "Período" = as.character(df[linha, 8]),
-                                         "Total de ocupados" = as.numeric(df[linha, 2]),
-                                         "sd_o" = as.numeric(df[linha, 3]),
-                                         "Total de desocupados" = as.numeric(df[linha, 4]),
-                                         "sd_d" = as.numeric(df[linha, 5]),
-                                         "Taxa de desocupação" = as.numeric(df[linha, 6]),
-                                         "sd_txd" = as.numeric(df[linha, 7])
-                                       )
-                                     }))
-    df_result <- cbind(
-      df_result[, 1:3], `CV.ocupados` = with(df_result, `sd_o` / `Total.de.ocupados` * 100),
-      df_result[, 4:5], `CV.desocupados` = with(df_result, `sd_d` / `Total.de.desocupados` * 100),
-      df_result[, 6:7], `CV.taxa` = with(df_result, `sd_txd` / `Taxa.de.desocupação` * 100)
-    )
-    return(df_result)
-  })
-}
-
-resultados<-dadosestr(pnadcrds)
-
-bh <- resultados$bh
-
+y <- bh$Total.de.desocupados
+se_db <- bh$sd_d
+cv_db <- bh$CV.desocupados
+par_ar_erro <- dbbh$parerro_d
 
 # Em ordem: total de ocupados; total de desocupados; taxa de desocupação
 
@@ -385,8 +346,7 @@ buildFun<-function(x) {
 
   
 
-################################################################################
-###   Estimação Bayesiana
+### ESTIMAÇÃO BAYESIANA ########################################################
 
 ##### Foward filtering and backward sampling
   # É o nome dado ao próprio algoritmo que faz a estimação
