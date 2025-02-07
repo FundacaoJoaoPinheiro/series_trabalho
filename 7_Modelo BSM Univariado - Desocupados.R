@@ -6,6 +6,7 @@ library(dlm)
 library(tidyverse)
 library(beepr)
 library(parallel)
+library(rucm)
 
 options(scipen=999)
 
@@ -216,6 +217,21 @@ legend("topright", legend = c("CV design-based unemployment",
        lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
 mtext("Year", side = 1, line = 3)
+
+## Testando o pacote UCM para retirar os parâmetros iniciais
+  # pacote: rucm
+
+# Na primeira tentativa tive o seguinte erro:
+  # Error in is.SSModel(do.call(updatefn, args = c(list(inits, model), update_args))
+    # System matrices (excluding Z) contain NA or infinite values, covariance matrices contain values larger than 1e+07
+  # ucmbh <- ucm(y~0,data=dfbh,slope=TRUE,level=TRUE,season=TRUE,
+    # season.length = 4, cycle=FALSE, irregular = TRUE)
+
+dfbh<-cbind(y,se_db,cv_db)
+dfbh<-as.data.frame(dfbh)
+
+ucmbh<-ucm(y~0,data=dfbh,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
 
 ### ENTORNO METROPOLITANO ###############################################
 rm(list = ls())
