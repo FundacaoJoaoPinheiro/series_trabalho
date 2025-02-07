@@ -215,20 +215,6 @@ se_db <- bh$sd_d
 cv_db <- bh$CV.desocupados
 par_ar_erro <- dbbh$parerro_d
 
-# Em ordem: total de ocupados; total de desocupados; taxa de desocupação
-
-{bh_oc<-ts(bh$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-  cvbh_o<-ts(bh$CV.ocupados[1:51],start= c(2012,1),frequency=4)
-  
-  bh_d<-ts(bh$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-  cvbh_d<-ts(bh$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
-  
-  bh_txd<-ts(bh$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-  cvbh_txd<-ts(bh$CV.taxa[1:51],start=c(2012,1),frequency = 4)}
-
-txbh<-bh_txd*100 # Para evitar possíveis problemas de escala
-
-
 ##### Filtragem e suavização para txd de bh
 
 ## Filtragem
@@ -314,18 +300,16 @@ legend("topleft", legend = c("Taxa de Desocupação - BH", "Tendência"), col = 
 ## Testando a implementação do modelo com o erro amostral (passo a passo)
   ## Se baseando em scripts anteriores
 
-bh_sdtxd<-ts(bh$sd_txd[1:51],start=c(2012,1),frequency = 4)
-
   ## Modelo Estrutural:
     ## dlmModPoly(2) indica que é ordem = 2 (LLT), Sazonalidade no formato trigonométrico
 
-dlm2<-dlmModPoly(2) + dlmModTrig(4) +dlmModReg(bh_sdtxd,addInt = FALSE)
+dlm2<-dlmModPoly(2) + dlmModTrig(4) +dlmModReg(se_db,addInt = FALSE)
 
   ## No script base, temos a variável "se_db", o que seria essa variável?
     ## Momentâneamente, substituí pelo erro padrão da taxa de desemprego
 
 buildFun<-function(x) {
-  dlm2$GG[6,6] <- par_ar_erro     # Onde obter?                                        
+  dlm2$GG[6,6] <- par_ar_erro                                          
   W = matrix(0,6,6)
   W[1, 1] <- exp(params[1])
   W[2, 2] <- exp(params[2])
