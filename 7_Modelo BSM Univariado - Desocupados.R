@@ -8,6 +8,10 @@ library(beepr)
 library(parallel)
 library(rucm)
 
+# Observação do pacote ucm:
+  # Para rodar o modelo, é necessário transformar os objetos em ts
+    # Caso contrário, o modelo irá reportar erro na dimensão dos objetos
+
 options(scipen=999)
 
 ## Anotações
@@ -26,6 +30,11 @@ options(scipen=999)
 
   # Modelos que convergiram f.modelo3a:
     # Entorno; COLAR; MATA; VALE
+
+  # Modelos que convergiram utilizando os parâmetros UCM:
+    # Colar (matriz positiva -> hiper. próxs aos valores da tese)
+    # RIDE (matriz não positiva -> hiper. próxs aos valores da tese)
+    # Vale (matriz não positiva -> hiper. próxs aos valores da tese)
   
 ### MODELO BH ##################################################################
 rm(list = ls())
@@ -218,7 +227,7 @@ legend("topright", legend = c("CV design-based unemployment",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Year", side = 1, line = 3)
 
-## Testando o pacote UCM para retirar os parâmetros iniciais
+### Testando o pacote UCM para retirar os parâmetros iniciais
   # pacote: rucm
 
 # Na primeira tentativa tive o seguinte erro:
@@ -227,10 +236,126 @@ mtext("Year", side = 1, line = 3)
   # ucmbh <- ucm(y~0,data=dfbh,slope=TRUE,level=TRUE,season=TRUE,
     # season.length = 4, cycle=FALSE, irregular = TRUE)
 
-dfbh<-cbind(y,se_db,cv_db)
-dfbh<-as.data.frame(dfbh)
+# Para tentar resolver o problema, optei por normalizar a série
+  # Dessa forma, o modelo conseguiu estimar as variâncias
 
-ucmbh<-ucm(y~0,data=dfbh,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+y<-ts(y, start = c(2012, 1), frequency = 4)
+se_db<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_db<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+# Teste: modelo com série normalizada
+
+# Sem suavização
+
+y_norm<-scale(y)
+y_norm<-ts(y_norm, start = c(2012, 1), frequency = 4)
+med_y <- attr(y_norm, "scaled:center")
+se_y <- attr(y_norm, "scaled:scale")
+
+ucmbh<-ucm(y_norm~0,data=y_norm,level=TRUE, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+tendenciabh<-ucmbh$s.level+ucmbh$vs.slope
+tendenciabh<-(tendenciabh*se_y)+med_y
+
+ts.plot(y, tendenciabh, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "01-Belo Horizonte",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("topright", legend = c("Total de desocupados", "Tendência Estimada"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Com suavização:
+
+ucmbh_sm<-ucm(y_norm~0,data=y_norm,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+tendenciabh_sm<-ucmbh_sm$s.level+ucmbh$vs.slope
+tendenciabh_sm<-(tendenciabh_sm*se_y)+med_y
+
+ts.plot(y, tendenciabh_sm, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "01-Belo Horizonte",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("topright", legend = c("Total de desocupados", "Tendência Estimada Smooth"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+
+# Teste: modelo sem a normalização das séries
+  # Apenas reduzindo a escala da variável
+    # Detectado problema de escala na variável, com y/10 o modelo já não estima as variâncias
+
+y_red<-y/1000
+
+cnobh_sm<-ucm(y_red~0,data=y_red,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+bhtrend_sm<-(cnobh_sm$s.level)+(cnobh_sm$s.slope)
+bhtrend_sm<-(bhtrend_sm)*1000
+
+ts.plot(y, bhtrend_sm, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "01-Belo Horizonte",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("bottom", legend = c("Total de desocupados", "Tendência Estimada Smooth"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+  # Resgatando as variâncias:
+
+cnobh_sm$est.var.level #nula por causa do modelo smoothing
+cnobh_sm$est.var.slope # 26.15096
+cnobh_sm$est.var.season # 0.0001269569 
+cnobh_sm$irr.var # 75.98691
+
+# Rodando o modelo dlm inputando as var. ucm como iniciais:
+
+par_5<-c(log(26.15096))
+par_6<-c(log(0.0001269569))
+par_7<-c(log(75.98691))
+par_8<-c(log(0.4)) ## Retirado da tese
+
+grid_ucm <- expand.grid(par_5,par_6,par_7,par_8)
+
+modelos_ucm<-lapply(1:nrow(grid_ucm), function(i)  tryCatch(f.teste_bsm_error(y,grid_ucm[i,]),error=function(e) {rep(NA,4)}))
+
+modelo_bsm_error<-modelos_ucm[[1]]
+
+convergencia<-rbind(modelo_bsm_error$fit$convergence)
+colnames(convergencia)<-c("convergence") 
+
+parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
+row.names(parametros)<-c("BSM_error")
+colnames(parametros)<-c("Slope","Seasonal","Irregular","Sampling Error")
+
+AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
+colnames(AIC)<-"AIC"
+
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # não positiva
+ 
+lista_modelos<-list(modelo_bsm_error)
+testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
+row.names(testes)<-c("BSM_error")
+colnames(testes)<-c("Shapiro","Box","H")
+
+resultados<-cbind(convergencia,parametros,testes, AIC)
+resultados
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Design-based unemployment",
+                             "Signal model-based unemployment",
+                             "Trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_bsm_error$cv.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV design-based unemployment",
+                              "CV signal model-based unemployment",
+                              "CV trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
 
 
 ### ENTORNO METROPOLITANO ###############################################
@@ -403,6 +528,93 @@ fig.cv_1<- window(ts.union(
   ts(teste3a$cv.original,start = 2012,frequency=4),
   ts(teste3a$cv.signal,start = 2012,frequency=4),
   ts(teste3a$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV design-based unemployment",
+                              "CV signal model-based unemployment",
+                              "CV trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+### Teste modelo UCM ENT:
+  # Utilizando modelo sm com a série escalonada
+
+y<-ts(y, start = c(2012, 1), frequency = 4)
+se_db<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_db<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+y_red<-y/1000
+
+cnoent_sm<-ucm(y_red~0,data=y_red,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+enttrend_sm<-(cnoent_sm$s.level)+(cnoent_sm$s.slope)
+enttrend_sm<-(enttrend_sm)*1000
+
+ts.plot(y, enttrend_sm, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "02-Entorno Metropolitano de Belo Horizonte",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("topleft", legend = c("Total de Desocupados", "Tendência Estimada Smooth"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnoent_sm$est.var.level # nula por causa do modelo smoothing
+cnoent_sm$est.var.slope # 862.649
+cnoent_sm$est.var.season # 6.92965  
+cnoent_sm$irr.var # 222.4013
+
+# Rodando o modelo dlm inputando as var. ucm como iniciais:
+
+par_5<-c(log(862.649))
+par_6<-c(log(6.92965))
+par_7<-c(log(222.4013))
+par_8<-c(log(0.11)) ## Retirado da tese
+
+grid_ucm <- expand.grid(par_5,par_6,par_7,par_8)
+
+modelos_ucm<-lapply(1:nrow(grid_ucm), function(i)  tryCatch(f.teste_bsm_error(y,grid_ucm[i,]),error=function(e) {rep(NA,4)}))
+
+modelo_bsm_error<-modelos_ucm[[1]]
+
+convergencia<-rbind(modelo_bsm_error$fit$convergence)
+colnames(convergencia)<-c("convergence") # Não convergiu
+
+parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
+row.names(parametros)<-c("BSM_error")
+colnames(parametros)<-c("Slope","Seasonal","Irregular","Sampling Error")
+
+AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
+colnames(AIC)<-"AIC"
+
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # não positiva
+
+lista_modelos<-list(modelo_bsm_error)
+testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
+row.names(testes)<-c("BSM_error")
+colnames(testes)<-c("Shapiro","Box","H")
+
+resultados<-cbind(convergencia,parametros,testes, AIC)
+resultados
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Design-based unemployment",
+                             "Signal model-based unemployment",
+                             "Trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_bsm_error$cv.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
 plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
 legend("topright", legend = c("CV design-based unemployment",
                               "CV signal model-based unemployment",
@@ -590,6 +802,93 @@ legend("topright", legend = c("CV design-based unemployment",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Year", side = 1, line = 3)
 
+### Teste modelo UCM COL:
+# Utilizando modelo sm com a série escalonada
+
+y<-ts(y, start = c(2012, 1), frequency = 4)
+se_db<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_db<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+y_red<-y/1000
+
+cnocol_sm<-ucm(y_red~0,data=y_red,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+coltrend_sm<-(cnocol_sm$s.level)+(cnocol_sm$s.slope)
+coltrend_sm<-(coltrend_sm)*1000
+
+ts.plot(y, coltrend_sm, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "03-Colar Metropolitano de Belo Horizonte",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("bottom", legend = c("Total de Desocupados", "Tendência Estimada Smooth"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnocol_sm$est.var.level # nula por causa do modelo smoothing
+cnocol_sm$est.var.slope # 3.830586
+cnocol_sm$est.var.season # 0.00000616888  
+cnocol_sm$irr.var # 10.51971
+
+# Rodando o modelo dlm inputando as var. ucm como iniciais:
+
+par_5<-c(log(3.830586))
+par_6<-c(log(0.00000616888))
+par_7<-c(log(10.51971))
+par_8<-c(log(0.49)) ## Retirado da tese
+
+grid_ucm <- expand.grid(par_5,par_6,par_7,par_8)
+
+modelos_ucm<-lapply(1:nrow(grid_ucm), function(i)  tryCatch(f.teste_bsm_error(y,grid_ucm[i,]),error=function(e) {rep(NA,4)}))
+
+modelo_bsm_error<-modelos_ucm[[1]]
+
+convergencia<-rbind(modelo_bsm_error$fit$convergence)
+colnames(convergencia)<-c("convergence") # Convergiu
+
+parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
+row.names(parametros)<-c("BSM_error")
+colnames(parametros)<-c("Slope","Seasonal","Irregular","Sampling Error")
+
+AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
+colnames(AIC)<-"AIC"
+
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # Positiva
+
+lista_modelos<-list(modelo_bsm_error)
+testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
+row.names(testes)<-c("BSM_error")
+colnames(testes)<-c("Shapiro","Box","H")
+
+resultados<-cbind(convergencia,parametros,testes, AIC)
+resultados
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Design-based unemployment",
+                             "Signal model-based unemployment",
+                             "Trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_bsm_error$cv.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV design-based unemployment",
+                              "CV signal model-based unemployment",
+                              "CV trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
 ### RIDE de Brasília em Minas ##################################################
 rm(list = ls())
 
@@ -759,6 +1058,93 @@ fig.cv_1<- window(ts.union(
   ts(teste3a$cv.original,start = 2012,frequency=4),
   ts(teste3a$cv.signal,start = 2012,frequency=4),
   ts(teste3a$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV design-based unemployment",
+                              "CV signal model-based unemployment",
+                              "CV trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+### Teste modelo UCM RIDE:
+# Utilizando modelo sm com a série escalonada
+
+y<-ts(y, start = c(2012, 1), frequency = 4)
+se_db<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_db<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+y_red<-y/1000
+
+cnorid_sm<-ucm(y_red~0,data=y_red,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+ridtrend_sm<-(cnorid_sm$s.level)+(cnorid_sm$s.slope)
+ridtrend_sm<-(ridtrend_sm)*1000
+
+ts.plot(y, ridtrend_sm, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "04-RIDE de Brasília em Minas",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("bottom", legend = c("Total de Desocupados", "Tendência Estimada Smooth"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnorid_sm$est.var.level # nula por causa do modelo smoothing
+cnorid_sm$est.var.slope # 3.830586
+cnorid_sm$est.var.season # 0.00000616888  
+cnorid_sm$irr.var # 10.51971
+
+# Rodando o modelo dlm inputando as var. ucm como iniciais:
+
+par_5<-c(log(0.03001628))
+par_6<-c(log(0.004274386))
+par_7<-c(log(1.105705))
+par_8<-c(log(0.44)) ## Retirado da tese
+
+grid_ucm <- expand.grid(par_5,par_6,par_7,par_8)
+
+modelos_ucm<-lapply(1:nrow(grid_ucm), function(i)  tryCatch(f.teste_bsm_error(y,grid_ucm[i,]),error=function(e) {rep(NA,4)}))
+
+modelo_bsm_error<-modelos_ucm[[1]]
+
+convergencia<-rbind(modelo_bsm_error$fit$convergence)
+colnames(convergencia)<-c("convergence") # Convergiu
+
+parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
+row.names(parametros)<-c("BSM_error")
+colnames(parametros)<-c("Slope","Seasonal","Irregular","Sampling Error")
+
+AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
+colnames(AIC)<-"AIC"
+
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # Positiva
+
+lista_modelos<-list(modelo_bsm_error)
+testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
+row.names(testes)<-c("BSM_error")
+colnames(testes)<-c("Shapiro","Box","H")
+
+resultados<-cbind(convergencia,parametros,testes, AIC)
+resultados
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Design-based unemployment",
+                             "Signal model-based unemployment",
+                             "Trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_bsm_error$cv.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
 plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
 legend("topright", legend = c("CV design-based unemployment",
                               "CV signal model-based unemployment",
@@ -945,6 +1331,93 @@ legend("topright", legend = c("CV design-based unemployment",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Year", side = 1, line = 3)
 
+### Teste modelo UCM SUL:
+# Utilizando modelo sm com a série escalonada
+
+y<-ts(y, start = c(2012, 1), frequency = 4)
+se_db<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_db<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+y_red<-y/1000
+
+cnosul_sm<-ucm(y_red~0,data=y_red,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+sultrend_sm<-(cnosul_sm$s.level)+(cnosul_sm$s.slope)
+sultrend_sm<-(sultrend_sm)*1000
+
+ts.plot(y, sultrend_sm, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "05-Sul de Minas",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("bottom", legend = c("Total de Desocupados", "Tendência Estimada Smooth"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnosul_sm$est.var.level # nula por causa do modelo smoothing
+cnosul_sm$est.var.slope # 56.85534
+cnosul_sm$est.var.season # 0.0008044187   
+cnosul_sm$irr.var # 90.04413
+
+# Rodando o modelo dlm inputando as var. ucm como iniciais:
+
+par_5<-c(log(56.85534))
+par_6<-c(log(0.0008044187))
+par_7<-c(log(90.04413))
+par_8<-c(log(1.03)) ## Retirado da tese
+
+grid_ucm <- expand.grid(par_5,par_6,par_7,par_8)
+
+modelos_ucm<-lapply(1:nrow(grid_ucm), function(i)  tryCatch(f.teste_bsm_error(y,grid_ucm[i,]),error=function(e) {rep(NA,4)}))
+
+modelo_bsm_error<-modelos_ucm[[1]]
+
+convergencia<-rbind(modelo_bsm_error$fit$convergence)
+colnames(convergencia)<-c("convergence") # Não Convergiu
+
+parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
+row.names(parametros)<-c("BSM_error")
+colnames(parametros)<-c("Slope","Seasonal","Irregular","Sampling Error")
+
+AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
+colnames(AIC)<-"AIC"
+
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # Positiva
+
+lista_modelos<-list(modelo_bsm_error)
+testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
+row.names(testes)<-c("BSM_error")
+colnames(testes)<-c("Shapiro","Box","H")
+
+resultados<-cbind(convergencia,parametros,testes, AIC)
+resultados
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Design-based unemployment",
+                             "Signal model-based unemployment",
+                             "Trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_bsm_error$cv.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV design-based unemployment",
+                              "CV signal model-based unemployment",
+                              "CV trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
 ### TRIÂNGULO MINEIRO ##########################################################
 rm(list = ls())
 
@@ -1123,6 +1596,94 @@ legend("topright", legend = c("CV design-based unemployment",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Year", side = 1, line = 3)
 
+### Teste modelo UCM TRG:
+# Utilizando modelo sm com a série escalonada
+
+y<-ts(y, start = c(2012, 1), frequency = 4)
+se_db<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_db<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+y_red<-y/1000
+
+cnotrg_sm<-ucm(y_red~0,data=y_red,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+trgtrend_sm<-(cnotrg_sm$s.level)+(cnotrg_sm$s.slope)
+trgtrend_sm<-(trgtrend_sm)*1000
+
+ts.plot(y, trgtrend_sm, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "06-Triângulo Mineiro",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("bottom", legend = c("Total de Desocupados", "Tendência Estimada Smooth"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnotrg_sm$est.var.level # nula por causa do modelo smoothing
+cnotrg_sm$est.var.slope # 11.70026 
+cnotrg_sm$est.var.season # 0.00006308897   
+cnotrg_sm$irr.var # 84.38331
+
+# Rodando o modelo dlm inputando as var. ucm como iniciais:
+
+par_5<-c(log(11.70026))
+par_6<-c(log(0.00006308897))
+par_7<-c(log(84.38331))
+par_8<-c(log(1.53)) ## Retirado da tese
+
+grid_ucm <- expand.grid(par_5,par_6,par_7,par_8)
+
+modelos_ucm<-lapply(1:nrow(grid_ucm), function(i)  tryCatch(f.teste_bsm_error(y,grid_ucm[i,]),error=function(e) {rep(NA,4)}))
+
+modelo_bsm_error<-modelos_ucm[[1]]
+
+convergencia<-rbind(modelo_bsm_error$fit$convergence)
+colnames(convergencia)<-c("convergence") # Não Convergiu
+
+parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
+row.names(parametros)<-c("BSM_error")
+colnames(parametros)<-c("Slope","Seasonal","Irregular","Sampling Error")
+
+AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
+colnames(AIC)<-"AIC"
+
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # Positiva
+
+lista_modelos<-list(modelo_bsm_error)
+testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
+row.names(testes)<-c("BSM_error")
+colnames(testes)<-c("Shapiro","Box","H")
+
+resultados<-cbind(convergencia,parametros,testes, AIC)
+resultados
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Design-based unemployment",
+                             "Signal model-based unemployment",
+                             "Trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_bsm_error$cv.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV design-based unemployment",
+                              "CV signal model-based unemployment",
+                              "CV trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+
 ### ZONA DA MATA ###############################################################
 rm(list = ls())
 
@@ -1293,6 +1854,93 @@ fig.cv_1<- window(ts.union(
   ts(teste3a$cv.original,start = 2012,frequency=4),
   ts(teste3a$cv.signal,start = 2012,frequency=4),
   ts(teste3a$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV design-based unemployment",
+                              "CV signal model-based unemployment",
+                              "CV trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+### Teste modelo UCM ZONA DA MATA:
+# Utilizando modelo sm com a série escalonada
+
+y<-ts(y, start = c(2012, 1), frequency = 4)
+se_db<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_db<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+y_red<-y/1000
+
+cnomat_sm<-ucm(y_red~0,data=y_red,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+mattrend_sm<-(cnomat_sm$s.level)+(cnomat_sm$s.slope)
+mattrend_sm<-(mattrend_sm)*1000
+
+ts.plot(y, mattrend_sm, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "07- Zona da Mata",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("bottom", legend = c("Total de Desocupados", "Tendência Estimada Smooth"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnomat_sm$est.var.level # nula por causa do modelo smoothing
+cnomat_sm$est.var.slope # 16.0373  
+cnomat_sm$est.var.season # 0.0004886218   
+cnomat_sm$irr.var # 82.69742
+
+# Rodando o modelo dlm inputando as var. ucm como iniciais:
+
+par_5<-c(log(16.0373))
+par_6<-c(log(0.0004886218))
+par_7<-c(log(82.69742))
+par_8<-c(log(0.95)) ## Retirado da tese
+
+grid_ucm <- expand.grid(par_5,par_6,par_7,par_8)
+
+modelos_ucm<-lapply(1:nrow(grid_ucm), function(i)  tryCatch(f.teste_bsm_error(y,grid_ucm[i,]),error=function(e) {rep(NA,4)}))
+
+modelo_bsm_error<-modelos_ucm[[1]]
+
+convergencia<-rbind(modelo_bsm_error$fit$convergence)
+colnames(convergencia)<-c("convergence") # Não Convergiu
+
+parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
+row.names(parametros)<-c("BSM_error")
+colnames(parametros)<-c("Slope","Seasonal","Irregular","Sampling Error")
+
+AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
+colnames(AIC)<-"AIC"
+
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # Não Positiva
+
+lista_modelos<-list(modelo_bsm_error)
+testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
+row.names(testes)<-c("BSM_error")
+colnames(testes)<-c("Shapiro","Box","H")
+
+resultados<-cbind(convergencia,parametros,testes, AIC)
+resultados
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Design-based unemployment",
+                             "Signal model-based unemployment",
+                             "Trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_bsm_error$cv.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
 plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
 legend("topright", legend = c("CV design-based unemployment",
                               "CV signal model-based unemployment",
@@ -1479,6 +2127,93 @@ legend("topright", legend = c("CV design-based unemployment",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Year", side = 1, line = 3)
 
+### Teste modelo UCM NORTE:
+# Utilizando modelo sm com a série escalonada
+
+y<-ts(y, start = c(2012, 1), frequency = 4)
+se_db<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_db<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+y_red<-y/1000
+
+cnonrt_sm<-ucm(y_red~0,data=y_red,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+nrttrend_sm<-(cnonrt_sm$s.level)+(cnonrt_sm$s.slope)
+nrttrend_sm<-(nrttrend_sm)*1000
+
+ts.plot(y, nrttrend_sm, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "08-Norte de Minas",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("bottom", legend = c("Total de Desocupados", "Tendência Estimada Smooth"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnonrt_sm$est.var.level # nula por causa do modelo smoothing
+cnonrt_sm$est.var.slope # 43.22508   
+cnonrt_sm$est.var.season # 0.0009056865    
+cnonrt_sm$irr.var # 142.2077
+
+# Rodando o modelo dlm inputando as var. ucm como iniciais:
+
+par_5<-c(log(43.22508))
+par_6<-c(log(0.0009056865))
+par_7<-c(log(142.2077))
+par_8<-c(log(0.83)) ## Retirado da tese
+
+grid_ucm <- expand.grid(par_5,par_6,par_7,par_8)
+
+modelos_ucm<-lapply(1:nrow(grid_ucm), function(i)  tryCatch(f.teste_bsm_error(y,grid_ucm[i,]),error=function(e) {rep(NA,4)}))
+
+modelo_bsm_error<-modelos_ucm[[1]]
+
+convergencia<-rbind(modelo_bsm_error$fit$convergence)
+colnames(convergencia)<-c("convergence") # Não Convergiu
+
+parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
+row.names(parametros)<-c("BSM_error")
+colnames(parametros)<-c("Slope","Seasonal","Irregular","Sampling Error")
+
+AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
+colnames(AIC)<-"AIC"
+
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # Não Positiva
+
+lista_modelos<-list(modelo_bsm_error)
+testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
+row.names(testes)<-c("BSM_error")
+colnames(testes)<-c("Shapiro","Box","H")
+
+resultados<-cbind(convergencia,parametros,testes, AIC)
+resultados
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Design-based unemployment",
+                             "Signal model-based unemployment",
+                             "Trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_bsm_error$cv.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV design-based unemployment",
+                              "CV signal model-based unemployment",
+                              "CV trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
 ### VALE DO RIO DOCE ###########################################################
 rm(list = ls())
 
@@ -1649,6 +2384,93 @@ fig.cv_1<- window(ts.union(
   ts(teste3a$cv.original,start = 2012,frequency=4),
   ts(teste3a$cv.signal,start = 2012,frequency=4),
   ts(teste3a$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV design-based unemployment",
+                              "CV signal model-based unemployment",
+                              "CV trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+### Teste modelo UCM VALE:
+# Utilizando modelo sm com a série escalonada
+
+y<-ts(y, start = c(2012, 1), frequency = 4)
+se_db<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_db<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+y_red<-y/1000
+
+cnovl_sm<-ucm(y_red~0,data=y_red,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+vltrend_sm<-(cnovl_sm$s.level)+(cnovl_sm$s.slope)
+vltrend_sm<-(vltrend_sm)*1000
+
+ts.plot(y, vltrend_sm, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "09-Vale do Rio Doce",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("bottom", legend = c("Total de Desocupados", "Tendência Estimada Smooth"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnovl_sm$est.var.level # nula por causa do modelo smoothing
+cnovl_sm$est.var.slope # 28.41725    
+cnovl_sm$est.var.season # 1.194057     
+cnovl_sm$irr.var # 87.2518
+
+# Rodando o modelo dlm inputando as var. ucm como iniciais:
+
+par_5<-c(log(28.41725))
+par_6<-c(log(1.194057))
+par_7<-c(log(87.2518))
+par_8<-c(log(0.39)) ## Retirado da tese
+
+grid_ucm <- expand.grid(par_5,par_6,par_7,par_8)
+
+modelos_ucm<-lapply(1:nrow(grid_ucm), function(i)  tryCatch(f.teste_bsm_error(y,grid_ucm[i,]),error=function(e) {rep(NA,4)}))
+
+modelo_bsm_error<-modelos_ucm[[1]]
+
+convergencia<-rbind(modelo_bsm_error$fit$convergence)
+colnames(convergencia)<-c("convergence") # Convergiu
+
+parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
+row.names(parametros)<-c("BSM_error")
+colnames(parametros)<-c("Slope","Seasonal","Irregular","Sampling Error")
+
+AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
+colnames(AIC)<-"AIC"
+
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # Não Positiva
+
+lista_modelos<-list(modelo_bsm_error)
+testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
+row.names(testes)<-c("BSM_error")
+colnames(testes)<-c("Shapiro","Box","H")
+
+resultados<-cbind(convergencia,parametros,testes, AIC)
+resultados
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Design-based unemployment",
+                             "Signal model-based unemployment",
+                             "Trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_bsm_error$cv.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
 plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
 legend("topright", legend = c("CV design-based unemployment",
                               "CV signal model-based unemployment",
@@ -1834,3 +2656,90 @@ legend("topright", legend = c("CV design-based unemployment",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Year", side = 1, line = 3)
 
+
+### Teste modelo UCM CENTRAL:
+# Utilizando modelo sm com a série escalonada
+
+y<-ts(y, start = c(2012, 1), frequency = 4)
+se_db<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_db<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+y_red<-y/1000
+
+cnocen_sm<-ucm(y_red~0,data=y_red,level=TRUE, level.var = 0, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+centrend_sm<-(cnocen_sm$s.level)+(cnocen_sm$s.slope)
+centrend_sm<-(centrend_sm)*1000
+
+ts.plot(y, centrend_sm, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "10-Central",
+        ylab = "Total de Desocupados",xlab = "Tempo")
+legend("bottom", legend = c("Total de Desocupados", "Tendência Estimada Smooth"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnocen_sm$est.var.level # nula por causa do modelo smoothing
+cnocen_sm$est.var.slope # 53.27499     
+cnocen_sm$est.var.season # 0.001126252      
+cnocen_sm$irr.var # 83.0792
+
+# Rodando o modelo dlm inputando as var. ucm como iniciais:
+
+par_5<-c(log(53.27499))
+par_6<-c(log(0.001126252))
+par_7<-c(log(83.0792))
+par_8<-c(log(1.93)) ## Retirado da tese
+
+grid_ucm <- expand.grid(par_5,par_6,par_7,par_8)
+
+modelos_ucm<-lapply(1:nrow(grid_ucm), function(i)  tryCatch(f.teste_bsm_error(y,grid_ucm[i,]),error=function(e) {rep(NA,4)}))
+
+modelo_bsm_error<-modelos_ucm[[1]]
+
+convergencia<-rbind(modelo_bsm_error$fit$convergence)
+colnames(convergencia)<-c("convergence") # Não Convergiu
+
+parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
+row.names(parametros)<-c("BSM_error")
+colnames(parametros)<-c("Slope","Seasonal","Irregular","Sampling Error")
+
+AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
+colnames(AIC)<-"AIC"
+
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # Positiva
+
+lista_modelos<-list(modelo_bsm_error)
+testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes<-t(testes)
+row.names(testes)<-c("BSM_error")
+colnames(testes)<-c("Shapiro","Box","H")
+
+resultados<-cbind(convergencia,parametros,testes, AIC)
+resultados
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Design-based unemployment",
+                             "Signal model-based unemployment",
+                             "Trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_bsm_error$cv.original,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
+  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV design-based unemployment",
+                              "CV signal model-based unemployment",
+                              "CV trend model-based unemployment"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Year", side = 1, line = 3)
