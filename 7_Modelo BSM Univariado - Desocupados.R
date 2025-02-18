@@ -201,30 +201,27 @@ colnames(testes)<-c("Shapiro","Box","H")
 resultados<-cbind(convergencia,parametros,testes,AIC)
 resultados
 
-par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("topleft", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
+fig_1 <- window(ts.union(
+  ts(modelo_bsm_error$ts.original, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
+legend("topleft", legend = c("Desemprego: design-based",
+                             "Sinal do desemprego: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
+
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-fig.cv_1<- window(ts.union(
-  ts((modelo_bsm_error$cv.original)*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+fig.cv_1 <- window(ts.union(
+  ts((modelo_bsm_error$cv.original) * 100, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
 legend("topleft", legend = c("CV desocupados: design-based",
-                              "CV desocupados: model-based",
-                              "Tendência CV desocupados (model-based)"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
+mtext("Ano", side = 1, line = 3)
 
 ### ENTORNO METROPOLITANO ###############################################
 rm(list = ls())
@@ -405,30 +402,26 @@ colnames(testes)<-c("Shapiro","Box","H")
 resultados<-cbind(convergencia,parametros,testes,AIC)
 resultados
 
-par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("bottom", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
+fig_1 <- window(ts.union(
+  ts(modelo_bsm_error$ts.original, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
+legend("bottom", legend = c("Desemprego: design-based",
+                             "Sinal do desemprego: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-fig.cv_1<- window(ts.union(
-  ts((modelo_bsm_error$cv.original)*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+fig.cv_1 <- window(ts.union(
+  ts((modelo_bsm_error$cv.original) * 100, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
 legend("topleft", legend = c("CV desocupados: design-based",
-                             "CV desocupados: model-based",
-                             "Tendência CV desocupados (model-based)"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
+mtext("Ano", side = 1, line = 3)
 
 ### COLAR METROPOLITANO DE BH ##################################################
 rm(list = ls())
@@ -609,30 +602,26 @@ colnames(testes)<-c("Shapiro","Box","H")
 resultados<-cbind(convergencia,parametros,testes,AIC)
 resultados
 
-par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("bottom", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
+fig_1 <- window(ts.union(
+  ts(modelo_bsm_error$ts.original, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
+legend("bottom", legend = c("Desemprego: design-based",
+                            "Sinal do desemprego: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-fig.cv_1<- window(ts.union(
-  ts((modelo_bsm_error$cv.original)*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+fig.cv_1 <- window(ts.union(
+  ts((modelo_bsm_error$cv.original) * 100, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
 legend("topleft", legend = c("CV desocupados: design-based",
-                             "CV desocupados: model-based",
-                             "Tendência CV desocupados (model-based)"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
+mtext("Ano", side = 1, line = 3)
 
 ### RIDE de Brasília em Minas ##################################################
 rm(list = ls())
@@ -811,30 +800,26 @@ colnames(testes)<-c("Shapiro","Box","H")
 resultados<-cbind(convergencia,parametros,testes,AIC)
 resultados
 
-par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("bottom", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
+fig_1 <- window(ts.union(
+  ts(modelo_bsm_error$ts.original, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
+legend("bottom", legend = c("Desemprego: design-based",
+                            "Sinal do desemprego: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-fig.cv_1<- window(ts.union(
-  ts((modelo_bsm_error$cv.original)*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+fig.cv_1 <- window(ts.union(
+  ts((modelo_bsm_error$cv.original) * 100, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
 legend("topleft", legend = c("CV desocupados: design-based",
-                             "CV desocupados: model-based",
-                             "Tendência CV desocupados (model-based)"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
+mtext("Ano", side = 1, line = 3)
 
 ### SUL DE MINAS ###############################################################
 rm(list = ls())
@@ -1013,30 +998,26 @@ colnames(testes)<-c("Shapiro","Box","H")
 resultados<-cbind(convergencia,parametros,testes,AIC)
 resultados
 
-par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("bottom", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
+fig_1 <- window(ts.union(
+  ts(modelo_bsm_error$ts.original, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
+legend("bottom", legend = c("Desemprego: design-based",
+                            "Sinal do desemprego: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-fig.cv_1<- window(ts.union(
-  ts((modelo_bsm_error$cv.original)*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+fig.cv_1 <- window(ts.union(
+  ts((modelo_bsm_error$cv.original) * 100, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
 legend("topleft", legend = c("CV desocupados: design-based",
-                             "CV desocupados: model-based",
-                             "Tendência CV desocupados (model-based)"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
+mtext("Ano", side = 1, line = 3)
 
 ### TRIÂNGULO MINEIRO ##########################################################
 rm(list = ls())
@@ -1215,30 +1196,26 @@ colnames(testes)<-c("Shapiro","Box","H")
 resultados<-cbind(convergencia,parametros,testes,AIC)
 resultados
 
-par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("bottom", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
+fig_1 <- window(ts.union(
+  ts(modelo_bsm_error$ts.original, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
+legend("bottom", legend = c("Desemprego: design-based",
+                            "Sinal do desemprego: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-fig.cv_1<- window(ts.union(
-  ts((modelo_bsm_error$cv.original)*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+fig.cv_1 <- window(ts.union(
+  ts((modelo_bsm_error$cv.original) * 100, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
 legend("topleft", legend = c("CV desocupados: design-based",
-                             "CV desocupados: model-based",
-                             "Tendência CV desocupados (model-based)"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
+mtext("Ano", side = 1, line = 3)
 
 ### ZONA DA MATA ###############################################################
 rm(list = ls())
@@ -1417,30 +1394,26 @@ colnames(testes)<-c("Shapiro","Box","H")
 resultados<-cbind(convergencia,parametros,testes,AIC)
 resultados
 
-par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("bottom", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
+fig_1 <- window(ts.union(
+  ts(modelo_bsm_error$ts.original, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
+legend("bottom", legend = c("Desemprego: design-based",
+                            "Sinal do desemprego: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-fig.cv_1<- window(ts.union(
-  ts((modelo_bsm_error$cv.original)*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+fig.cv_1 <- window(ts.union(
+  ts((modelo_bsm_error$cv.original) * 100, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
 legend("topleft", legend = c("CV desocupados: design-based",
-                             "CV desocupados: model-based",
-                             "Tendência CV desocupados (model-based)"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
+mtext("Ano", side = 1, line = 3)
 
 ### NORTE DE MINAS GERAIS ######################################################
 rm(list = ls())
@@ -1619,30 +1592,26 @@ colnames(testes)<-c("Shapiro","Box","H")
 resultados<-cbind(convergencia,parametros,testes,AIC)
 resultados
 
-par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("bottom", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
+fig_1 <- window(ts.union(
+  ts(modelo_bsm_error$ts.original, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
+legend("bottom", legend = c("Desemprego: design-based",
+                            "Sinal do desemprego: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-fig.cv_1<- window(ts.union(
-  ts((modelo_bsm_error$cv.original)*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+fig.cv_1 <- window(ts.union(
+  ts((modelo_bsm_error$cv.original) * 100, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
 legend("topleft", legend = c("CV desocupados: design-based",
-                             "CV desocupados: model-based",
-                             "Tendência CV desocupados (model-based)"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
+mtext("Ano", side = 1, line = 3)
 
 ### VALE DO RIO DOCE ###########################################################
 rm(list = ls())
@@ -1821,30 +1790,26 @@ colnames(testes)<-c("Shapiro","Box","H")
 resultados<-cbind(convergencia,parametros,testes,AIC)
 resultados
 
-par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("bottom", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
+fig_1 <- window(ts.union(
+  ts(modelo_bsm_error$ts.original, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
+legend("bottom", legend = c("Desemprego: design-based",
+                            "Sinal do desemprego: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-fig.cv_1<- window(ts.union(
-  ts((modelo_bsm_error$cv.original)*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+fig.cv_1 <- window(ts.union(
+  ts((modelo_bsm_error$cv.original) * 100, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
 legend("topleft", legend = c("CV desocupados: design-based",
-                             "CV desocupados: model-based",
-                             "Tendência CV desocupados (model-based)"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
+mtext("Ano", side = 1, line = 3)
 
 ### CENTRAL ####################################################################
 rm(list = ls())
@@ -2023,27 +1988,23 @@ colnames(testes)<-c("Shapiro","Box","H")
 resultados<-cbind(convergencia,parametros,testes,AIC)
 resultados
 
-par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("bottom", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
+fig_1 <- window(ts.union(
+  ts(modelo_bsm_error$ts.original, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
+legend("bottom", legend = c("Desemprego: design-based",
+                            "Sinal do desemprego: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-fig.cv_1<- window(ts.union(
-  ts((modelo_bsm_error$cv.original)*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+fig.cv_1 <- window(ts.union(
+  ts((modelo_bsm_error$cv.original) * 100, start = 2012, frequency = 4),
+  ts(modelo_bsm_error$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig.cv_1, plot.type = "single", col = c(1, "darkblue"), ylab="", xlab="", lty = c(1,1), lwd=c(2))
 legend("topleft", legend = c("CV desocupados: design-based",
-                             "CV desocupados: model-based",
-                             "Tendência CV desocupados (model-based)"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1,1), col = c(1, "darkblue"), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
+mtext("Ano", side = 1, line = 3)
