@@ -8,6 +8,7 @@ library(dplyr)
 library(tidyr)
 library(tidyverse)
 library(forecast)
+library(writexl)
 
 options(scipen=999)
 
@@ -1752,3 +1753,30 @@ params_cen <- list("dbcen"=dbcen,"calculos_desocupada_cen"=clc_d_cen,
                     "parerro_d" = parerro_d_cen,"parerro_o"=  parerro_o_cen)
 
 saveRDS(params_cen,file = "D:/FJP2425/Programacao/data/pseudoerros/10_params_cen.rds")
+
+## Salvando as correlações em arquivo excel:
+
+#FAC_ocupados <- data.frame(clc_o_bh$lag,clc_o_bh$fac,clc_o_ent$fac,clc_o_col$fac,clc_o_rid$fac,clc_o_sul$fac,
+  #                         clc_o_trg$fac,clc_o_mat$fac,clc_o_nrt$fac,clc_o_rio$fac,clc_o_cen$fac)
+#colnames(FAC_ocupados) <- c("LAG","Belo Horizonte", "Entorno BH", "Colar BH", "RIDE", "Sul",
+  #                          "Triangulo", "Zona da Mata", "Norte", "Vale do Rio Doce", "Centro")
+
+#FAC_desocupados <- data.frame(clc_d_bh$lag,clc_d_bh$fac,clc_d_ent$fac,clc_d_col$fac,clc_d_rid$fac,clc_d_sul$fac,
+ #                             clc_d_trg$fac,clc_d_mat$fac,clc_d_nrt$fac,clc_d_rio$fac,clc_d_cen$fac)
+#colnames(FAC_desocupados) <- c("LAG","Belo Horizonte", "Entorno BH", "Colar BH", "RIDE", "Sul",
+ #                           "Triangulo", "Zona da Mata", "Norte", "Vale do Rio Doce", "Centro")
+
+#FACP_ocupados <- data.frame(clc_o_bh$lag,clc_o_bh$facp,clc_o_ent$facp,clc_o_col$facp,clc_o_rid$facp,clc_o_sul$facp,
+#                           clc_o_trg$facp,clc_o_mat$facp,clc_o_nrt$facp,clc_o_rio$facp,clc_o_cen$facp)
+#colnames(FACP_ocupados) <- c("LAG","Belo Horizonte", "Entorno BH", "Colar BH", "RIDE", "Sul",
+#                            "Triangulo", "Zona da Mata", "Norte", "Vale do Rio Doce", "Centro")
+
+#FACP_desocupados <- data.frame(clc_d_bh$lag,clc_d_bh$facp,clc_d_ent$facp,clc_d_col$facp,clc_d_rid$facp,clc_d_sul$facp,
+#                             clc_d_trg$facp,clc_d_mat$facp,clc_d_nrt$facp,clc_d_rio$facp,clc_d_cen$facp)
+#colnames(FACP_desocupados) <- c("LAG","Belo Horizonte", "Entorno BH", "Colar BH", "RIDE", "Sul",
+#                               "Triangulo", "Zona da Mata", "Norte", "Vale do Rio Doce", "Centro")
+
+#listacorrs<-list("FAC_ocupados"=FAC_ocupados,"FAC_desocupados"=FAC_desocupados,
+#                 "FACP_ocupados"=FACP_ocupados,"FACP_desocupados"=FACP_desocupados)
+
+#write_xlsx(listacorrs,"D:/FJP2425/Reuniões/Tabelas/Reunião 1902/correlacoes1902.xlsx")
