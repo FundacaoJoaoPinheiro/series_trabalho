@@ -4,8 +4,6 @@
 
 ## Arquivos .RDS são bases da própria PNAD
 
-setwd("D:/FJP2425/Programacao")
-
 library(PNADcIBGE)
 library(survey)
 library(tidyverse)
@@ -121,7 +119,7 @@ calcula_ocup_desocup <- function(mesano){
 lista <- c(012012,012013,012014,012015,012016,012017,012018,012019,012020,012021,012022,012023,012024,
            022012,022013,022014,022015,022016,022017,022018,022019,022020,022021,022022,022023,022024,
            032012,032013,032014,032015,032016,032017,032018,032019,032020,032021,032022,032023,032024,
-           042012,042013,042014,042015,042016,042017,042018,042019,042020,042021,042022,042023)
+           042012,042013,042014,042015,042016,042017,042018,042019,042020,042021,042022,042023,042024)
 
 
 sapply(lista, function(i) calcula_ocup_desocup(i))
@@ -159,7 +157,7 @@ print(dimensions_df)
 column_names <- lapply(pnadcrds, colnames)
 print(column_names[[1]])
 
-View(pnadcrds[[1]])
+View(pnadcrds[[52]])
 
 ## Diagnóstico:
   ## Os dados feitos dessa forma conferem com o SIDRA. O DF também ficou de acordo com o trabalhado no próximo script. 
