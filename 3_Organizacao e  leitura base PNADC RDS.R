@@ -68,7 +68,7 @@ mg<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
                                      10,23,36,49,
                                      11,24,37,50,
                                      12,25,38,51,
-                                     13,26,39)], function(df) {
+                                     13,26,39,52)], function(df) {
                                            data.frame(
                                              "Período" = as.character(df[11, 8]),
                                              "Total de ocupados" = as.numeric(df[11,2]),
@@ -108,14 +108,14 @@ mg <- cbind(
 
   ## Transformando em série temporal para facilitar o plot
 
-{mg_oc<-ts(mg$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-cvmg_o<-ts(mg$CV.ocupados[1:51],start= c(2012,1),frequency=4)
+{mg_oc<-ts(mg$Total.de.ocupados,start=c(2012,1),frequency = 4)
+cvmg_o<-ts(mg$CV.ocupados,start= c(2012,1),frequency=4)
 
-mg_d<-ts(mg$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-cvmg_d<-ts(mg$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
+mg_d<-ts(mg$Total.de.desocupados,start=c(2012,1),frequency = 4)
+cvmg_d<-ts(mg$CV.desocupadosstart=c(2012,1),frequency = 4)
 
-mg_txd<-ts(mg$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-cvmg_txd<-ts(mg$CV.taxa[1:51],start=c(2012,1),frequency = 4)
+mg_txd<-ts(mg$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
+cvmg_txd<-ts(mg$CV.taxa,start=c(2012,1),frequency = 4)
 }
 
   ## Realizando os plots (por variável)
@@ -151,7 +151,7 @@ bh<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
                                      10,23,36,49,
                                      11,24,37,50,
                                      12,25,38,51,
-                                     13,26,39)], function(df) {
+                                     13,26,39,52)], function(df) {
                                        data.frame(
                                          "Período" = as.character(df[1, 8]),
                                          "Total de ocupados" = as.numeric(df[1,2]),
@@ -180,14 +180,14 @@ bh <- cbind(
 
 # Transformando em série temporal para facilitar o plot
 
-{bh_oc<-ts(bh$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-cvbh_o<-ts(bh$CV.ocupados[1:51],start= c(2012,1),frequency=4)
+{bh_oc<-ts(bh$Total.de.ocupados,start=c(2012,1),frequency = 4)
+cvbh_o<-ts(bh$CV.ocupados,start= c(2012,1),frequency=4)
 
-bh_d<-ts(bh$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-cvbh_d<-ts(bh$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
+bh_d<-ts(bh$Total.de.desocupados,start=c(2012,1),frequency = 4)
+cvbh_d<-ts(bh$CV.desocupados,start=c(2012,1),frequency = 4)
 
-bh_txd<-ts(bh$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-cvbh_txd<-ts(bh$CV.taxa[1:51],start=c(2012,1),frequency = 4)}
+bh_txd<-ts(bh$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
+cvbh_txd<-ts(bh$CV.taxa,start=c(2012,1),frequency = 4)}
 
 
 # Realizando os plots (por variável)
@@ -224,7 +224,7 @@ entornobh<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
                                             10,23,36,49,
                                             11,24,37,50,
                                             12,25,38,51,
-                                            13,26,39)], function(df) {
+                                            13,26,39,52)], function(df) {
                                               data.frame(
                                                 "Período" = as.character(df[2, 8]),
                                                 "Total de ocupados" = as.numeric(df[2,2]),
@@ -255,14 +255,14 @@ entornobh <- cbind(
 
 # Transformando em série temporal para facilitar o plot
 
-{entornobh_oc<-ts(entornobh$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-  cventornobh_o<-ts(entornobh$CV.ocupados[1:51],start= c(2012,1),frequency=4)
+{entornobh_oc<-ts(entornobh$Total.de.ocupados,start=c(2012,1),frequency = 4)
+  cventornobh_o<-ts(entornobh$CV.ocupados,start= c(2012,1),frequency=4)
   
-  entornobh_d<-ts(entornobh$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-  cventornobh_d<-ts(entornobh$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
+  entornobh_d<-ts(entornobh$Total.de.desocupados,start=c(2012,1),frequency = 4)
+  cventornobh_d<-ts(entornobh$CV.desocupados,start=c(2012,1),frequency = 4)
   
-  entornobh_txd<-ts(entornobh$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-  cventornobh_txd<-ts(entornobh$CV.taxa[1:51],start=c(2012,1),frequency = 4)}
+  entornobh_txd<-ts(entornobh$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
+  cventornobh_txd<-ts(entornobh$CV.taxa,start=c(2012,1),frequency = 4)}
 
 
 # Realizando os plots (por variável)
@@ -299,7 +299,7 @@ colarbh<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
                                           10,23,36,49,
                                           11,24,37,50,
                                           12,25,38,51,
-                                          13,26,39)], function(df) {
+                                          13,26,39,52)], function(df) {
                                             data.frame(
                                               "Período" = as.character(df[3, 8]),
                                               "Total de ocupados" = as.numeric(df[3,2]),
@@ -330,14 +330,14 @@ colarbh <- cbind(
 
 # Transformando em série temporal para facilitar o plot
 
-{colarbh_oc<-ts(colarbh$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-  cvcolarbh_o<-ts(colarbh$CV.ocupados[1:51],start= c(2012,1),frequency=4)
+{colarbh_oc<-ts(colarbh$Total.de.ocupados,start=c(2012,1),frequency = 4)
+  cvcolarbh_o<-ts(colarbh$CV.ocupados,start= c(2012,1),frequency=4)
   
-  colarbh_d<-ts(colarbh$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-  cvcolarbh_d<-ts(colarbh$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
+  colarbh_d<-ts(colarbh$Total.de.desocupados,start=c(2012,1),frequency = 4)
+  cvcolarbh_d<-ts(colarbh$CV.desocupados,start=c(2012,1),frequency = 4)
   
-  colarbh_txd<-ts(colarbh$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-  cvcolarbh_txd<-ts(colarbh$CV.taxa[1:51],start=c(2012,1),frequency = 4)}
+  colarbh_txd<-ts(colarbh$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
+  cvcolarbh_txd<-ts(colarbh$CV.taxa,start=c(2012,1),frequency = 4)}
 
 
 # Realizando os plots (por variável)
@@ -374,7 +374,7 @@ RIDE<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
                                        10,23,36,49,
                                        11,24,37,50,
                                        12,25,38,51,
-                                       13,26,39)], function(df) {
+                                       13,26,39,52)], function(df) {
                                          data.frame(
                                            "Período" = as.character(df[4, 8]),
                                            "Total de ocupados" = as.numeric(df[4,2]),
@@ -405,14 +405,14 @@ RIDE <- cbind(
 
 # Transformando em série temporal para facilitar o plot
 
-{RIDE_oc<-ts(RIDE$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-  cvRIDE_o<-ts(RIDE$CV.ocupados[1:51],start= c(2012,1),frequency=4)
+{RIDE_oc<-ts(RIDE$Total.de.ocupados,start=c(2012,1),frequency = 4)
+  cvRIDE_o<-ts(RIDE$CV.ocupados,start= c(2012,1),frequency=4)
   
-  RIDE_d<-ts(RIDE$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-  cvRIDE_d<-ts(RIDE$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
+  RIDE_d<-ts(RIDE$Total.de.desocupados,start=c(2012,1),frequency = 4)
+  cvRIDE_d<-ts(RIDE$CV.desocupados,start=c(2012,1),frequency = 4)
   
-  RIDE_txd<-ts(RIDE$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-  cvRIDE_txd<-ts(RIDE$CV.taxa[1:51],start=c(2012,1),frequency = 4)}
+  RIDE_txd<-ts(RIDE$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
+  cvRIDE_txd<-ts(RIDE$CV.taxa,start=c(2012,1),frequency = 4)}
 
 
 # Realizando os plots (por variável)
@@ -449,7 +449,7 @@ sulmg<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
                                            10,23,36,49,
                                            11,24,37,50,
                                            12,25,38,51,
-                                           13,26,39)], function(df) {
+                                           13,26,39,52)], function(df) {
                                              data.frame(
                                                "Período" = as.character(df[5, 8]),
                                                "Total de ocupados" = as.numeric(df[5,2]),
@@ -480,14 +480,14 @@ sulmg <- cbind(
 
 # Transformando em série temporal para facilitar o plot
 
-{sulmg_oc<-ts(sulmg$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-  cvsulmg_o<-ts(sulmg$CV.ocupados[1:51],start= c(2012,1),frequency=4)
+{sulmg_oc<-ts(sulmg$Total.de.ocupados,start=c(2012,1),frequency = 4)
+  cvsulmg_o<-ts(sulmg$CV.ocupados,start= c(2012,1),frequency=4)
   
-  sulmg_d<-ts(sulmg$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-  cvsulmg_d<-ts(sulmg$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
+  sulmg_d<-ts(sulmg$Total.de.desocupados,start=c(2012,1),frequency = 4)
+  cvsulmg_d<-ts(sulmg$CV.desocupados,start=c(2012,1),frequency = 4)
   
-  sulmg_txd<-ts(sulmg$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-  cvsulmg_txd<-ts(sulmg$CV.taxa[1:51],start=c(2012,1),frequency = 4)}
+  sulmg_txd<-ts(sulmg$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
+  cvsulmg_txd<-ts(sulmg$CV.taxa,start=c(2012,1),frequency = 4)}
 
 
 # Realizando os plots (por variável)
@@ -524,7 +524,7 @@ trng<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
                                             10,23,36,49,
                                             11,24,37,50,
                                             12,25,38,51,
-                                            13,26,39)], function(df) {
+                                            13,26,39,52)], function(df) {
                                               data.frame(
                                                 "Período" = as.character(df[6, 8]),
                                                 "Total de ocupados" = as.numeric(df[6,2]),
@@ -553,14 +553,14 @@ trng <- cbind(
 
 # Transformando em série temporal para facilitar o plot
 
-{trng_oc<-ts(trng$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-  cvtrngmg_o<-ts(trng$CV.ocupados[1:51],start= c(2012,1),frequency=4)
+{trng_oc<-ts(trng$Total.de.ocupados,start=c(2012,1),frequency = 4)
+  cvtrngmg_o<-ts(trng$CV.ocupados,start= c(2012,1),frequency=4)
   
-  trng_d<-ts(trng$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-  cvtrng_d<-ts(trng$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
+  trng_d<-ts(trng$Total.de.desocupados,start=c(2012,1),frequency = 4)
+  cvtrng_d<-ts(trng$CV.desocupados,start=c(2012,1),frequency = 4)
   
-  trng_txd<-ts(trng$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-  cvtrng_txd<-ts(trng$CV.taxa[1:51],start=c(2012,1),frequency = 4)}
+  trng_txd<-ts(trng$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
+  cvtrng_txd<-ts(trng$CV.taxa,start=c(2012,1),frequency = 4)}
 
 
 # Realizando os plots (por variável)
@@ -597,7 +597,7 @@ zonamata<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
                                            10,23,36,49,
                                            11,24,37,50,
                                            12,25,38,51,
-                                           13,26,39)], function(df) {
+                                           13,26,39,52)], function(df) {
                                              data.frame(
                                                "Período" = as.character(df[7, 8]),
                                                "Total de ocupados" = as.numeric(df[7,2]),
@@ -627,14 +627,14 @@ zonamata <- cbind(
 
 # Transformando em série temporal para facilitar o plot
 
-{zonamata_oc<-ts(zonamata$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-  cvzonamata_o<-ts(zonamata$CV.ocupados[1:51],start= c(2012,1),frequency=4)
+{zonamata_oc<-ts(zonamata$Total.de.ocupados,start=c(2012,1),frequency = 4)
+  cvzonamata_o<-ts(zonamata$CV.ocupados,start= c(2012,1),frequency=4)
   
-  zonamata_d<-ts(zonamata$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-  cvzonamata_d<-ts(zonamata$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
+  zonamata_d<-ts(zonamata$Total.de.desocupados,start=c(2012,1),frequency = 4)
+  cvzonamata_d<-ts(zonamata$CV.desocupados,start=c(2012,1),frequency = 4)
   
-  zonamata_txd<-ts(zonamata$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-  cvzonamata_txd<-ts(zonamata$CV.taxa[1:51],start=c(2012,1),frequency = 4)}
+  zonamata_txd<-ts(zonamata$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
+  cvzonamata_txd<-ts(zonamata$CV.taxa,start=c(2012,1),frequency = 4)}
 
 
 # Realizando os plots (por variável)
@@ -671,7 +671,7 @@ nortemg<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
                                              10,23,36,49,
                                              11,24,37,50,
                                              12,25,38,51,
-                                             13,26,39)], function(df) {
+                                             13,26,39,52)], function(df) {
                                                data.frame(
                                                  "Período" = as.character(df[8, 8]),
                                                  "Total de ocupados" = as.numeric(df[8,2]),
@@ -701,14 +701,14 @@ nortemg <- cbind(
 
 # Transformando em série temporal para facilitar o plot
 
-{nortemg_oc<-ts(nortemg$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-  cvnortemg_o<-ts(nortemg$CV.ocupados[1:51],start= c(2012,1),frequency=4)
+{nortemg_oc<-ts(nortemg$Total.de.ocupados,start=c(2012,1),frequency = 4)
+  cvnortemg_o<-ts(nortemg$CV.ocupados,start= c(2012,1),frequency=4)
   
-  nortemg_d<-ts(nortemg$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-  cvnortemg_d<-ts(nortemg$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
+  nortemg_d<-ts(nortemg$Total.de.desocupados,start=c(2012,1),frequency = 4)
+  cvnortemg_d<-ts(nortemg$CV.desocupados,start=c(2012,1),frequency = 4)
   
-  nortemg_txd<-ts(nortemg$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-  cvnortemg_txd<-ts(nortemg$CV.taxa[1:51],start=c(2012,1),frequency = 4)}
+  nortemg_txd<-ts(nortemg$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
+  cvnortemg_txd<-ts(nortemg$CV.taxa,start=c(2012,1),frequency = 4)}
 
 
 # Realizando os plots (por variável)
@@ -745,7 +745,7 @@ riodoce<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
                                           10,23,36,49,
                                           11,24,37,50,
                                           12,25,38,51,
-                                          13,26,39)], function(df) {
+                                          13,26,39,52)], function(df) {
                                             data.frame(
                                               "Período" = as.character(df[9, 8]),
                                               "Total de ocupados" = as.numeric(df[9,2]),
@@ -775,14 +775,14 @@ riodoce <- cbind(
 
 # Transformando em série temporal para facilitar o plot
 
-{riodoce_oc<-ts(riodoce$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-  cvriodoce_o<-ts(riodoce$CV.ocupados[1:51],start= c(2012,1),frequency=4)
+{riodoce_oc<-ts(riodoce$Total.de.ocupados,start=c(2012,1),frequency = 4)
+  cvriodoce_o<-ts(riodoce$CV.ocupados,start= c(2012,1),frequency=4)
   
-  riodoce_d<-ts(riodoce$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-  cvriodoce_d<-ts(riodoce$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
+  riodoce_d<-ts(riodoce$Total.de.desocupados,start=c(2012,1),frequency = 4)
+  cvriodoce_d<-ts(riodoce$CV.desocupados,start=c(2012,1),frequency = 4)
   
-  riodoce_txd<-ts(riodoce$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-  cvriodoce_txd<-ts(riodoce$CV.taxa[1:51],start=c(2012,1),frequency = 4)}
+  riodoce_txd<-ts(riodoce$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
+  cvriodoce_txd<-ts(riodoce$CV.taxa,start=c(2012,1),frequency = 4)}
 
 
 # Realizando os plots (por variável)
@@ -819,7 +819,7 @@ central<-do.call(rbind, lapply(pnadcrds[c(1,14,27,40,
                                           10,23,36,49,
                                           11,24,37,50,
                                           12,25,38,51,
-                                          13,26,39)], function(df) {
+                                          13,26,39,52)], function(df) {
                                             data.frame(
                                               "Período" = as.character(df[10, 8]),
                                               "Total de ocupados" = as.numeric(df[10,2]),
@@ -849,14 +849,14 @@ central <- cbind(
 
 # Transformando em série temporal para facilitar o plot
 
-{central_oc<-ts(central$Total.de.ocupados[1:51],start=c(2012,1),frequency = 4)
-  cvcentral_o<-ts(central$CV.ocupados[1:51],start= c(2012,1),frequency=4)
+{central_oc<-ts(central$Total.de.ocupados,start=c(2012,1),frequency = 4)
+  cvcentral_o<-ts(central$CV.ocupados,start= c(2012,1),frequency=4)
   
-  central_d<-ts(central$Total.de.desocupados[1:51],start=c(2012,1),frequency = 4)
-  cvcentral_d<-ts(central$CV.desocupados[1:51],start=c(2012,1),frequency = 4)
+  central_d<-ts(central$Total.de.desocupados,start=c(2012,1),frequency = 4)
+  cvcentral_d<-ts(central$CV.desocupados,start=c(2012,1),frequency = 4)
   
-  central_txd<-ts(central$Taxa.de.desocupação[1:51],start=c(2012,1),frequency = 4)
-  cvcentral_txd<-ts(central$CV.taxa[1:51],start=c(2012,1),frequency = 4)}
+  central_txd<-ts(central$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
+  cvcentral_txd<-ts(central$CV.taxa,start=c(2012,1),frequency = 4)}
 
 
 # Realizando os plots (por variável)
@@ -968,10 +968,10 @@ print(cvmedestratos2)
 
 ### SALVANDO ARQUIVO LISTA #####################################################
 
-# baseestr0324<-list("01-Belo Horizonte"=bh,"02-Entorno metropolitano de BH"=entornobh,"03-Colar metropolitano de BH"=colarbh,
-#                   "04-RIDE de Brasília em Minas"=RIDE, "05-Sul de Minas"=sulmg, "06-Triângulo Mineiro"=trng,
-#                   "07-Mata de Minas Gerais"=zonamata, "08-Norte de Minas"=nortemg, "09-Vale do Rio Doce"=riodoce,
-#                   "10-Central"=central, "11 - Minas Gerais"=mg)
+ baseestr0424<-list("01-Belo Horizonte"=bh,"02-Entorno metropolitano de BH"=entornobh,"03-Colar metropolitano de BH"=colarbh,
+                   "04-RIDE de Brasília em Minas"=RIDE, "05-Sul de Minas"=sulmg, "06-Triângulo Mineiro"=trng,
+                   "07-Mata de Minas Gerais"=zonamata, "08-Norte de Minas"=nortemg, "09-Vale do Rio Doce"=riodoce,
+                   "10-Central"=central, "11 - Minas Gerais"=mg)
 
-# saveRDS(baseestr0324,file = "D:/FJP2425/Programacao/data/baseestr0324.rds")
-# baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
+ saveRDS(baseestr0424,file = "D:/FJP2425/Programacao/data/baseestr0424.rds")
+ baseestr0424 <- readRDS("D:/FJP2425/Programacao/data/baseestr0424.RDS")
