@@ -14,7 +14,7 @@ options(scipen=999)
 
 ## Leitura da base de dados:
 
-base <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
+base <- readRDS("D:/FJP2425/Programacao/data/basealinhada0424.RDS")
 
 ## Utilizando conjunto de funções já prontas para o script
 
@@ -853,6 +853,7 @@ clc_d_sul$pvalor = teste(clc_d_sul$facp,nrow(dbsul))
 View(clc_d_sul)
 
 # Plots
+
 
 {par(mfrow=c(1,2),mar=c(5,5,2,5),cex=0.8)
   par(bty = "l",cex.lab = 2)
