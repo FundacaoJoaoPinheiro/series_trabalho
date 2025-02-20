@@ -197,22 +197,22 @@ funorg <- function(data_list) {
 #### Montagem da base:
   # Alguns comandos estão ocultados por conta da fase de testes
 
-#lista<-lista <- c(012012,012013,012014,012015,012016,012017,012018,012019,012020,012021,012022,012023,012024,
-#                  022012,022013,022014,022015,022016,022017,022018,022019,022020,022021,022022,022023,022024,
-#                  032012,032013,032014,032015,032016,032017,032018,032019,032020,032021,032022,032023,032024,
-#                  042012,042013,042014,042015,042016,042017,042018,042019,042020,042021,042022,042023)
+lista<-lista <- c(012012,012013,012014,012015,012016,012017,012018,012019,012020,012021,012022,012023,012024,
+                  022012,022013,022014,022015,022016,022017,022018,022019,022020,022021,022022,022023,022024,
+                  032012,032013,032014,032015,032016,032017,032018,032019,032020,032021,032022,032023,032024,
+                  042012,042013,042014,042015,042016,042017,042018,042019,042020,042021,042022,042023,042024)
 
-# sapply(lista, function(i) calcula_ocup_desocup_k(i))
+ sapply(lista, function(i) calcula_ocup_desocup_k(i))
 
-# dados<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
+ dados<-list.files("data/rotacao", pattern = "\\.RDS$", full.names = TRUE)
 
-# lista_dados<-lapply(dados, readRDS)
+ lista_dados<-lapply(dados, readRDS)
 
-# baserot0324<-funorg(lista_dados)
+ baserot0424<-funorg(lista_dados)
 
-# saveRDS(baserot0324, file = "D:/FJP2425/Programacao/data/baserot0324.rds")
+ saveRDS(baserot0424, file = "D:/FJP2425/Programacao/data/baserot0424.rds")
 
-datarot<-readRDS("D:/FJP2425/Programacao/data/baserot0324.RDS")
+datarot<-readRDS("D:/FJP2425/Programacao/data/baserot0424.RDS")
 
 ### AJUSTE DE DESALINHAMENTO DA BASE ###########################################
 
@@ -336,7 +336,7 @@ basetotal <- lapply(basetotal, as.data.frame)
 # Adicionando novamente a coluna "periodo" e salvando o objeto
 
 periodo <- paste0(rep(2012:2024, each = 4), "Q", 1:4)
-periodo <- periodo[1:51]  # 51 Trimestres -> importante porque ainda não temos os dados do 4T2024
+periodo <- periodo[1:52]  # 52 Trimestres -> importante porque ainda não temos os dados do 1T2025
 
 # Adicionar a coluna "periodo" a cada sub-data.frame e posicioná-la na primeira posição
 basetotal <- lapply(basetotal, function(df) {
@@ -344,9 +344,9 @@ basetotal <- lapply(basetotal, function(df) {
   return(df)
 })
 
-saveRDS(basetotal, file = "D:/FJP2425/Programacao/data/basealinhada0324.rds")
+saveRDS(basetotal, file = "D:/FJP2425/Programacao/data/basealinhada0424.rds")
 
-dados<-readRDS("D:/FJP2425/Programacao/data/basealinhada0324.rds")
+dados<-readRDS("D:/FJP2425/Programacao/data/basealinhada0424.rds")
 
 
 ################################################################################
