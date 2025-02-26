@@ -16,8 +16,8 @@ options(scipen=999)
   # Os hiperparâmetros UCM de cada região obtidos no script 7 devem estar no "range" dos hiper. deste script
 
 ## Anotações:
-  # Não convergiram ->
-  # Hessian false -> BH, ENT, COL, SUL
+  # Não convergiram -> 
+  # Hessian false -> BH, ENT, COL, mata
 
 ### MODELO BH ##################################################################
 rm(list = ls())
@@ -28,8 +28,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/07_teste_bsm_error_AR1.R")
 
 ## Dados:
 
@@ -40,7 +39,7 @@ dtbh<-baseal0424$`01-Belo Horizonte` ## Arquivo "cru", saída direta da rotina d
 dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/01_params_bh.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 y <- bh$Total.de.desocupados/1000
-se_db <- bh$sd_d/1000
+se_db<- bh$sd_d/1000
 cv_db <- se_db/y
 par_ar_erro <- dbbh$parerro_d
 
@@ -55,7 +54,7 @@ par_4<-c(0)
 
 # Input dos parâmetros iniciais do modelo
 
-grid_error <- expand.grid(par_1,par_2,par_3,par_4)
+grid_error<- expand.grid(par_1,par_2,par_3,par_4)
 
 # Processamento paralelo:
 
@@ -101,23 +100,23 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-b <- b[complete.cases(b), ] # 3 NAs
+itbh <- b[complete.cases(b), ] # 3 NAs
 
-hist(b$slope)
-boxplot(b$slope)
-summary(b$slope)
+hist(itbh$slope)
+boxplot(itbh$slope)
+summary(itbh$slope)
 
-hist(b$seasonal)
-boxplot(b$seasonal)
-summary(b$seasonal)
+hist(itbh$seasonal)
+boxplot(itbh$seasonal)
+summary(itbh$seasonal)
 
-hist(b$irregular)
-boxplot(b$irregular)
-summary(b$irregular)
+hist(itbh$irregular)
+boxplot(itbh$irregular)
+summary(itbh$irregular)
 
-hist(b$sampl_error)
-boxplot(b$sampl_error)
-summary(b$sampl_error)
+hist(itbh$sampl_error)
+boxplot(itbh$sampl_error)
+summary(itbh$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
@@ -156,8 +155,8 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultados<-cbind(convergencia,parametros,testes,AIC)
-resultados
+resultadosbh<-cbind(convergencia,parametros,testes,AIC)
+resultadosbh
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
 fig_1 <- window(ts.union(
@@ -181,6 +180,10 @@ legend("topleft", legend = c("CV desocupados: design-based",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
+# Salvando o .Rdata
+
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/01_mod_bh.Rdata")
+
 ### ENTORNO METROPOLITANO ###############################################
 rm(list = ls())
 
@@ -190,8 +193,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/07_teste_bsm_error_AR1.R")
 
 ## Carregando bases e definindo objeto para o Entorno
 
@@ -265,23 +267,23 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-b <- b[complete.cases(b), ] # 12 NAs
+itent <- b[complete.cases(b), ] # 13 NAs
 
-hist(b$slope)
-boxplot(b$slope)
-summary(b$slope)
+hist(itent$slope)
+boxplot(itent$slope)
+summary(itent$slope)
 
-hist(b$seasonal)
-boxplot(b$seasonal)
-summary(b$seasonal)
+hist(itent$seasonal)
+boxplot(itent$seasonal)
+summary(itent$seasonal)
 
-hist(b$irregular)
-boxplot(b$irregular)
-summary(b$irregular)
+hist(itent$irregular)
+boxplot(itent$irregular)
+summary(itent$irregular)
 
-hist(b$sampl_error)
-boxplot(b$sampl_error)
-summary(b$sampl_error)
+hist(itent$sampl_error)
+boxplot(itent$sampl_error)
+summary(itent$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
@@ -303,7 +305,7 @@ colnames(parametros)<-c("Slope","Seasonal","Irregular","Sample Error")
 AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
 colnames(AIC)<-"AIC"
 
-#BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T)
+#BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
@@ -320,8 +322,8 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultados<-cbind(convergencia,parametros,testes,AIC)
-resultados
+resultadosent<-cbind(convergencia,parametros,testes,AIC)
+resultadosent
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
 fig_1 <- window(ts.union(
@@ -345,6 +347,10 @@ legend("topleft", legend = c("CV desocupados: design-based",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
+# Salvando o .Rdata
+
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/02_mod_ent.Rdata")
+
 ### COLAR METROPOLITANO DE BH ##################################################
 rm(list = ls())
 
@@ -354,8 +360,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/07_teste_bsm_error_AR1.R")
 
 ## Carregando bases e definindo objeto para o Colar BH
 
@@ -429,23 +434,23 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-b <- b[complete.cases(b), ] # 12 NAs
+itcol <- b[complete.cases(b), ] # 1 NAs
 
-hist(b$slope)
-boxplot(b$slope)
-summary(b$slope)
+hist(itcol$slope)
+boxplot(itcol$slope)
+summary(itcol$slope)
 
-hist(b$seasonal)
-boxplot(b$seasonal)
-summary(b$seasonal)
+hist(itcol$seasonal)
+boxplot(itcol$seasonal)
+summary(itcol$seasonal)
 
 hist(b$irregular)
 boxplot(b$irregular)
 summary(b$irregular)
 
-hist(b$sampl_error)
-boxplot(b$sampl_error)
-summary(b$sampl_error)
+hist(itcol$sampl_error)
+boxplot(itcol$sampl_error)
+summary(itcol$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
@@ -484,8 +489,8 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultados<-cbind(convergencia,parametros,testes,AIC)
-resultados
+resultadoscol<-cbind(convergencia,parametros,testes,AIC)
+resultadoscol
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
 fig_1 <- window(ts.union(
@@ -509,6 +514,10 @@ legend("topleft", legend = c("CV desocupados: design-based",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
+# Salvando o .Rdata
+
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/03_mod_col.Rdata")
+
 ### RIDE de Brasília em Minas ##################################################
 rm(list = ls())
 
@@ -518,8 +527,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/07_teste_bsm_error_AR1.R")
 
 ## Carregando bases e definindo objeto para RIDE
 
@@ -593,23 +601,23 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-b <- b[complete.cases(b), ] # 2 NAs
+itrid <- b[complete.cases(b), ] # 2 NAs
 
-hist(b$slope)
-boxplot(b$slope)
-summary(b$slope)
+hist(itrid$slope)
+boxplot(itrid$slope)
+summary(itrid$slope)
 
-hist(b$seasonal)
-boxplot(b$seasonal)
-summary(b$seasonal)
+hist(itrid$seasonal)
+boxplot(itrid$seasonal)
+summary(itrid$seasonal)
 
-hist(b$irregular)
-boxplot(b$irregular)
-summary(b$irregular)
+hist(itrid$irregular)
+boxplot(itrid$irregular)
+summary(itrid$irregular)
 
-hist(b$sampl_error)
-boxplot(b$sampl_error)
-summary(b$sampl_error)
+hist(itrid$sampl_error)
+boxplot(itrid$sampl_error)
+summary(itrid$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
@@ -648,8 +656,8 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultados<-cbind(convergencia,parametros,testes,AIC)
-resultados
+resultadosrid<-cbind(convergencia,parametros,testes,AIC)
+resultadosrid
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
 fig_1 <- window(ts.union(
@@ -673,6 +681,10 @@ legend("topleft", legend = c("CV desocupados: design-based",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
+# Salvando o .Rdata
+
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/04_mod_rid.Rdata")
+
 ### SUL DE MINAS ###############################################################
 rm(list = ls())
 
@@ -682,8 +694,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/07_teste_bsm_error_AR1.R")
 
 ## Carregando bases e definindo objeto para o Sul
 
@@ -757,23 +768,23 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-b <- b[complete.cases(b), ] # 3 NAs
+itsul <- b[complete.cases(b), ] # 3 NAs
 
-hist(b$slope)
-boxplot(b$slope)
-summary(b$slope)
+hist(itsul$slope)
+boxplot(itsul$slope)
+summary(itsul$slope)
 
-hist(b$seasonal)
-boxplot(b$seasonal)
-summary(b$seasonal)
+hist(itsul$seasonal)
+boxplot(itsul$seasonal)
+summary(itsul$seasonal)
 
-hist(b$irregular)
-boxplot(b$irregular)
-summary(b$irregular)
+hist(itsul$irregular)
+boxplot(itsul$irregular)
+summary(itsul$irregular)
 
-hist(b$sampl_error)
-boxplot(b$sampl_error)
-summary(b$sampl_error)
+hist(itsul$sampl_error)
+boxplot(itsul$sampl_error)
+summary(itsul$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
@@ -799,7 +810,7 @@ colnames(AIC)<-"AIC"
 
 # Matriz Hessiana
 
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # false
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # true
 
 # Diagnosticando os resíduos
 
@@ -812,8 +823,8 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultados<-cbind(convergencia,parametros,testes,AIC)
-resultados
+resultadossul<-cbind(convergencia,parametros,testes,AIC)
+resultadossul
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
 fig_1 <- window(ts.union(
@@ -837,6 +848,10 @@ legend("topleft", legend = c("CV desocupados: design-based",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
+# Salvando o .Rdata
+
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/05_mod_sul.Rdata")
+
 ### TRIÂNGULO MINEIRO ##########################################################
 rm(list = ls())
 
@@ -846,8 +861,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/07_teste_bsm_error_AR1.R")
 
 ## Carregando bases e definindo objeto para Triângulo Mineiro
 
@@ -921,23 +935,23 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-b <- b[complete.cases(b), ] #  NAs
+ittrg <- b[complete.cases(b), ] # 5 NAs
 
-hist(b$slope)
-boxplot(b$slope)
-summary(b$slope)
+hist(ittrg$slope)
+boxplot(ittrg$slope)
+summary(ittrg$slope)
 
-hist(b$seasonal)
-boxplot(b$seasonal)
-summary(b$seasonal)
+hist(ittrg$seasonal)
+boxplot(ittrg$seasonal)
+summary(ittrg$seasonal)
 
-hist(b$irregular)
-boxplot(b$irregular)
-summary(b$irregular)
+hist(ittrg$irregular)
+boxplot(ittrg$irregular)
+summary(ittrg$irregular)
 
-hist(b$sampl_error)
-boxplot(b$sampl_error)
-summary(b$sampl_error)
+hist(ittrg$sampl_error)
+boxplot(ittrg$sampl_error)
+summary(ittrg$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
@@ -976,8 +990,8 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultados<-cbind(convergencia,parametros,testes,AIC)
-resultados
+resultadostrg<-cbind(convergencia,parametros,testes,AIC)
+resultadostrg
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
 fig_1 <- window(ts.union(
@@ -1001,6 +1015,10 @@ legend("topleft", legend = c("CV desocupados: design-based",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
+# Salvando o .Rdata
+
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/06_mod_trg.Rdata")
+
 ### ZONA DA MATA ###############################################################
 rm(list = ls())
 
@@ -1010,8 +1028,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/07_teste_bsm_error_AR1.R")
 
 ## Carregando bases e definindo objeto para a Zona da Mata
 
@@ -1085,23 +1102,23 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-b <- b[complete.cases(b), ] # 4 NAs
+itmat <- b[complete.cases(b), ] # 4 NAs
 
-hist(b$slope)
-boxplot(b$slope)
-summary(b$slope)
+hist(itmat$slope)
+boxplot(itmat$slope)
+summary(itmat$slope)
 
-hist(b$seasonal)
-boxplot(b$seasonal)
-summary(b$seasonal)
+hist(itmat$seasonal)
+boxplot(itmat$seasonal)
+summary(itmat$seasonal)
 
-hist(b$irregular)
-boxplot(b$irregular)
-summary(b$irregular)
+hist(itmat$irregular)
+boxplot(itmat$irregular)
+summary(itmat$irregular)
 
-hist(b$sampl_error)
-boxplot(b$sampl_error)
-summary(b$sampl_error)
+hist(itmat$sampl_error)
+boxplot(itmat$sampl_error)
+summary(itmat$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
@@ -1127,7 +1144,7 @@ colnames(AIC)<-"AIC"
 
 # Matriz Hessiana
 
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # true
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # false
 
 # Diagnosticando os resíduos
 
@@ -1140,8 +1157,8 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultados<-cbind(convergencia,parametros,testes,AIC)
-resultados
+resultadosmat<-cbind(convergencia,parametros,testes,AIC)
+resultadosmat
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
 fig_1 <- window(ts.union(
@@ -1165,6 +1182,10 @@ legend("topleft", legend = c("CV desocupados: design-based",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
+# Salvando o .Rdata
+
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/07_mod_mat.Rdata")
+
 ### NORTE DE MINAS GERAIS ######################################################
 rm(list = ls())
 
@@ -1174,8 +1195,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/07_teste_bsm_error_AR1.R")
 
 ## Carregando bases e definindo objeto para o Norte
 
@@ -1249,23 +1269,23 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-b <- b[complete.cases(b), ] # 4 NAs
+itnrt <- b[complete.cases(b), ] # 4 NAs
 
-hist(b$slope)
-boxplot(b$slope)
-summary(b$slope)
+hist(itnrt$slope)
+boxplot(itnrt$slope)
+summary(itnrt$slope)
 
-hist(b$seasonal)
-boxplot(b$seasonal)
-summary(b$seasonal)
+hist(itnrt$seasonal)
+boxplot(itnrt$seasonal)
+summary(itnrt$seasonal)
 
-hist(b$irregular)
-boxplot(b$irregular)
-summary(b$irregular)
+hist(itnrt$irregular)
+boxplot(itnrt$irregular)
+summary(itnrt$irregular)
 
-hist(b$sampl_error)
-boxplot(b$sampl_error)
-summary(b$sampl_error)
+hist(itnrt$sampl_error)
+boxplot(itnrt$sampl_error)
+summary(itnrt$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
@@ -1304,8 +1324,8 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultados<-cbind(convergencia,parametros,testes,AIC)
-resultados
+resultadosnrt<-cbind(convergencia,parametros,testes,AIC)
+resultadosnrt
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
 fig_1 <- window(ts.union(
@@ -1329,6 +1349,10 @@ legend("topleft", legend = c("CV desocupados: design-based",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
+# Salvando o .Rdata
+
+# save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/08_mod_nrt.Rdata")
+
 ### VALE DO RIO DOCE ###########################################################
 rm(list = ls())
 
@@ -1338,8 +1362,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/07_teste_bsm_error_AR1.R")
 
 ## Carregando bases e definindo objeto para o vale
 
@@ -1413,23 +1436,23 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-b <- b[complete.cases(b), ] # 4 NAs
+itval <- b[complete.cases(b), ] # 4 NAs
 
-hist(b$slope)
-boxplot(b$slope)
-summary(b$slope)
+hist(itval$slope)
+boxplot(itval$slope)
+summary(itval$slope)
 
-hist(b$seasonal)
-boxplot(b$seasonal)
-summary(b$seasonal)
+hist(itval$seasonal)
+boxplot(itval$seasonal)
+summary(itval$seasonal)
 
-hist(b$irregular)
-boxplot(b$irregular)
-summary(b$irregular)
+hist(itval$irregular)
+boxplot(itval$irregular)
+summary(itval$irregular)
 
-hist(b$sampl_error)
-boxplot(b$sampl_error)
-summary(b$sampl_error)
+hist(itval$sampl_error)
+boxplot(itval$sampl_error)
+summary(itval$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
@@ -1468,8 +1491,8 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultados<-cbind(convergencia,parametros,testes,AIC)
-resultados
+resultadosval<-cbind(convergencia,parametros,testes,AIC)
+resultadosval
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
 fig_1 <- window(ts.union(
@@ -1493,6 +1516,10 @@ legend("topleft", legend = c("CV desocupados: design-based",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
+# Salvando o .Rdata
+
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/09_mod_val.Rdata")
+
 ### CENTRAL ####################################################################
 rm(list = ls())
 
@@ -1502,8 +1529,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
+source("data/funcoes/07_teste_bsm_error_AR1.R")
 
 ## Carregando bases e definindo objeto para central 
 
@@ -1577,23 +1603,23 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-b <- b[complete.cases(b), ] # 2 NAs
+itcen <- b[complete.cases(b), ] # 2 NAs
 
-hist(b$slope)
-boxplot(b$slope)
-summary(b$slope)
+hist(itcen$slope)
+boxplot(itcen$slope)
+summary(itcen$slope)
 
-hist(b$seasonal)
-boxplot(b$seasonal)
-summary(b$seasonal)
+hist(itcen$seasonal)
+boxplot(itcen$seasonal)
+summary(itcen$seasonal)
 
-hist(b$irregular)
-boxplot(b$irregular)
-summary(b$irregular)
+hist(itcen$irregular)
+boxplot(itcen$irregular)
+summary(itcen$irregular)
 
-hist(b$sampl_error)
-boxplot(b$sampl_error)
-summary(b$sampl_error)
+hist(itcen$sampl_error)
+boxplot(itcen$sampl_error)
+summary(itcen$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
@@ -1632,8 +1658,8 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultados<-cbind(convergencia,parametros,testes,AIC)
-resultados
+resultadoscen<-cbind(convergencia,parametros,testes,AIC)
+resultadoscen
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
 fig_1 <- window(ts.union(
@@ -1656,3 +1682,7 @@ legend("topleft", legend = c("CV desocupados: design-based",
        lty = c(1,1), col = c(1,4), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
+
+# Salvando o .Rdata
+
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/10_mod_cen.Rdata")
