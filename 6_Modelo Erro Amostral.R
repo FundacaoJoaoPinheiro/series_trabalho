@@ -13,13 +13,13 @@ library(writexl)
 options(scipen=999)
 
 ## Leitura da base de dados:
+rm(list = ls())
 
 base <- readRDS("D:/FJP2425/Programacao/data/basealinhada0424.RDS")
 
 ## Utilizando conjunto de funções já prontas para o script
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
-
 
 ### 01-BELO HORIZONTE###########################################################
 
@@ -191,9 +191,17 @@ View(clc_d_bh)
 
 parerro_d_bh = clc_d_bh$fac[lag==1]
 parerro_o_bh = clc_o_bh$fac[lag==1]
+
+rho1_d_bh <- clc_d_bh$fac[2] # FAC no lag 1
+theta1_d_bh <- (1 - sqrt(1 - 4 * rho1_d_bh^2)) / (2 * rho1_d_bh)
+
+rho1_o_bh <- clc_o_bh$fac[2]
+theta1_o_bh <- (1 - sqrt(1 - 4 * rho1_o_bh^2)) / (2 * rho1_o_bh)
+
 params_bh <- list("dbbh"=dbbh,"calculos_desocupada_bh"=clc_d_bh,
                 "calculos_ocupada_bh"=  clc_o_bh, 
-                "parerro_d" = parerro_d_bh,"parerro_o"=  parerro_o_bh)
+                "parerro_d" = parerro_d_bh,"parerro_o"=  parerro_o_bh,
+                "theta1_d"= theta1_d_bh, "theta1_o"= theta1_o_bh)
 
 saveRDS(params_bh,file = "D:/FJP2425/Programacao/data/pseudoerros/01_params_bh.rds")
 
@@ -267,7 +275,7 @@ clc_o_ent$facp[2:25] = facp_acf(clc_o_ent$fac,lags)
         ## Referência: pg.86 de Silva e Cruz(2002) (anotação retirada do arqv original do Caio)
 
 clc_o_ent$esttest = nrow(dbent)*clc_o_ent$facp ^ 2 
-clc_o_ent$pvalor = teste(clc_o_ent$facp,nrow(dbbh))
+clc_o_ent$pvalor = teste(clc_o_ent$facp,nrow(dbent))
 #View(clc_o_ent)
 
           # Plots
@@ -364,12 +372,19 @@ View(clc_d_ent)
 
 parerro_d_ent = clc_d_ent$fac[lag==1]
 parerro_o_ent = clc_o_ent$fac[lag==1]
+
+rho1_d_ent <- clc_d_ent$fac[2] # FAC no lag 1
+theta1_d_ent <- (1 - sqrt(1 - 4 * rho1_d_ent^2)) / (2 * rho1_d_ent)
+
+rho1_o_ent <- clc_o_ent$fac[2]
+theta1_o_ent <- (1 - sqrt(1 - 4 * rho1_o_ent^2)) / (2 * rho1_o_ent)
+
 params_ent <- list("dbent"=dbent,"calculos_desocupada_ent"=clc_d_ent,
                    "calculos_ocupada_ent"=  clc_o_ent, 
-                   "parerro_d" = parerro_d_ent,"parerro_o"=  parerro_o_ent)
+                   "parerro_d" = parerro_d_ent,"parerro_o"=  parerro_o_ent,
+                   "theta1_d"=theta1_d_ent, "theta1_o"=theta1_o_ent)
 
 saveRDS(params_ent,file = "D:/FJP2425/Programacao/data/pseudoerros/02_params_ent.rds")
-
 
 ### 03-COLAR METROPOLITANO DE BELO HORIZONTE####################################
 
@@ -537,9 +552,18 @@ View(clc_d_col)
 
 parerro_d_col = clc_d_col$fac[lag==1]
 parerro_o_col = clc_o_col$fac[lag==1]
+
+rho1_d_col <- clc_d_col$fac[2] # FAC no lag 1
+theta1_d_col <- (1 - sqrt(1 - 4 * rho1_d_col^2)) / (2 * rho1_d_col)
+
+rho1_o_col<- clc_o_col$fac[2]
+theta1_o_col <- (1 - sqrt(1 - 4 * rho1_o_col^2)) / (2 * rho1_o_col)
+
+
 params_col <- list("dbcol"=dbcol,"calculos_desocupada_col"=clc_d_col,
                     "calculos_ocupada_col"=  clc_o_col, 
-                    "parerro_d" = parerro_d_col,"parerro_o"=  parerro_o_col)
+                    "parerro_d" = parerro_d_col,"parerro_o"=  parerro_o_col,
+                   "theta1_d"=theta1_d_col, "theta1_o"=theta1_o_col)
 
 saveRDS(params_col,file = "D:/FJP2425/Programacao/data/pseudoerros/03_params_col.rds")
 
@@ -710,12 +734,19 @@ View(clc_d_rid)
 
 parerro_d_rid = clc_d_rid$fac[lag==1]
 parerro_o_rid = clc_o_rid$fac[lag==1]
+
+rho1_d_rid <- clc_d_rid$fac[2] # FAC no lag 1
+theta1_d_rid <- (1 - sqrt(1 - 4 * rho1_d_rid^2)) / (2 * rho1_d_rid)
+
+rho1_o_rid<- clc_o_rid$fac[2]
+theta1_o_rid <- (1 - sqrt(1 - 4 * rho1_o_rid^2)) / (2 * rho1_o_rid)
+
 params_rid <- list("dbrid"=dbrid,"calculos_desocupada_rid"=clc_d_rid,
                     "calculos_ocupada_rid"=  clc_o_rid, 
-                    "parerro_d" = parerro_d_rid,"parerro_o"=  parerro_o_rid)
+                    "parerro_d" = parerro_d_rid,"parerro_o"=  parerro_o_rid,
+                   "theta1_d"=theta1_d_rid, "theta1_o"=theta1_o_rid)
 
 saveRDS(params_rid,file = "D:/FJP2425/Programacao/data/pseudoerros/04_params_rid.rds")
-
 
 ### 05-SUL DE MINAS ############################################################
 
@@ -884,12 +915,19 @@ View(clc_d_sul)
 
 parerro_d_sul = clc_d_sul$fac[lag==1]
 parerro_o_sul = clc_o_sul$fac[lag==1]
+
+rho1_d_sul <- clc_d_sul$fac[2] # FAC no lag 1
+theta1_d_sul <- (1 - sqrt(1 - 4 * rho1_d_sul^2)) / (2 * rho1_d_sul)
+
+rho1_o_sul<- clc_o_sul$fac[2]
+theta1_o_sul <- (1 - sqrt(1 - 4 * rho1_o_sul^2)) / (2 * rho1_o_sul)
+
 params_sul <- list("dbsul"=dbsul,"calculos_desocupada_sul"=clc_d_sul,
                     "calculos_ocupada_sul"=  clc_o_sul, 
-                    "parerro_d" = parerro_d_sul,"parerro_o"=  parerro_o_sul)
+                    "parerro_d" = parerro_d_sul,"parerro_o"=  parerro_o_sul,
+                   "theta1_d"=theta1_d_sul, "theta1_o"=theta1_o_sul)
 
 saveRDS(params_sul,file = "D:/FJP2425/Programacao/data/pseudoerros/05_params_sul.rds")
-
 
 ### 06-TRIÂNGULO MINEIRO #######################################################
 
@@ -1057,12 +1095,19 @@ View(clc_d_trg)
 
 parerro_d_trg = clc_d_trg$fac[lag==1]
 parerro_o_trg = clc_o_trg$fac[lag==1]
+
+rho1_d_trg <- clc_d_trg$fac[2] # FAC no lag 1
+theta1_d_trg <- (1 - sqrt(1 - 4 * rho1_d_trg^2)) / (2 * rho1_d_trg)
+
+rho1_o_trg<- clc_o_trg$fac[2]
+theta1_o_trg <- (1 - sqrt(1 - 4 * rho1_o_trg^2)) / (2 * rho1_o_trg)
+
 params_trg <- list("dbtrg"=dbtrg,"calculos_desocupada_trg"=clc_d_trg,
                     "calculos_ocupada_trg"=  clc_o_trg, 
-                    "parerro_d" = parerro_d_trg,"parerro_o"=  parerro_o_trg)
+                    "parerro_d" = parerro_d_trg,"parerro_o"=  parerro_o_trg,
+                   "theta1_d"=theta1_d_trg, "theta1_o"=theta1_o_trg)
 
 saveRDS(params_trg,file = "D:/FJP2425/Programacao/data/pseudoerros/06_params_trg.rds")
-
 
 ### 07-ZONA DA MATA ############################################################
 
@@ -1230,12 +1275,19 @@ View(clc_d_mat)
 
 parerro_d_mat = clc_d_mat$fac[lag==1]
 parerro_o_mat = clc_o_mat$fac[lag==1]
+
+rho1_d_mat <- clc_d_mat$fac[2] # FAC no lag 1
+theta1_d_mat <- (1 - sqrt(1 - 4 * rho1_d_mat^2)) / (2 * rho1_d_mat)
+
+rho1_o_mat <- clc_o_mat$fac[2]
+theta1_o_mat <- (1 - sqrt(1 - 4 * rho1_o_mat^2)) / (2 * rho1_o_mat)
+
 params_mat <- list("dbmat"=dbmat,"calculos_desocupada_mat"=clc_d_mat,
                     "calculos_ocupada_mat"=  clc_o_mat, 
-                    "parerro_d" = parerro_d_mat,"parerro_o"=  parerro_o_mat)
+                    "parerro_d" = parerro_d_mat,"parerro_o"=  parerro_o_mat,
+                   "theta1_d"=theta1_d_mat, "theta1_o"=theta1_o_mat)
 
 saveRDS(params_mat,file = "D:/FJP2425/Programacao/data/pseudoerros/07_params_mat.rds")
-
 
 ### 08-NORTE DE MINAS GERAIS ###################################################
 
@@ -1403,12 +1455,19 @@ View(clc_d_nrt)
 
 parerro_d_nrt = clc_d_nrt$fac[lag==1]
 parerro_o_nrt = clc_o_nrt$fac[lag==1]
+
+rho1_d_nrt <- clc_d_nrt$fac[2] # FAC no lag 1
+theta1_d_nrt <- (1 - sqrt(1 - 4 * rho1_d_nrt^2)) / (2 * rho1_d_nrt)
+
+rho1_o_nrt <- clc_o_nrt$fac[2]
+theta1_o_nrt <- (1 - sqrt(1 - 4 * rho1_o_nrt^2)) / (2 * rho1_o_nrt)
+
 params_nrt <- list("dbnrt"=dbnrt,"calculos_desocupada_nrt"=clc_d_nrt,
                     "calculos_ocupada_nrt"=  clc_o_nrt, 
-                    "parerro_d" = parerro_d_nrt,"parerro_o"=  parerro_o_nrt)
+                    "parerro_d" = parerro_d_nrt,"parerro_o"=  parerro_o_nrt,
+                   "theta1_d"=theta1_d_nrt, "theta1_o"=theta1_o_nrt)
 
 saveRDS(params_nrt,file = "D:/FJP2425/Programacao/data/pseudoerros/08_params_nrt.rds")
-
 
 ### 09-VALE DO RIO DOCE ########################################################
 
@@ -1571,17 +1630,23 @@ View(clc_d_rio)
   axis(2, cex.axis = 1)
   mtext("lag", side = 1, line = 3)}
 
-
 ### Parâmetros para os modelos
 
 parerro_d_rio = clc_d_rio$fac[lag==1]
 parerro_o_rio = clc_o_rio$fac[lag==1]
+
+rho1_d_rio <- clc_d_rio$fac[2] # FAC no lag 1
+theta1_d_rio <- (1 - sqrt(1 - 4 * rho1_d_rio^2)) / (2 * rho1_d_rio)
+
+rho1_o_rio <- clc_o_rio$fac[2]
+theta1_o_rio <- (1 - sqrt(1 - 4 * rho1_o_rio^2)) / (2 * rho1_o_rio)
+
 params_rio <- list("dbrio"=dbrio,"calculos_desocupada_rio"=clc_d_rio,
                     "calculos_ocupada_rio"=  clc_o_rio, 
-                    "parerro_d" = parerro_d_rio,"parerro_o"=  parerro_o_rio)
+                    "parerro_d" = parerro_d_rio,"parerro_o"=  parerro_o_rio,
+                   "theta1_d"=theta1_d_rio, "theta1_o"=theta1_o_rio)
 
 saveRDS(params_rio,file = "D:/FJP2425/Programacao/data/pseudoerros/09_params_rio.rds")
-
 
 ### 10-CENTRAL #################################################################
 
@@ -1749,9 +1814,17 @@ View(clc_d_cen)
 
 parerro_d_cen = clc_d_cen$fac[lag==1]
 parerro_o_cen = clc_o_cen$fac[lag==1]
+
+rho1_d_cen <- clc_d_cen$fac[2] # FAC no lag 1
+theta1_d_cen <- (1 - sqrt(1 - 4 * rho1_d_cen^2)) / (2 * rho1_d_cen)
+
+rho1_o_cen <- clc_o_cen$fac[2]
+theta1_o_cen <- (1 - sqrt(1 - 4 * rho1_o_cen^2)) / (2 * rho1_o_cen)
+
 params_cen <- list("dbcen"=dbcen,"calculos_desocupada_cen"=clc_d_cen,
                     "calculos_ocupada_cen"=  clc_o_cen, 
-                    "parerro_d" = parerro_d_cen,"parerro_o"=  parerro_o_cen)
+                    "parerro_d" = parerro_d_cen,"parerro_o"=  parerro_o_cen,
+                   "theta1_d" = theta1_d_cen, "theta1_o" = theta1_o_cen)
 
 saveRDS(params_cen,file = "D:/FJP2425/Programacao/data/pseudoerros/10_params_cen.rds")
 
