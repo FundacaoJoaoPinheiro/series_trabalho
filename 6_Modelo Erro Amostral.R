@@ -9,6 +9,7 @@ library(tidyr)
 library(tidyverse)
 library(forecast)
 library(writexl)
+library(nleqslv)
 
 options(scipen=999)
 
@@ -186,25 +187,80 @@ View(clc_d_bh)
   axis(2, cex.axis = 1)
   mtext("lag", side = 1, line = 3)}
 
-
 ### Parâmetros para os modelos
 
-parerro_d_bh = clc_d_bh$fac[lag==1]
-parerro_o_bh = clc_o_bh$fac[lag==1]
-
-rho1_d_bh <- clc_d_bh$fac[2] # FAC no lag 1
-theta1_d_bh <- (1 - sqrt(1 - 4 * rho1_d_bh^2)) / (2 * rho1_d_bh)
+rho1_d_bh <- clc_d_bh$fac[2]
+rho2_d_bh <- clc_d_bh$fac[3]
 
 rho1_o_bh <- clc_o_bh$fac[2]
-theta1_o_bh <- (1 - sqrt(1 - 4 * rho1_o_bh^2)) / (2 * rho1_o_bh)
+rho2_o_bh <- clc_o_bh$fac[3]
+
+#AR(1)
+phi1_ar1_dbh = clc_d_bh$fac[lag==1]
+phi1_ar1_obh = clc_o_bh$fac[lag==1]
+
+par_ar1_bh<- data.frame(phi1_ar1_dbh, phi1_ar1_obh)
+
+#MA(1):
+theta1_ma1_dbh <- (1 - sqrt(1 - 4 * rho1_d_bh^2)) / (2 * rho1_d_bh)
+
+theta1_ma1_obh <- (1 - sqrt(1 - 4 * rho1_o_bh^2)) / (2 * rho1_o_bh)
+
+par_ma1_bh<-data.frame(theta1_ma1_dbh,theta1_ma1_obh)
+
+#AR(2)
+
+phi1_ar2_dbh <- (rho1_d_bh - rho1_d_bh * rho2_d_bh) / (1 - rho1_d_bh^2)
+phi2_ar2_dbh <- (rho2_d_bh - rho1_d_bh^2) / (1 - rho1_d_bh^2)
+
+phi1_ar2_obh <- (rho1_o_bh - rho1_o_bh * rho2_o_bh) / (1 - rho1_o_bh^2)
+phi2_ar2_obh <- (rho2_o_bh - rho1_o_bh^2) / (1 - rho1_o_bh^2)
+
+par_ar2_bh<-data.frame(phi1_ar2_dbh,phi2_ar2_dbh,phi1_ar2_obh,phi2_ar2_obh)
+
+#MA(2) - apenas desocupados
+
+rho1 <- rho1_d_bh
+rho2 <- rho2_d_bh
+sistema_eq <- function(theta) {
+  theta1 <- theta[1]
+  theta2 <- theta[2]
+  eq1 <- (-theta1 * (1 - theta2)) / (1 + theta1^2 + theta2^2) - rho1
+  eq2 <- (-theta2) / (1 + theta1^2 + theta2^2) - rho2
+  return(c(eq1, eq2))
+}
+theta_ini <- c(0, 0)
+solucao <- nleqslv(theta_ini, sistema_eq)
+solucao$x
+
+par_ma2_bh<-data.frame("theta1_ma2_dbh"=solucao$x[1],"theta2_ma2_dbh"=solucao$x[2])
+
+#ARMA (1,1) - apenas desocupados
+
+phi1_arma11_dbh <- rho2_d_bh/rho1_d_bh
+
+arma11_theta1 <- function(rho1, phi1) {
+  eq_theta1 <- function(theta1, rho1, phi1) {
+    (1 - phi1 * theta1) * (phi1 - theta1) / (1 + theta1^2 - 2 * phi1 * theta1) - rho1
+  }
+  resultado_theta1 <- uniroot(eq_theta1, interval = c(-1, 1), rho1 = rho1, phi1 = phi1)
+  theta1 <- resultado_theta1$root
+  return(theta1)
+}
+
+rho1 <- rho1_d_bh
+phi1 <- phi1_arma11_dbh
+
+theta1_arma11_dbh <- arma11_theta1(rho1, phi1)
+
+par_arma11_bh <-data.frame(phi1_arma11_dbh,theta1_arma11_dbh)
 
 params_bh <- list("dbbh"=dbbh,"calculos_desocupada_bh"=clc_d_bh,
                 "calculos_ocupada_bh"=  clc_o_bh, 
-                "parerro_d" = parerro_d_bh,"parerro_o"=  parerro_o_bh,
-                "theta1_d"= theta1_d_bh, "theta1_o"= theta1_o_bh)
+                "mod_ar1" = par_ar1_bh, "mod_ar2"=par_ar2_bh,
+                "mod_ma1"=par_ma1_bh,"mod_ma2"=par_ma2_bh, "mod_arma11"=par_arma11_bh)
 
 saveRDS(params_bh,file = "D:/FJP2425/Programacao/data/pseudoerros/01_params_bh.rds")
-
 
 ### 02-ENTORNO METROPOLITANO DE BELO HORIZONTE##################################
 
@@ -370,19 +426,76 @@ View(clc_d_ent)
 
 ### Parâmetros para os modelos
 
-parerro_d_ent = clc_d_ent$fac[lag==1]
-parerro_o_ent = clc_o_ent$fac[lag==1]
-
-rho1_d_ent <- clc_d_ent$fac[2] # FAC no lag 1
-theta1_d_ent <- (1 - sqrt(1 - 4 * rho1_d_ent^2)) / (2 * rho1_d_ent)
+rho1_d_ent <- clc_d_ent$fac[2]
+rho2_d_ent <- clc_d_ent$fac[3]
 
 rho1_o_ent <- clc_o_ent$fac[2]
-theta1_o_ent <- (1 - sqrt(1 - 4 * rho1_o_ent^2)) / (2 * rho1_o_ent)
+rho2_o_ent <- clc_o_ent$fac[3]
+
+#AR(1)
+phi1_ar1_dent = clc_d_ent$fac[lag==1]
+phi1_ar1_oent = clc_o_ent$fac[lag==1]
+
+par_ar1_ent<- data.frame(phi1_ar1_dent, phi1_ar1_oent)
+
+#MA(1):
+theta1_ma1_dent <- (1 - sqrt(1 - 4 * rho1_d_ent^2)) / (2 * rho1_d_ent)
+
+theta1_ma1_oent <- (1 - sqrt(1 - 4 * rho1_o_ent^2)) / (2 * rho1_o_ent)
+
+par_ma1_ent<-data.frame(theta1_ma1_dent,theta1_ma1_oent)
+
+#AR(2)
+
+phi1_ar2_dent <- (rho1_d_ent - rho1_d_ent * rho2_d_ent) / (1 - rho1_d_ent^2)
+phi2_ar2_dent <- (rho2_d_ent - rho1_d_ent^2) / (1 - rho1_d_ent^2)
+
+phi1_ar2_oent <- (rho1_o_ent - rho1_o_ent * rho2_o_ent) / (1 - rho1_o_ent^2)
+phi2_ar2_oent <- (rho2_o_ent - rho1_o_ent^2) / (1 - rho1_o_ent^2)
+
+par_ar2_ent<-data.frame(phi1_ar2_dent,phi2_ar2_dent,phi1_ar2_oent,phi2_ar2_oent)
+
+#MA(2) - apenas desocupados
+
+rho1 <- rho1_d_ent
+rho2 <- rho2_d_ent
+sistema_eq <- function(theta) {
+  theta1 <- theta[1]
+  theta2 <- theta[2]
+  eq1 <- (-theta1 * (1 - theta2)) / (1 + theta1^2 + theta2^2) - rho1
+  eq2 <- (-theta2) / (1 + theta1^2 + theta2^2) - rho2
+  return(c(eq1, eq2))
+}
+theta_ini <- c(0, 0)
+solucao <- nleqslv(theta_ini, sistema_eq)
+solucao$x
+
+par_ma2_ent<-data.frame("theta1_ma2_dent"=solucao$x[1],"theta2_ma2_dent"=solucao$x[2])
+
+#ARMA (1,1) - apenas desocupados
+
+phi1_arma11_dent <- rho2_d_ent/rho1_d_ent
+
+arma11_theta1 <- function(rho1, phi1) {
+  eq_theta1 <- function(theta1, rho1, phi1) {
+    (1 - phi1 * theta1) * (phi1 - theta1) / (1 + theta1^2 - 2 * phi1 * theta1) - rho1
+  }
+  resultado_theta1 <- uniroot(eq_theta1, interval = c(-1, 1), rho1 = rho1, phi1 = phi1)
+  theta1 <- resultado_theta1$root
+  return(theta1)
+}
+
+rho1 <- rho1_d_ent
+phi1 <- phi1_arma11_dent
+
+theta1_arma11_dent <- arma11_theta1(rho1, phi1)
+
+par_arma11_ent <-data.frame(phi1_arma11_dent,theta1_arma11_dent)
 
 params_ent <- list("dbent"=dbent,"calculos_desocupada_ent"=clc_d_ent,
                    "calculos_ocupada_ent"=  clc_o_ent, 
-                   "parerro_d" = parerro_d_ent,"parerro_o"=  parerro_o_ent,
-                   "theta1_d"=theta1_d_ent, "theta1_o"=theta1_o_ent)
+                   "mod_ar1" = par_ar1_ent, "mod_ar2"=par_ar2_ent,
+                   "mod_ma1"=par_ma1_ent,"mod_ma2"=par_ma2_ent, "mod_arma11"=par_arma11_ent)
 
 saveRDS(params_ent,file = "D:/FJP2425/Programacao/data/pseudoerros/02_params_ent.rds")
 
@@ -550,23 +663,78 @@ View(clc_d_col)
 
 ### Parâmetros para os modelos
 
-parerro_d_col = clc_d_col$fac[lag==1]
-parerro_o_col = clc_o_col$fac[lag==1]
+rho1_d_col <- clc_d_col$fac[2]
+rho2_d_col <- clc_d_col$fac[3]
 
-rho1_d_col <- clc_d_col$fac[2] # FAC no lag 1
-theta1_d_col <- (1 - sqrt(1 - 4 * rho1_d_col^2)) / (2 * rho1_d_col)
+rho1_o_col <- clc_o_col$fac[2]
+rho2_o_col <- clc_o_col$fac[3]
 
-rho1_o_col<- clc_o_col$fac[2]
-theta1_o_col <- (1 - sqrt(1 - 4 * rho1_o_col^2)) / (2 * rho1_o_col)
+#AR(1)
+phi1_ar1_dcol = clc_d_col$fac[lag==1]
+phi1_ar1_ocol = clc_o_col$fac[lag==1]
 
+par_ar1_col<- data.frame(phi1_ar1_dcol, phi1_ar1_ocol)
+
+#MA(1):
+theta1_ma1_dcol <- (1 - sqrt(1 - 4 * rho1_d_col^2)) / (2 * rho1_d_col)
+
+theta1_ma1_ocol <- (1 - sqrt(1 - 4 * rho1_o_col^2)) / (2 * rho1_o_col)
+
+par_ma1_col<-data.frame(theta1_ma1_dcol,theta1_ma1_ocol)
+
+#AR(2)
+
+phi1_ar2_dcol <- (rho1_d_col - rho1_d_col * rho2_d_col) / (1 - rho1_d_col^2)
+phi2_ar2_dcol <- (rho2_d_col - rho1_d_col^2) / (1 - rho1_d_col^2)
+
+phi1_ar2_ocol <- (rho1_o_col - rho1_o_col * rho2_o_col) / (1 - rho1_o_col^2)
+phi2_ar2_ocol <- (rho2_o_col - rho1_o_col^2) / (1 - rho1_o_col^2)
+
+par_ar2_col<-data.frame(phi1_ar2_dcol,phi2_ar2_dcol,phi1_ar2_ocol,phi2_ar2_ocol)
+
+#MA(2) - apenas desocupados
+
+rho1 <- rho1_d_col
+rho2 <- rho2_d_col
+sistema_eq <- function(theta) {
+  theta1 <- theta[1]
+  theta2 <- theta[2]
+  eq1 <- (-theta1 * (1 - theta2)) / (1 + theta1^2 + theta2^2) - rho1
+  eq2 <- (-theta2) / (1 + theta1^2 + theta2^2) - rho2
+  return(c(eq1, eq2))
+}
+theta_ini <- c(0, 0)
+solucao <- nleqslv(theta_ini, sistema_eq)
+solucao$x
+
+par_ma2_col<-data.frame("theta1_ma2_dcol"=solucao$x[1],"theta2_ma2_dcol"=solucao$x[2])
+
+#ARMA (1,1) - apenas desocupados
+
+phi1_arma11_dcol <- rho2_d_col/rho1_d_col
+
+arma11_theta1 <- function(rho1, phi1) {
+  eq_theta1 <- function(theta1, rho1, phi1) {
+    (1 - phi1 * theta1) * (phi1 - theta1) / (1 + theta1^2 - 2 * phi1 * theta1) - rho1
+  }
+  resultado_theta1 <- uniroot(eq_theta1, interval = c(-1, 1), rho1 = rho1, phi1 = phi1)
+  theta1 <- resultado_theta1$root
+  return(theta1)
+}
+
+rho1 <- rho1_d_col
+phi1 <- phi1_arma11_dcol
+
+theta1_arma11_dcol <- arma11_theta1(rho1, phi1)
+
+par_arma11_col <-data.frame(phi1_arma11_dcol,theta1_arma11_dcol)
 
 params_col <- list("dbcol"=dbcol,"calculos_desocupada_col"=clc_d_col,
                     "calculos_ocupada_col"=  clc_o_col, 
-                    "parerro_d" = parerro_d_col,"parerro_o"=  parerro_o_col,
-                   "theta1_d"=theta1_d_col, "theta1_o"=theta1_o_col)
+                   "mod_ar1" = par_ar1_col, "mod_ar2"=par_ar2_col,
+                   "mod_ma1"=par_ma1_col,"mod_ma2"=par_ma2_col, "mod_arma11"=par_arma11_col)
 
 saveRDS(params_col,file = "D:/FJP2425/Programacao/data/pseudoerros/03_params_col.rds")
-
 
 ### 04-RIDE ####################################################################
 
@@ -732,19 +900,76 @@ View(clc_d_rid)
 
 ### Parâmetros para os modelos
 
-parerro_d_rid = clc_d_rid$fac[lag==1]
-parerro_o_rid = clc_o_rid$fac[lag==1]
+rho1_d_rid <- clc_d_rid$fac[2]
+rho2_d_rid <- clc_d_rid$fac[3]
 
-rho1_d_rid <- clc_d_rid$fac[2] # FAC no lag 1
-theta1_d_rid <- (1 - sqrt(1 - 4 * rho1_d_rid^2)) / (2 * rho1_d_rid)
+rho1_o_rid <- clc_o_rid$fac[2]
+rho2_o_rid <- clc_o_rid$fac[3]
 
-rho1_o_rid<- clc_o_rid$fac[2]
-theta1_o_rid <- (1 - sqrt(1 - 4 * rho1_o_rid^2)) / (2 * rho1_o_rid)
+#AR(1)
+phi1_ar1_drid = clc_d_rid$fac[lag==1]
+phi1_ar1_orid = clc_o_rid$fac[lag==1]
+
+par_ar1_rid<- data.frame(phi1_ar1_drid, phi1_ar1_orid)
+
+#MA(1):
+theta1_ma1_drid <- (1 - sqrt(1 - 4 * rho1_d_rid^2)) / (2 * rho1_d_rid)
+
+theta1_ma1_orid <- (1 - sqrt(1 - 4 * rho1_o_rid^2)) / (2 * rho1_o_rid)
+
+par_ma1_rid<-data.frame(theta1_ma1_drid,theta1_ma1_orid)
+
+#AR(2)
+
+phi1_ar2_drid <- (rho1_d_rid - rho1_d_rid * rho2_d_rid) / (1 - rho1_d_rid^2)
+phi2_ar2_drid <- (rho2_d_rid - rho1_d_rid^2) / (1 - rho1_d_rid^2)
+
+phi1_ar2_orid <- (rho1_o_rid - rho1_o_rid * rho2_o_rid) / (1 - rho1_o_rid^2)
+phi2_ar2_orid <- (rho2_o_rid - rho1_o_rid^2) / (1 - rho1_o_rid^2)
+
+par_ar2_rid<-data.frame(phi1_ar2_drid,phi2_ar2_drid,phi1_ar2_orid,phi2_ar2_orid)
+
+#MA(2) - apenas desocupados
+
+rho1 <- rho1_d_rid
+rho2 <- rho2_d_rid
+sistema_eq <- function(theta) {
+  theta1 <- theta[1]
+  theta2 <- theta[2]
+  eq1 <- (-theta1 * (1 - theta2)) / (1 + theta1^2 + theta2^2) - rho1
+  eq2 <- (-theta2) / (1 + theta1^2 + theta2^2) - rho2
+  return(c(eq1, eq2))
+}
+theta_ini <- c(0, 0)
+solucao <- nleqslv(theta_ini, sistema_eq)
+solucao$x
+
+par_ma2_rid<-data.frame("theta1_ma2_drid"=solucao$x[1],"theta2_ma2_drid"=solucao$x[2])
+
+#ARMA (1,1) - apenas desocupados
+
+phi1_arma11_drid <- rho2_d_rid/rho1_d_rid
+
+arma11_theta1 <- function(rho1, phi1) {
+  eq_theta1 <- function(theta1, rho1, phi1) {
+    (1 - phi1 * theta1) * (phi1 - theta1) / (1 + theta1^2 - 2 * phi1 * theta1) - rho1
+  }
+  resultado_theta1 <- uniroot(eq_theta1, interval = c(-1, 1), rho1 = rho1, phi1 = phi1)
+  theta1 <- resultado_theta1$root
+  return(theta1)
+}
+
+rho1 <- rho1_d_rid
+phi1 <- phi1_arma11_drid
+
+theta1_arma11_drid <- arma11_theta1(rho1, phi1)
+
+par_arma11_rid <-data.frame(phi1_arma11_drid,theta1_arma11_drid)
 
 params_rid <- list("dbrid"=dbrid,"calculos_desocupada_rid"=clc_d_rid,
                     "calculos_ocupada_rid"=  clc_o_rid, 
-                    "parerro_d" = parerro_d_rid,"parerro_o"=  parerro_o_rid,
-                   "theta1_d"=theta1_d_rid, "theta1_o"=theta1_o_rid)
+                   "mod_ar1" = par_ar1_rid, "mod_ar2"=par_ar2_rid,
+                   "mod_ma1"=par_ma1_rid,"mod_ma2"=par_ma2_rid, "mod_arma11"=par_arma11_rid)
 
 saveRDS(params_rid,file = "D:/FJP2425/Programacao/data/pseudoerros/04_params_rid.rds")
 
@@ -913,19 +1138,76 @@ View(clc_d_sul)
 
 ### Parâmetros para os modelos
 
-parerro_d_sul = clc_d_sul$fac[lag==1]
-parerro_o_sul = clc_o_sul$fac[lag==1]
+rho1_d_sul <- clc_d_sul$fac[2]
+rho2_d_sul <- clc_d_sul$fac[3]
 
-rho1_d_sul <- clc_d_sul$fac[2] # FAC no lag 1
-theta1_d_sul <- (1 - sqrt(1 - 4 * rho1_d_sul^2)) / (2 * rho1_d_sul)
+rho1_o_sul <- clc_o_sul$fac[2]
+rho2_o_sul <- clc_o_sul$fac[3]
 
-rho1_o_sul<- clc_o_sul$fac[2]
-theta1_o_sul <- (1 - sqrt(1 - 4 * rho1_o_sul^2)) / (2 * rho1_o_sul)
+#AR(1)
+phi1_ar1_dsul = clc_d_sul$fac[lag==1]
+phi1_ar1_osul = clc_o_sul$fac[lag==1]
+
+par_ar1_sul<- data.frame(phi1_ar1_dsul, phi1_ar1_osul)
+
+#MA(1):
+theta1_ma1_dsul <- (1 - sqrt(1 - 4 * rho1_d_sul^2)) / (2 * rho1_d_sul)
+
+theta1_ma1_osul <- (1 - sqrt(1 - 4 * rho1_o_sul^2)) / (2 * rho1_o_sul)
+
+par_ma1_sul<-data.frame(theta1_ma1_dsul,theta1_ma1_osul)
+
+#AR(2)
+
+phi1_ar2_dsul <- (rho1_d_sul - rho1_d_sul * rho2_d_sul) / (1 - rho1_d_sul^2)
+phi2_ar2_dsul <- (rho2_d_sul - rho1_d_sul^2) / (1 - rho1_d_sul^2)
+
+phi1_ar2_osul <- (rho1_o_sul - rho1_o_sul * rho2_o_sul) / (1 - rho1_o_sul^2)
+phi2_ar2_osul <- (rho2_o_sul - rho1_o_sul^2) / (1 - rho1_o_sul^2)
+
+par_ar2_sul<-data.frame(phi1_ar2_dsul,phi2_ar2_dsul,phi1_ar2_osul,phi2_ar2_osul)
+
+#MA(2) - apenas desocupados
+
+rho1 <- rho1_d_sul
+rho2 <- rho2_d_sul
+sistema_eq <- function(theta) {
+  theta1 <- theta[1]
+  theta2 <- theta[2]
+  eq1 <- (-theta1 * (1 - theta2)) / (1 + theta1^2 + theta2^2) - rho1
+  eq2 <- (-theta2) / (1 + theta1^2 + theta2^2) - rho2
+  return(c(eq1, eq2))
+}
+theta_ini <- c(0, 0)
+solucao <- nleqslv(theta_ini, sistema_eq)
+solucao$x
+
+par_ma2_sul<-data.frame("theta1_ma2_dsul"=solucao$x[1],"theta2_ma2_dsul"=solucao$x[2])
+
+#ARMA (1,1) - apenas desocupados
+
+phi1_arma11_dsul <- rho2_d_sul/rho1_d_sul
+
+arma11_theta1 <- function(rho1, phi1) {
+  eq_theta1 <- function(theta1, rho1, phi1) {
+    (1 - phi1 * theta1) * (phi1 - theta1) / (1 + theta1^2 - 2 * phi1 * theta1) - rho1
+  }
+  resultado_theta1 <- uniroot(eq_theta1, interval = c(-1, 1), rho1 = rho1, phi1 = phi1)
+  theta1 <- resultado_theta1$root
+  return(theta1)
+}
+
+rho1 <- rho1_d_sul
+phi1 <- phi1_arma11_dsul
+
+theta1_arma11_dsul <- arma11_theta1(rho1, phi1)
+
+par_arma11_sul <-data.frame(phi1_arma11_dsul,theta1_arma11_dsul)
 
 params_sul <- list("dbsul"=dbsul,"calculos_desocupada_sul"=clc_d_sul,
                     "calculos_ocupada_sul"=  clc_o_sul, 
-                    "parerro_d" = parerro_d_sul,"parerro_o"=  parerro_o_sul,
-                   "theta1_d"=theta1_d_sul, "theta1_o"=theta1_o_sul)
+                   "mod_ar1" = par_ar1_sul, "mod_ar2"=par_ar2_sul,
+                   "mod_ma1"=par_ma1_sul,"mod_ma2"=par_ma2_sul, "mod_arma11"=par_arma11_sul)
 
 saveRDS(params_sul,file = "D:/FJP2425/Programacao/data/pseudoerros/05_params_sul.rds")
 
@@ -1093,19 +1375,76 @@ View(clc_d_trg)
 
 ### Parâmetros para os modelos
 
-parerro_d_trg = clc_d_trg$fac[lag==1]
-parerro_o_trg = clc_o_trg$fac[lag==1]
+rho1_d_trg <- clc_d_trg$fac[2]
+rho2_d_trg <- clc_d_trg$fac[3]
 
-rho1_d_trg <- clc_d_trg$fac[2] # FAC no lag 1
-theta1_d_trg <- (1 - sqrt(1 - 4 * rho1_d_trg^2)) / (2 * rho1_d_trg)
+rho1_o_trg <- clc_o_trg$fac[2]
+rho2_o_trg <- clc_o_trg$fac[3]
 
-rho1_o_trg<- clc_o_trg$fac[2]
-theta1_o_trg <- (1 - sqrt(1 - 4 * rho1_o_trg^2)) / (2 * rho1_o_trg)
+#AR(1)
+phi1_ar1_dtrg = clc_d_trg$fac[lag==1]
+phi1_ar1_otrg = clc_o_trg$fac[lag==1]
+
+par_ar1_trg<- data.frame(phi1_ar1_dtrg, phi1_ar1_otrg)
+
+#MA(1):
+theta1_ma1_dtrg <- (1 - sqrt(1 - 4 * rho1_d_trg^2)) / (2 * rho1_d_trg)
+
+theta1_ma1_otrg <- (1 - sqrt(1 - 4 * rho1_o_trg^2)) / (2 * rho1_o_trg)
+
+par_ma1_trg<-data.frame(theta1_ma1_dtrg,theta1_ma1_otrg)
+
+#AR(2)
+
+phi1_ar2_dtrg <- (rho1_d_trg - rho1_d_trg * rho2_d_trg) / (1 - rho1_d_trg^2)
+phi2_ar2_dtrg <- (rho2_d_trg - rho1_d_trg^2) / (1 - rho1_d_trg^2)
+
+phi1_ar2_otrg <- (rho1_o_trg - rho1_o_trg * rho2_o_trg) / (1 - rho1_o_trg^2)
+phi2_ar2_otrg <- (rho2_o_trg - rho1_o_trg^2) / (1 - rho1_o_trg^2)
+
+par_ar2_trg<-data.frame(phi1_ar2_dtrg,phi2_ar2_dtrg,phi1_ar2_otrg,phi2_ar2_otrg)
+
+#MA(2) - apenas desocupados
+
+rho1 <- rho1_d_trg
+rho2 <- rho2_d_trg
+sistema_eq <- function(theta) {
+  theta1 <- theta[1]
+  theta2 <- theta[2]
+  eq1 <- (-theta1 * (1 - theta2)) / (1 + theta1^2 + theta2^2) - rho1
+  eq2 <- (-theta2) / (1 + theta1^2 + theta2^2) - rho2
+  return(c(eq1, eq2))
+}
+theta_ini <- c(0, 0)
+solucao <- nleqslv(theta_ini, sistema_eq)
+solucao$x
+
+par_ma2_trg<-data.frame("theta1_ma2_dtrg"=solucao$x[1],"theta2_ma2_dtrg"=solucao$x[2])
+
+#ARMA (1,1) - apenas desocupados
+
+phi1_arma11_dtrg <- rho2_d_trg/rho1_d_trg
+
+arma11_theta1 <- function(rho1, phi1) {
+  eq_theta1 <- function(theta1, rho1, phi1) {
+    (1 - phi1 * theta1) * (phi1 - theta1) / (1 + theta1^2 - 2 * phi1 * theta1) - rho1
+  }
+  resultado_theta1 <- uniroot(eq_theta1, interval = c(-1, 1), rho1 = rho1, phi1 = phi1)
+  theta1 <- resultado_theta1$root
+  return(theta1)
+}
+
+rho1 <- rho1_d_trg
+phi1 <- phi1_arma11_dtrg
+
+theta1_arma11_dtrg <- arma11_theta1(rho1, phi1)
+
+par_arma11_trg <-data.frame(phi1_arma11_dtrg,theta1_arma11_dtrg)
 
 params_trg <- list("dbtrg"=dbtrg,"calculos_desocupada_trg"=clc_d_trg,
                     "calculos_ocupada_trg"=  clc_o_trg, 
-                    "parerro_d" = parerro_d_trg,"parerro_o"=  parerro_o_trg,
-                   "theta1_d"=theta1_d_trg, "theta1_o"=theta1_o_trg)
+                   "mod_ar1" = par_ar1_trg, "mod_ar2"=par_ar2_trg,
+                   "mod_ma1"=par_ma1_trg,"mod_ma2"=par_ma2_trg, "mod_arma11"=par_arma11_trg)
 
 saveRDS(params_trg,file = "D:/FJP2425/Programacao/data/pseudoerros/06_params_trg.rds")
 
@@ -1273,19 +1612,76 @@ View(clc_d_mat)
 
 ### Parâmetros para os modelos
 
-parerro_d_mat = clc_d_mat$fac[lag==1]
-parerro_o_mat = clc_o_mat$fac[lag==1]
-
-rho1_d_mat <- clc_d_mat$fac[2] # FAC no lag 1
-theta1_d_mat <- (1 - sqrt(1 - 4 * rho1_d_mat^2)) / (2 * rho1_d_mat)
+rho1_d_mat <- clc_d_mat$fac[2]
+rho2_d_mat <- clc_d_mat$fac[3]
 
 rho1_o_mat <- clc_o_mat$fac[2]
-theta1_o_mat <- (1 - sqrt(1 - 4 * rho1_o_mat^2)) / (2 * rho1_o_mat)
+rho2_o_mat <- clc_o_mat$fac[3]
+
+#AR(1)
+phi1_ar1_dmat = clc_d_mat$fac[lag==1]
+phi1_ar1_omat = clc_o_mat$fac[lag==1]
+
+par_ar1_mat<- data.frame(phi1_ar1_dmat, phi1_ar1_omat)
+
+#MA(1):
+theta1_ma1_dmat <- (1 - sqrt(1 - 4 * rho1_d_mat^2)) / (2 * rho1_d_mat)
+
+theta1_ma1_omat <- (1 - sqrt(1 - 4 * rho1_o_mat^2)) / (2 * rho1_o_mat)
+
+par_ma1_mat<-data.frame(theta1_ma1_dmat,theta1_ma1_omat)
+
+#AR(2)
+
+phi1_ar2_dmat <- (rho1_d_mat - rho1_d_mat * rho2_d_mat) / (1 - rho1_d_mat^2)
+phi2_ar2_dmat <- (rho2_d_mat - rho1_d_mat^2) / (1 - rho1_d_mat^2)
+
+phi1_ar2_omat <- (rho1_o_mat - rho1_o_mat * rho2_o_mat) / (1 - rho1_o_mat^2)
+phi2_ar2_omat <- (rho2_o_mat - rho1_o_mat^2) / (1 - rho1_o_mat^2)
+
+par_ar2_mat<-data.frame(phi1_ar2_dmat,phi2_ar2_dmat,phi1_ar2_omat,phi2_ar2_omat)
+
+#MA(2) - apenas desocupados
+
+rho1 <- rho1_d_mat
+rho2 <- rho2_d_mat
+sistema_eq <- function(theta) {
+  theta1 <- theta[1]
+  theta2 <- theta[2]
+  eq1 <- (-theta1 * (1 - theta2)) / (1 + theta1^2 + theta2^2) - rho1
+  eq2 <- (-theta2) / (1 + theta1^2 + theta2^2) - rho2
+  return(c(eq1, eq2))
+}
+theta_ini <- c(0, 0)
+solucao <- nleqslv(theta_ini, sistema_eq)
+solucao$x
+
+par_ma2_mat<-data.frame("theta1_ma2_dmat"=solucao$x[1],"theta2_ma2_dmat"=solucao$x[2])
+
+#ARMA (1,1) - apenas desocupados
+
+phi1_arma11_dmat <- rho2_d_mat/rho1_d_mat
+
+arma11_theta1 <- function(rho1, phi1) {
+  eq_theta1 <- function(theta1, rho1, phi1) {
+    (1 - phi1 * theta1) * (phi1 - theta1) / (1 + theta1^2 - 2 * phi1 * theta1) - rho1
+  }
+  resultado_theta1 <- uniroot(eq_theta1, interval = c(-1, 1), rho1 = rho1, phi1 = phi1)
+  theta1 <- resultado_theta1$root
+  return(theta1)
+}
+
+rho1 <- rho1_d_mat
+phi1 <- phi1_arma11_dmat
+
+theta1_arma11_dmat <- arma11_theta1(rho1, phi1)
+
+par_arma11_mat <-data.frame(phi1_arma11_dmat,theta1_arma11_dmat)
 
 params_mat <- list("dbmat"=dbmat,"calculos_desocupada_mat"=clc_d_mat,
                     "calculos_ocupada_mat"=  clc_o_mat, 
-                    "parerro_d" = parerro_d_mat,"parerro_o"=  parerro_o_mat,
-                   "theta1_d"=theta1_d_mat, "theta1_o"=theta1_o_mat)
+                   "mod_ar1" = par_ar1_mat, "mod_ar2"=par_ar2_mat,
+                   "mod_ma1"=par_ma1_mat,"mod_ma2"=par_ma2_mat, "mod_arma11"=par_arma11_mat)
 
 saveRDS(params_mat,file = "D:/FJP2425/Programacao/data/pseudoerros/07_params_mat.rds")
 
@@ -1450,22 +1846,78 @@ View(clc_d_nrt)
   axis(2, cex.axis = 1)
   mtext("lag", side = 1, line = 3)}
 
-
 ### Parâmetros para os modelos
 
-parerro_d_nrt = clc_d_nrt$fac[lag==1]
-parerro_o_nrt = clc_o_nrt$fac[lag==1]
-
-rho1_d_nrt <- clc_d_nrt$fac[2] # FAC no lag 1
-theta1_d_nrt <- (1 - sqrt(1 - 4 * rho1_d_nrt^2)) / (2 * rho1_d_nrt)
+rho1_d_nrt <- clc_d_nrt$fac[2]
+rho2_d_nrt <- clc_d_nrt$fac[3]
 
 rho1_o_nrt <- clc_o_nrt$fac[2]
-theta1_o_nrt <- (1 - sqrt(1 - 4 * rho1_o_nrt^2)) / (2 * rho1_o_nrt)
+rho2_o_nrt <- clc_o_nrt$fac[3]
+
+#AR(1)
+phi1_ar1_dnrt = clc_d_nrt$fac[lag==1]
+phi1_ar1_onrt = clc_o_nrt$fac[lag==1]
+
+par_ar1_nrt<- data.frame(phi1_ar1_dnrt, phi1_ar1_onrt)
+
+#MA(1):
+theta1_ma1_dnrt <- (1 - sqrt(1 - 4 * rho1_d_nrt^2)) / (2 * rho1_d_nrt)
+
+theta1_ma1_onrt <- (1 - sqrt(1 - 4 * rho1_o_nrt^2)) / (2 * rho1_o_nrt)
+
+par_ma1_nrt<-data.frame(theta1_ma1_dnrt,theta1_ma1_onrt)
+
+#AR(2)
+
+phi1_ar2_dnrt <- (rho1_d_nrt - rho1_d_nrt * rho2_d_nrt) / (1 - rho1_d_nrt^2)
+phi2_ar2_dnrt <- (rho2_d_nrt - rho1_d_nrt^2) / (1 - rho1_d_nrt^2)
+
+phi1_ar2_onrt <- (rho1_o_nrt - rho1_o_nrt * rho2_o_nrt) / (1 - rho1_o_nrt^2)
+phi2_ar2_onrt <- (rho2_o_nrt - rho1_o_nrt^2) / (1 - rho1_o_nrt^2)
+
+par_ar2_nrt<-data.frame(phi1_ar2_dnrt,phi2_ar2_dnrt,phi1_ar2_onrt,phi2_ar2_onrt)
+
+#MA(2) - apenas desocupados
+
+rho1 <- rho1_d_nrt
+rho2 <- rho2_d_nrt
+sistema_eq <- function(theta) {
+  theta1 <- theta[1]
+  theta2 <- theta[2]
+  eq1 <- (-theta1 * (1 - theta2)) / (1 + theta1^2 + theta2^2) - rho1
+  eq2 <- (-theta2) / (1 + theta1^2 + theta2^2) - rho2
+  return(c(eq1, eq2))
+}
+theta_ini <- c(0, 0)
+solucao <- nleqslv(theta_ini, sistema_eq)
+solucao$x
+
+par_ma2_nrt<-data.frame("theta1_ma2_dnrt"=solucao$x[1],"theta2_ma2_dnrt"=solucao$x[2])
+
+#ARMA (1,1) - apenas desocupados
+
+phi1_arma11_dnrt <- rho2_d_nrt/rho1_d_nrt
+
+arma11_theta1 <- function(rho1, phi1) {
+  eq_theta1 <- function(theta1, rho1, phi1) {
+    (1 - phi1 * theta1) * (phi1 - theta1) / (1 + theta1^2 - 2 * phi1 * theta1) - rho1
+  }
+  resultado_theta1 <- uniroot(eq_theta1, interval = c(-1, 1), rho1 = rho1, phi1 = phi1)
+  theta1 <- resultado_theta1$root
+  return(theta1)
+}
+
+rho1 <- rho1_d_nrt
+phi1 <- phi1_arma11_dnrt
+
+theta1_arma11_dnrt <- arma11_theta1(rho1, phi1)
+
+par_arma11_nrt <-data.frame(phi1_arma11_dnrt,theta1_arma11_dnrt)
 
 params_nrt <- list("dbnrt"=dbnrt,"calculos_desocupada_nrt"=clc_d_nrt,
                     "calculos_ocupada_nrt"=  clc_o_nrt, 
-                    "parerro_d" = parerro_d_nrt,"parerro_o"=  parerro_o_nrt,
-                   "theta1_d"=theta1_d_nrt, "theta1_o"=theta1_o_nrt)
+                   "mod_ar1" = par_ar1_nrt, "mod_ar2"=par_ar2_nrt,
+                   "mod_ma1"=par_ma1_nrt,"mod_ma2"=par_ma2_nrt, "mod_arma11"=par_arma11_nrt)
 
 saveRDS(params_nrt,file = "D:/FJP2425/Programacao/data/pseudoerros/08_params_nrt.rds")
 
@@ -1632,19 +2084,76 @@ View(clc_d_rio)
 
 ### Parâmetros para os modelos
 
-parerro_d_rio = clc_d_rio$fac[lag==1]
-parerro_o_rio = clc_o_rio$fac[lag==1]
-
-rho1_d_rio <- clc_d_rio$fac[2] # FAC no lag 1
-theta1_d_rio <- (1 - sqrt(1 - 4 * rho1_d_rio^2)) / (2 * rho1_d_rio)
+rho1_d_rio <- clc_d_rio$fac[2]
+rho2_d_rio <- clc_d_rio$fac[3]
 
 rho1_o_rio <- clc_o_rio$fac[2]
-theta1_o_rio <- (1 - sqrt(1 - 4 * rho1_o_rio^2)) / (2 * rho1_o_rio)
+rho2_o_rio <- clc_o_rio$fac[3]
+
+#AR(1)
+phi1_ar1_drio = clc_d_rio$fac[lag==1]
+phi1_ar1_orio = clc_o_rio$fac[lag==1]
+
+par_ar1_rio<- data.frame(phi1_ar1_drio, phi1_ar1_orio)
+
+#MA(1):
+theta1_ma1_drio <- (1 - sqrt(1 - 4 * rho1_d_rio^2)) / (2 * rho1_d_rio)
+
+theta1_ma1_orio <- (1 - sqrt(1 - 4 * rho1_o_rio^2)) / (2 * rho1_o_rio)
+
+par_ma1_rio<-data.frame(theta1_ma1_drio,theta1_ma1_orio)
+
+#AR(2)
+
+phi1_ar2_drio <- (rho1_d_rio - rho1_d_rio * rho2_d_rio) / (1 - rho1_d_rio^2)
+phi2_ar2_drio <- (rho2_d_rio - rho1_d_rio^2) / (1 - rho1_d_rio^2)
+
+phi1_ar2_orio <- (rho1_o_rio - rho1_o_rio * rho2_o_rio) / (1 - rho1_o_rio^2)
+phi2_ar2_orio <- (rho2_o_rio - rho1_o_rio^2) / (1 - rho1_o_rio^2)
+
+par_ar2_rio<-data.frame(phi1_ar2_drio,phi2_ar2_drio,phi1_ar2_orio,phi2_ar2_orio)
+
+#MA(2) - apenas desocupados
+
+rho1 <- rho1_d_rio
+rho2 <- rho2_d_rio
+sistema_eq <- function(theta) {
+  theta1 <- theta[1]
+  theta2 <- theta[2]
+  eq1 <- (-theta1 * (1 - theta2)) / (1 + theta1^2 + theta2^2) - rho1
+  eq2 <- (-theta2) / (1 + theta1^2 + theta2^2) - rho2
+  return(c(eq1, eq2))
+}
+theta_ini <- c(0, 0)
+solucao <- nleqslv(theta_ini, sistema_eq)
+solucao$x
+
+par_ma2_rio<-data.frame("theta1_ma2_drio"=solucao$x[1],"theta2_ma2_drio"=solucao$x[2])
+
+#ARMA (1,1) - apenas desocupados
+
+phi1_arma11_drio <- rho2_d_rio/rho1_d_rio
+
+arma11_theta1 <- function(rho1, phi1) {
+  eq_theta1 <- function(theta1, rho1, phi1) {
+    (1 - phi1 * theta1) * (phi1 - theta1) / (1 + theta1^2 - 2 * phi1 * theta1) - rho1
+  }
+  resultado_theta1 <- uniroot(eq_theta1, interval = c(-1, 1), rho1 = rho1, phi1 = phi1)
+  theta1 <- resultado_theta1$root
+  return(theta1)
+}
+
+rho1 <- rho1_d_rio
+phi1 <- phi1_arma11_drio
+
+theta1_arma11_drio <- arma11_theta1(rho1, phi1)
+
+par_arma11_rio <-data.frame(phi1_arma11_drio,theta1_arma11_drio)
 
 params_rio <- list("dbrio"=dbrio,"calculos_desocupada_rio"=clc_d_rio,
                     "calculos_ocupada_rio"=  clc_o_rio, 
-                    "parerro_d" = parerro_d_rio,"parerro_o"=  parerro_o_rio,
-                   "theta1_d"=theta1_d_rio, "theta1_o"=theta1_o_rio)
+                   "mod_ar1" = par_ar1_rio, "mod_ar2"=par_ar2_rio,
+                   "mod_ma1"=par_ma1_rio,"mod_ma2"=par_ma2_rio, "mod_arma11"=par_arma11_rio)
 
 saveRDS(params_rio,file = "D:/FJP2425/Programacao/data/pseudoerros/09_params_rio.rds")
 
@@ -1812,19 +2321,76 @@ View(clc_d_cen)
 
 ### Parâmetros para os modelos
 
-parerro_d_cen = clc_d_cen$fac[lag==1]
-parerro_o_cen = clc_o_cen$fac[lag==1]
-
-rho1_d_cen <- clc_d_cen$fac[2] # FAC no lag 1
-theta1_d_cen <- (1 - sqrt(1 - 4 * rho1_d_cen^2)) / (2 * rho1_d_cen)
+rho1_d_cen <- clc_d_cen$fac[2]
+rho2_d_cen <- clc_d_cen$fac[3]
 
 rho1_o_cen <- clc_o_cen$fac[2]
-theta1_o_cen <- (1 - sqrt(1 - 4 * rho1_o_cen^2)) / (2 * rho1_o_cen)
+rho2_o_cen <- clc_o_cen$fac[3]
+
+#AR(1)
+phi1_ar1_dcen = clc_d_cen$fac[lag==1]
+phi1_ar1_ocen = clc_o_cen$fac[lag==1]
+
+par_ar1_cen <- data.frame(phi1_ar1_dcen, phi1_ar1_ocen)
+
+#MA(1):
+theta1_ma1_dcen <- (1 - sqrt(1 - 4 * rho1_d_cen^2)) / (2 * rho1_d_cen)
+
+theta1_ma1_ocen <- (1 - sqrt(1 - 4 * rho1_o_cen^2)) / (2 * rho1_o_cen)
+
+par_ma1_cen <-data.frame(theta1_ma1_dcen,theta1_ma1_ocen)
+
+#AR(2)
+
+phi1_ar2_dcen <- (rho1_d_cen - rho1_d_cen * rho2_d_cen) / (1 - rho1_d_cen^2)
+phi2_ar2_dcen <- (rho2_d_cen - rho1_d_cen^2) / (1 - rho1_d_cen^2)
+
+phi1_ar2_ocen <- (rho1_o_cen - rho1_o_cen * rho2_o_cen) / (1 - rho1_o_cen^2)
+phi2_ar2_ocen <- (rho2_o_cen - rho1_o_cen^2) / (1 - rho1_o_cen^2)
+
+par_ar2_cen <-data.frame(phi1_ar2_dcen,phi2_ar2_dcen,phi1_ar2_ocen,phi2_ar2_ocen)
+
+#MA(2) - apenas desocupados
+
+rho1 <- rho1_d_cen
+rho2 <- rho2_d_cen
+sistema_eq <- function(theta) {
+  theta1 <- theta[1]
+  theta2 <- theta[2]
+  eq1 <- (-theta1 * (1 - theta2)) / (1 + theta1^2 + theta2^2) - rho1
+  eq2 <- (-theta2) / (1 + theta1^2 + theta2^2) - rho2
+  return(c(eq1, eq2))
+}
+theta_ini <- c(0, 0)
+solucao <- nleqslv(theta_ini, sistema_eq)
+solucao$x
+
+par_ma2_cen<-data.frame("theta1_ma2_dcen"=solucao$x[1],"theta2_ma2_dcen"=solucao$x[2])
+
+#ARMA (1,1) - apenas desocupados
+
+phi1_arma11_dcen <- rho2_d_cen/rho1_d_cen
+
+arma11_theta1 <- function(rho1, phi1) {
+  eq_theta1 <- function(theta1, rho1, phi1) {
+    (1 - phi1 * theta1) * (phi1 - theta1) / (1 + theta1^2 - 2 * phi1 * theta1) - rho1
+  }
+  resultado_theta1 <- uniroot(eq_theta1, interval = c(-1, 1), rho1 = rho1, phi1 = phi1)
+  theta1 <- resultado_theta1$root
+  return(theta1)
+}
+
+rho1 <- rho1_d_cen
+phi1 <- phi1_arma11_dcen
+
+theta1_arma11_dcen <- arma11_theta1(rho1, phi1)
+
+par_arma11_cen <-data.frame(phi1_arma11_dcen,theta1_arma11_dcen)
 
 params_cen <- list("dbcen"=dbcen,"calculos_desocupada_cen"=clc_d_cen,
                     "calculos_ocupada_cen"=  clc_o_cen, 
-                    "parerro_d" = parerro_d_cen,"parerro_o"=  parerro_o_cen,
-                   "theta1_d" = theta1_d_cen, "theta1_o" = theta1_o_cen)
+                   "mod_ar1" = par_ar1_cen, "mod_ar2"=par_ar2_cen,
+                   "mod_ma1"=par_ma1_cen,"mod_ma2"=par_ma2_cen, "mod_arma11"=par_arma11_cen)
 
 saveRDS(params_cen,file = "D:/FJP2425/Programacao/data/pseudoerros/10_params_cen.rds")
 
