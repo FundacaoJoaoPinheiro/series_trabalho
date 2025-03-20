@@ -14,7 +14,7 @@ options(scipen=999)
     # Logo, não há mais uma padronização para todos os estratos
 
 ## Estratos:
-  # BH: MA(1) ENT: MA(2) COL: ARMA(1,1) RIDE: ARMA(1,1) SUL:ARMA(1,1) 
+  # BH: MA(1) ENT: MA(1)* COL: ARMA(1,1) RIDE: ARMA(1,1) SUL:MA(1)*
   # TRG: MA(1) MAT: ARMA(1,1) NRT: ARMA(1,1) VAL: AR(1) CEN: MA(1)
 
 ### MODELO BH ##################################################################
@@ -26,7 +26,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/10_teste_bsm_error_MA2.R")
+source("data/funcoes/08_teste_bsm_error_MA1.R")
 
 ## Dados:
 
@@ -39,8 +39,7 @@ dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/01_params_bh.RDS") ## Arq
 y <- bh$Total.de.desocupados/1000
 se_db<- bh$sd_d/1000
 cv_db <- se_db/y
-par_ma_erro <- dbbh[["mod_ma2"]][["theta1_ma2_dbh"]]
-par_ma2_erro <- dbbh[["mod_ma2"]][["theta2_ma2_dbh"]]
+par_ma_erro <- dbbh[["mod_ma1"]][["theta1_ma1_dbh"]]
 
 ### Modelo DLM com erro amostral
 
@@ -70,8 +69,8 @@ clusterEvalQ(cl,{load("partial.Rdata")
 
 # Estimação do Modelo
 
-# Para verificar o erro:
-modelo<-f.teste_bsm_error(y,grid_error[1,])
+# Caso a função utilziada apresente algum erro, rode a função diretamente para identificá-lo
+# modelo<-f.teste_bsm_error(y,grid_error[1,])
 
 # Estimação:
 
@@ -104,7 +103,7 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-itbh <- b[complete.cases(b), ] # 3 NAs
+itbh <- b[complete.cases(b), ] # 2 NAs
 
 hist(itbh$slope)
 boxplot(itbh$slope)
@@ -159,7 +158,7 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultadosbh<-cbind(convergencia,parametros,testes,AIC)
+resultadosbh<-cbind(convergencia,parametros,testes,AIC,BIC)
 resultadosbh
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
@@ -186,9 +185,12 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/01_mod_bh.Rdata")
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/2_mod_desocup_iteracao/01_mod_bh.Rdata")
 
 ### ENTORNO METROPOLITANO ###############################################
+
+# LEMBRETE: VERIFICAR SOURCE DAS FUNÇÕES E INPUT DOS DADOS
+
 rm(list = ls())
 
 ## UCM: 106.7323; 0.00348154; 106.8907
@@ -197,7 +199,8 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error_AR1.R")
+source("data/funcoes/08_teste_bsm_error_MA1.R")
+#source("data/funcoes/10_teste_bsm_error_MA2.R")
 
 ## Carregando bases e definindo objeto para o Entorno
 
@@ -212,8 +215,9 @@ dbent<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/02_params_ent.RDS") ## A
 y <- (ent$Total.de.desocupados)/1000
 se_db <- (ent$sd_d)/1000
 cv_db <- se_db/y
-par_ar_erro <- dbent$parerro_d
-par_ma_erro <- dbent$theta1_d
+#par_ar_erro <- dbent[["mod_arma11"]][["phi1_arma11_dent"]]
+par_ma_erro <- dbent[["mod_ma1"]][["theta1_ma1_dent"]]
+#par_ma2_erro <- dbent[["mod_ma2"]][["theta2_ma2_dent"]]
 
 ### Modelo DLM com erro amostral
 
@@ -272,7 +276,7 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-itent <- b[complete.cases(b), ] # 13 NAs
+itent <- b[complete.cases(b), ] # 7 NAs
 
 hist(itent$slope)
 boxplot(itent$slope)
@@ -310,11 +314,11 @@ colnames(parametros)<-c("Slope","Seasonal","Irregular","Sample Error")
 AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
 colnames(AIC)<-"AIC"
 
-#BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
+BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # false
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # true
 
 # Diagnosticando os resíduos
 
@@ -327,7 +331,7 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultadosent<-cbind(convergencia,parametros,testes,AIC)
+resultadosent<-cbind(convergencia,parametros,testes,AIC,BIC)
 resultadosent
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
@@ -354,7 +358,7 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/02_mod_ent.Rdata")
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/2_mod_desocup_iteracao/02_mod_ent.Rdata")
 
 ### COLAR METROPOLITANO DE BH ##################################################
 rm(list = ls())
@@ -365,7 +369,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error_AR1.R")
+source("data/funcoes/09_teste_bsm_error_ARMA11.R")
 
 ## Carregando bases e definindo objeto para o Colar BH
 
@@ -380,8 +384,8 @@ dbcol<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/03_params_col.RDS") ## A
 y <- col$Total.de.desocupados/1000
 se_db <- col$sd_d/1000
 cv_db <- se_db/y
-par_ar_erro <- dbcol$parerro_d
-par_ma_erro <- dbcol$theta1_d
+par_ar_erro <- dbcol[["mod_arma11"]][["phi1_arma11_dcol"]]
+par_ma_erro <- dbcol[["mod_arma11"]][["theta1_arma11_dcol"]]
 
 ### Modelo DLM com erro amostral
 
@@ -440,7 +444,7 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-itcol <- b[complete.cases(b), ] # 1 NAs
+itcol <- b[complete.cases(b), ] # 3 NAs
 
 hist(itcol$slope)
 boxplot(itcol$slope)
@@ -478,7 +482,7 @@ colnames(parametros)<-c("Slope","Seasonal","Irregular","Sample Error")
 AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
 colnames(AIC)<-"AIC"
 
-#BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T)
+BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
@@ -495,7 +499,7 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultadoscol<-cbind(convergencia,parametros,testes,AIC)
+resultadoscol<-cbind(convergencia,parametros,testes,AIC,BIC)
 resultadoscol
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
@@ -522,7 +526,7 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/03_mod_col.Rdata")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/2_mod_desocup_iteracao/03_mod_col.Rdata")
 
 ### RIDE de Brasília em Minas ##################################################
 rm(list = ls())
@@ -533,7 +537,8 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error_AR1.R")
+source("data/funcoes/09_teste_bsm_error_ARMA11.R")
+#source("data/funcoes/08_teste_bsm_error_MA1.R")
 
 ## Carregando bases e definindo objeto para RIDE
 
@@ -548,8 +553,8 @@ dbrid<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/04_params_rid.RDS") ## A
 y <- rid$Total.de.desocupados/1000
 se_db <- rid$sd_d/1000
 cv_db <- se_db/y
-par_ar_erro <- dbrid$parerro_d
-par_ma_erro <- dbrid$theta1_d
+par_ar_erro <- dbrid[["mod_arma11"]][["phi1_arma11_drid"]]
+par_ma_erro <- dbrid[["mod_arma11"]][["theta1_arma11_drid"]]
 
 ### Modelo DLM com erro amostral
 
@@ -608,7 +613,7 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-itrid <- b[complete.cases(b), ] # 2 NAs
+itrid <- b[complete.cases(b), ] # 2 NAs p/arma11; 3 p/ ma1 - alguns não convergiram
 
 hist(itrid$slope)
 boxplot(itrid$slope)
@@ -646,7 +651,7 @@ colnames(parametros)<-c("Slope","Seasonal","Irregular","Sample Error")
 AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
 colnames(AIC)<-"AIC"
 
-#BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T)
+BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
@@ -663,7 +668,7 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultadosrid<-cbind(convergencia,parametros,testes,AIC)
+resultadosrid<-cbind(convergencia,parametros,testes,AIC,BIC)
 resultadosrid
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
@@ -690,7 +695,7 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/04_mod_rid.Rdata")
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/2_mod_desocup_iteracao/04_mod_rid.Rdata")
 
 ### SUL DE MINAS ###############################################################
 rm(list = ls())
@@ -701,7 +706,8 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error_AR1.R")
+source("data/funcoes/08_teste_bsm_error_MA1.R")
+#source("data/funcoes/09_teste_bsm_error_ARMA11.R")
 
 ## Carregando bases e definindo objeto para o Sul
 
@@ -716,8 +722,8 @@ dbsul<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/05_params_sul.RDS") ## A
 y <- sul$Total.de.desocupados/1000
 se_db <- sul$sd_d/1000
 cv_db <- se_db/y
-par_ar_erro <- dbsul$parerro_d
-par_ma_erro <- dbsul$theta1_d
+#par_ar_erro <- dbsul[["mod_arma11"]][["phi1_arma11_dsul"]]
+par_ma_erro <- dbsul[["mod_ma1"]][["theta1_ma1_dsul"]]
 
 ### Modelo DLM com erro amostral
 
@@ -776,7 +782,8 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-itsul <- b[complete.cases(b), ] # 3 NAs
+itsul <- b[complete.cases(b), ] # 5 NAs no MA(1)
+itsul <- b[complete.cases(b) & b$convergence == 0, ]
 
 hist(itsul$slope)
 boxplot(itsul$slope)
@@ -796,7 +803,7 @@ summary(itsul$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
-modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
+modelo_bsm_error<- modelos_bsm_error_ini[[which(itsul$log_like==min(itsul$log_like,na.rm = TRUE))]]
 
 # Verificando a convergência
 
@@ -814,7 +821,7 @@ colnames(parametros)<-c("Slope","Seasonal","Irregular","Sample Error")
 AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
 colnames(AIC)<-"AIC"
 
-#BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T)
+BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
@@ -831,7 +838,7 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultadossul<-cbind(convergencia,parametros,testes,AIC)
+resultadossul<-cbind(convergencia,parametros,testes,AIC,BIC)
 resultadossul
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
@@ -858,7 +865,7 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/05_mod_sul.Rdata")
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/2_mod_desocup_iteracao/05_mod_sul.Rdata")
 
 ### TRIÂNGULO MINEIRO ##########################################################
 rm(list = ls())
@@ -869,7 +876,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error_AR1.R")
+source("data/funcoes/08_teste_bsm_error_MA1.R")
 
 ## Carregando bases e definindo objeto para Triângulo Mineiro
 
@@ -884,8 +891,8 @@ dbtrg<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/06_params_trg.RDS") ## A
 y <- trg$Total.de.desocupados/1000
 se_db <- trg$sd_d/1000
 cv_db <- se_db/y
-par_ar_erro <- dbtrg$parerro_d
-par_ma_erro <- dbtrg$theta1_d
+#par_ar_erro <- dbtrg$parerro_d
+par_ma_erro <- dbtrg[["mod_ma1"]][["theta1_ma1_dtrg"]]
 
 ### Modelo DLM com erro amostral
 
@@ -944,7 +951,7 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-ittrg <- b[complete.cases(b), ] # 5 NAs
+ittrg <- b[complete.cases(b), ] # 2 NAs
 
 hist(ittrg$slope)
 boxplot(ittrg$slope)
@@ -982,11 +989,11 @@ colnames(parametros)<-c("Slope","Seasonal","Irregular","Sample Error")
 AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
 colnames(AIC)<-"AIC"
 
-#BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T)
+BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # false
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # true
 
 # Diagnosticando os resíduos
 
@@ -999,7 +1006,7 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultadostrg<-cbind(convergencia,parametros,testes,AIC)
+resultadostrg<-cbind(convergencia,parametros,testes,AIC,BIC)
 resultadostrg
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
@@ -1026,7 +1033,7 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/06_mod_trg.Rdata")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/2_mod_desocup_iteracao/06_mod_trg.Rdata")
 
 ### ZONA DA MATA ###############################################################
 rm(list = ls())
@@ -1037,7 +1044,8 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error_AR1.R")
+#source("data/funcoes/08_teste_bsm_error_MA1.R")
+source("data/funcoes/09_teste_bsm_error_ARMA11.R")
 
 ## Carregando bases e definindo objeto para a Zona da Mata
 
@@ -1052,8 +1060,8 @@ dbmat<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/07_params_mat.RDS") ## A
 y <- mat$Total.de.desocupados/1000
 se_db <- mat$sd_d/1000
 cv_db <- se_db/y
-par_ar_erro <- dbmat$parerro_d
-par_ma_erro <- dbmat$theta1_d
+par_ar_erro <- dbmat[["mod_arma11"]][["phi1_arma11_dmat"]]
+par_ma_erro <- dbmat[["mod_arma11"]][["theta1_arma11_dmat"]]
 
 ### Modelo DLM com erro amostral
 
@@ -1150,11 +1158,11 @@ colnames(parametros)<-c("Slope","Seasonal","Irregular","Sample Error")
 AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
 colnames(AIC)<-"AIC"
 
-#BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T)
+BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # false
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # true
 
 # Diagnosticando os resíduos
 
@@ -1167,7 +1175,7 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultadosmat<-cbind(convergencia,parametros,testes,AIC)
+resultadosmat<-cbind(convergencia,parametros,testes,AIC,BIC)
 resultadosmat
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
@@ -1194,7 +1202,7 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/07_mod_mat.Rdata")
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/2_mod_desocup_iteracao/07_mod_mat.Rdata")
 
 ### NORTE DE MINAS GERAIS ######################################################
 rm(list = ls())
@@ -1205,7 +1213,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error_AR1.R")
+source("data/funcoes/09_teste_bsm_error_ARMA11.R")
 
 ## Carregando bases e definindo objeto para o Norte
 
@@ -1220,8 +1228,8 @@ dbnrt<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/08_params_nrt.RDS") ## A
 y <- nrt$Total.de.desocupados/1000
 se_db <- nrt$sd_d/1000
 cv_db <- se_db/y
-par_ar_erro <- dbnrt$parerro_d
-par_ma_erro <- dbnrt$theta1_d
+par_ar_erro <- dbnrt[["mod_arma11"]][["phi1_arma11_dnrt"]]
+par_ma_erro <- dbnrt[["mod_arma11"]][["theta1_arma11_dnrt"]]
 
 ### Modelo DLM com erro amostral
 
@@ -1280,7 +1288,7 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-itnrt <- b[complete.cases(b), ] # 4 NAs
+itnrt <- b[complete.cases(b), ] # 1 NAs
 
 hist(itnrt$slope)
 boxplot(itnrt$slope)
@@ -1318,7 +1326,7 @@ colnames(parametros)<-c("Slope","Seasonal","Irregular","Sample Error")
 AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
 colnames(AIC)<-"AIC"
 
-#BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T)
+BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
@@ -1335,7 +1343,7 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultadosnrt<-cbind(convergencia,parametros,testes,AIC)
+resultadosnrt<-cbind(convergencia,parametros,testes,AIC,BIC)
 resultadosnrt
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
@@ -1362,7 +1370,7 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-# save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/08_mod_nrt.Rdata")
+# save.image(file = "D:/FJP2425/Programacao/data/Rdatas/2_mod_desocup_iteracao/08_mod_nrt.Rdata")
 
 ### VALE DO RIO DOCE ###########################################################
 rm(list = ls())
@@ -1373,7 +1381,8 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error_AR1.R")
+#source("data/funcoes/07_teste_bsm_error_AR1.R")
+source("data/funcoes/11_teste_bsm_error_AR6.R")
 
 ## Carregando bases e definindo objeto para o vale
 
@@ -1388,8 +1397,12 @@ dbvl<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/09_params_rio.RDS") ## Ar
 y <- vl$Total.de.desocupados/1000
 se_db <- vl$sd_d/1000
 cv_db <- se_db/y
-par_ar_erro <- dbvl$parerro_d
-par_ma_erro <- dbvl$theta1_d
+par_ar_erro <- dbvl[["mod_ar6"]][["phi_d"]][1]
+par_ar2_erro <- dbvl[["mod_ar6"]][["phi_d"]][2]
+par_ar3_erro <- dbvl[["mod_ar6"]][["phi_d"]][3]
+par_ar4_erro <- dbvl[["mod_ar6"]][["phi_d"]][4]
+par_ar5_erro <- dbvl[["mod_ar6"]][["phi_d"]][5]
+par_ar6_erro <- dbvl[["mod_ar6"]][["phi_d"]][6]
 
 ### Modelo DLM com erro amostral
 
@@ -1416,6 +1429,10 @@ save.image("partial.Rdata")
 clusterEvalQ(cl,{load("partial.Rdata")
   library(dlm)
 })
+
+# Caso a função utilziada apresente algum erro, rode a função diretamente para identificá-lo
+
+# modelo<-f.teste_bsm_error(y,grid_error[3,])
 
 # Estimação do Modelo
 
@@ -1448,7 +1465,7 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-itval <- b[complete.cases(b), ] # 4 NAs
+itval <- b[complete.cases(b), ] # 4 NAs; 5 NAs para o AR6
 
 hist(itval$slope)
 boxplot(itval$slope)
@@ -1486,7 +1503,7 @@ colnames(parametros)<-c("Slope","Seasonal","Irregular","Sample Error")
 AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
 colnames(AIC)<-"AIC"
 
-#BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T)
+BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
@@ -1503,7 +1520,7 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultadosval<-cbind(convergencia,parametros,testes,AIC)
+resultadosval<-cbind(convergencia,parametros,testes,AIC,BIC)
 resultadosval
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
@@ -1522,7 +1539,7 @@ fig.cv_1 <- window(ts.union(
   ts((modelo_bsm_error$cv.original) * 100, start = 2012, frequency = 4),
   ts(modelo_bsm_error$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
 plot(fig.cv_1, plot.type = "single", col = c(1,4), ylab="", xlab="", lty = c(1,1), lwd=c(2))
-legend("topleft", legend = c("CV desocupados: design-based",
+legend("topright", legend = c("CV desocupados: design-based",
                              "Sinal CV desocupados: model-based"),
        lty = c(1,1), col = c(1,4), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
@@ -1530,7 +1547,7 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/09_mod_val.Rdata")
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/2_mod_desocup_iteracao/09_mod_val.Rdata")
 
 ### CENTRAL ####################################################################
 rm(list = ls())
@@ -1541,7 +1558,7 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error_AR1.R")
+source("data/funcoes/08_teste_bsm_error_MA1.R")
 
 ## Carregando bases e definindo objeto para central 
 
@@ -1556,8 +1573,7 @@ dbcen<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/10_params_cen.RDS") ## A
 y <- cen$Total.de.desocupados/1000
 se_db <- cen$sd_d/1000
 cv_db <- se_db/y
-par_ar_erro <- dbcen$parerro_d
-par_ma_erro <- dbcen$theta1_d
+par_ma_erro <- dbcen[["mod_ma1"]][["theta1_ma1_dcen"]]
 
 ### Modelo DLM com erro amostral
 
@@ -1616,7 +1632,10 @@ colnames(b) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
 
 # Retirando NAs:
 
-itcen <- b[complete.cases(b), ] # 2 NAs
+itcen <- b[complete.cases(b) & b$convergence == 0, ] # 33 obs retiradas
+itcen<-as.data.frame(itcen)
+
+# itcen <- b[complete.cases(b), ] # 7 NAs
 
 hist(itcen$slope)
 boxplot(itcen$slope)
@@ -1636,7 +1655,7 @@ summary(itcen$sampl_error)
 
 ## Após iniciais, seleção do modelo:
 
-modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
+modelo_bsm_error<- modelos_bsm_error_ini[[which(itcen$log_like==min(itcen$log_like,na.rm = TRUE))]]
 
 # Verificando a convergência
 
@@ -1654,7 +1673,7 @@ colnames(parametros)<-c("Slope","Seasonal","Irregular","Sample Error")
 AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
 colnames(AIC)<-"AIC"
 
-#BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T)
+BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
@@ -1671,7 +1690,7 @@ testes<-t(testes)
 row.names(testes)<-c("BSM_error")
 colnames(testes)<-c("Shapiro","Box","H")
 
-resultadoscen<-cbind(convergencia,parametros,testes,AIC)
+resultadoscen<-cbind(convergencia,parametros,testes,AIC,BIC)
 resultadoscen
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), cex=0.8)
@@ -1698,4 +1717,4 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/mod_ar1_iteracao/desocupados/10_mod_cen.Rdata")
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/2_mod_desocup_iteracao/10_mod_cen.Rdata")
