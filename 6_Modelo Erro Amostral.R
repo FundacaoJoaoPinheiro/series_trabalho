@@ -201,14 +201,14 @@ phi1_ar1_obh = clc_o_bh$fac[lag==1]
 
 par_ar1_bh<- data.frame(phi1_ar1_dbh, phi1_ar1_obh)
 
-#MA(1):
+### MA(1):
 theta1_ma1_dbh <- (1 - sqrt(1 - 4 * rho1_d_bh^2)) / (2 * rho1_d_bh)
 
 theta1_ma1_obh <- (1 - sqrt(1 - 4 * rho1_o_bh^2)) / (2 * rho1_o_bh)
 
 par_ma1_bh<-data.frame(theta1_ma1_dbh,theta1_ma1_obh)
 
-#AR(2)
+### AR(2)
 
 phi1_ar2_dbh <- (rho1_d_bh - rho1_d_bh * rho2_d_bh) / (1 - rho1_d_bh^2)
 phi2_ar2_dbh <- (rho2_d_bh - rho1_d_bh^2) / (1 - rho1_d_bh^2)
@@ -218,7 +218,7 @@ phi2_ar2_obh <- (rho2_o_bh - rho1_o_bh^2) / (1 - rho1_o_bh^2)
 
 par_ar2_bh<-data.frame(phi1_ar2_dbh,phi2_ar2_dbh,phi1_ar2_obh,phi2_ar2_obh)
 
-#MA(2) - apenas desocupados
+### MA(2) - apenas desocupados
 
 rho1 <- rho1_d_bh
 rho2 <- rho2_d_bh
@@ -235,7 +235,7 @@ solucao$x
 
 par_ma2_bh<-data.frame("theta1_ma2_dbh"=solucao$x[1],"theta2_ma2_dbh"=solucao$x[2])
 
-#ARMA (1,1) - apenas desocupados
+### ARMA (1,1) - apenas desocupados
 
 phi1_arma11_dbh <- rho2_d_bh/rho1_d_bh
 
@@ -255,10 +255,51 @@ theta1_arma11_dbh <- arma11_theta1(rho1, phi1)
 
 par_arma11_bh <-data.frame(phi1_arma11_dbh,theta1_arma11_dbh)
 
+### AR(6)
+#Desocupados
+rho3_d_bh <- clc_d_bh$fac[4]
+rho4_d_bh <- clc_d_bh$fac[5]
+rho5_d_bh <- clc_d_bh$fac[6]
+rho6_d_bh <- clc_d_bh$fac[7]
+
+rho_d <- c(rho1_d_bh, rho2_d_bh, rho3_d_bh, rho4_d_bh, rho5_d_bh, rho6_d_bh)
+R_d <- matrix(1, nrow = 6, ncol = 6)  # Matriz de autocorrelações
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_d[i, j] <- rho_d[abs(i - j)]
+    }
+  }
+}
+rho_d_vec <- rho_d # Vetor
+phi_d <- solve(R_d, rho_d_vec)
+ar6_d_bh<-as.data.frame(phi_d)
+
+#Ocupados
+rho3_o_bh <- clc_o_bh$fac[4]
+rho4_o_bh <- clc_o_bh$fac[5]
+rho5_o_bh <- clc_o_bh$fac[6]
+rho6_o_bh <- clc_o_bh$fac[7]
+
+rho_o <- c(rho1_o_bh, rho2_o_bh, rho3_o_bh, rho4_o_bh, rho5_o_bh, rho6_o_bh)
+R_o <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_o[i, j] <- rho_o[abs(i - j)]
+    }
+  }
+}
+rho_o_vec <- rho_o # Vetor
+phi_o <- solve(R_o, rho_o_vec)
+ar6_o_bh<-as.data.frame(phi_o)
+
+par_ar6_bh<-cbind(ar6_d_bh,ar6_o_bh)
+
 params_bh <- list("dbbh"=dbbh,"calculos_desocupada_bh"=clc_d_bh,
                 "calculos_ocupada_bh"=  clc_o_bh, 
                 "mod_ar1" = par_ar1_bh, "mod_ar2"=par_ar2_bh,
-                "mod_ma1"=par_ma1_bh,"mod_ma2"=par_ma2_bh, "mod_arma11"=par_arma11_bh)
+                "mod_ma1"=par_ma1_bh,"mod_ma2"=par_ma2_bh, "mod_arma11"=par_arma11_bh, "mod_ar6"=par_ar6_bh)
 
 saveRDS(params_bh,file = "D:/FJP2425/Programacao/data/pseudoerros/01_params_bh.rds")
 
@@ -492,10 +533,51 @@ theta1_arma11_dent <- arma11_theta1(rho1, phi1)
 
 par_arma11_ent <-data.frame(phi1_arma11_dent,theta1_arma11_dent)
 
+### AR(6)
+#Desocupados
+rho3_d_ent<- clc_d_ent$fac[4]
+rho4_d_ent <- clc_d_ent$fac[5]
+rho5_d_ent <- clc_d_ent$fac[6]
+rho6_d_ent <- clc_d_ent$fac[7]
+
+rho_d <- c(rho1_d_ent, rho2_d_ent, rho3_d_ent, rho4_d_ent, rho5_d_ent, rho6_d_ent)
+R_d <- matrix(1, nrow = 6, ncol = 6)  # Matriz de autocorrelações
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_d[i, j] <- rho_d[abs(i - j)]
+    }
+  }
+}
+rho_d_vec <- rho_d # Vetor
+phi_d <- solve(R_d, rho_d_vec)
+ar6_d_ent<-as.data.frame(phi_d)
+
+#Ocupados
+rho3_o_ent <- clc_o_ent$fac[4]
+rho4_o_ent <- clc_o_ent$fac[5]
+rho5_o_ent <- clc_o_ent$fac[6]
+rho6_o_ent <- clc_o_ent$fac[7]
+
+rho_o <- c(rho1_o_ent, rho2_o_ent, rho3_o_ent, rho4_o_ent, rho5_o_ent, rho6_o_ent)
+R_o <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_o[i, j] <- rho_o[abs(i - j)]
+    }
+  }
+}
+rho_o_vec <- rho_o # Vetor
+phi_o <- solve(R_o, rho_o_vec)
+ar6_o_ent<-as.data.frame(phi_o)
+
+par_ar6_ent<-cbind(ar6_d_ent,ar6_o_ent)
+
 params_ent <- list("dbent"=dbent,"calculos_desocupada_ent"=clc_d_ent,
                    "calculos_ocupada_ent"=  clc_o_ent, 
                    "mod_ar1" = par_ar1_ent, "mod_ar2"=par_ar2_ent,
-                   "mod_ma1"=par_ma1_ent,"mod_ma2"=par_ma2_ent, "mod_arma11"=par_arma11_ent)
+                   "mod_ma1"=par_ma1_ent,"mod_ma2"=par_ma2_ent, "mod_arma11"=par_arma11_ent, "mod_ar6"=par_ar6_ent)
 
 saveRDS(params_ent,file = "D:/FJP2425/Programacao/data/pseudoerros/02_params_ent.rds")
 
@@ -729,10 +811,51 @@ theta1_arma11_dcol <- arma11_theta1(rho1, phi1)
 
 par_arma11_col <-data.frame(phi1_arma11_dcol,theta1_arma11_dcol)
 
+### AR(6)
+#Desocupados
+rho3_d_col <- clc_d_col$fac[4]
+rho4_d_col <- clc_d_col$fac[5]
+rho5_d_col <- clc_d_col$fac[6]
+rho6_d_col <- clc_d_col$fac[7]
+
+rho_d <- c(rho1_d_col, rho2_d_col, rho3_d_col, rho4_d_col, rho5_d_col, rho6_d_col)
+R_d <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_d[i, j] <- rho_d[abs(i - j)]
+    }
+  }
+}
+rho_d_vec <- rho_d # Vetor
+phi_d <- solve(R_d, rho_d_vec)
+ar6_d_col<-as.data.frame(phi_d)
+
+#Ocupados
+rho3_o_col <- clc_o_col$fac[4]
+rho4_o_col <- clc_o_col$fac[5]
+rho5_o_col <- clc_o_col$fac[6]
+rho6_o_col <- clc_o_col$fac[7]
+
+rho_o <- c(rho1_o_col, rho2_o_col, rho3_o_col, rho4_o_col, rho5_o_col, rho6_o_col)
+R_o <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_o[i, j] <- rho_o[abs(i - j)]
+    }
+  }
+}
+rho_o_vec <- rho_o # Vetor
+phi_o <- solve(R_o, rho_o_vec)
+ar6_o_col<-as.data.frame(phi_o)
+
+par_ar6_col<-cbind(ar6_d_col,ar6_o_col)
+
 params_col <- list("dbcol"=dbcol,"calculos_desocupada_col"=clc_d_col,
                     "calculos_ocupada_col"=  clc_o_col, 
                    "mod_ar1" = par_ar1_col, "mod_ar2"=par_ar2_col,
-                   "mod_ma1"=par_ma1_col,"mod_ma2"=par_ma2_col, "mod_arma11"=par_arma11_col)
+                   "mod_ma1"=par_ma1_col,"mod_ma2"=par_ma2_col, "mod_arma11"=par_arma11_col, "mod_ar6"=par_ar6_col)
 
 saveRDS(params_col,file = "D:/FJP2425/Programacao/data/pseudoerros/03_params_col.rds")
 
@@ -966,10 +1089,51 @@ theta1_arma11_drid <- arma11_theta1(rho1, phi1)
 
 par_arma11_rid <-data.frame(phi1_arma11_drid,theta1_arma11_drid)
 
+### AR(6)
+#Desocupados
+rho3_d_rid <- clc_d_rid$fac[4]
+rho4_d_rid <- clc_d_rid$fac[5]
+rho5_d_rid <- clc_d_rid$fac[6]
+rho6_d_rid <- clc_d_rid$fac[7]
+
+rho_d <- c(rho1_d_rid, rho2_d_rid, rho3_d_rid, rho4_d_rid, rho5_d_rid, rho6_d_rid)
+R_d <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_d[i, j] <- rho_d[abs(i - j)]
+    }
+  }
+}
+rho_d_vec <- rho_d # Vetor
+phi_d <- solve(R_d, rho_d_vec)
+ar6_d_rid<-as.data.frame(phi_d)
+
+#Ocupados
+rho3_o_rid <- clc_o_rid$fac[4]
+rho4_o_rid <- clc_o_rid$fac[5]
+rho5_o_rid <- clc_o_rid$fac[6]
+rho6_o_rid <- clc_o_rid$fac[7]
+
+rho_o <- c(rho1_o_rid, rho2_o_rid, rho3_o_rid, rho4_o_rid, rho5_o_rid, rho6_o_rid)
+R_o <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_o[i, j] <- rho_o[abs(i - j)]
+    }
+  }
+}
+rho_o_vec <- rho_o # Vetor
+phi_o <- solve(R_o, rho_o_vec)
+ar6_o_rid<-as.data.frame(phi_o)
+
+par_ar6_rid<-cbind(ar6_d_rid,ar6_o_rid)
+
 params_rid <- list("dbrid"=dbrid,"calculos_desocupada_rid"=clc_d_rid,
                     "calculos_ocupada_rid"=  clc_o_rid, 
                    "mod_ar1" = par_ar1_rid, "mod_ar2"=par_ar2_rid,
-                   "mod_ma1"=par_ma1_rid,"mod_ma2"=par_ma2_rid, "mod_arma11"=par_arma11_rid)
+                   "mod_ma1"=par_ma1_rid,"mod_ma2"=par_ma2_rid, "mod_arma11"=par_arma11_rid, "mod_ar6"=par_ar6_rid)
 
 saveRDS(params_rid,file = "D:/FJP2425/Programacao/data/pseudoerros/04_params_rid.rds")
 
@@ -1204,10 +1368,51 @@ theta1_arma11_dsul <- arma11_theta1(rho1, phi1)
 
 par_arma11_sul <-data.frame(phi1_arma11_dsul,theta1_arma11_dsul)
 
+### AR(6)
+#Desocupados
+rho3_d_sul <- clc_d_sul$fac[4]
+rho4_d_sul <- clc_d_sul$fac[5]
+rho5_d_sul <- clc_d_sul$fac[6]
+rho6_d_sul <- clc_d_sul$fac[7]
+
+rho_d <- c(rho1_d_sul, rho2_d_sul, rho3_d_sul, rho4_d_sul, rho5_d_sul, rho6_d_sul)
+R_d <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_d[i, j] <- rho_d[abs(i - j)]
+    }
+  }
+}
+rho_d_vec <- rho_d # Vetor
+phi_d <- solve(R_d, rho_d_vec)
+ar6_d_sul<-as.data.frame(phi_d)
+
+#Ocupados
+rho3_o_sul <- clc_o_sul$fac[4]
+rho4_o_sul <- clc_o_sul$fac[5]
+rho5_o_sul <- clc_o_sul$fac[6]
+rho6_o_sul <- clc_o_sul$fac[7]
+
+rho_o <- c(rho1_o_sul, rho2_o_sul, rho3_o_sul, rho4_o_sul, rho5_o_sul, rho6_o_sul)
+R_o <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_o[i, j] <- rho_o[abs(i - j)]
+    }
+  }
+}
+rho_o_vec <- rho_o # Vetor
+phi_o <- solve(R_o, rho_o_vec)
+ar6_o_sul<-as.data.frame(phi_o)
+
+par_ar6_sul<-cbind(ar6_d_sul,ar6_o_sul)
+
 params_sul <- list("dbsul"=dbsul,"calculos_desocupada_sul"=clc_d_sul,
                     "calculos_ocupada_sul"=  clc_o_sul, 
                    "mod_ar1" = par_ar1_sul, "mod_ar2"=par_ar2_sul,
-                   "mod_ma1"=par_ma1_sul,"mod_ma2"=par_ma2_sul, "mod_arma11"=par_arma11_sul)
+                   "mod_ma1"=par_ma1_sul,"mod_ma2"=par_ma2_sul, "mod_arma11"=par_arma11_sul, "mod_ar6"=par_ar6_sul)
 
 saveRDS(params_sul,file = "D:/FJP2425/Programacao/data/pseudoerros/05_params_sul.rds")
 
@@ -1441,10 +1646,51 @@ theta1_arma11_dtrg <- arma11_theta1(rho1, phi1)
 
 par_arma11_trg <-data.frame(phi1_arma11_dtrg,theta1_arma11_dtrg)
 
+### AR(6)
+#Desocupados
+rho3_d_trg <- clc_d_trg$fac[4]
+rho4_d_trg <- clc_d_trg$fac[5]
+rho5_d_trg <- clc_d_trg$fac[6]
+rho6_d_trg <- clc_d_trg$fac[7]
+
+rho_d <- c(rho1_d_trg, rho2_d_trg, rho3_d_trg, rho4_d_trg, rho5_d_trg, rho6_d_trg)
+R_d <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_d[i, j] <- rho_d[abs(i - j)]
+    }
+  }
+}
+rho_d_vec <- rho_d # Vetor
+phi_d <- solve(R_d, rho_d_vec)
+ar6_d_trg<-as.data.frame(phi_d)
+
+#Ocupados
+rho3_o_trg <- clc_o_trg$fac[4]
+rho4_o_trg <- clc_o_trg$fac[5]
+rho5_o_trg <- clc_o_trg$fac[6]
+rho6_o_trg <- clc_o_trg$fac[7]
+
+rho_o <- c(rho1_o_trg, rho2_o_trg, rho3_o_trg, rho4_o_trg, rho5_o_trg, rho6_o_trg)
+R_o <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_o[i, j] <- rho_o[abs(i - j)]
+    }
+  }
+}
+rho_o_vec <- rho_o # Vetor
+phi_o <- solve(R_o, rho_o_vec)
+ar6_o_trg<-as.data.frame(phi_o)
+
+par_ar6_trg<-cbind(ar6_d_trg,ar6_o_trg)
+
 params_trg <- list("dbtrg"=dbtrg,"calculos_desocupada_trg"=clc_d_trg,
                     "calculos_ocupada_trg"=  clc_o_trg, 
                    "mod_ar1" = par_ar1_trg, "mod_ar2"=par_ar2_trg,
-                   "mod_ma1"=par_ma1_trg,"mod_ma2"=par_ma2_trg, "mod_arma11"=par_arma11_trg)
+                   "mod_ma1"=par_ma1_trg,"mod_ma2"=par_ma2_trg, "mod_arma11"=par_arma11_trg, "mod_ar6"=par_ar6_trg)
 
 saveRDS(params_trg,file = "D:/FJP2425/Programacao/data/pseudoerros/06_params_trg.rds")
 
@@ -1678,10 +1924,51 @@ theta1_arma11_dmat <- arma11_theta1(rho1, phi1)
 
 par_arma11_mat <-data.frame(phi1_arma11_dmat,theta1_arma11_dmat)
 
+### AR(6)
+#Desocupados
+rho3_d_mat <- clc_d_mat$fac[4]
+rho4_d_mat <- clc_d_mat$fac[5]
+rho5_d_mat <- clc_d_mat$fac[6]
+rho6_d_mat <- clc_d_mat$fac[7]
+
+rho_d <- c(rho1_d_mat, rho2_d_mat, rho3_d_mat, rho4_d_mat, rho5_d_mat, rho6_d_mat)
+R_d <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_d[i, j] <- rho_d[abs(i - j)]
+    }
+  }
+}
+rho_d_vec <- rho_d # Vetor
+phi_d <- solve(R_d, rho_d_vec)
+ar6_d_mat<-as.data.frame(phi_d)
+
+#Ocupados
+rho3_o_mat <- clc_o_mat$fac[4]
+rho4_o_mat <- clc_o_mat$fac[5]
+rho5_o_mat <- clc_o_mat$fac[6]
+rho6_o_mat <- clc_o_mat$fac[7]
+
+rho_o <- c(rho1_o_mat, rho2_o_mat, rho3_o_mat, rho4_o_mat, rho5_o_mat, rho6_o_mat)
+R_o <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_o[i, j] <- rho_o[abs(i - j)]
+    }
+  }
+}
+rho_o_vec <- rho_o # Vetor
+phi_o <- solve(R_o, rho_o_vec)
+ar6_o_mat<-as.data.frame(phi_o)
+
+par_ar6_mat<-cbind(ar6_d_mat,ar6_o_mat)
+
 params_mat <- list("dbmat"=dbmat,"calculos_desocupada_mat"=clc_d_mat,
                     "calculos_ocupada_mat"=  clc_o_mat, 
                    "mod_ar1" = par_ar1_mat, "mod_ar2"=par_ar2_mat,
-                   "mod_ma1"=par_ma1_mat,"mod_ma2"=par_ma2_mat, "mod_arma11"=par_arma11_mat)
+                   "mod_ma1"=par_ma1_mat,"mod_ma2"=par_ma2_mat, "mod_arma11"=par_arma11_mat, "mod_ar6"=par_ar6_mat)
 
 saveRDS(params_mat,file = "D:/FJP2425/Programacao/data/pseudoerros/07_params_mat.rds")
 
@@ -1914,10 +2201,51 @@ theta1_arma11_dnrt <- arma11_theta1(rho1, phi1)
 
 par_arma11_nrt <-data.frame(phi1_arma11_dnrt,theta1_arma11_dnrt)
 
+### AR(6)
+#Desocupados
+rho3_d_nrt <- clc_d_nrt$fac[4]
+rho4_d_nrt <- clc_d_nrt$fac[5]
+rho5_d_nrt <- clc_d_nrt$fac[6]
+rho6_d_nrt <- clc_d_nrt$fac[7]
+
+rho_d <- c(rho1_d_nrt, rho2_d_nrt, rho3_d_nrt, rho4_d_nrt, rho5_d_nrt, rho6_d_nrt)
+R_d <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_d[i, j] <- rho_d[abs(i - j)]
+    }
+  }
+}
+rho_d_vec <- rho_d # Vetor
+phi_d <- solve(R_d, rho_d_vec)
+ar6_d_nrt<-as.data.frame(phi_d)
+
+#Ocupados
+rho3_o_nrt <- clc_o_nrt$fac[4]
+rho4_o_nrt <- clc_o_nrt$fac[5]
+rho5_o_nrt <- clc_o_nrt$fac[6]
+rho6_o_nrt <- clc_o_nrt$fac[7]
+
+rho_o <- c(rho1_o_nrt, rho2_o_nrt, rho3_o_nrt, rho4_o_nrt, rho5_o_nrt, rho6_o_nrt)
+R_o <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_o[i, j] <- rho_o[abs(i - j)]
+    }
+  }
+}
+rho_o_vec <- rho_o # Vetor
+phi_o <- solve(R_o, rho_o_vec)
+ar6_o_nrt<-as.data.frame(phi_o)
+
+par_ar6_nrt<-cbind(ar6_d_nrt,ar6_o_nrt)
+
 params_nrt <- list("dbnrt"=dbnrt,"calculos_desocupada_nrt"=clc_d_nrt,
                     "calculos_ocupada_nrt"=  clc_o_nrt, 
                    "mod_ar1" = par_ar1_nrt, "mod_ar2"=par_ar2_nrt,
-                   "mod_ma1"=par_ma1_nrt,"mod_ma2"=par_ma2_nrt, "mod_arma11"=par_arma11_nrt)
+                   "mod_ma1"=par_ma1_nrt,"mod_ma2"=par_ma2_nrt, "mod_arma11"=par_arma11_nrt, "mod_ar6"=par_ar6_nrt)
 
 saveRDS(params_nrt,file = "D:/FJP2425/Programacao/data/pseudoerros/08_params_nrt.rds")
 
@@ -2150,10 +2478,51 @@ theta1_arma11_drio <- arma11_theta1(rho1, phi1)
 
 par_arma11_rio <-data.frame(phi1_arma11_drio,theta1_arma11_drio)
 
+### AR(6)
+#Desocupados
+rho3_d_rio <- clc_d_rio$fac[4]
+rho4_d_rio <- clc_d_rio$fac[5]
+rho5_d_rio <- clc_d_rio$fac[6]
+rho6_d_rio <- clc_d_rio$fac[7]
+
+rho_d <- c(rho1_d_rio, rho2_d_rio, rho3_d_rio, rho4_d_rio, rho5_d_rio, rho6_d_rio)
+R_d <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_d[i, j] <- rho_d[abs(i - j)]
+    }
+  }
+}
+rho_d_vec <- rho_d # Vetor
+phi_d <- solve(R_d, rho_d_vec)
+ar6_d_rio<-as.data.frame(phi_d)
+
+#Ocupados
+rho3_o_rio <- clc_o_rio$fac[4]
+rho4_o_rio <- clc_o_rio$fac[5]
+rho5_o_rio <- clc_o_rio$fac[6]
+rho6_o_rio <- clc_o_rio$fac[7]
+
+rho_o <- c(rho1_o_rio, rho2_o_rio, rho3_o_rio, rho4_o_rio, rho5_o_rio, rho6_o_rio)
+R_o <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_o[i, j] <- rho_o[abs(i - j)]
+    }
+  }
+}
+rho_o_vec <- rho_o # Vetor
+phi_o <- solve(R_o, rho_o_vec)
+ar6_o_rio<-as.data.frame(phi_o)
+
+par_ar6_rio<-cbind(ar6_d_rio,ar6_o_rio)
+
 params_rio <- list("dbrio"=dbrio,"calculos_desocupada_rio"=clc_d_rio,
                     "calculos_ocupada_rio"=  clc_o_rio, 
                    "mod_ar1" = par_ar1_rio, "mod_ar2"=par_ar2_rio,
-                   "mod_ma1"=par_ma1_rio,"mod_ma2"=par_ma2_rio, "mod_arma11"=par_arma11_rio)
+                   "mod_ma1"=par_ma1_rio,"mod_ma2"=par_ma2_rio, "mod_arma11"=par_arma11_rio, "mod_ar6"=par_ar6_rio)
 
 saveRDS(params_rio,file = "D:/FJP2425/Programacao/data/pseudoerros/09_params_rio.rds")
 
@@ -2387,10 +2756,51 @@ theta1_arma11_dcen <- arma11_theta1(rho1, phi1)
 
 par_arma11_cen <-data.frame(phi1_arma11_dcen,theta1_arma11_dcen)
 
+### AR(6)
+#Desocupados
+rho3_d_cen <- clc_d_cen$fac[4]
+rho4_d_cen <- clc_d_cen$fac[5]
+rho5_d_cen <- clc_d_cen$fac[6]
+rho6_d_cen <- clc_d_cen$fac[7]
+
+rho_d <- c(rho1_d_cen, rho2_d_cen, rho3_d_cen, rho4_d_cen, rho5_d_cen, rho6_d_cen)
+R_d <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_d[i, j] <- rho_d[abs(i - j)]
+    }
+  }
+}
+rho_d_vec <- rho_d # Vetor
+phi_d <- solve(R_d, rho_d_vec)
+ar6_d_cen<-as.data.frame(phi_d)
+
+#Ocupados
+rho3_o_cen <- clc_o_cen$fac[4]
+rho4_o_cen <- clc_o_cen$fac[5]
+rho5_o_cen <- clc_o_cen$fac[6]
+rho6_o_cen <- clc_o_cen$fac[7]
+
+rho_o <- c(rho1_o_cen, rho2_o_cen, rho3_o_cen, rho4_o_cen, rho5_o_cen, rho6_o_cen)
+R_o <- matrix(1, nrow = 6, ncol = 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      R_o[i, j] <- rho_o[abs(i - j)]
+    }
+  }
+}
+rho_o_vec <- rho_o # Vetor
+phi_o <- solve(R_o, rho_o_vec)
+ar6_o_cen<-as.data.frame(phi_o)
+
+par_ar6_cen<-cbind(ar6_d_cen,ar6_o_cen)
+
 params_cen <- list("dbcen"=dbcen,"calculos_desocupada_cen"=clc_d_cen,
                     "calculos_ocupada_cen"=  clc_o_cen, 
                    "mod_ar1" = par_ar1_cen, "mod_ar2"=par_ar2_cen,
-                   "mod_ma1"=par_ma1_cen,"mod_ma2"=par_ma2_cen, "mod_arma11"=par_arma11_cen)
+                   "mod_ma1"=par_ma1_cen,"mod_ma2"=par_ma2_cen, "mod_arma11"=par_arma11_cen, "mod_ar6"=par_ar6_cen)
 
 saveRDS(params_cen,file = "D:/FJP2425/Programacao/data/pseudoerros/10_params_cen.rds")
 
