@@ -199,7 +199,9 @@ rm(list = ls())
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/08_teste_bsm_error_MA1.R")
+source("data/funcoes/09_teste_bsm_error_ARMA11.R")
+#source("data/funcoes/07_teste_bsm_error_AR1.R")
+#source("data/funcoes/08_teste_bsm_error_MA1.R")
 #source("data/funcoes/10_teste_bsm_error_MA2.R")
 
 ## Carregando bases e definindo objeto para o Entorno
@@ -213,10 +215,12 @@ dbent<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/02_params_ent.RDS") ## A
 ## Definindo variáveis e inputs:
 
 y <- (ent$Total.de.desocupados)/1000
+# y <- y[1:44] # trucando as observações até 2022 - apenas teste
 se_db <- (ent$sd_d)/1000
+# se_db <- se_db[1:44]
 cv_db <- se_db/y
-#par_ar_erro <- dbent[["mod_arma11"]][["phi1_arma11_dent"]]
-par_ma_erro <- dbent[["mod_ma1"]][["theta1_ma1_dent"]]
+par_ar_erro <- dbent[["mod_arma11"]][["phi1_arma11_dent"]]
+par_ma_erro <- dbent[["mod_arma11"]][["theta1_arma11_dent"]]
 #par_ma2_erro <- dbent[["mod_ma2"]][["theta2_ma2_dent"]]
 
 ### Modelo DLM com erro amostral
