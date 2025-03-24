@@ -4,42 +4,15 @@
 
 library(dlm)
 library(tidyverse)
-library(beepr)
 library(parallel)
-library(rucm)
+library(R.utils)
+library(callr)
 options(scipen=999)
 
 # Neste script a grande diferença é deixar variar o nível da tendência na matriz W
   # Um novo param deve ser incluído em cada grid
 
 # A princípio, todos os modelos rodarão um AR1
-
-# Função para verificar como a função está rodando:
-
-#resultados <- vector("list", length = 100) # O número aqui corresponde à quantidade de iterações que deseja testar
-#erros <- vector("list", length = 100)
-
-#for (i in 1:100) {
-#  cat("Rodando grid_error na linha", i, "...\n")
-#  print(grid_error[i, ])  # Exibir os parâmetros atuais
-#  
-#  resultado <- try(f.teste_bsm_error(y, as.numeric(grid_error[i, ])), silent = TRUE)
-#  
-#  if (inherits(resultado, "try-error")) {
-#    cat("Erro detectado na linha", i, "\n")
-#    erros[[i]] <- resultado  # Armazena o erro para análise posterior
-#    resultados[[i]] <- NA    # Marca como NA para indicar falha
-#  } else {
-#    cat("Rodou sem erro na linha", i, "\n")
-#    resultados[[i]] <- resultado  # Armazena o resultado com sucesso
-#  }
-#}
-
-# Exibir resumo dos erros
-#cat("\nResumo das execuções com erro:\n")
-#for (i in which(sapply(erros, is.character))) {
-#  cat("Linha", i, "erro:\n", erros[[i]], "\n\n")
-#}
 
 ### MODELO BH ##################################################################
 rm(list = ls())
@@ -68,16 +41,22 @@ par_ar_erro <- dbbh[["mod_ar1"]][["phi1_ar1_dbh"]]
 ### Modelo DLM com erro amostral
 
 # Parâmetros iniciais:
-
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-seq(-6,6,3)
+par_1<-seq(-5,5,3)
+par_2<-seq(-5,5,3)
+par_3<-seq(-5,5,3)
+par_4<-seq(-5,5,3)
 par_5<-c(0)
 
 # Input dos parâmetros iniciais do modelo
 
 grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
+grid_error<-grid_error[-188,] #Cortei porque não estava convergindo
+
+# Antes de rodar o modelo com processamento paralelo, recomenda-se testar os parâmetros
+
+source("data/funcoes/13_rodar_grid_error.R")
+testegrid <- rodar_grid_error(y, grid_error, f.teste_bsm_error)
+modelos_bsm_error_ini<-testegrid$resultados
 
 # Processamento paralelo:
 
@@ -127,7 +106,7 @@ colnames(b) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_e
 
 # Retirando NAs:
 
-itbh <- b[complete.cases(b), ] # 42 NAs
+itbh <- b[complete.cases(b), ] # 8 NAs
 
 hist(itbh$slope)
 boxplot(itbh$slope)
@@ -240,6 +219,7 @@ par_ar_erro <- dbent[["mod_ar1"]][["phi1_ar1_dent"]]
 ### Modelo DLM com erro amostral
 
 # Parâmetros iniciais:
+  # Realizei várias alterações nos iniciais, visto que alguns estavam quebrando o cálculo
 
 par_1<-seq(-5,5,3)
 par_2<-seq(-5,5,3)
@@ -250,6 +230,13 @@ par_5<-c(0)
 # Input dos parâmetros iniciais do modelo
 
 grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
+grid_error<-grid_error[-188,] #Cortei porque não estava convergindo
+
+# Antes de rodar o modelo com processamento paralelo, recomenda-se testar os parâmetros
+
+source("data/funcoes/13_rodar_grid_error.R")
+testegrid <- rodar_grid_error(y, grid_error, f.teste_bsm_error)
+modelos_bsm_error_ini<-testegrid$resultados
 
 # Processamento paralelo:
 
@@ -263,14 +250,6 @@ save.image("partial.Rdata")
 clusterEvalQ(cl,{load("partial.Rdata")
   library(dlm)
 })
-
-# Teste da função
-#modelo<-f.teste_bsm_error(y,grid_error[5,])
-#resultados <- lapply(1:10, function(i) {
-#  cat("Rodando para i =", i, "\n")
-#  tryCatch(f.teste_bsm_error(y, grid_error[i, ]), 
-#           error = function(e) list(error = e$message, index = i))
-#})
 
 # Estimação do Modelo
 
@@ -416,15 +395,22 @@ par_ar_erro <- dbcol[["mod_ar1"]][["phi1_ar1_dcol"]]
 
 # Parâmetros iniciais:
 
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-seq(-6,6,3)
+par_1<-seq(-5,5,3)
+par_2<-seq(-5,5,3)
+par_3<-seq(-5,5,3)
+par_4<-seq(-5,5,3)
 par_5<-c(0)
 
 # Input dos parâmetros iniciais do modelo
 
-grid_error <- expand.grid(par_1,par_2,par_3,par_4,par_5)
+grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
+grid_error<-grid_error[-188,] #Cortei porque não estava convergindo
+
+# Antes de rodar o modelo com processamento paralelo, recomenda-se testar os parâmetros
+
+source("data/funcoes/13_rodar_grid_error.R")
+testegrid <- rodar_grid_error(y, grid_error, f.teste_bsm_error)
+modelos_bsm_error_ini<-testegrid$resultados
 
 # Processamento paralelo:
 
@@ -567,15 +553,22 @@ par_ar_erro <- dbrid[["mod_ar1"]][["phi1_ar1_drid"]]
 
 # Parâmetros iniciais:
 
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-seq(-6,6,3)
+par_1<-seq(-5,5,3)
+par_2<-seq(-5,5,3)
+par_3<-seq(-5,5,3)
+par_4<-seq(-5,5,3)
 par_5<-c(0)
 
 # Input dos parâmetros iniciais do modelo
 
 grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
+grid_error<-grid_error[-188,] #Cortei porque não estava convergindo
+
+# Antes de rodar o modelo com processamento paralelo, recomenda-se testar os parâmetros
+
+source("data/funcoes/13_rodar_grid_error.R")
+testegrid <- rodar_grid_error(y, grid_error, f.teste_bsm_error)
+modelos_bsm_error_ini<-testegrid$resultados
 
 # Processamento paralelo:
 
@@ -661,7 +654,7 @@ BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # true
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # false
 
 # Diagnosticando os resíduos
 
@@ -733,15 +726,22 @@ par_ar_erro <- dbsul[["mod_ar1"]][["phi1_ar1_dsul"]]
 
 # Parâmetros iniciais:
 
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-seq(-6,6,3)
+par_1<-seq(-5,5,3)
+par_2<-seq(-5,5,3)
+par_3<-seq(-5,5,3)
+par_4<-seq(-5,5,3)
 par_5<-c(0)
 
 # Input dos parâmetros iniciais do modelo
 
 grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
+grid_error<-grid_error[-c(42,182,188),] #Cortei porque não estava convergindo
+
+# Antes de rodar o modelo com processamento paralelo, recomenda-se testar os parâmetros
+
+source("data/funcoes/13_rodar_grid_error.R")
+testegrid <- rodar_grid_error(y, grid_error, f.teste_bsm_error)
+modelos_bsm_error_ini<-testegrid$resultados
 
 # Processamento paralelo:
 
@@ -900,15 +900,22 @@ par_ar_erro <- dbtrg[["mod_ar1"]][["phi1_ar1_dtrg"]]
 
 # Parâmetros iniciais:
 
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-seq(-6,6,3)
+par_1<-seq(-5,5,3)
+par_2<-seq(-5,5,3)
+par_3<-seq(-5,5,3)
+par_4<-seq(-5,5,3)
 par_5<-c(0)
 
 # Input dos parâmetros iniciais do modelo
 
 grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
+grid_error<-grid_error[-188,] #Cortei porque não estava convergindo
+
+# Antes de rodar o modelo com processamento paralelo, recomenda-se testar os parâmetros
+
+source("data/funcoes/13_rodar_grid_error.R")
+testegrid <- rodar_grid_error(y, grid_error, f.teste_bsm_error)
+modelos_bsm_error_ini<-testegrid$resultados
 
 # Processamento paralelo:
 
@@ -1066,15 +1073,22 @@ par_ar_erro <- dbmat[["mod_ar1"]][["phi1_ar1_dmat"]]
 ### Modelo DLM com erro amostral
 
 # Parâmetros iniciais:
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-seq(-6,6,3)
+par_1<-seq(-5,5,3)
+par_2<-seq(-5,5,3)
+par_3<-seq(-5,5,3)
+par_4<-seq(-5,5,3)
 par_5<-c(0)
 
 # Input dos parâmetros iniciais do modelo
 
 grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
+grid_error<-grid_error[-c(46,188,190),] #Cortei porque não estava convergindo
+
+# Antes de rodar o modelo com processamento paralelo, recomenda-se testar os parâmetros
+
+source("data/funcoes/13_rodar_grid_error.R")
+testegrid <- rodar_grid_error(y, grid_error, f.teste_bsm_error)
+modelos_bsm_error_ini<-testegrid$resultados
 
 # Processamento paralelo:
 
@@ -1233,15 +1247,22 @@ par_ar_erro <- dbnrt[["mod_ar1"]][["phi1_ar1_dnrt"]]
 
 # Parâmetros iniciais:
 
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-seq(-6,6,3)
+par_1<-seq(-5,5,3)
+par_2<-seq(-5,5,3)
+par_3<-seq(-5,5,3)
+par_4<-seq(-5,5,3)
 par_5<-c(0)
 
 # Input dos parâmetros iniciais do modelo
 
 grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
+grid_error<-grid_error[-c(50,188),] #Cortei porque não estava convergindo
+
+# Antes de rodar o modelo com processamento paralelo, recomenda-se testar os parâmetros
+
+source("data/funcoes/13_rodar_grid_error.R")
+testegrid <- rodar_grid_error(y, grid_error, f.teste_bsm_error)
+modelos_bsm_error_ini<-testegrid$resultados
 
 # Processamento paralelo:
 
@@ -1327,7 +1348,7 @@ BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # true
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # false
 
 # Diagnosticando os resíduos
 
@@ -1367,7 +1388,7 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-# save.image(file = "D:/FJP2425/Programacao/data/Rdatas/4_modestrutural_uni_desocup/08_mod_nrt.Rdata")
+ #save.image(file = "D:/FJP2425/Programacao/data/Rdatas/4_modestrutural_uni_desocup/08_mod_nrt.Rdata")
 
 ### VALE DO RIO DOCE ###########################################################
 rm(list = ls())
@@ -1398,15 +1419,22 @@ par_ar_erro <- dbvl[["mod_ar1"]][["phi1_ar1_drio"]]
 ### Modelo DLM com erro amostral
 
 # Parâmetros iniciais:
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-seq(-6,6,3)
+par_1<-seq(-5,5,3)
+par_2<-seq(-5,5,3)
+par_3<-seq(-5,5,3)
+par_4<-seq(-5,5,3)
 par_5<-c(0)
 
 # Input dos parâmetros iniciais do modelo
 
 grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
+grid_error<-grid_error[-c(53,86),] #Cortei porque não estava convergindo
+
+# Antes de rodar o modelo com processamento paralelo, recomenda-se testar os parâmetros
+
+source("data/funcoes/13_rodar_grid_error.R")
+testegrid <- rodar_grid_error(y, grid_error, f.teste_bsm_error)
+modelos_bsm_error_ini<-testegrid$resultados
 
 # Processamento paralelo:
 
@@ -1533,7 +1561,7 @@ mtext("Ano", side = 1, line = 3)
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/4_modestrutural_uni_desocup/09_mod_val.Rdata")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/4_modestrutural_uni_desocup/09_mod_val.Rdata")
 
 ### CENTRAL ####################################################################
 rm(list = ls())
@@ -1565,15 +1593,22 @@ par_ar_erro <- dbcen[["mod_ar1"]][["phi1_ar1_dcen"]]
 
 # Parâmetros iniciais:
 
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-seq(-6,6,3)
+par_1<-seq(-5,5,3)
+par_2<-seq(-5,5,3)
+par_3<-seq(-5,5,3)
+par_4<-seq(-5,5,3)
 par_5<-c(0)
 
 # Input dos parâmetros iniciais do modelo
 
 grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
+grid_error<-grid_error[-c(150,166,194,214,226),] #Cortei porque não estava convergindo
+
+# Antes de rodar o modelo com processamento paralelo, recomenda-se testar os parâmetros
+
+source("data/funcoes/13_rodar_grid_error.R")
+testegrid <- rodar_grid_error(y, grid_error, f.teste_bsm_error)
+modelos_bsm_error_ini<-testegrid$resultados
 
 # Processamento paralelo:
 
@@ -1618,7 +1653,7 @@ colnames(b) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_e
 
 # Retirando NAs:
 
-itcen <- b[complete.cases(b), ] # 2 NAs
+itcen <- b[complete.cases(b), ] # 24 NAs
 
 hist(itcen$slope)
 boxplot(itcen$slope)
@@ -1660,7 +1695,7 @@ BIC<-2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T)
 
 # Matriz Hessiana
 
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # true
+all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0) # false
 
 # Diagnosticando os resíduos
 
