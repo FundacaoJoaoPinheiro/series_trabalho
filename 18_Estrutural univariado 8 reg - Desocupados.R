@@ -1109,7 +1109,7 @@ legend("topleft", legend = c("CV desocupados: design-based",
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("05 - Estrututral Sul de Minas (MA(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("03 - Estrututral Sul de Minas (MA(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 ## GRÁFICO DE ANÁLISE MA(1)
 
@@ -1251,7 +1251,7 @@ legend("topleft", legend = c("CV desocupados: design-based",
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("05 - Estrututral Sul de Minas (ARMA(1,1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("03 - Estrututral Sul de Minas (ARMA(1,1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 ## GRÁFICO DE ANÁLISE ARMA(1,1)
 
