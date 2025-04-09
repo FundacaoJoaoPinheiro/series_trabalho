@@ -12,9 +12,9 @@ dev.new()
 
 ## Gráficos para os coeficientes de variação da base por estratos:
 
-dados<-readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
+#dados<-readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
 
-anual<-readRDS("D:/FJP2425/Programacao/data/baseestanual.RDS")
+#anual<-readRDS("D:/FJP2425/Programacao/data/baseestanual.RDS")
 
 ### DADOS TRIMESTRAIS ##########################################################
 
@@ -487,10 +487,63 @@ y_max_d<- 60
 
 
 
+### COMPARATIVO MODELOS SMOOTH E ESTRUTURAL ####################################
 
+result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+result_mods_deso[["Estimativa Direta"]][["Desocupacao"]]<-ma1_bh$ts.signal
+result_mods_deso[["Estimativa Direta"]][["CV_desocupacao"]]<-ma1_bh$cv.signal
+saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+rm(result_mods_deso)
 
+mods <- readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
 
+desoc<-mods$`Estimativa Direta`$Desocupacao
+cv_desoc<- mods$`Estimativa Direta`$CV_desocupacao
 
+## BH
+
+baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+bh<-baseestr8reg$`01-Belo Horizonte`
+baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+dtbh<-baseal8reg$`01-Belo Horizonte` 
+dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/01_params_bh.RDS")
+
+y <- bh$Total.de.desocupados/1000
+se_db<- bh$sd_d/1000
+cv_db <- se_db/y
+
+sm_ma1_bh<-mods$`01-Belo Horizonte`$sinal_smooth_ma1bh
+cv_sm_ma1_bh<-mods$`01-Belo Horizonte`$cv_sinal_smooth_ma1bh
+est_ma1_bh<-mods$`01-Belo Horizonte`$sinal_estrutural_ma1bh
+cv_est_ma1_bh<-mods$`01-Belo Horizonte`$cv_sinal_estrutural_ma1bh
+
+par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
+fig_bh <- window(ts.union(
+  ts(y, start = 2012, frequency = 4),
+  ts(sm_ma1_bh, start = 2012, frequency = 4),
+  ts(est_ma1_bh, start = 2012, frequency = 4) 
+), start=c(2013,3))
+plot(fig_bh, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
+legend("topleft", legend = c("Desocupação: design-based",
+                             "Sinal da Desocupação - Smooth MA(1)",
+                             "Sinal da Desocupação - Estrutural MA(1)"),
+       lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig_bh.cv <- window(ts.union(
+  ts((cv_db*100), start = 2012, frequency = 4),
+  ts(cv_sm_ma1_bh, start = 2012, frequency = 4),
+  ts(cv_est_ma1_bh, start = 2012, frequency = 4)
+), start=c(2013,3))
+plot(fig_bh.cv, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados - Smooth MA(1)",
+                             "Sinal CV desocupados - Estrutural MA(1)"),
+       lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("01 - Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
 
