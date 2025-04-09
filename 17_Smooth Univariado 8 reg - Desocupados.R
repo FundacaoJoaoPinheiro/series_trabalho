@@ -336,6 +336,36 @@ legend("bottomleft", legend = c("Erro amostral"),
 mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
+#### GRÁFICO UNIFICADO
+
+par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
+fig_bh <- window(ts.union(
+  ts(ma1_bh$ts.original, start = 2012, frequency = 4),
+  ts(ar1_bh$ts.signal, start = 2012, frequency = 4),
+  ts(ma1_bh$ts.signal, start = 2012, frequency = 4)
+), start=c(2013,3))
+plot(fig_bh, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação AR(1): model-based",
+                            "Sinal da Desocupação MA(1)"),
+       lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig_bh.cv <- window(ts.union(
+  ts((ma1_bh$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar1_bh$cv.signal, start = 2012, frequency = 4),
+  ts(ma1_bh$cv.signal, start = 2012, frequency = 4)
+), start=c(2013,3))
+plot(fig_bh.cv, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados AR(1): model-based",
+                             "Sinal CV desocupados MA(1): model-based"),
+       lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("01 - Belo Horizonte (AR e MA)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
 #result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
 #result_mods_deso[["01-Belo Horizonte"]][["sinal_smooth_ma1bh"]]<-ma1_bh$ts.signal
 #result_mods_deso[["01-Belo Horizonte"]][["cv_sinal_smooth_ma1bh"]]<-ma1_bh$cv.signal
@@ -842,7 +872,7 @@ legend("topleft", legend = c("CV desocupados: design-based",
        lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("02 - Entorno Metropolitano de Belo Horizonte (AR e MA)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (AR e MA)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 # Salvando o .Rdata
 
@@ -1709,7 +1739,6 @@ legend("topleft", legend = c("CV desocupados: design-based",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("04 - Triângulo Mineiro (AR e MA)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
 
 # Salvando o .Rdata
 
