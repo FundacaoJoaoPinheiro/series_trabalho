@@ -1,6 +1,8 @@
 ################################################################################
-##                          MODELO BSM UNIVARIADO                             ##
+##                    MODELO SMOOTH PATA TOTAL DE OCUPADOS                    ##
 ################################################################################
+
+## Para o total de ocupados, todos os modelos seguem um padrão autorregressivo
 
 library(dlm)
 library(tidyverse)
@@ -9,2585 +11,1640 @@ library(parallel)
 
 options(scipen=999)
 
-## Anotações
-  # Modelo Sul não rodou o modelo após as estimações iniciais
-  # Modelo Norte de Minas não rodou após as estimações iniciais
-  # Modelo Vale do Rio Doce não rodou após as estimações iniciais
-  # Modelo Central não rodou após as estimações iniciais
+### BELO HORIZONTE #############################################################
+rm(list = ls())
 
-### TESTE INICIAL - MODELO "POR EXTENSO" #######################################
-
-## Funções
+## Funções e base de dados
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
-source("data/funcoes/02_modelo_bsm.R")
-source("data/funcoes/03_modelo_bsm_error.R")
-source("data/funcoes/04_modelo_bsm_error_1.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
-source("data/funcoes/08_teste_bsm_error_1.R")
 
-## Carregando bases e definindo objeto para BH
+baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+bh<-baseestr8reg$`01-Belo Horizonte`
+baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+dtbh<-baseal8reg$`01-Belo Horizonte` ## Arquivo "cru", saída direta da rotina da base por rotação
+dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/01_params_bh.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
-baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")   # Base sem rotação
-bh<-baseestr0324$`01-Belo Horizonte`
-baserot <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
-dtbh<-baserot$`01-Belo Horizonte` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/01_params_bh.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+y <- bh$Total.de.ocupados/1000
+se_db<- bh$sd_o/1000
+cv_db <- se_db/y
 
-## Definindo variáveis e inputs:
-
-y <- bh$Total.de.ocupados
-se_db <- bh$sd_o
-cv_db <- bh$CV.ocupados
-par_ar_erro <- dbbh$parerro_o
-#plot(y, type="l")
-#plot(cv_db*100, type="l")
-
-## Estipulando parâmetros iniciais:
-  # Conforme recomendação, estipulando inicialmente seq(1)
-    # Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
+# Parâmetros iniciais:
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
 par_3<-seq(-6,6,3)
 par_4<-c(0)
-# par_5<-c(0) como o objetivo é um modelo suavizado, não será necessário este 5 parâmetro
 
-## Possibilidades do modelo
+grid_error<- expand.grid(par_1,par_2,par_3,par_4)
 
-# grid <- expand.grid(par_1,par_2,par_3)
-grid_error <- expand.grid(par_1,par_2,par_3,par_4)
+#### MODELO AR(1)
 
-# No momento, essa repetição foi feita para realizar testes ao longo do código
+source("data/funcoes/07_smooth_AR1.R")
+phi1_ar1 <- dbbh[["mod_ar1"]][["phi1_ar1_obh"]]
 
-# comb1 <- expand.grid(par_1, par_2, par_3)
-# colnames(comb1) <- c("par_1", "par_2", "par_3")
-
-comb2<-expand.grid(par_1, par_2, par_3, par_4)
-colnames(comb2) <- c("par_1", "par_2", "par_3", "par_4")
-
-# comb3<-expand.grid(par_1, par_2, par_3, par_4, par_5)
-# colnames(comb3) <- c("par_1", "par_2", "par_3", "par_4","par_5")
-
-## Ajuste do formato dos valores iniciais para o modelo
-
-inicial <- as.matrix(comb2)
-
-## Início do estudo da função
-
-# Definindo o modelo
-
-modelo<- list("fn"=function(params){
-  m = dlmModPoly(2) + dlmModTrig(4)
-  W = matrix(0,5,5)
-  #W[1, 1] <- exp(params[1])
-  W[2, 2] <- exp(params[1])
-  W[3, 3] <- exp(params[2])
-  W[5, 5] <- exp(params[3]) # Alteração para corrigir a dimensão para o último termo sazonal, estava (6,6)
-  m$W <- W
-  V =  exp(params[4])
-  m$V <- V
-  return(m)
-})
-
-i0 <- inicial[1:75,] # Com três parâmetros, a função também deu erro
-
-modelo$initial<-i0
-
-# Estimando hiperparâmetros:
-
-modelo$fit <- dlmMLE(y, modelo$initial,modelo$fn, hessian=T,control = list(maxit = 10^8))
-
-modelo$mod <- modelo$fn(modelo$fit$par)
-
-# Aplicando o Filtro de Kalman:
-  # Séries filtradas e suavizadas:
-
-modelo$filtered <- dlmFilter(y,modelo$mod)
-modelo$smoothed <- dlmSmooth(modelo$filtered)
-modelo$m <- dropFirst(modelo$filtered$m)
-modelo$sm <- dropFirst(modelo$smoothed$s)
-modelo$res <- residuals(modelo$filtered,sd=FALSE)
-
-# Definindo variável:
-
-modelo$d<-length(modelo$mod$m0)+1
-modelo$T<-length(y)
-
-# Estatísticas de interesse:
-
-modelo$ts.original<- y
-modelo$ts.trend <- modelo[["m"]][,1]
-modelo$ts.slope <- modelo[["m"]][,2]
-
-modelo$ts.seasonal <- modelo[["m"]][,3]+modelo[["m"]][,4]+modelo[["m"]][,5]
-modelo$ts.signal <- modelo$ts.trend +modelo$ts.seasonal
-modelo$ts.irregular <- modelo$ts.original-(modelo$ts.signal)
-modelo$ts.seasonal_adj <- modelo$ts.trend+modelo$ts.irregular
-
-# Calculando Erro Padrão:
-
-mse.list_bsm = dlmSvd2var(modelo[["filtered"]][["U.C"]], modelo[["filtered"]][["D.C"]])
-se.mat_bsm = dropFirst(t(sapply(mse.list_bsm, FUN=function(x) sqrt(diag(x)))))
-
-# Vetores indicadores da soma de estados:
-
-c_sinal_bsm <- matrix(c(1,0,1,0, # somando tendência e os seis componentes sazonais
-                        1),1,5) # indica com 1 qual a coluna(estado) quer considerar*caso trigonométrico
-c_seasonal_bsm <- matrix(c(0,0,1,0, # somando os seis componentes sazonais
-                           1),1,5) # indica com 1 qual a coluna(estado) quer considerar*caso trigonométrico
-
-se.mat_bsm_sinal = dropFirst((sapply(mse.list_bsm, function(i) sqrt(c_sinal_bsm%*%i%*%t(c_sinal_bsm)) )))
-se.mat_bsm_seasonal = dropFirst((sapply(mse.list_bsm, function(i) sqrt(c_seasonal_bsm%*%i%*%t(c_seasonal_bsm)) )))
-
-modelo$se.original<-bh$sd_o
-modelo$se.trend <- se.mat_bsm[,1]
-modelo$se.slope <- se.mat_bsm[,2]
-modelo$se.seasonal <- se.mat_bsm_seasonal
-modelo$se.signal <- se.mat_bsm_sinal
-
-modelo$cv.original<-bh$CV.ocupados
-modelo$cv.trend<- modelo$se.trend/modelo$ts.trend*100
-modelo$cv.signal<- modelo$se.signal/modelo$ts.signal*100
-
-# Estatísticas de interesse -> suavizadas
-
-modelo$ts.sm.trend <- modelo[["sm"]][,1]
-modelo$ts.sm.slope <- modelo[["sm"]][,2]
-modelo$ts.sm.seasonal <- modelo[["sm"]][,3]+modelo[["sm"]][,5]
-modelo$ts.sm.signal <- modelo$ts.trend +modelo$ts.seasonal
-modelo$ts.sm.irregular <- modelo$ts.original-(modelo$ts.signal)
-modelo$ts.sm.seasonal_adj <- modelo$ts.trend+modelo$ts.irregular 
-
-# Calculando o erro padrão
-
-mse.list_bsm.sm = dlmSvd2var(modelo[["smoothed"]][["U.S"]], modelo[["smoothed"]][["D.S"]])
-se.mat_bsm.sm = dropFirst(t(sapply(mse.list_bsm.sm, FUN=function(x) sqrt(diag(x)))))
-
-# Mais vetores indicadores necessários para o state space
-
-c_sinal_bsm.sm <- matrix(c(1,0,1,1, 
-                           1),1,5) 
-c_seasonal_bsm.sm <- matrix(c(0,0,1,1, 
-                              1),1,5) 
-
-se.mat_bsm_sinal.sm = dropFirst((sapply(mse.list_bsm.sm, function(i) sqrt(c_sinal_bsm.sm%*%i%*%t(c_sinal_bsm.sm)) )))
-se.mat_bsm_seasonal.sm = dropFirst((sapply(mse.list_bsm.sm, function(i) sqrt(c_seasonal_bsm.sm%*%i%*%t(c_seasonal_bsm.sm)) )))
-
-modelo$se.sm.trend <- se.mat_bsm.sm[,1]
-modelo$se.sm.slope <- se.mat_bsm.sm[,2]
-modelo$se.sm.seasonal <- se.mat_bsm_seasonal.sm
-modelo$se.sm.signal <- se.mat_bsm_sinal.sm
-
-modelo$cv.sm.trend<- modelo$se.sm.trend/modelo$ts.sm.trend*100
-modelo$cv.sm.slope<- modelo$se.sm.slope/modelo$ts.sm.slope*100
-modelo$cv.sm.signal<- modelo$se.sm.signal/modelo$ts.sm.signal*100
-
-# Objeto para armazenar resultados:
-
-a<-data.frame(
-  level_ini = modelo$initial[,1],
-  slope_ini = modelo$initial[,2],  
-  seasonal_ini = modelo$initial[,3], 
-  irregular_ini = modelo$initial[,4],
-  
-  level = modelo$fit$par[,1],  
-  slope = modelo$fit$par[,2],  
-  seasonal = modelo$fit$par[,3], 
-  irregular = modelo$fit$par[,4],
-  
-  convergence = modelo$fit$convergence,
-  log_like = modelo$fit$value 
-)
-
-# Avaliações
-
-hist(a$level)
-boxplot(a$level)
-summary(a$level)
-
-hist(a$slope)
-boxplot(a$slope)
-summary(a$slope)
-
-hist(a$seasonal)
-boxplot(a$seasonal)
-summary(a$seasonal)
-
-hist(a$irregular)
-boxplot(a$irregular)
-summary(a$irregular)
-
-
-modelo_bsm<- modelo$fit$value # Falha: log_like apresentou um único resultado
-
-convergencia <- rbind (c(modelo$fit$convergence))
-
-parametros<-rbind(c(round(exp(modelo$fit$par),4),NA))
-
-row.names(parametros)<-c(
-  "BSM")
-
-# AIC e BIC
-AIC<-rbind(
-  2*(modelo$fit$value)+2*4)
-colnames(AIC)<-"AIC"
-
-#BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error_1$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error_1$T),
-#  2*(modelo_bsm_error_1$fit$value)+2*4*log(modelo_bsm_error_1$T))
-#colnames(BIC)<-"BIC"
-
-# verificar se é positiva definida
-
-all(eigen(modelo$fit$hessian, only.values = TRUE)$values > 0) # Nessa abordagem, não foi positiva definida. Talvez o erro esteja na otimização
-
-# Diagnóstico dos resíduos:
-
-testes<-sapply(modelo, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
-                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
-                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
-)
-testes<-t(testes)
-
-
-### MODELO BH ##################################################################
-
-rm(list = ls())
-
-## Funções
-
-source("data/funcoes/01_funcoes_pseudo_erro.R")
-source("data/funcoes/02_modelo_bsm.R")
-source("data/funcoes/03_modelo_bsm_error.R")
-source("data/funcoes/04_modelo_bsm_error_1.R")
-source("data/funcoes/05_teste_H.R")
-source("data/funcoes/06_teste_bsm.R")
-source("data/funcoes/07_teste_bsm_error.R")
-source("data/funcoes/08_teste_bsm_error_1.R")
-
-
-## Carregando bases e definindo objeto para BH
-
-baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
-bh<-baseestr0324$`01-Belo Horizonte`
-baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
-dtbh<-baseal0324$`01-Belo Horizonte` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/01_params_bh.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
-
-## Definindo variáveis e inputs:
-
-y <- bh$Total.de.ocupados
-se_db <- bh$sd_o
-cv_db <- bh$CV.ocupados
-par_ar_erro <- dbbh$parerro_o
-#plot(y, type="l")
-#plot(cv_db*100, type="l")
-
-## Estipulando parâmetros iniciais:
-  # Conforme recomendação, estipulando inicialmente seq(1)
-  # Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
-
-par_1<-c(log(22.42)) #par_1<-seq(-6,6,3)
-par_2<-c(log(0.001)) #par_2<-seq(-6,6,3)
-par_3<-c(log(41.25)) #par_3<-seq(-6,6,3)
-par_4<-c(log(0.4)) # estava: c(0)
-#par_5<-seq(0) # Ocultado para modelo smooth trend
-
-
-## Possibilidades do modelo
-
-#grid <- expand.grid(par_1,par_2,par_3)
-grid_error <- expand.grid(par_1,par_2,par_3,par_4)
-
-## Detectando núcleos e aplicando o processamento paralelo
+# Processamento paralelo:
 
 numCores<-detectCores()
 numCores
-
-# criando clusters
 cl<- makeCluster(numCores-1)
-
-# salva imagem
 save.image("partial.Rdata")
-
-# envia dados para cada um dos cluster
 clusterEvalQ(cl,{load("partial.Rdata")
   library(dlm)
 })
 
-## Modelo com processamento paralelo
-
-## Primeiro e terceiro modelos ocultados em relação à rotina de referência
-
-# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
-  # Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
+# Estimação do Modelo
 
 start_time <- Sys.time()
-modelos_bsm_error_ini<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.teste_bsm_error(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_ar1bh<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.smooth_ar1(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
 end_time <- Sys.time()
 end_time - start_time
 
-# stop cluster
 stopCluster(cl)
 showConnections()
 
+# Avaliação das iterações:
 
-## Etapa de avaliação:
-  # Hiperparâmetros iniciais vs estimados
-  # Convergência
-
-# Criada nova chamada de objeto
-  # Quando criado com código de referência, no modelo smoothing estava ocorrendo a chamada de vetores para cada célula do df
-  # Adicionado:
-    # Exclui iterações que tiveram resultado  NA
-
-b_list <- lapply(modelos_bsm_error_ini, function(modelo) {
-  if (!is.list(modelo) || is.null(modelo$initial) || is.null(modelo$fit) || is.null(modelo$mod)) {
-    return(NULL)
-  }
-  # Valores iniciais (garante que initial_values seja um vetor válido)
-  initial_values <- if (is.data.frame(modelo$initial)) modelo$initial[1, ] else rep(NA, 4)
-  
-  # Parâmetros estimados
-  estimated_values <- if (!is.null(modelo$fit$par)) modelo$fit$par else rep(NA, 4)
-  
-  # Convergência e log-verossimilhança
-  convergence <- if (!is.null(modelo$fit$convergence)) modelo$fit$convergence else NA
-  log_like <- if (!is.null(modelo$fit$value)) modelo$fit$value else NA
-  
-  # Sample error inicial e final
-  # sampl_error_ini <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  # sampl_error <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  
-  # Criar um dataframe com os valores extraídos
-  data.frame(
-    slope_ini = initial_values[1],
-    seasonal_ini = initial_values[2], irregular_ini = initial_values[3],
-    sampl_error_ini = initial_values[4],
-    
-    slope = estimated_values[1],
-    seasonal = estimated_values[2], irregular = estimated_values[3],
-    sampl_error = estimated_values[4],
-    
-    convergence = convergence, log_like = log_like
-  )
-})
-
-# Remove os elementos NULL da lista
-b_list <- Filter(Negate(is.null), b_list)
-
-# Combina tudo em um único dataframe, se necessário
-b <- do.call(rbind, b_list)
-
-colnames(b) <- c("slope_ini","seasonal_ini","irregual_ini","sampl_error_ini",
-                 "slope","seasonal","irregular", "sampl_error",
-                 "convergence","log_like")
-
-hist(b$slope)
-boxplot(b$slope)
-summary(b$slope)
-
-hist(b$seasonal)
-boxplot(b$seasonal)
-summary(b$seasonal)
-
-hist(b$irregular)
-boxplot(b$irregular)
-summary(b$irregular)
-
-hist(b$sampl_error)
-boxplot(b$sampl_error)
-summary(b$sampl_error)
+ini_ar1_bh <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar1bh[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar1bh[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar1bh[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
 
 
-# Observações: 
- # Em relação aocódigo de referência 
+colnames(ini_ar1_bh) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                          "slope","seasonal","irregular", "sampl_error",
+                          "convergence","log_like")
 
-## Estimação do modelo após valores iniciais
+## Após iniciais, seleção do modelo:
 
-# Conforme referência:
-  # modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
-    # Entranto, apesar de escolher a menor log-verossimilhança, por vezes o código escolhia um modelo que não convergiu
-    # Adaptação: escolha por convergência = 0 e depois menor verossimilhança
+ar1_bh <- run_ar1bh[[which(
+  ini_ar1_bh$log_like == min(ini_ar1_bh$log_like[ini_ar1_bh$convergence == 0], na.rm = TRUE) & 
+    ini_ar1_bh$convergence == 0
+)]]
 
-# Filtrei apenas os modelos que convergiram
-b_conv<- b[b$convergence == 0, ]
+# Verificando a convergência
 
-# Depois apliquei o código:
+conver_ar1<-rbind(ar1_bh$fit$convergence)
+colnames(conver_ar1)<-c("convergence") 
 
-modelo_bsm_error<- modelos_bsm_error_ini[[which(b_conv$log_like==min(b_conv$log_like,na.rm = TRUE))]]
+# Parâmetros estimados:
 
-## Verificando a convergência
-  # Ainda assim não convergiu
-
-convergencia<-rbind(modelo_bsm_error$fit$convergence)
-
-colnames(convergencia)<-c("convergence")
-
-
-## Parâmetros estimados:
-
-parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
-
-row.names(parametros)<-c("BSM_error")
-
-colnames(parametros)<-c("Slope","Seasonal","Irregular","Sampling Error") # Estava: colnames(parametros)<-c("Level","Slope","Seasonal","Irregular","Sampling Error")
-
+parametros_ar1<-rbind(c(round(exp(ar1_bh$fit$par),4)))
+row.names(parametros_ar1)<-c("BSM_error")
+colnames(parametros_ar1)<-c("Slope","Seasonal","Irregular","Sample Error")
 
 # Critérios de informação: AIC e BIC
 
-AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
-colnames(AIC)<-"AIC"
+AIC_ar1<-rbind(2*(ar1_bh$fit$value)+2*5)
+colnames(AIC_ar1)<-"AIC"
 
-#BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T),
-#colnames(BIC)<-"BIC"
+BIC_ar1<-2*(ar1_bh$fit$value)+2*5*log(ar1_bh$T)
 
+# Matriz Hessiana
 
-# Avaliando a matriz hessiana
-  # Deve ser positiva definida
-
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0)
+all(eigen(ar1_bh$fit$hessian, only.values = TRUE)$values > 0) # false
 
 # Diagnosticando os resíduos
 
-lista_modelos<-list(modelo_bsm_error)
-testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+lista_ar1<-list(ar1_bh)
+testes_ar1<-sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
                                                  round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
                                                  teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
 )
-testes<-t(testes)
-row.names(testes)<-c("BSM_error")
-colnames(testes)<-c("Shapiro","Box","H")
+testes_ar1<-t(testes_ar1)
+row.names(testes_ar1)<-c("BSM_error")
+colnames(testes_ar1)<-c("Shapiro","Box","H")
+resultadosbh_ar1<-cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
+resultadosbh_ar1
 
-resultados<-cbind(convergencia,parametros,testes, AIC, BIC)
-resultados
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar1 <- window(ts.union(
+  ts(ar1_bh$ts.original, start = 2012, frequency = 4),
+  ts(ar1_bh$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottomleft", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
-#save.image(paste("results/modelo3_D_",RG,"_1T2023.RData",sep=""))
-#write.csv(resultados,paste("results/modelo3_D_resultados_",RG,"_1T2023.csv",sep=""))
-
-
-par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("topleft", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-mtext("Unemployment (thousand persons)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
-
-
-fig.cv_1<- window(ts.union(
-  ts(modelo_bsm_error$cv.original*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("topright", legend = c("CV design-based unemployment",
-                              "CV signal model-based unemployment",
-                              "CV trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+fig_ar1.cv <- window(ts.union(
+  ts((ar1_bh$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar1_bh$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("01 - Smooth Belo Horizonte (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+## GRÁFICO DE ANÁLISE AR(1)
 
-### MODELO ENTORNO METROPOLITANO ###############################################
+figtend_ar1<-window(ts.union(ts(ar1_bh$ts.original, start = 2012, frequency = 4),ts(ar1_bh$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar1<-window(ts.union(ts(ar1_bh$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar1<-window(ts.union(ts(ar1_bh$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar1<-window(ts.union(ts(ar1_bh$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("Ocupação: design-based",
+                            "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("01 - Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["01-Belo Horizonte"]][["ocup_bh"]]<-y
+result_mods_ocup[["01-Belo Horizonte"]][["cv.ocup_bh"]]<-cv_db
+result_mods_ocup[["01-Belo Horizonte"]][["sinal_smooth_ar1bh"]]<-ar1_bh$ts.signal
+result_mods_ocup[["01-Belo Horizonte"]][["cv_sinal_smooth_ar1bh"]]<-ar1_bh$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
+
+# Salvando o .Rdata
+
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/01_mod_bh.Rdata")
+
+### COLAR e ENTORNO METROPOLITANO ###############################################
+
+# Modelos para Entorno: AR(1); MA(1), ARMA(1,1)
 
 rm(list = ls())
 
-## Funções
+## UCM: 106.7323; 0.00348154; 106.8907
+
+## Funções e base de dados
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
-source("data/funcoes/03_modelo_bsm_error.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error.R")
 
-## Carregando bases e definindo objeto para BH
-
-baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
-ent<-baseestr0324$`02-Entorno metropolitano de BH`
-baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
-dtent<-baseal0324$`02-Entorno metropolitano de BH` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbent<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/02_params_ent.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+ent<-baseestr8reg$`02-Colar e Entorno metropolitano de BH`
+baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+dtent<-baseal8reg$`02-Colar e Entorno Metropolitano de BH` ## Arquivo "cru", saída direta da rotina da base por rotação
+dbent<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/02_params_ent.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 ## Definindo variáveis e inputs:
 
-y <- ent$Total.de.ocupados
-se_db <- ent$sd_o
-cv_db <- ent$CV.ocupados
-par_ar_erro <- dbent$parerro_o
-#plot(y, type="l")
-#plot(cv_db*100, type="l")
+y <- (ent$Total.de.ocupados)/1000
+se_db <- (ent$sd_o)/1000
+cv_db <- se_db/y
 
-## Estipulando parâmetros iniciais:
-# Conforme recomendação, estipulando inicialmente seq(1)
-# Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
+# Parâmetros iniciais:
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
 par_3<-seq(-6,6,3)
-par_4<-c(0) # estava: c(0)
-#par_5<-seq(0) # Ocultado para modelo smooth trend
+par_4<-c(0)
 
-
-## Possibilidades do modelo
-
-#grid <- expand.grid(par_1,par_2,par_3)
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
-# Criando clusters:
+#### MODELO AR(1)
 
-{numCores<-detectCores()
+source("data/funcoes/07_smooth_AR1.R")
+phi1_ar1 <- dbent[["mod_ar1"]][["phi1_ar1_oent"]]
+
+# Estimação do Modelo
+
+numCores<-detectCores()
 numCores
 cl<- makeCluster(numCores-1)
-# salva imagem
 save.image("partial.Rdata")
-# envia dados para cada um dos cluster
 clusterEvalQ(cl,{load("partial.Rdata")
   library(dlm)
 })
-}
-
-## Modelo com processamento paralelo
-
-## Primeiro e terceiro modelos ocultados em relação à rotina de referência
-
-# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
-# Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
 
 start_time <- Sys.time()
-modelos_bsm_error_ini<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.teste_bsm_error(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_ar1ent<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.smooth_ar1(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
 end_time <- Sys.time()
 end_time - start_time
 
-# stop cluster
 stopCluster(cl)
 showConnections()
 
+# Avaliação das iterações:
 
-## Etapa de avaliação:
-# Hiperparâmetros iniciais vs estimados
-# Convergência
+ini_ar1_ent <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar1ent[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar1ent[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar1ent[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
 
-# Criada nova chamada de objeto
-# Quando criado com código de referência, no modelo smoothing estava ocorrendo a chamada de vetores para cada célula do df
-# Adicionado:
-# Exclui iterações que tiveram resultado  NA 
+colnames(ini_ar1_ent) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
 
-mdent_list <- lapply(modelos_bsm_error_ini, function(modelo) {
-  if (!is.list(modelo) || is.null(modelo$initial) || is.null(modelo$fit) || is.null(modelo$mod)) {
-    return(NULL)
-  }
-  # Valores iniciais (garante que initial_values seja um vetor válido)
-  initial_values <- if (is.data.frame(modelo$initial)) modelo$initial[1, ] else rep(NA, 4)
-  
-  # Parâmetros estimados
-  estimated_values <- if (!is.null(modelo$fit$par)) modelo$fit$par else rep(NA, 4)
-  
-  # Convergência e log-verossimilhança
-  convergence <- if (!is.null(modelo$fit$convergence)) modelo$fit$convergence else NA
-  log_like <- if (!is.null(modelo$fit$value)) modelo$fit$value else NA
-  
-  # Sample error inicial e final
-  sampl_error_ini <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  sampl_error <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  
-  # Criar um dataframe com os valores extraídos
-  data.frame(
-    level_ini = initial_values[1], slope_ini = initial_values[2],
-    seasonal_ini = initial_values[3], irregular_ini = initial_values[4],
-    sampl_error_ini = sampl_error_ini,
-    
-    level = estimated_values[1], slope = estimated_values[2],
-    seasonal = estimated_values[3], irregular = estimated_values[4],
-    sampl_error = sampl_error,
-    
-    convergence = convergence, log_like = log_like
-  )
-})
+## Após iniciais, seleção do modelo:
 
-# Remove os elementos NULL da lista
-mdent_list <- Filter(Negate(is.null), mdent_list)
+ar1_ent <- run_ar1ent[[which(
+  ini_ar1_ent$log_like == min(ini_ar1_ent$log_like[ini_ar1_ent$convergence == 0], na.rm = TRUE) & 
+    ini_ar1_ent$convergence == 0
+)]]
 
-# Combina tudo em um único dataframe, se necessário
-mdent <- do.call(rbind, mdent_list)
+# Verificando a convergência
 
-hist(mdent$level)
-boxplot(mdent$level)
-summary(mdent$level)
+conver_ar1<-rbind(ar1_ent$fit$convergence)
+colnames(conver_ar1)<-c("convergence")
 
-hist(mdent$slope)
-boxplot(mdent$slope)
-summary(mdent$slope)
+# Parâmetros estimados:
 
-hist(mdent$seasonal)
-boxplot(mdent$seasonal)
-summary(mdent$seasonal)
-
-hist(mdent$irregular)
-boxplot(mdent$irregular)
-summary(mdent$irregular)
-
-hist(mdent$sampl_error)
-boxplot(mdent$sampl_error)
-summary(mdent$sampl_error)
-
-# Observações: 
-# Em relação aocódigo de referência 
-
-## Estimação do modelo após valores iniciais
-
-# Conforme referência:
-# modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
-# Entranto, apesar de escolher a menor log-verossimilhança, por vezes o código escolhia um modelo que não convergiu
-# Adaptação (teste): escolha por convergência = 0 e depois menor verossimilhança
-
-# Filtrei apenas os modelos que convergiram
-mdent_conv<- mdent[mdent$convergence == 0, ]
-
-# Depois apliquei o código:
-
-modelo_bsm_error<- modelos_bsm_error_ini[[which(mdent_conv$log_like==min(mdent_conv$log_like,na.rm = TRUE))]]
-
-## Verificando a convergência
-# Ainda assim não convergiu
-
-convergencia<-rbind(modelo_bsm_error$fit$convergence)
-
-colnames(convergencia)<-c("convergence")
-
-
-## Parâmetros estimados:
-
-parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
-
-row.names(parametros)<-c("BSM_error")
-
-colnames(parametros)<-c("Level","Slope","Seasonal","Irregular") # Estava: colnames(parametros)<-c("Level","Slope","Seasonal","Irregular","Sampling Error")
-
+parametros_ar1<-rbind(c(round(exp(ar1_ent$fit$par),4)))
+row.names(parametros_ar1)<-c("BSM_error")
+colnames(parametros_ar1)<-c("Slope","Seasonal","Irregular","Sample Error")
 
 # Critérios de informação: AIC e BIC
 
-AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
-colnames(AIC)<-"AIC"
+AIC_ar1<-rbind(2*(ar1_ent$fit$value)+2*5)
+colnames(AIC_ar1)<-"AIC"
 
-#BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T),
-#colnames(BIC)<-"BIC"
+BIC_ar1<-2*(ar1_ent$fit$value)+2*5*log(ar1_ent$T)
 
+# Matriz Hessiana
 
-# Avaliando a matriz hessiana
-# Deve ser positiva definida
-
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0)
+all(eigen(ar1_ent$fit$hessian, only.values = TRUE)$values > 0) # false
 
 # Diagnosticando os resíduos
 
-lista_modelos<-list(modelo_bsm_error)
-testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+lista_ar1<-list(ar1_ent)
+testes_ar1<-sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
                                                  round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
                                                  teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
 )
-testes<-t(testes)
-row.names(testes)<-c("BSM_error")
-colnames(testes)<-c("Shapiro","Box","H")
+testes_ar1<-t(testes_ar1)
+row.names(testes_ar1)<-c("BSM_error")
+colnames(testes_ar1)<-c("Shapiro","Box","H")
+resultadosent_ar1<-cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
+resultadosent_ar1
 
-resultados<-cbind(convergencia,parametros,testes, AIC, BIC)
-resultados
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar1 <- window(ts.union(
+  ts(ar1_ent$ts.original, start = 2012, frequency = 4),
+  ts(ar1_ent$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
-#save.image(paste("results/modelo3_D_",RG,"_1T2023.RData",sep=""))
-#write.csv(resultados,paste("results/modelo3_D_resultados_",RG,"_1T2023.csv",sep=""))
-
-
-{par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-fig_1<- window(ts.union(
-  ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("topleft", legend = c("Design-based unemployment",
-                             "Signal model-based unemployment",
-                             "Trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-mtext("Unemployment (thousand persons)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)}
-
-{fig.cv_1<- window(ts.union(
-  ts(modelo_bsm_error$cv.original*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-legend("topright", legend = c("CV design-based unemployment",
-                              "CV signal model-based unemployment",
-                              "CV trend model-based unemployment"),
-       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+fig_ar1.cv <- window(ts.union(
+  ts((ar1_ent$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar1_ent$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("CV (%)", side = 2, line = 3)
-mtext("Year", side = 1, line = 3)}
-
-
-### COLAR METROPOLITANO DE BH ##################################################
-rm(list = ls())
-
-## Funções
-
-source("data/funcoes/01_funcoes_pseudo_erro.R")
-source("data/funcoes/03_modelo_bsm_error.R")
-source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error.R")
-
-## Carregando bases e definindo objeto para BH
-
-baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
-col<-baseestr0324$`03-Colar metropolitano de BH`
-baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
-dtcol<-baseal0324$`03-Colar metropolitano de BH` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbcol<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/03_params_col.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
-
-## Definindo variáveis e inputs:
-
-y <- col$Total.de.ocupados
-se_db <- col$sd_o
-cv_db <- col$CV.ocupados
-par_ar_erro <- dbcol$parerro_o
-#plot(y, type="l")
-#plot(cv_db*100, type="l")
-
-## Estipulando parâmetros iniciais:
-# Conforme recomendação, estipulando inicialmente seq(1)
-# Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
-
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0) # estava: c(0)
-#par_5<-seq(0) # Ocultado para modelo smooth trend
-
-
-## Possibilidades do modelo
-
-#grid <- expand.grid(par_1,par_2,par_3)
-grid_error <- expand.grid(par_1,par_2,par_3,par_4)
-
-# Criando clusters:
-
-{numCores<-detectCores()
-  numCores
-  cl<- makeCluster(numCores-1)
-  # salva imagem
-  save.image("partial.Rdata")
-  # envia dados para cada um dos cluster
-  clusterEvalQ(cl,{load("partial.Rdata")
-    library(dlm)
-  })
-}
-
-## Modelo com processamento paralelo
-
-## Primeiro e terceiro modelos ocultados em relação à rotina de referência
-
-# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
-# Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
-
-start_time <- Sys.time()
-modelos_bsm_error_ini<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.teste_bsm_error(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
-end_time <- Sys.time()
-end_time - start_time
-
-# stop cluster
-stopCluster(cl)
-showConnections()
-
-
-## Etapa de avaliação:
-# Hiperparâmetros iniciais vs estimados
-# Convergência
-
-# Criada nova chamada de objeto
-# Quando criado com código de referência, no modelo smoothing estava ocorrendo a chamada de vetores para cada célula do df
-# Adicionado:
-# Exclui iterações que tiveram resultado  NA 
-
-mdcol_list <- lapply(modelos_bsm_error_ini, function(modelo) {
-  if (!is.list(modelo) || is.null(modelo$initial) || is.null(modelo$fit) || is.null(modelo$mod)) {
-    return(NULL)
-  }
-  # Valores iniciais (garante que initial_values seja um vetor válido)
-  initial_values <- if (is.data.frame(modelo$initial)) modelo$initial[1, ] else rep(NA, 4)
-  
-  # Parâmetros estimados
-  estimated_values <- if (!is.null(modelo$fit$par)) modelo$fit$par else rep(NA, 4)
-  
-  # Convergência e log-verossimilhança
-  convergence <- if (!is.null(modelo$fit$convergence)) modelo$fit$convergence else NA
-  log_like <- if (!is.null(modelo$fit$value)) modelo$fit$value else NA
-  
-  # Sample error inicial e final
-  sampl_error_ini <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  sampl_error <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  
-  # Criar um dataframe com os valores extraídos
-  data.frame(
-    level_ini = initial_values[1], slope_ini = initial_values[2],
-    seasonal_ini = initial_values[3], irregular_ini = initial_values[4],
-    sampl_error_ini = sampl_error_ini,
-    
-    level = estimated_values[1], slope = estimated_values[2],
-    seasonal = estimated_values[3], irregular = estimated_values[4],
-    sampl_error = sampl_error,
-    
-    convergence = convergence, log_like = log_like
-  )
-})
-
-# Remove os elementos NULL da lista
-mdcol_list <- Filter(Negate(is.null), mdcol_list)
-
-# Combina tudo em um único dataframe, se necessário
-mdcol <- do.call(rbind, mdcol_list)
-
-hist(mdcol$level)
-boxplot(mdcol$level)
-summary(mdcol$level)
-
-hist(mdcol$slope)
-boxplot(mdcol$slope)
-summary(mdcol$slope)
-
-hist(mdcol$seasonal)
-boxplot(mdcol$seasonal)
-summary(mdcol$seasonal)
-
-hist(mdcol$irregular)
-boxplot(mdcol$irregular)
-summary(mdcol$irregular)
-
-hist(mdcol$sampl_error)
-boxplot(mdcol$sampl_error)
-summary(mdcol$sampl_error)
-
-# Observações: 
-# Em relação aocódigo de referência 
-
-## Estimação do modelo após valores iniciais
-
-# Conforme referência:
-# modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
-# Entranto, apesar de escolher a menor log-verossimilhança, por vezes o código escolhia um modelo que não convergiu
-# Adaptação (teste): escolha por convergência = 0 e depois menor verossimilhança
-
-# Filtrei apenas os modelos que convergiram
-mdcol_conv<- mdcol[mdcol$convergence == 0, ] ## Apenas 25 modelos convergiram
-
-# Depois apliquei o código:
-
-modelo_bsm_error<- modelos_bsm_error_ini[[which(mdcol_conv$log_like==min(mdcol_conv$log_like,na.rm = TRUE))]]
-
-## Verificando a convergência
-# Ainda assim não convergiu
-
-convergencia<-rbind(modelo_bsm_error$fit$convergence)
-
-colnames(convergencia)<-c("convergence")
-
-## Parâmetros estimados:
-
-parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
-
-row.names(parametros)<-c("BSM_error")
-
-colnames(parametros)<-c("Level","Slope","Seasonal","Irregular") # Estava: colnames(parametros)<-c("Level","Slope","Seasonal","Irregular","Sampling Error"
-
-# Critérios de informação: AIC e BIC
-
-AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
-colnames(AIC)<-"AIC"
-
-#BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T),
-#colnames(BIC)<-"BIC"
-
-
-# Avaliando a matriz hessiana
-# Deve ser positiva definida
-
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0)
-
-# Diagnosticando os resíduos
-
-lista_modelos<-list(modelo_bsm_error)
-testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
-                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
-                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
-)
-testes<-t(testes)
-row.names(testes)<-c("BSM_error")
-colnames(testes)<-c("Shapiro","Box","H")
-
-resultados<-cbind(convergencia,parametros,testes, AIC, BIC)
-resultados # Não convergiu
-
-#save.image(paste("results/modelo3_D_",RG,"_1T2023.RData",sep=""))
-#write.csv(resultados,paste("results/modelo3_D_resultados_",RG,"_1T2023.csv",sep=""))
-
-
-{par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-  fig_1<- window(ts.union(
-    ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topleft", legend = c("Design-based unemployment",
-                               "Signal model-based unemployment",
-                               "Trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("Unemployment (thousand persons)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
-
-{fig.cv_1<- window(ts.union(
-  ts(modelo_bsm_error$cv.original*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topright", legend = c("CV design-based unemployment",
-                                "CV signal model-based unemployment",
-                                "CV trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("CV (%)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
-
-
-### RIDE de Brasília em Minas ##################################################
-
-rm(list = ls())
-
-## Funções
-
-source("data/funcoes/01_funcoes_pseudo_erro.R")
-source("data/funcoes/03_modelo_bsm_error.R")
-source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error.R")
-
-## Carregando bases e definindo objeto para BH
-
-baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
-rid<-baseestr0324$`04-RIDE de Brasília em Minas`
-baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
-dtrid<-baseal0324$`04-RIDE de Brasília em Minas` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbrid<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/04_params_rid.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
-
-## Definindo variáveis e inputs:
-
-y <- rid$Total.de.ocupados
-se_db <- rid$sd_o
-cv_db <- rid$CV.ocupados
-par_ar_erro <- dbrid$parerro_o
-#plot(y, type="l")
-#plot(cv_db*100, type="l")
-
-## Estipulando parâmetros iniciais:
-# Conforme recomendação, estipulando inicialmente seq(1)
-# Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
-
-par_1<-seq(-6,6,3)
-par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0) # estava: c(0)
-#par_5<-seq(0) # Ocultado para modelo smooth trend
-
-
-## Possibilidades do modelo
-
-#grid <- expand.grid(par_1,par_2,par_3)
-grid_error <- expand.grid(par_1,par_2,par_3,par_4)
-
-# Criando clusters:
-
-{numCores<-detectCores()
-  numCores
-  cl<- makeCluster(numCores-1)
-  # salva imagem
-  save.image("partial.Rdata")
-  # envia dados para cada um dos cluster
-  clusterEvalQ(cl,{load("partial.Rdata")
-    library(dlm)
-  })
-}
-
-## Modelo com processamento paralelo
-
-## Primeiro e terceiro modelos ocultados em relação à rotina de referência
-
-# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
-# Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
-
-start_time <- Sys.time()
-modelos_bsm_error_ini<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.teste_bsm_error(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
-end_time <- Sys.time()
-end_time - start_time
-
-# stop cluster
-stopCluster(cl)
-showConnections()
-
-
-## Etapa de avaliação:
-# Hiperparâmetros iniciais vs estimados
-# Convergência
-
-# Criada nova chamada de objeto
-# Quando criado com código de referência, no modelo smoothing estava ocorrendo a chamada de vetores para cada célula do df
-# Adicionado:
-# Exclui iterações que tiveram resultado  NA 
-
-mdrid_list <- lapply(modelos_bsm_error_ini, function(modelo) {
-  if (!is.list(modelo) || is.null(modelo$initial) || is.null(modelo$fit) || is.null(modelo$mod)) {
-    return(NULL)
-  }
-  # Valores iniciais (garante que initial_values seja um vetor válido)
-  initial_values <- if (is.data.frame(modelo$initial)) modelo$initial[1, ] else rep(NA, 4)
-  
-  # Parâmetros estimados
-  estimated_values <- if (!is.null(modelo$fit$par)) modelo$fit$par else rep(NA, 4)
-  
-  # Convergência e log-verossimilhança
-  convergence <- if (!is.null(modelo$fit$convergence)) modelo$fit$convergence else NA
-  log_like <- if (!is.null(modelo$fit$value)) modelo$fit$value else NA
-  
-  # Sample error inicial e final
-  sampl_error_ini <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  sampl_error <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  
-  # Criar um dataframe com os valores extraídos
-  data.frame(
-    level_ini = initial_values[1], slope_ini = initial_values[2],
-    seasonal_ini = initial_values[3], irregular_ini = initial_values[4],
-    sampl_error_ini = sampl_error_ini,
-    
-    level = estimated_values[1], slope = estimated_values[2],
-    seasonal = estimated_values[3], irregular = estimated_values[4],
-    sampl_error = sampl_error,
-    
-    convergence = convergence, log_like = log_like
-  )
-})
-
-# Remove os elementos NULL da lista
-mdrid_list <- Filter(Negate(is.null), mdrid_list)
-
-# Combina tudo em um único dataframe, se necessário
-mdrid <- do.call(rbind, mdrid_list)
-
-hist(mdrid$level)
-boxplot(mdrid$level)
-summary(mdrid$level)
-
-hist(mdrid$slope)
-boxplot(mdrid$slope)
-summary(mdrid$slope)
-
-hist(mdrid$seasonal)
-boxplot(mdrid$seasonal)
-summary(mdrid$seasonal)
-
-hist(mdrid$irregular)
-boxplot(mdrid$irregular)
-summary(mdrid$irregular)
-
-hist(mdrid$sampl_error)
-boxplot(mdrid$sampl_error)
-summary(mdrid$sampl_error)
-
-# Observações: 
-# Em relação aocódigo de referência 
-
-## Estimação do modelo após valores iniciais
-
-# Conforme referência:
-# modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
-# Entranto, apesar de escolher a menor log-verossimilhança, por vezes o código escolhia um modelo que não convergiu
-# Adaptação (teste): escolha por convergência = 0 e depois menor verossimilhança
-
-# Filtrei apenas os modelos que convergiram
-mdrid_conv<- mdrid[mdrid$convergence == 0, ] ## 43 modelos convergiram
-
-# Depois apliquei o código:
-
-modelo_bsm_error<- modelos_bsm_error_ini[[which(mdrid_conv$log_like==min(mdrid_conv$log_like,na.rm = TRUE))]]
-
-## Verificando a convergência
-# Ainda assim não convergiu
-
-convergencia<-rbind(modelo_bsm_error$fit$convergence)
-
-colnames(convergencia)<-c("convergence")
-
-## Parâmetros estimados:
-
-parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
-
-row.names(parametros)<-c("BSM_error")
-
-colnames(parametros)<-c("Level","Slope","Seasonal","Irregular") # Estava: colnames(parametros)<-c("Level","Slope","Seasonal","Irregular","Sampling Error"
-
-# Critérios de informação: AIC e BIC
-
-AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
-colnames(AIC)<-"AIC"
-
-#BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T),
-#colnames(BIC)<-"BIC"
-
-
-# Avaliando a matriz hessiana
-# Deve ser positiva definida
-
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0)
-
-# Diagnosticando os resíduos
-
-lista_modelos<-list(modelo_bsm_error)
-testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
-                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
-                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
-)
-testes<-t(testes)
-row.names(testes)<-c("BSM_error")
-colnames(testes)<-c("Shapiro","Box","H")
-
-resultados<-cbind(convergencia,parametros,testes, AIC, BIC)
-resultados # Convergiu
-
-#save.image(paste("results/modelo3_D_",RG,"_1T2023.RData",sep=""))
-#write.csv(resultados,paste("results/modelo3_D_resultados_",RG,"_1T2023.csv",sep=""))
-
-
-{par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-  fig_1<- window(ts.union(
-    ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topleft", legend = c("Design-based unemployment",
-                               "Signal model-based unemployment",
-                               "Trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("Unemployment (thousand persons)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
-
-{fig.cv_1<- window(ts.union(
-  ts(modelo_bsm_error$cv.original*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topright", legend = c("CV design-based unemployment",
-                                "CV signal model-based unemployment",
-                                "CV trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("CV (%)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
-
+mtext("Ano", side = 1, line = 3)
+mtext("02 - Smooth Colar e Entorno Metropolitano de BH (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE AR(1)
+
+figtend_ar1<-window(ts.union(ts(ar1_ent$ts.original, start = 2012, frequency = 4),ts(ar1_ent$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar1<-window(ts.union(ts(ar1_ent$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar1<-window(ts.union(ts(ar1_ent$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar1<-window(ts.union(ts(ar1_ent$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("Ocupação: design-based",
+                             "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("02 - Smooth Colar e Entorno Metropolitano de BH", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["ocup_ent"]]<-y
+result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["cv.ocup_ent"]]<-cv_db
+result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["sinal_smooth_ar1ent"]]<-ar1_ent$ts.signal
+result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["cv_sinal_smooth_ar1ent"]]<-ar1_ent$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
+
+# Salvando o .Rdata
+
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/02_mod_ent.Rdata")
 
 ### SUL DE MINAS ###############################################################
+
+# Modelos para Sul: AR(1); MA(1), ARMA(1,1)
+
 rm(list = ls())
 
-## Funções
+# UCM: 56.85534; 0.0008044187; 90.04413
+
+## Funções e base de dados
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
-source("data/funcoes/03_modelo_bsm_error.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error.R")
 
-## Carregando bases e definindo objeto para BH
+baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+sul<-baseestr8reg$`03-Sul de Minas`
+baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+dtsul<-baseal8reg$`03-Sul de Minas` ## Arquivo "cru", saída direta da rotina da base por rotação
+dbsul<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/03_params_sul.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
-baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
-sul<-baseestr0324$`05-Sul de Minas`
-baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
-dtsul<-baseal0324$`05-Sul de Minas` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbsul<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/05_params_sul.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+y <- sul$Total.de.ocupados/1000
+se_db <- sul$sd_o/1000
+cv_db <- se_db/y
 
-## Definindo variáveis e inputs:
-
-y <- sul$Total.de.ocupados
-se_db <- sul$sd_o
-cv_db <- sul$CV.ocupados
-par_ar_erro <- dbsul$parerro_o
-#plot(y, type="l")
-#plot(cv_db*100, type="l")
-
-## Estipulando parâmetros iniciais:
-# Conforme recomendação, estipulando inicialmente seq(1)
-# Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
+# Parâmetros iniciais:
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
 par_3<-seq(-6,6,3)
-par_4<-c(0) # estava: c(0)
-#par_5<-seq(0) # Ocultado para modelo smooth trend
+par_4<-c(0)
 
-
-## Possibilidades do modelo
-
-#grid <- expand.grid(par_1,par_2,par_3)
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
-# Criando clusters:
+#### MODELO AR(1)
 
-{numCores<-detectCores()
-  numCores
-  cl<- makeCluster(numCores-1)
-  # salva imagem
-  save.image("partial.Rdata")
-  # envia dados para cada um dos cluster
-  clusterEvalQ(cl,{load("partial.Rdata")
-    library(dlm)
-  })
-}
+source("data/funcoes/07_smooth_AR1.R")
+phi1_ar1 <- dbsul[["mod_ar1"]][["phi1_ar1_osul"]]
 
-## Modelo com processamento paralelo
+# Estimação do Modelo
 
-## Primeiro e terceiro modelos ocultados em relação à rotina de referência
-
-# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
-# Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
+numCores<-detectCores()
+numCores
+cl<- makeCluster(numCores-1)
+save.image("partial.Rdata")
+clusterEvalQ(cl,{load("partial.Rdata")
+  library(dlm)
+})
 
 start_time <- Sys.time()
-modelos_bsm_error_ini<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.teste_bsm_error(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_ar1sul<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.smooth_ar1(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
 end_time <- Sys.time()
 end_time - start_time
 
-# stop cluster
 stopCluster(cl)
 showConnections()
 
+# Avaliação das iterações:
 
-## Etapa de avaliação:
-# Hiperparâmetros iniciais vs estimados
-# Convergência
+ini_ar1_sul <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar1sul[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar1sul[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar1sul[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
 
-# Criada nova chamada de objeto
-# Quando criado com código de referência, no modelo smoothing estava ocorrendo a chamada de vetores para cada célula do df
-# Adicionado:
-# Exclui iterações que tiveram resultado  NA 
+colnames(ini_ar1_sul) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
 
-mdsul_list <- lapply(modelos_bsm_error_ini, function(modelo) {
-  if (!is.list(modelo) || is.null(modelo$initial) || is.null(modelo$fit) || is.null(modelo$mod)) {
-    return(NULL)
-  }
-  # Valores iniciais (garante que initial_values seja um vetor válido)
-  initial_values <- if (is.data.frame(modelo$initial)) modelo$initial[1, ] else rep(NA, 4)
-  
-  # Parâmetros estimados
-  estimated_values <- if (!is.null(modelo$fit$par)) modelo$fit$par else rep(NA, 4)
-  
-  # Convergência e log-verossimilhança
-  convergence <- if (!is.null(modelo$fit$convergence)) modelo$fit$convergence else NA
-  log_like <- if (!is.null(modelo$fit$value)) modelo$fit$value else NA
-  
-  # Sample error inicial e final
-  sampl_error_ini <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  sampl_error <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  
-  # Criar um dataframe com os valores extraídos
-  data.frame(
-    level_ini = initial_values[1], slope_ini = initial_values[2],
-    seasonal_ini = initial_values[3], irregular_ini = initial_values[4],
-    sampl_error_ini = sampl_error_ini,
-    
-    level = estimated_values[1], slope = estimated_values[2],
-    seasonal = estimated_values[3], irregular = estimated_values[4],
-    sampl_error = sampl_error,
-    
-    convergence = convergence, log_like = log_like
-  )
-})
+## Após iniciais, seleção do modelo:
 
-# Remove os elementos NULL da lista
-mdsul_list <- Filter(Negate(is.null), mdsul_list)
+ar1_sul <- run_ar1sul[[which(
+  ini_ar1_sul$log_like == min(ini_ar1_sul$log_like[ini_ar1_sul$convergence == 0], na.rm = TRUE) & 
+    ini_ar1_sul$convergence == 0
+)]]
 
-# Combina tudo em um único dataframe, se necessário
-mdsul <- do.call(rbind, mdsul_list)
+# Verificando a convergência
 
-hist(mdsul$level)
-boxplot(mdsul$level)
-summary(mdsul$level)
+conver_ar1<-rbind(ar1_sul$fit$convergence)
+colnames(conver_ar1)<-c("convergence")
 
-hist(mdsul$slope)
-boxplot(mdsul$slope)
-summary(mdsul$slope)
+# Parâmetros estimados:
 
-hist(mdsul$seasonal)
-boxplot(mdsul$seasonal)
-summary(mdsul$seasonal)
-
-hist(mdsul$irregular)
-boxplot(mdsul$irregular)
-summary(mdsul$irregular)
-
-hist(mdsul$sampl_error)
-boxplot(mdsul$sampl_error)
-summary(mdsul$sampl_error)
-
-# Observações: 
-# Em relação aocódigo de referência 
-
-## Estimação do modelo após valores iniciais
-
-# Conforme referência:
-# modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
-# Entranto, apesar de escolher a menor log-verossimilhança, por vezes o código escolhia um modelo que não convergiu
-# Adaptação (teste): escolha por convergência = 0 e depois menor verossimilhança
-
-# Filtrei apenas os modelos que convergiram
-mdsul_conv<- mdsul[mdsul$convergence == 0, ] ## 25 modelos convergiram
-
-# Depois apliquei o código:
-
-modelo_bsm_error<- modelos_bsm_error_ini[[which(mdsul_conv$log_like==min(mdsul_conv$log_like,na.rm = TRUE))]]
-
-## Verificando a convergência
-# Ainda assim não convergiu
-
-convergencia<-rbind(modelo_bsm_error$fit$convergence)
-
-colnames(convergencia)<-c("convergence")
-
-## Parâmetros estimados:
-
-parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
-
-row.names(parametros)<-c("BSM_error")
-
-colnames(parametros)<-c("Level","Slope","Seasonal","Irregular") # Estava: colnames(parametros)<-c("Level","Slope","Seasonal","Irregular","Sampling Error"
+parametros_ar1<-rbind(c(round(exp(ar1_sul$fit$par),4)))
+row.names(parametros_ar1)<-c("BSM_error")
+colnames(parametros_ar1)<-c("Slope","Seasonal","Irregular","Sample Error")
 
 # Critérios de informação: AIC e BIC
 
-AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
-colnames(AIC)<-"AIC"
+AIC_ar1<-rbind(2*(ar1_sul$fit$value)+2*5)
+colnames(AIC_ar1)<-"AIC"
 
-#BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T),
-#colnames(BIC)<-"BIC"
+BIC_ar1<-2*(ar1_sul$fit$value)+2*5*log(ar1_sul$T)
 
+# Matriz Hessiana
 
-# Avaliando a matriz hessiana
-# Deve ser positiva definida
-
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0)
+all(eigen(ar1_sul$fit$hessian, only.values = TRUE)$values > 0) # true
 
 # Diagnosticando os resíduos
 
-lista_modelos<-list(modelo_bsm_error)
-testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+lista_ar1<-list(ar1_sul)
+testes_ar1<-sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
                                                  round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
                                                  teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
 )
-testes<-t(testes)
-row.names(testes)<-c("BSM_error")
-colnames(testes)<-c("Shapiro","Box","H")
+testes_ar1<-t(testes_ar1)
+row.names(testes_ar1)<-c("BSM_error")
+colnames(testes_ar1)<-c("Shapiro","Box","H")
+resultadossul_ar1<-cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
+resultadossul_ar1
 
-resultados<-cbind(convergencia,parametros,testes, AIC, BIC)
-resultados # Convergiu
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar1 <- window(ts.union(
+  ts(ar1_sul$ts.original, start = 2012, frequency = 4),
+  ts(ar1_sul$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
-#save.image(paste("results/modelo3_D_",RG,"_1T2023.RData",sep=""))
-#write.csv(resultados,paste("results/modelo3_D_resultados_",RG,"_1T2023.csv",sep=""))
+fig_ar1.cv <- window(ts.union(
+  ts((ar1_sul$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar1_sul$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("03 - Smooth Sul de Minas (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+## GRÁFICO DE ANÁLISE AR(1)
 
-{par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-  fig_1<- window(ts.union(
-    ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topleft", legend = c("Design-based unemployment",
-                               "Signal model-based unemployment",
-                               "Trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("Unemployment (thousand persons)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
+figtend_ar1<-window(ts.union(ts(ar1_sul$ts.original, start = 2012, frequency = 4),ts(ar1_sul$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar1<-window(ts.union(ts(ar1_sul$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar1<-window(ts.union(ts(ar1_sul$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar1<-window(ts.union(ts(ar1_sul$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
 
-{fig.cv_1<- window(ts.union(
-  ts(modelo_bsm_error$cv.original*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topright", legend = c("CV design-based unemployment",
-                                "CV signal model-based unemployment",
-                                "CV trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("CV (%)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("Ocupação: design-based",
+                             "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
+plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("03 - Smooth Sul de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["03-Sul de Minas"]][["ocup_sul"]]<-y
+result_mods_ocup[["03-Sul de Minas"]][["cv.ocup_sul"]]<-cv_db
+result_mods_ocup[["03-Sul de Minas"]][["sinal_smooth_ar1sul"]]<-ar1_sul$ts.signal
+result_mods_ocup[["03-Sul de Minas"]][["cv_sinal_smooth_ar1sul"]]<-ar1_sul$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
+
+# Salvando o .Rdata
+
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/03_mod_sul.Rdata")
 
 ### TRIÂNGULO MINEIRO ##########################################################
+# Modelos para Triângulo: AR(1); MA(1)
+
 rm(list = ls())
 
-## Funções
+# UCM:  # 11.70026 # 0.00006308897 # 84.38331
+
+## Funções e base de dados
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
-source("data/funcoes/03_modelo_bsm_error.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error.R")
 
-## Carregando bases e definindo objeto para BH
+baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+trg<-baseestr8reg$`04-Triângulo Mineiro`
+baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+dttrg<-baseal8reg$`04-Triângulo Mineiro` ## Arquivo "cru", saída direta da rotina da base por rotação
+dbtrg<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/04_params_trg.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
-baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
-trg<-baseestr0324$`06-Triângulo Mineiro`
-baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
-dttrg<-baseal0324$`06-Triângulo Mineiro` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbtrg<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/06_params_trg.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+y <- trg$Total.de.ocupados/1000
+se_db <- trg$sd_o/1000
+cv_db <- se_db/y
 
-## Definindo variáveis e inputs:
-
-y <- trg$Total.de.ocupados
-se_db <- trg$sd_o
-cv_db <- trg$CV.ocupados
-par_ar_erro <- dbtrg$parerro_o
-#plot(y, type="l")
-#plot(cv_db*100, type="l")
-
-## Estipulando parâmetros iniciais:
-# Conforme recomendação, estipulando inicialmente seq(1)
-# Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
+# Parâmetros iniciais:
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
 par_3<-seq(-6,6,3)
-par_4<-c(0) # estava: c(0)
-#par_5<-seq(0) # Ocultado para modelo smooth trend
+par_4<-c(0)
 
-
-## Possibilidades do modelo
-
-#grid <- expand.grid(par_1,par_2,par_3)
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
-# Criando clusters:
+#### MODELO AR(1)
 
-{numCores<-detectCores()
-  numCores
-  cl<- makeCluster(numCores-1)
-  # salva imagem
-  save.image("partial.Rdata")
-  # envia dados para cada um dos cluster
-  clusterEvalQ(cl,{load("partial.Rdata")
-    library(dlm)
-  })
-}
+source("data/funcoes/07_smooth_AR1.R")
+phi1_ar1 <- dbtrg[["mod_ar1"]][["phi1_ar1_otrg"]]
 
-## Modelo com processamento paralelo
+# Estimação do Modelo
 
-## Primeiro e terceiro modelos ocultados em relação à rotina de referência
-
-# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
-# Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
+numCores<-detectCores()
+numCores
+cl<- makeCluster(numCores-1)
+save.image("partial.Rdata")
+clusterEvalQ(cl,{load("partial.Rdata")
+  library(dlm)
+})
 
 start_time <- Sys.time()
-modelos_bsm_error_ini<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.teste_bsm_error(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_ar1trg<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.smooth_ar1(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
 end_time <- Sys.time()
 end_time - start_time
 
-# stop cluster
 stopCluster(cl)
 showConnections()
 
+# Avaliação das iterações:
 
-## Etapa de avaliação:
-# Hiperparâmetros iniciais vs estimados
-# Convergência
+ini_ar1_trg <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar1trg[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar1trg[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar1trg[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
 
-# Criada nova chamada de objeto
-# Quando criado com código de referência, no modelo smoothing estava ocorrendo a chamada de vetores para cada célula do df
-# Adicionado:
-# Exclui iterações que tiveram resultado  NA 
+colnames(ini_ar1_trg) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
 
-mdtrg_list <- lapply(modelos_bsm_error_ini, function(modelo) {
-  if (!is.list(modelo) || is.null(modelo$initial) || is.null(modelo$fit) || is.null(modelo$mod)) {
-    return(NULL)
-  }
-  # Valores iniciais (garante que initial_values seja um vetor válido)
-  initial_values <- if (is.data.frame(modelo$initial)) modelo$initial[1, ] else rep(NA, 4)
-  
-  # Parâmetros estimados
-  estimated_values <- if (!is.null(modelo$fit$par)) modelo$fit$par else rep(NA, 4)
-  
-  # Convergência e log-verossimilhança
-  convergence <- if (!is.null(modelo$fit$convergence)) modelo$fit$convergence else NA
-  log_like <- if (!is.null(modelo$fit$value)) modelo$fit$value else NA
-  
-  # Sample error inicial e final
-  sampl_error_ini <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  sampl_error <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  
-  # Criar um dataframe com os valores extraídos
-  data.frame(
-    level_ini = initial_values[1], slope_ini = initial_values[2],
-    seasonal_ini = initial_values[3], irregular_ini = initial_values[4],
-    sampl_error_ini = sampl_error_ini,
-    
-    level = estimated_values[1], slope = estimated_values[2],
-    seasonal = estimated_values[3], irregular = estimated_values[4],
-    sampl_error = sampl_error,
-    
-    convergence = convergence, log_like = log_like
-  )
-})
+## Após iniciais, seleção do modelo:
 
-# Remove os elementos NULL da lista
-mdtrg_list <- Filter(Negate(is.null), mdtrg_list)
+ar1_trg <- run_ar1trg[[which(
+  ini_ar1_trg$log_like == min(ini_ar1_trg$log_like[ini_ar1_trg$convergence == 0], na.rm = TRUE) &
+    ini_ar1_trg$convergence == 0
+)]]
 
-# Combina tudo em um único dataframe, se necessário
-mdtrg <- do.call(rbind, mdtrg_list)
+# Verificando a convergência
 
-hist(mdtrg$level)
-boxplot(mdtrg$level)
-summary(mdtrg$level)
+conver_ar1<-rbind(ar1_trg$fit$convergence)
+colnames(conver_ar1)<-c("convergence")
 
-hist(mdtrg$slope)
-boxplot(mdtrg$slope)
-summary(mdtrg$slope)
+# Parâmetros estimados:
 
-hist(mdtrg$seasonal)
-boxplot(mdtrg$seasonal)
-summary(mdtrg$seasonal)
-
-hist(mdtrg$irregular)
-boxplot(mdtrg$irregular)
-summary(mdtrg$irregular)
-
-hist(mdtrg$sampl_error)
-boxplot(mdtrg$sampl_error)
-summary(mdtrg$sampl_error)
-
-# Observações: 
-# Em relação aocódigo de referência 
-
-## Estimação do modelo após valores iniciais
-
-# Conforme referência:
-# modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
-# Entranto, apesar de escolher a menor log-verossimilhança, por vezes o código escolhia um modelo que não convergiu
-# Adaptação (teste): escolha por convergência = 0 e depois menor verossimilhança
-
-# Filtrei apenas os modelos que convergiram
-mdtrg_conv<- mdtrg[mdtrg$convergence == 0, ] ## 49 modelos convergiram
-
-# Depois apliquei o código:
-
-modelo_bsm_error<- modelos_bsm_error_ini[[which(mdtrg_conv$log_like==min(mdtrg_conv$log_like,na.rm = TRUE))]]
-
-## Verificando a convergência
-# Ainda assim não convergiu
-
-convergencia<-rbind(modelo_bsm_error$fit$convergence)
-
-colnames(convergencia)<-c("convergence")
-
-## Parâmetros estimados:
-
-parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
-
-row.names(parametros)<-c("BSM_error")
-
-colnames(parametros)<-c("Level","Slope","Seasonal","Irregular") # Estava: colnames(parametros)<-c("Level","Slope","Seasonal","Irregular","Sampling Error"
+parametros_ar1<-rbind(c(round(exp(ar1_trg$fit$par),4)))
+row.names(parametros_ar1)<-c("BSM_error")
+colnames(parametros_ar1)<-c("Slope","Seasonal","Irregular","Sample Error")
 
 # Critérios de informação: AIC e BIC
 
-AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
-colnames(AIC)<-"AIC"
+AIC_ar1<-rbind(2*(ar1_trg$fit$value)+2*5)
+colnames(AIC_ar1)<-"AIC"
 
-#BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T),
-#colnames(BIC)<-"BIC"
+BIC_ar1<-2*(ar1_trg$fit$value)+2*5*log(ar1_trg$T)
 
+# Matriz Hessiana
 
-# Avaliando a matriz hessiana
-# Deve ser positiva definida
-
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0)
+all(eigen(ar1_trg$fit$hessian, only.values = TRUE)$values > 0) # true
 
 # Diagnosticando os resíduos
 
-lista_modelos<-list(modelo_bsm_error)
-testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+lista_ar1<-list(ar1_trg)
+testes_ar1<-sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
                                                  round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
                                                  teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
 )
-testes<-t(testes)
-row.names(testes)<-c("BSM_error")
-colnames(testes)<-c("Shapiro","Box","H")
+testes_ar1<-t(testes_ar1)
+row.names(testes_ar1)<-c("BSM_error")
+colnames(testes_ar1)<-c("Shapiro","Box","H")
+resultadostrg_ar1<-cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
+resultadostrg_ar1
 
-resultados<-cbind(convergencia,parametros,testes, AIC, BIC)
-resultados # Convergiu
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar1 <- window(ts.union(
+  ts(ar1_trg$ts.original, start = 2012, frequency = 4),
+  ts(ar1_trg$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
-#save.image(paste("results/modelo3_D_",RG,"_1T2023.RData",sep=""))
-#write.csv(resultados,paste("results/modelo3_D_resultados_",RG,"_1T2023.csv",sep=""))
+fig_ar1.cv <- window(ts.union(
+  ts((ar1_trg$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar1_trg$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("04 - Triângulo Mineiro (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+## GRÁFICO DE ANÁLISE AR(1)
 
-{par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-  fig_1<- window(ts.union(
-    ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topleft", legend = c("Design-based unemployment",
-                               "Signal model-based unemployment",
-                               "Trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("Unemployment (thousand persons)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
+figtend_ar1<-window(ts.union(ts(ar1_trg$ts.original, start = 2012, frequency = 4),ts(ar1_trg$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar1<-window(ts.union(ts(ar1_trg$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar1<-window(ts.union(ts(ar1_trg$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar1<-window(ts.union(ts(ar1_trg$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
 
-{fig.cv_1<- window(ts.union(
-  ts(modelo_bsm_error$cv.original*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topright", legend = c("CV design-based unemployment",
-                                "CV signal model-based unemployment",
-                                "CV trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("CV (%)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("Ocupação: design-based",
+                             "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
+plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("04 - Triângulo Mineiro", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["04-Triângulo Mineiro"]][["ocup_trg"]]<-y
+result_mods_ocup[["04-Triângulo Mineiro"]][["cv.ocup_trg"]]<-cv_db
+result_mods_ocup[["04-Triângulo Mineiro"]][["sinal_smooth_ar1trg"]]<-ar1_trg$ts.signal
+result_mods_ocup[["04-Triângulo Mineiro"]][["cv_sinal_smooth_ar1trg"]]<-ar1_trg$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
+# Salvando o .Rdata
+
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/04_mod_trg.Rdata")
 
 ### ZONA DA MATA ###############################################################
+# Modelos para Mata: AR(1)
+
 rm(list = ls())
 
-## Funções
+# UCM: # 16.0373 # 0.0004886218 # 82.69742
+
+## Funções e base de dados
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
-source("data/funcoes/03_modelo_bsm_error.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error.R")
 
-## Carregando bases e definindo objeto para BH
+baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+mat<-baseestr8reg$`05-Mata de Minas Gerais`
+baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+dtmat<-baseal8reg$`05-Mata de Minas Gerais` ## Arquivo "cru", saída direta da rotina da base por rotação
+dbmat<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/05_params_mat.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
-baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
-mat<-baseestr0324$`07-Mata de Minas Gerais`
-baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
-dtmat<-baseal0324$`07-Mata de Minas Gerais` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbmat<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/07_params_mat.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+y <- mat$Total.de.ocupados/1000
+se_db <- mat$sd_o/1000
+cv_db <- se_db/y
 
-## Definindo variáveis e inputs:
-
-y <- mat$Total.de.ocupados
-se_db <- mat$sd_o
-cv_db <- mat$CV.ocupados
-par_ar_erro <- dbmat$parerro_o
-#plot(y, type="l")
-#plot(cv_db*100, type="l")
-
-## Estipulando parâmetros iniciais:
-# Conforme recomendação, estipulando inicialmente seq(1)
-# Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
+# Parâmetros iniciais:
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
 par_3<-seq(-6,6,3)
-par_4<-c(0) # estava: c(0)
-#par_5<-seq(0) # Ocultado para modelo smooth trend
+par_4<-c(0)
 
-
-## Possibilidades do modelo
-
-#grid <- expand.grid(par_1,par_2,par_3)
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
-# Criando clusters:
+#### MODELO AR(1)
 
-{numCores<-detectCores()
-  numCores
-  cl<- makeCluster(numCores-1)
-  # salva imagem
-  save.image("partial.Rdata")
-  # envia dados para cada um dos cluster
-  clusterEvalQ(cl,{load("partial.Rdata")
-    library(dlm)
-  })
-}
+source("data/funcoes/07_smooth_AR1.R")
+phi1_ar1 <- dbmat[["mod_ar1"]][["phi1_ar1_omat"]]
 
-## Modelo com processamento paralelo
+# Estimação do Modelo
 
-## Primeiro e terceiro modelos ocultados em relação à rotina de referência
-
-# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
-# Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
+numCores<-detectCores()
+numCores
+cl<- makeCluster(numCores-1)
+save.image("partial.Rdata")
+clusterEvalQ(cl,{load("partial.Rdata")
+  library(dlm)
+})
 
 start_time <- Sys.time()
-modelos_bsm_error_ini<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.teste_bsm_error(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_ar1mat<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.smooth_ar1(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
 end_time <- Sys.time()
 end_time - start_time
 
-# stop cluster
 stopCluster(cl)
 showConnections()
 
+# Avaliação das iterações:
 
-## Etapa de avaliação:
-# Hiperparâmetros iniciais vs estimados
-# Convergência
+ini_ar1_mat <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar1mat[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar1mat[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar1mat[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
 
-# Criada nova chamada de objeto
-# Quando criado com código de referência, no modelo smoothing estava ocorrendo a chamada de vetores para cada célula do df
-# Adicionado:
-# Exclui iterações que tiveram resultado  NA 
+colnames(ini_ar1_mat) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
 
-mdmat_list <- lapply(modelos_bsm_error_ini, function(modelo) {
-  if (!is.list(modelo) || is.null(modelo$initial) || is.null(modelo$fit) || is.null(modelo$mod)) {
-    return(NULL)
-  }
-  # Valores iniciais (garante que initial_values seja um vetor válido)
-  initial_values <- if (is.data.frame(modelo$initial)) modelo$initial[1, ] else rep(NA, 4)
-  
-  # Parâmetros estimados
-  estimated_values <- if (!is.null(modelo$fit$par)) modelo$fit$par else rep(NA, 4)
-  
-  # Convergência e log-verossimilhança
-  convergence <- if (!is.null(modelo$fit$convergence)) modelo$fit$convergence else NA
-  log_like <- if (!is.null(modelo$fit$value)) modelo$fit$value else NA
-  
-  # Sample error inicial e final
-  sampl_error_ini <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  sampl_error <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  
-  # Criar um dataframe com os valores extraídos
-  data.frame(
-    level_ini = initial_values[1], slope_ini = initial_values[2],
-    seasonal_ini = initial_values[3], irregular_ini = initial_values[4],
-    sampl_error_ini = sampl_error_ini,
-    
-    level = estimated_values[1], slope = estimated_values[2],
-    seasonal = estimated_values[3], irregular = estimated_values[4],
-    sampl_error = sampl_error,
-    
-    convergence = convergence, log_like = log_like
-  )
-})
+## Após iniciais, seleção do modelo:
 
-# Remove os elementos NULL da lista
-mdmat_list <- Filter(Negate(is.null), mdmat_list)
+ar1_mat <- run_ar1mat[[which(
+  ini_ar1_mat$log_like == min(ini_ar1_mat$log_like[ini_ar1_mat$convergence == 0], na.rm = TRUE) &
+    ini_ar1_mat$convergence == 0
+)]]
 
-# Combina tudo em um único dataframe, se necessário
-mdmat <- do.call(rbind, mdmat_list)
+# Verificando a convergência
 
-hist(mdmat$level)
-boxplot(mdmat$level)
-summary(mdmat$level)
+conver_ar1<-rbind(ar1_mat$fit$convergence)
+colnames(conver_ar1)<-c("convergence")
 
-hist(mdmat$slope)
-boxplot(mdmat$slope)
-summary(mdmat$slope)
+# Parâmetros estimados:
 
-hist(mdmat$seasonal)
-boxplot(mdmat$seasonal)
-summary(mdmat$seasonal)
-
-hist(mdmat$irregular)
-boxplot(mdmat$irregular)
-summary(mdmat$irregular)
-
-hist(mdmat$sampl_error)
-boxplot(mdmat$sampl_error)
-summary(mdmat$sampl_error)
-
-# Observações: 
-# Em relação aocódigo de referência 
-
-## Estimação do modelo após valores iniciais
-
-# Conforme referência:
-# modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
-# Entranto, apesar de escolher a menor log-verossimilhança, por vezes o código escolhia um modelo que não convergiu
-# Adaptação (teste): escolha por convergência = 0 e depois menor verossimilhança
-
-# Filtrei apenas os modelos que convergiram
-mdmat_conv<- mdmat[mdmat$convergence == 0, ] ## 43 modelos convergiram
-
-# Depois apliquei o código:
-
-modelo_bsm_error<- modelos_bsm_error_ini[[which(mdmat_conv$log_like==min(mdmat_conv$log_like,na.rm = TRUE))]]
-
-## Verificando a convergência
-# Ainda assim não convergiu
-
-convergencia<-rbind(modelo_bsm_error$fit$convergence)
-
-colnames(convergencia)<-c("convergence")
-
-## Parâmetros estimados:
-
-parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
-
-row.names(parametros)<-c("BSM_error")
-
-colnames(parametros)<-c("Level","Slope","Seasonal","Irregular") # Estava: colnames(parametros)<-c("Level","Slope","Seasonal","Irregular","Sampling Error"
+parametros_ar1<-rbind(c(round(exp(ar1_mat$fit$par),4)))
+row.names(parametros_ar1)<-c("BSM_error")
+colnames(parametros_ar1)<-c("Slope","Seasonal","Irregular","Sample Error")
 
 # Critérios de informação: AIC e BIC
 
-AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
-colnames(AIC)<-"AIC"
+AIC_ar1<-rbind(2*(ar1_mat$fit$value)+2*5)
+colnames(AIC_ar1)<-"AIC"
 
-#BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T),
-#colnames(BIC)<-"BIC"
+BIC_ar1<-2*(ar1_mat$fit$value)+2*5*log(ar1_mat$T)
 
+# Matriz Hessiana
 
-# Avaliando a matriz hessiana
-# Deve ser positiva definida
-
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0)
+all(eigen(ar1_mat$fit$hessian, only.values = TRUE)$values > 0) # false
 
 # Diagnosticando os resíduos
 
-lista_modelos<-list(modelo_bsm_error)
-testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+lista_ar1<-list(ar1_mat)
+testes_ar1<-sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
                                                  round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
                                                  teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
 )
-testes<-t(testes)
-row.names(testes)<-c("BSM_error")
-colnames(testes)<-c("Shapiro","Box","H")
+testes_ar1<-t(testes_ar1)
+row.names(testes_ar1)<-c("BSM_error")
+colnames(testes_ar1)<-c("Shapiro","Box","H")
+resultadosmat_ar1<-cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
+resultadosmat_ar1
 
-resultados<-cbind(convergencia,parametros,testes, AIC, BIC)
-resultados # Não Convergiu
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar1 <- window(ts.union(
+  ts(ar1_mat$ts.original, start = 2012, frequency = 4),
+  ts(ar1_mat$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
-#save.image(paste("results/modelo3_D_",RG,"_1T2023.RData",sep=""))
-#write.csv(resultados,paste("results/modelo3_D_resultados_",RG,"_1T2023.csv",sep=""))
+fig_ar1.cv <- window(ts.union(
+  ts((ar1_mat$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar1_mat$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("05 - Zona da Mata (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE AR(1)
+
+figtend_ar1<-window(ts.union(ts(ar1_mat$ts.original, start = 2012, frequency = 4),ts(ar1_mat$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar1<-window(ts.union(ts(ar1_mat$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar1<-window(ts.union(ts(ar1_mat$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar1<-window(ts.union(ts(ar1_mat$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("Ocupação: design-based",
+                             "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("05 - Zona da Mata", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["05-Zona da Mata"]][["ocup_mat"]]<-y
+result_mods_ocup[["05-Zona da Mata"]][["cv.ocup_mat"]]<-cv_db
+result_mods_ocup[["05-Zona da Mata"]][["sinal_smooth_ar1mat"]]<-ar1_mat$ts.signal
+result_mods_ocup[["05-Zona da Mata"]][["cv_sinal_smooth_ar1mat"]]<-ar1_mat$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
 
 
-{par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-  fig_1<- window(ts.union(
-    ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topleft", legend = c("Design-based unemployment",
-                               "Signal model-based unemployment",
-                               "Trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("Unemployment (thousand persons)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
+# Salvando o .Rdata
 
-{fig.cv_1<- window(ts.union(
-  ts(modelo_bsm_error$cv.original*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topright", legend = c("CV design-based unemployment",
-                                "CV signal model-based unemployment",
-                                "CV trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("CV (%)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
-
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/05_mod_mat.Rdata")
 
 ### NORTE DE MINAS GERAIS ######################################################
+# Modelos para Norte: AR(1); MA(1); ARMA(1,1)
+
 rm(list = ls())
 
-## Funções
+# UCM: # 43.22508 # 0.0009056865 # 142.2077
+
+## Funções e base de dados
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
-source("data/funcoes/03_modelo_bsm_error.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error.R")
 
-## Carregando bases e definindo objeto para BH
+baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+nrt<-baseestr8reg$`06-Norte de Minas`
+baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+dtnrt<-baseal8reg$`06-Norte de Minas` ## Arquivo "cru", saída direta da rotina da base por rotação
+dbnrt<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/06_params_nrt.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
-baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
-nrt<-baseestr0324$`08-Norte de Minas`
-baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
-dtnrt<-baseal0324$`08-Norte de Minas` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbnrt<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/08_params_nrt.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+y <- nrt$Total.de.ocupados/1000
+se_db <- nrt$sd_o/1000
+cv_db <- se_db/y
 
-## Definindo variáveis e inputs:
-
-y <- nrt$Total.de.ocupados
-se_db <- nrt$sd_o
-cv_db <- nrt$CV.ocupados
-par_ar_erro <- dbnrt$parerro_o
-#plot(y, type="l")
-#plot(cv_db*100, type="l")
-
-## Estipulando parâmetros iniciais:
-# Conforme recomendação, estipulando inicialmente seq(1)
-# Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
+# Parâmetros iniciais:
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
 par_3<-seq(-6,6,3)
-par_4<-c(0) # estava: c(0)
-#par_5<-seq(0) # Ocultado para modelo smooth trend
+par_4<-c(0)
 
-
-## Possibilidades do modelo
-
-#grid <- expand.grid(par_1,par_2,par_3)
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
-# Criando clusters:
+#### MODELO AR(1)
 
-{numCores<-detectCores()
-  numCores
-  cl<- makeCluster(numCores-1)
-  # salva imagem
-  save.image("partial.Rdata")
-  # envia dados para cada um dos cluster
-  clusterEvalQ(cl,{load("partial.Rdata")
-    library(dlm)
-  })
-}
+source("data/funcoes/07_smooth_AR1.R")
+phi1_ar1 <- dbnrt[["mod_ar1"]][["phi1_ar1_onrt"]]
 
-## Modelo com processamento paralelo
+# Estimação do Modelo
 
-## Primeiro e terceiro modelos ocultados em relação à rotina de referência
-
-# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
-# Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
+numCores<-detectCores()
+numCores
+cl<- makeCluster(numCores-1)
+save.image("partial.Rdata")
+clusterEvalQ(cl,{load("partial.Rdata")
+  library(dlm)
+})
 
 start_time <- Sys.time()
-modelos_bsm_error_ini<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.teste_bsm_error(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_ar1nrt<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.smooth_ar1(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
 end_time <- Sys.time()
 end_time - start_time
 
-# stop cluster
 stopCluster(cl)
 showConnections()
 
+# Avaliação das iterações:
 
-## Etapa de avaliação:
-# Hiperparâmetros iniciais vs estimados
-# Convergência
+ini_ar1_nrt <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar1nrt[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar1nrt[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar1nrt[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
 
-# Criada nova chamada de objeto
-# Quando criado com código de referência, no modelo smoothing estava ocorrendo a chamada de vetores para cada célula do df
-# Adicionado:
-# Exclui iterações que tiveram resultado  NA 
+colnames(ini_ar1_nrt) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
 
-mdnrt_list <- lapply(modelos_bsm_error_ini, function(modelo) {
-  if (!is.list(modelo) || is.null(modelo$initial) || is.null(modelo$fit) || is.null(modelo$mod)) {
-    return(NULL)
-  }
-  # Valores iniciais (garante que initial_values seja um vetor válido)
-  initial_values <- if (is.data.frame(modelo$initial)) modelo$initial[1, ] else rep(NA, 4)
-  
-  # Parâmetros estimados
-  estimated_values <- if (!is.null(modelo$fit$par)) modelo$fit$par else rep(NA, 4)
-  
-  # Convergência e log-verossimilhança
-  convergence <- if (!is.null(modelo$fit$convergence)) modelo$fit$convergence else NA
-  log_like <- if (!is.null(modelo$fit$value)) modelo$fit$value else NA
-  
-  # Sample error inicial e final
-  sampl_error_ini <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  sampl_error <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  
-  # Criar um dataframe com os valores extraídos
-  data.frame(
-    level_ini = initial_values[1], slope_ini = initial_values[2],
-    seasonal_ini = initial_values[3], irregular_ini = initial_values[4],
-    sampl_error_ini = sampl_error_ini,
-    
-    level = estimated_values[1], slope = estimated_values[2],
-    seasonal = estimated_values[3], irregular = estimated_values[4],
-    sampl_error = sampl_error,
-    
-    convergence = convergence, log_like = log_like
-  )
-})
+## Após iniciais, seleção do modelo:
 
-# Remove os elementos NULL da lista
-mdnrt_list <- Filter(Negate(is.null), mdnrt_list)
+ar1_nrt <- run_ar1nrt[[which(
+  ini_ar1_nrt$log_like == min(ini_ar1_nrt$log_like[ini_ar1_nrt$convergence == 0], na.rm = TRUE) &
+    ini_ar1_nrt$convergence == 0
+)]]
 
-# Combina tudo em um único dataframe, se necessário
-mdnrt <- do.call(rbind, mdnrt_list)
+# Verificando a convergência
 
-hist(mdnrt$level)
-boxplot(mdnrt$level)
-summary(mdnrt$level)
+conver_ar1<-rbind(ar1_nrt$fit$convergence)
+colnames(conver_ar1)<-c("convergence")
 
-hist(mdnrt$slope)
-boxplot(mdnrt$slope)
-summary(mdnrt$slope)
+# Parâmetros estimados:
 
-hist(mdnrt$seasonal)
-boxplot(mdnrt$seasonal)
-summary(mdnrt$seasonal)
-
-hist(mdnrt$irregular)
-boxplot(mdnrt$irregular)
-summary(mdnrt$irregular)
-
-hist(mdnrt$sampl_error)
-boxplot(mdnrt$sampl_error)
-summary(mdnrt$sampl_error)
-
-# Observações: 
-# Em relação aocódigo de referência 
-
-## Estimação do modelo após valores iniciais
-
-# Conforme referência:
-# modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
-# Entranto, apesar de escolher a menor log-verossimilhança, por vezes o código escolhia um modelo que não convergiu
-# Adaptação (teste): escolha por convergência = 0 e depois menor verossimilhança
-
-# Filtrei apenas os modelos que convergiram
-mdnrt_conv<- mdnrt[mdnrt$convergence == 0, ] ## 47 modelos convergiram
-
-mdnrt_conv<-as.data.frame(mdnrt_conv)
-
-# Depois apliquei o código:
-
-modelo_bsm_error<- modelos_bsm_error_ini[[which(mdnrt_conv$log_like==min(mdnrt_conv$log_like,na.rm = TRUE))]]
-
-## Verificando a convergência
-# Ainda assim não convergiu
-
-convergencia<-rbind(modelo_bsm_error$fit$convergence)
-
-colnames(convergencia)<-c("convergence")
-
-## Parâmetros estimados:
-
-parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
-
-row.names(parametros)<-c("BSM_error")
-
-colnames(parametros)<-c("Level","Slope","Seasonal","Irregular") # Estava: colnames(parametros)<-c("Level","Slope","Seasonal","Irregular","Sampling Error"
+parametros_ar1<-rbind(c(round(exp(ar1_nrt$fit$par),4)))
+row.names(parametros_ar1)<-c("BSM_error")
+colnames(parametros_ar1)<-c("Slope","Seasonal","Irregular","Sample Error")
 
 # Critérios de informação: AIC e BIC
 
-AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
-colnames(AIC)<-"AIC"
+AIC_ar1<-rbind(2*(ar1_nrt$fit$value)+2*5)
+colnames(AIC_ar1)<-"AIC"
 
-#BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T),
-#colnames(BIC)<-"BIC"
+BIC_ar1<-2*(ar1_nrt$fit$value)+2*5*log(ar1_nrt$T)
 
+# Matriz Hessiana
 
-# Avaliando a matriz hessiana
-# Deve ser positiva definida
-
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0)
+all(eigen(ar1_nrt$fit$hessian, only.values = TRUE)$values > 0) # false
 
 # Diagnosticando os resíduos
 
-lista_modelos<-list(modelo_bsm_error)
-testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+lista_ar1<-list(ar1_nrt)
+testes_ar1<-sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
                                                  round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
                                                  teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
 )
-testes<-t(testes)
-row.names(testes)<-c("BSM_error")
-colnames(testes)<-c("Shapiro","Box","H")
+testes_ar1<-t(testes_ar1)
+row.names(testes_ar1)<-c("BSM_error")
+colnames(testes_ar1)<-c("Shapiro","Box","H")
+resultadosnrt_ar1<-cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
+resultadosnrt_ar1
 
-resultados<-cbind(convergencia,parametros,testes, AIC, BIC)
-resultados # Não Convergiu
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar1 <- window(ts.union(
+  ts(ar1_nrt$ts.original, start = 2012, frequency = 4),
+  ts(ar1_nrt$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
-#save.image(paste("results/modelo3_D_",RG,"_1T2023.RData",sep=""))
-#write.csv(resultados,paste("results/modelo3_D_resultados_",RG,"_1T2023.csv",sep=""))
+fig_ar1.cv <- window(ts.union(
+  ts((ar1_nrt$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar1_nrt$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("06-Norte de Minas (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+## GRÁFICO DE ANÁLISE AR(1)
 
-{par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-  fig_1<- window(ts.union(
-    ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topleft", legend = c("Design-based unemployment",
-                               "Signal model-based unemployment",
-                               "Trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("Unemployment (thousand persons)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
+figtend_ar1<-window(ts.union(ts(ar1_nrt$ts.original, start = 2012, frequency = 4),ts(ar1_nrt$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar1<-window(ts.union(ts(ar1_nrt$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar1<-window(ts.union(ts(ar1_nrt$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar1<-window(ts.union(ts(ar1_nrt$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
 
-{fig.cv_1<- window(ts.union(
-  ts(modelo_bsm_error$cv.original*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topright", legend = c("CV design-based unemployment",
-                                "CV signal model-based unemployment",
-                                "CV trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("CV (%)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("Ocupação: design-based",
+                             "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
+plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("06-Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["06-Norte de Minas"]][["ocup_nrt"]]<-y
+result_mods_ocup[["06-Norte de Minas"]][["cv.ocup_nrt"]]<-cv_db
+result_mods_ocup[["06-Norte de Minas"]][["sinal_smooth_ar1nrt"]]<-ar1_nrt$ts.signal
+result_mods_ocup[["06-Norte de Minas"]][["cv_sinal_smooth_ar1nrt"]]<-ar1_nrt$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
+
+# Salvando o .Rdata
+
+# save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/06_mod_nrt.Rdata")
 
 ### VALE DO RIO DOCE ###########################################################
+# Modelos para Vale: AR(1);
+
 rm(list = ls())
 
-## Funções
+## Funções e base de dados
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
-source("data/funcoes/03_modelo_bsm_error.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error.R")
 
-## Carregando bases e definindo objeto para BH
+baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+vl<-baseestr8reg$`07-Vale do Rio Doce`
+baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+dtvl<-baseal8reg$`07-Vale do Rio Doce` ## Arquivo "cru", saída direta da rotina da base por rotação
+dbvl<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/07_params_rio.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
-baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
-vl<-baseestr0324$`09-Vale do Rio Doce`
-baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
-dtvl<-baseal0324$`09-Vale do Rio Doce` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbvl<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/09_params_rio.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+y <- vl$Total.de.ocupados/1000
+se_db <- vl$sd_o/1000
+cv_db <- se_db/y
 
-## Definindo variáveis e inputs:
-
-y <- vl$Total.de.ocupados
-se_db <- vl$sd_o
-cv_db <- vl$CV.ocupados
-par_ar_erro <- dbvl$parerro_o
-#plot(y, type="l")
-#plot(cv_db*100, type="l")
-
-## Estipulando parâmetros iniciais:
-# Conforme recomendação, estipulando inicialmente seq(1)
-# Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
+# Parâmetros iniciais:
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
 par_3<-seq(-6,6,3)
-par_4<-c(0) # estava: c(0)
-#par_5<-seq(0) # Ocultado para modelo smooth trend
+par_4<-c(0)
 
-
-## Possibilidades do modelo
-
-#grid <- expand.grid(par_1,par_2,par_3)
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
-# Criando clusters:
+#### MODELO AR(1)
 
-{numCores<-detectCores()
-  numCores
-  cl<- makeCluster(numCores-1)
-  # salva imagem
-  save.image("partial.Rdata")
-  # envia dados para cada um dos cluster
-  clusterEvalQ(cl,{load("partial.Rdata")
-    library(dlm)
-  })
-}
+source("data/funcoes/07_smooth_AR1.R")
+phi1_ar1 <- dbvl[["mod_ar1"]][["phi1_ar1_orio"]]
 
-## Modelo com processamento paralelo
+# Estimação do Modelo
 
-## Primeiro e terceiro modelos ocultados em relação à rotina de referência
-
-# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
-# Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
+numCores<-detectCores()
+numCores
+cl<- makeCluster(numCores-1)
+save.image("partial.Rdata")
+clusterEvalQ(cl,{load("partial.Rdata")
+  library(dlm)
+})
 
 start_time <- Sys.time()
-modelos_bsm_error_ini<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.teste_bsm_error(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_ar1vl<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.smooth_ar1(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
 end_time <- Sys.time()
 end_time - start_time
 
-# stop cluster
 stopCluster(cl)
 showConnections()
 
+# Avaliação das iterações:
 
-## Etapa de avaliação:
-# Hiperparâmetros iniciais vs estimados
-# Convergência
+ini_ar1_vl <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar1vl[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar1vl[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar1vl[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
 
-# Criada nova chamada de objeto
-# Quando criado com código de referência, no modelo smoothing estava ocorrendo a chamada de vetores para cada célula do df
-# Adicionado:
-# Exclui iterações que tiveram resultado  NA 
+colnames(ini_ar1_vl) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                          "slope","seasonal","irregular", "sampl_error",
+                          "convergence","log_like")
 
-mdvl_list <- lapply(modelos_bsm_error_ini, function(modelo) {
-  if (!is.list(modelo) || is.null(modelo$initial) || is.null(modelo$fit) || is.null(modelo$mod)) {
-    return(NULL)
-  }
-  # Valores iniciais (garante que initial_values seja um vetor válido)
-  initial_values <- if (is.data.frame(modelo$initial)) modelo$initial[1, ] else rep(NA, 4)
-  
-  # Parâmetros estimados
-  estimated_values <- if (!is.null(modelo$fit$par)) modelo$fit$par else rep(NA, 4)
-  
-  # Convergência e log-verossimilhança
-  convergence <- if (!is.null(modelo$fit$convergence)) modelo$fit$convergence else NA
-  log_like <- if (!is.null(modelo$fit$value)) modelo$fit$value else NA
-  
-  # Sample error inicial e final
-  sampl_error_ini <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  sampl_error <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  
-  # Criar um dataframe com os valores extraídos
-  data.frame(
-    level_ini = initial_values[1], slope_ini = initial_values[2],
-    seasonal_ini = initial_values[3], irregular_ini = initial_values[4],
-    sampl_error_ini = sampl_error_ini,
-    
-    level = estimated_values[1], slope = estimated_values[2],
-    seasonal = estimated_values[3], irregular = estimated_values[4],
-    sampl_error = sampl_error,
-    
-    convergence = convergence, log_like = log_like
-  )
-})
+## Após iniciais, seleção do modelo:
 
-# Remove os elementos NULL da lista
-mdvl_list <- Filter(Negate(is.null), mdvl_list)
+ar1_vl <- run_ar1vl[[which(
+  ini_ar1_vl$log_like == min(ini_ar1_vl$log_like[ini_ar1_vl$convergence == 0], na.rm = TRUE) &
+    ini_ar1_vl$convergence == 0
+)]]
 
-# Combina tudo em um único dataframe, se necessário
-mdvl <- do.call(rbind, mdvl_list)
+# Verificando a convergência
 
-hist(mdvl$level)
-boxplot(mdvl$level)
-summary(mdvl$level)
+conver_ar1<-rbind(ar1_vl$fit$convergence)
+colnames(conver_ar1)<-c("convergence")
 
-hist(mdvl$slope)
-boxplot(mdvl$slope)
-summary(mdvl$slope)
+# Parâmetros estimados:
 
-hist(mdvl$seasonal)
-boxplot(mdvl$seasonal)
-summary(mdvl$seasonal)
-
-hist(mdvl$irregular)
-boxplot(mdvl$irregular)
-summary(mdvl$irregular)
-
-hist(mdvl$sampl_error)
-boxplot(mdvl$sampl_error)
-summary(mdvl$sampl_error)
-
-# Observações: 
-# Em relação aocódigo de referência 
-
-## Estimação do modelo após valores iniciais
-
-# Conforme referência:
-# modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
-# Entranto, apesar de escolher a menor log-verossimilhança, por vezes o código escolhia um modelo que não convergiu
-# Adaptação (teste): escolha por convergência = 0 e depois menor verossimilhança
-
-# Filtrei apenas os modelos que convergiram
-mdvl_conv<- mdvl[mdvl$convergence == 0, ] ## 38 modelos convergiram
-
-# Depois apliquei o código:
-
-modelo_bsm_error<- modelos_bsm_error_ini[[which(mdvl_conv$log_like==min(mdvl_conv$log_like,na.rm = TRUE))]]
-
-## Verificando a convergência
-# Ainda assim não convergiu
-
-convergencia<-rbind(modelo_bsm_error$fit$convergence)
-
-colnames(convergencia)<-c("convergence")
-
-## Parâmetros estimados:
-
-parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
-
-row.names(parametros)<-c("BSM_error")
-
-colnames(parametros)<-c("Level","Slope","Seasonal","Irregular") # Estava: colnames(parametros)<-c("Level","Slope","Seasonal","Irregular","Sampling Error"
+parametros_ar1<-rbind(c(round(exp(ar1_vl$fit$par),4)))
+row.names(parametros_ar1)<-c("BSM_error")
+colnames(parametros_ar1)<-c("Slope","Seasonal","Irregular","Sample Error")
 
 # Critérios de informação: AIC e BIC
 
-AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
-colnames(AIC)<-"AIC"
+AIC_ar1<-rbind(2*(ar1_vl$fit$value)+2*5)
+colnames(AIC_ar1)<-"AIC"
 
-#BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T),
-#colnames(BIC)<-"BIC"
+BIC_ar1<-2*(ar1_vl$fit$value)+2*5*log(ar1_vl$T)
 
+# Matriz Hessiana
 
-# Avaliando a matriz hessiana
-# Deve ser positiva definida
-
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0)
+all(eigen(ar1_vl$fit$hessian, only.values = TRUE)$values > 0) # true
 
 # Diagnosticando os resíduos
 
-lista_modelos<-list(modelo_bsm_error)
-testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+lista_ar1<-list(ar1_vl)
+testes_ar1<-sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
                                                  round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
                                                  teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
 )
-testes<-t(testes)
-row.names(testes)<-c("BSM_error")
-colnames(testes)<-c("Shapiro","Box","H")
+testes_ar1<-t(testes_ar1)
+row.names(testes_ar1)<-c("BSM_error")
+colnames(testes_ar1)<-c("Shapiro","Box","H")
+resultadosvl_ar1<-cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
+resultadosvl_ar1
 
-resultados<-cbind(convergencia,parametros,testes, AIC, BIC)
-resultados # Não Convergiu
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar1 <- window(ts.union(
+  ts(ar1_vl$ts.original, start = 2012, frequency = 4),
+  ts(ar1_vl$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
-#save.image(paste("results/modelo3_D_",RG,"_1T2023.RData",sep=""))
-#write.csv(resultados,paste("results/modelo3_D_resultados_",RG,"_1T2023.csv",sep=""))
+fig_ar1.cv <- window(ts.union(
+  ts((ar1_vl$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar1_vl$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("06-Norte de Minas (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+## GRÁFICO DE ANÁLISE AR(1)
 
-{par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-  fig_1<- window(ts.union(
-    ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topleft", legend = c("Design-based unemployment",
-                               "Signal model-based unemployment",
-                               "Trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("Unemployment (thousand persons)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
+figtend_ar1<-window(ts.union(ts(ar1_vl$ts.original, start = 2012, frequency = 4),ts(ar1_vl$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar1<-window(ts.union(ts(ar1_vl$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar1<-window(ts.union(ts(ar1_vl$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar1<-window(ts.union(ts(ar1_vl$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
 
-{fig.cv_1<- window(ts.union(
-  ts(modelo_bsm_error$cv.original*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topright", legend = c("CV design-based unemployment",
-                                "CV signal model-based unemployment",
-                                "CV trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("CV (%)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("Ocupação: design-based",
+                             "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
+plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("07-Vale do Rio Doce", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["07-Vale do Rio Doce"]][["ocup_val"]]<-y
+result_mods_ocup[["07-Vale do Rio Doce"]][["cv.ocup_val"]]<-cv_db
+result_mods_ocup[["07-Vale do Rio Doce"]][["sinal_smooth_ar1val"]]<-ar1_vl$ts.signal
+result_mods_ocup[["07-Vale do Rio Doce"]][["cv_sinal_smooth_ar1val"]]<-ar1_vl$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
+
+# Salvando o .Rdata
+
+#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/07_mod_val.Rdata")
 
 ### CENTRAL ####################################################################
+# Modelos para Central: AR(1); MA(1)
+
 rm(list = ls())
 
-## Funções
+# UCM: # 53.27499 # 0.001126252 # 83.0792
+
+## Funções e base de dados
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
-source("data/funcoes/03_modelo_bsm_error.R")
 source("data/funcoes/05_teste_H.R")
-source("data/funcoes/07_teste_bsm_error.R")
 
-## Carregando bases e definindo objeto para BH
+baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+cen<-baseestr8reg$`08-Central`
+baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+dtcen<-baseal8reg$`08-Central` ## Arquivo "cru", saída direta da rotina da base por rotação
+dbcen<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/08_params_cen.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
-baseestr0324 <- readRDS("D:/FJP2425/Programacao/data/baseestr0324.RDS")
-cen<-baseestr0324$`10-Central`
-baseal0324 <- readRDS("D:/FJP2425/Programacao/data/basealinhada0324.RDS")
-dtcen<-baseal0324$`10-Central` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbcen<-readRDS("D:/FJP2425/Programacao/data/pseudoerros/10_params_cen.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+y <- cen$Total.de.ocupados/1000
+se_db <- cen$sd_o/1000
+cv_db <- se_db/y
 
-## Definindo variáveis e inputs:
-
-y <- cen$Total.de.ocupados
-se_db <- cen$sd_o
-cv_db <- cen$CV.ocupados
-par_ar_erro <- dbcen$parerro_o
-#plot(y, type="l")
-#plot(cv_db*100, type="l")
-
-## Estipulando parâmetros iniciais:
-# Conforme recomendação, estipulando inicialmente seq(1)
-# Na rotina de referência, têm-se: seq(-6,6,3) para os objs par_1, par_2 e par_3
+# Parâmetros iniciais:
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
 par_3<-seq(-6,6,3)
-par_4<-c(0) # estava: c(0)
-#par_5<-seq(0) # Ocultado para modelo smooth trend
+par_4<-c(0)
 
-
-## Possibilidades do modelo
-
-#grid <- expand.grid(par_1,par_2,par_3)
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
-# Criando clusters:
+#### MODELO AR(1)
 
-{numCores<-detectCores()
-  numCores
-  cl<- makeCluster(numCores-1)
-  # salva imagem
-  save.image("partial.Rdata")
-  # envia dados para cada um dos cluster
-  clusterEvalQ(cl,{load("partial.Rdata")
-    library(dlm)
-  })
-}
+source("data/funcoes/07_smooth_AR1.R")
+phi1_ar1 <- dbcen[["mod_ar1"]][["phi1_ar1_ocen"]]
 
-## Modelo com processamento paralelo
+# Estimação do Modelo
 
-## Primeiro e terceiro modelos ocultados em relação à rotina de referência
-
-# Para o segundo modelo, foi necessário criar um 5 parâmetro inicial. Antes de fazer isso, estava obtendo apenas NAs
-# Mesmo adicionando um parâmetro, ainda obtive muitos NAs nas sublistas
+numCores<-detectCores()
+numCores
+cl<- makeCluster(numCores-1)
+save.image("partial.Rdata")
+clusterEvalQ(cl,{load("partial.Rdata")
+  library(dlm)
+})
 
 start_time <- Sys.time()
-modelos_bsm_error_ini<-parLapply(cl,1:nrow(grid_error), function(i)  tryCatch(f.teste_bsm_error(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_ar1cen<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.smooth_ar1(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
 end_time <- Sys.time()
 end_time - start_time
 
-# stop cluster
 stopCluster(cl)
 showConnections()
 
+# Avaliação das iterações:
 
-## Etapa de avaliação:
-# Hiperparâmetros iniciais vs estimados
-# Convergência
+ini_ar1_cen <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar1cen[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar1cen[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar1cen[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
 
-# Criada nova chamada de objeto
-# Quando criado com código de referência, no modelo smoothing estava ocorrendo a chamada de vetores para cada célula do df
-# Adicionado:
-# Exclui iterações que tiveram resultado  NA 
+colnames(ini_ar1_cen) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
 
-mdcen_list <- lapply(modelos_bsm_error_ini, function(modelo) {
-  if (!is.list(modelo) || is.null(modelo$initial) || is.null(modelo$fit) || is.null(modelo$mod)) {
-    return(NULL)
-  }
-  # Valores iniciais (garante que initial_values seja um vetor válido)
-  initial_values <- if (is.data.frame(modelo$initial)) modelo$initial[1, ] else rep(NA, 4)
-  
-  # Parâmetros estimados
-  estimated_values <- if (!is.null(modelo$fit$par)) modelo$fit$par else rep(NA, 4)
-  
-  # Convergência e log-verossimilhança
-  convergence <- if (!is.null(modelo$fit$convergence)) modelo$fit$convergence else NA
-  log_like <- if (!is.null(modelo$fit$value)) modelo$fit$value else NA
-  
-  # Sample error inicial e final
-  sampl_error_ini <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  sampl_error <- if (!is.null(modelo$mod$V)) modelo$mod$V else NA
-  
-  # Criar um dataframe com os valores extraídos
-  data.frame(
-    level_ini = initial_values[1], slope_ini = initial_values[2],
-    seasonal_ini = initial_values[3], irregular_ini = initial_values[4],
-    sampl_error_ini = sampl_error_ini,
-    
-    level = estimated_values[1], slope = estimated_values[2],
-    seasonal = estimated_values[3], irregular = estimated_values[4],
-    sampl_error = sampl_error,
-    
-    convergence = convergence, log_like = log_like
-  )
-})
+## Após iniciais, seleção do modelo:
 
-# Remove os elementos NULL da lista
-mdcen_list <- Filter(Negate(is.null), mdcen_list)
+ar1_cen <- run_ar1cen[[which(
+  ini_ar1_cen$log_like == min(ini_ar1_cen$log_like[ini_ar1_cen$convergence == 0], na.rm = TRUE) &
+    ini_ar1_cen$convergence == 0
+)]]
 
-# Combina tudo em um único dataframe, se necessário
-mdcen <- do.call(rbind, mdcen_list)
+# Verificando a convergência
 
-hist(mdcen$level)
-boxplot(mdcen$level)
-summary(mdcen$level)
+conver_ar1<-rbind(ar1_cen$fit$convergence)
+colnames(conver_ar1)<-c("convergence")
 
-hist(mdcen$slope)
-boxplot(mdcen$slope)
-summary(mdcen$slope)
+# Parâmetros estimados:
 
-hist(mdcen$seasonal)
-boxplot(mdcen$seasonal)
-summary(mdcen$seasonal)
-
-hist(mdcen$irregular)
-boxplot(mdcen$irregular)
-summary(mdcen$irregular)
-
-hist(mdcen$sampl_error)
-boxplot(mdcen$sampl_error)
-summary(mdcen$sampl_error)
-
-# Observações: 
-# Em relação aocódigo de referência 
-
-## Estimação do modelo após valores iniciais
-
-# Conforme referência:
-# modelo_bsm_error<- modelos_bsm_error_ini[[which(b$log_like==min(b$log_like,na.rm = TRUE))]]
-# Entranto, apesar de escolher a menor log-verossimilhança, por vezes o código escolhia um modelo que não convergiu
-# Adaptação (teste): escolha por convergência = 0 e depois menor verossimilhança
-
-# Filtrei apenas os modelos que convergiram
-mdcen_conv<- mdcen[mdcen$convergence == 0, ] ## 33 modelos convergiram
-
-# Depois apliquei o código:
-
-modelo_bsm_error<- modelos_bsm_error_ini[[which(mdcen_conv$log_like==min(mdcen_conv$log_like,na.rm = TRUE))]]
-
-## Verificando a convergência
-# Ainda assim não convergiu
-
-convergencia<-rbind(modelo_bsm_error$fit$convergence)
-
-colnames(convergencia)<-c("convergence")
-
-## Parâmetros estimados:
-
-parametros<-rbind(c(round(exp(modelo_bsm_error$fit$par),4)))
-
-row.names(parametros)<-c("BSM_error")
-
-colnames(parametros)<-c("Level","Slope","Seasonal","Irregular") # Estava: colnames(parametros)<-c("Level","Slope","Seasonal","Irregular","Sampling Error"
+parametros_ar1<-rbind(c(round(exp(ar1_cen$fit$par),4)))
+row.names(parametros_ar1)<-c("BSM_error")
+colnames(parametros_ar1)<-c("Slope","Seasonal","Irregular","Sample Error")
 
 # Critérios de informação: AIC e BIC
 
-AIC<-rbind(2*(modelo_bsm_error$fit$value)+2*5)
-colnames(AIC)<-"AIC"
+AIC_ar1<-rbind(2*(ar1_cen$fit$value)+2*5)
+colnames(AIC_ar1)<-"AIC"
 
-#BIC<-rbind(
-#  2*(modelo_bsm$fit$value)+2*4*log(modelo_bsm_error$T),
-#  2*(modelo_bsm_error$fit$value)+2*5*log(modelo_bsm_error$T),
-#colnames(BIC)<-"BIC"
+BIC_ar1<-2*(ar1_cen$fit$value)+2*5*log(ar1_cen$T)
 
+# Matriz Hessiana
 
-# Avaliando a matriz hessiana
-# Deve ser positiva definida
-
-all(eigen(modelo_bsm_error$fit$hessian, only.values = TRUE)$values > 0)
+all(eigen(ar1_cen$fit$hessian, only.values = TRUE)$values > 0) # true
 
 # Diagnosticando os resíduos
 
-lista_modelos<-list(modelo_bsm_error)
-testes<-sapply(lista_modelos, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4), # considerar depois da 13ª observação - d=13,
+lista_ar1<-list(ar1_cen)
+testes_ar1<-sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
                                                  round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
                                                  teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
 )
-testes<-t(testes)
-row.names(testes)<-c("BSM_error")
-colnames(testes)<-c("Shapiro","Box","H")
+testes_ar1<-t(testes_ar1)
+row.names(testes_ar1)<-c("BSM_error")
+colnames(testes_ar1)<-c("Shapiro","Box","H")
+resultadoscen_ar1<-cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
+resultadoscen_ar1
 
-resultados<-cbind(convergencia,parametros,testes, AIC, BIC)
-resultados # Não Convergiu
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar1 <- window(ts.union(
+  ts(ar1_cen$ts.original, start = 2012, frequency = 4),
+  ts(ar1_cen$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
 
-#save.image(paste("results/modelo3_D_",RG,"_1T2023.RData",sep=""))
-#write.csv(resultados,paste("results/modelo3_D_resultados_",RG,"_1T2023.csv",sep=""))
+fig_ar1.cv <- window(ts.union(
+  ts((ar1_cen$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar1_cen$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("08-Central (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE AR(1)
+
+figtend_ar1<-window(ts.union(ts(ar1_cen$ts.original, start = 2012, frequency = 4),ts(ar1_cen$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar1<-window(ts.union(ts(ar1_cen$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar1<-window(ts.union(ts(ar1_cen$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar1<-window(ts.union(ts(ar1_cen$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("Ocupação: design-based",
+                             "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("08-Central", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["08-Central"]][["ocup_cen"]]<-y
+result_mods_ocup[["08-Central"]][["cv.ocup_cen"]]<-cv_db
+result_mods_ocup[["08-Central"]][["sinal_smooth_ar1cen"]]<-ar1_cen$ts.signal
+result_mods_ocup[["08-Central"]][["cv_sinal_smooth_ar1cen"]]<-ar1_cen$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
+
+# Salvando o .Rdata
+
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/08_mod_cen.Rdata")
 
 
-{par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
-  fig_1<- window(ts.union(
-    ts(modelo_bsm_error$ts.original,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.signal,start = 2012,frequency=4),
-    ts(modelo_bsm_error$ts.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topleft", legend = c("Design-based unemployment",
-                               "Signal model-based unemployment",
-                               "Trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("Unemployment (thousand persons)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
+### MINAS GERAIS ###############################################################
 
-{fig.cv_1<- window(ts.union(
-  ts(modelo_bsm_error$cv.original*100,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.signal,start = 2012,frequency=4),
-  ts(modelo_bsm_error$cv.trend,start = 2012,frequency=4)),start=c(2013,3))
-  plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
-  legend("topright", legend = c("CV design-based unemployment",
-                                "CV signal model-based unemployment",
-                                "CV trend model-based unemployment"),
-         lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
-  mtext("CV (%)", side = 2, line = 3)
-  mtext("Year", side = 1, line = 3)}
+rm(list = ls())
+
+# UCM: # 53.27499 # 0.001126252 # 83.0792
+
+## Funções e base de dados
+
+source("data/funcoes/01_funcoes_pseudo_erro.R")
+source("data/funcoes/05_teste_H.R")
+
+baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+mg<-baseestr8reg$`09 - Minas Gerais`
+baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+dtmg<-baseal8reg$`09 - Minas Gerais` ## Arquivo "cru", saída direta da rotina da base por rotação
+dbmg<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/09_params_mg.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+
+y <- mg$Total.de.ocupados/1000
+se_db <- mg$sd_o/1000
+cv_db <- se_db/y
+
+# Parâmetros iniciais:
+
+par_1<-seq(-6,6,3)
+par_2<-seq(-6,6,3)
+par_3<-seq(-6,6,3)
+par_4<-c(0)
+
+grid_error <- expand.grid(par_1,par_2,par_3,par_4)
+
+#### MODELO AR(1)
+
+source("data/funcoes/07_smooth_AR1.R")
+phi1_ar1 <- dbmg[["mod_ar1"]][["phi1_ar1_omg"]]
+
+# Estimação do Modelo
+
+numCores<-detectCores()
+numCores
+cl<- makeCluster(numCores-1)
+save.image("partial.Rdata")
+clusterEvalQ(cl,{load("partial.Rdata")
+  library(dlm)
+})
+
+start_time <- Sys.time()
+run_ar1mg<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.smooth_ar1(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+end_time <- Sys.time()
+end_time - start_time
+
+stopCluster(cl)
+showConnections()
+
+# Avaliação das iterações:
+
+ini_ar1_mg <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar1mg[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar1mg[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar1mg[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
+
+colnames(ini_ar1_mg) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                          "slope","seasonal","irregular", "sampl_error",
+                          "convergence","log_like")
+
+## Após iniciais, seleção do modelo:
+
+ar1_mg <- run_ar1mg[[which(
+  ini_ar1_mg$log_like == min(ini_ar1_mg$log_like[ini_ar1_mg$convergence == 0], na.rm = TRUE) &
+    ini_ar1_mg$convergence == 0
+)]]
+
+# Verificando a convergência
+
+conver_ar1<-rbind(ar1_mg$fit$convergence)
+colnames(conver_ar1)<-c("convergence")
+
+# Parâmetros estimados:
+
+parametros_ar1<-rbind(c(round(exp(ar1_mg$fit$par),4)))
+row.names(parametros_ar1)<-c("BSM_error")
+colnames(parametros_ar1)<-c("Slope","Seasonal","Irregular","Sample Error")
+
+# Critérios de informação: AIC e BIC
+
+AIC_ar1<-rbind(2*(ar1_mg$fit$value)+2*5)
+colnames(AIC_ar1)<-"AIC"
+
+BIC_ar1<-2*(ar1_mg$fit$value)+2*5*log(ar1_mg$T)
+
+# Matriz Hessiana
+
+all(eigen(ar1_mg$fit$hessian, only.values = TRUE)$values > 0) # false
+
+# Diagnosticando os resíduos
+
+lista_ar1<-list(ar1_mg)
+testes_ar1<-sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes_ar1<-t(testes_ar1)
+row.names(testes_ar1)<-c("BSM_error")
+colnames(testes_ar1)<-c("Shapiro","Box","H")
+resultadosmg_ar1<-cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
+resultadosmg_ar1
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar1 <- window(ts.union(
+  ts(ar1_mg$ts.original, start = 2012, frequency = 4),
+  ts(ar1_mg$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig_ar1.cv <- window(ts.union(
+  ts((ar1_mg$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar1_mg$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("09 - Minas Gerais (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE AR(1)
+
+figtend_ar1<-window(ts.union(ts(ar1_mg$ts.original, start = 2012, frequency = 4),ts(ar1_mg$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar1<-window(ts.union(ts(ar1_mg$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar1<-window(ts.union(ts(ar1_mg$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar1<-window(ts.union(ts(ar1_mg$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("Ocupação: design-based",
+                             "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("09 - Minas Gerais", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["09 - Minas Gerais"]][["ocup_mg"]]<-y
+result_mods_ocup[["09 - Minas Gerais"]][["cv.ocup_mg"]]<-cv_db
+result_mods_ocup[["09 - Minas Gerais"]][["sinal_smooth_ar1mg"]]<-ar1_mg$ts.signal
+result_mods_ocup[["09 - Minas Gerais"]][["cv_sinal_smooth_ar1mg"]]<-ar1_mg$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
+# Salvando o .Rdata
+
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/09_mod_mg.Rdata")
