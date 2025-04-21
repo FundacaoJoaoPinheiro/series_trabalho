@@ -886,7 +886,7 @@ figsample_ar1<-window(ts.union(ts(ar1_mat$ts.sampling_error, start = 2012, frequ
 
 par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
 plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("topleft", legend = c("Ocupação: design-based",
+legend("bottomleft", legend = c("Ocupação: design-based",
                              "Tendência da ocupação: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("Ocupados", side = 2, line = 3)
@@ -922,14 +922,12 @@ rm(result_mods_ocup)
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/05_mod_mat.Rdata")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/05_mod_mat.Rdata")
 
 ### NORTE DE MINAS GERAIS ######################################################
-# Modelos para Norte: AR(1); MA(1); ARMA(1,1)
+# Modelos para Norte: AR(1);AR(5)
 
 rm(list = ls())
-
-# UCM: # 43.22508 # 0.0009056865 # 142.2077
 
 ## Funções e base de dados
 
@@ -1102,9 +1100,161 @@ result_mods_ocup[["06-Norte de Minas"]][["cv_sinal_smooth_ar1nrt"]]<-ar1_nrt$cv.
 saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
 rm(result_mods_ocup)
 
+
+
+#### MODELO AR(5)
+
+source("data/funcoes/11_smooth_AR5.R")
+phi1_ar5 <- dbnrt[["mod_ar5"]][["phi_o"]][1]
+phi2_ar5 <- dbnrt[["mod_ar5"]][["phi_o"]][2]
+phi3_ar5 <- dbnrt[["mod_ar5"]][["phi_o"]][3]
+phi4_ar5 <- dbnrt[["mod_ar5"]][["phi_o"]][4]
+phi5_ar5 <- dbnrt[["mod_ar5"]][["phi_o"]][5]
+
+# Estimação do Modelo
+
+numCores<-detectCores()
+numCores
+cl<- makeCluster(numCores-1)
+save.image("partial.Rdata")
+clusterEvalQ(cl,{load("partial.Rdata")
+  library(dlm)
+})
+
+start_time <- Sys.time()
+run_ar5nrt<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.smooth_ar5(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+end_time <- Sys.time()
+end_time - start_time
+
+stopCluster(cl)
+showConnections()
+
+# Avaliação das iterações:
+
+ini_ar5_nrt <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar5nrt[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar5nrt[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar5nrt[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
+
+colnames(ini_ar5_nrt) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
+
+## Após iniciais, seleção do modelo:
+
+ar5_nrt <- run_ar5nrt[[which(
+  ini_ar5_nrt$log_like == min(ini_ar5_nrt$log_like[ini_ar5_nrt$convergence == 0], na.rm = TRUE) &
+    ini_ar5_nrt$convergence == 0
+)]]
+
+# Verificando a convergência
+
+conver_ar5<-rbind(ar5_nrt$fit$convergence)
+colnames(conver_ar5)<-c("convergence")
+
+# Parâmetros estimados:
+
+parametros_ar5<-rbind(c(round(exp(ar5_nrt$fit$par),4)))
+row.names(parametros_ar5)<-c("BSM_error")
+colnames(parametros_ar5)<-c("Slope","Seasonal","Irregular","Sample Error")
+
+# Critérios de informação: AIC e BIC
+
+AIC_ar5<-rbind(2*(ar5_nrt$fit$value)+2*5)
+colnames(AIC_ar5)<-"AIC"
+
+BIC_ar5<-2*(ar5_nrt$fit$value)+2*5*log(ar5_nrt$T)
+
+# Matriz Hessiana
+
+all(eigen(ar5_nrt$fit$hessian, only.values = TRUE)$values > 0) # false
+
+# Diagnosticando os resíduos
+
+lista_ar5<-list(ar5_nrt)
+testes_ar5<-sapply(lista_ar5, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes_ar5<-t(testes_ar5)
+row.names(testes_ar5)<-c("BSM_error")
+colnames(testes_ar5)<-c("Shapiro","Box","H")
+resultadosnrt_ar5<-cbind(conver_ar5, parametros_ar5, testes_ar5, AIC_ar5, BIC_ar5)
+resultadosnrt_ar5
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar5 <- window(ts.union(
+  ts(ar5_nrt$ts.original, start = 2012, frequency = 4),
+  ts(ar5_nrt$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar5, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig_ar5.cv <- window(ts.union(
+  ts((ar5_nrt$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar5_nrt$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar5.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("06-Norte de Minas (AR(5))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE AR(5)
+
+figtend_ar5<-window(ts.union(ts(ar5_nrt$ts.original, start = 2012, frequency = 4),ts(ar5_nrt$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar5<-window(ts.union(ts(ar5_nrt$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar5<-window(ts.union(ts(ar5_nrt$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar5<-window(ts.union(ts(ar5_nrt$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar5, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Ocupação: design-based",
+                             "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_ar5, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottom", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar5, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("topright", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar5, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("topright", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("06-Norte de Minas AR5", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["06-Norte de Minas"]][["sinal_smooth_ar5nrt"]]<-ar5_nrt$ts.signal
+result_mods_ocup[["06-Norte de Minas"]][["cv_sinal_smooth_ar5nrt"]]<-ar5_nrt$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
+
+
 # Salvando o .Rdata
 
-# save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/06_mod_nrt.Rdata")
+ save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/06_mod_nrt.Rdata")
 
 ### VALE DO RIO DOCE ###########################################################
 # Modelos para Vale: AR(1);
@@ -1203,7 +1353,7 @@ BIC_ar1<-2*(ar1_vl$fit$value)+2*5*log(ar1_vl$T)
 
 # Matriz Hessiana
 
-all(eigen(ar1_vl$fit$hessian, only.values = TRUE)$values > 0) # true
+all(eigen(ar1_vl$fit$hessian, only.values = TRUE)$values > 0) # false
 
 # Diagnosticando os resíduos
 
@@ -1282,12 +1432,163 @@ result_mods_ocup[["07-Vale do Rio Doce"]][["cv_sinal_smooth_ar1val"]]<-ar1_vl$cv
 saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
 rm(result_mods_ocup)
 
+
+
+#### MODELO AR(5)
+
+source("data/funcoes/11_smooth_AR5.R")
+phi1_ar5 <- dbvl[["mod_ar5"]][["phi_o"]][1]
+phi2_ar5 <- dbvl[["mod_ar5"]][["phi_o"]][2]
+phi3_ar5 <- dbvl[["mod_ar5"]][["phi_o"]][3]
+phi4_ar5 <- dbvl[["mod_ar5"]][["phi_o"]][4]
+phi5_ar5 <- dbvl[["mod_ar5"]][["phi_o"]][5]
+
+# Estimação do Modelo
+
+numCores<-detectCores()
+numCores
+cl<- makeCluster(numCores-1)
+save.image("partial.Rdata")
+clusterEvalQ(cl,{load("partial.Rdata")
+  library(dlm)
+})
+
+start_time <- Sys.time()
+run_ar5val<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.smooth_ar5(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+end_time <- Sys.time()
+end_time - start_time
+
+stopCluster(cl)
+showConnections()
+
+# Avaliação das iterações:
+
+ini_ar5_val <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar5val[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar5val[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar5val[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
+
+colnames(ini_ar5_val) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
+
+## Após iniciais, seleção do modelo:
+
+ar5_val <- run_ar5val[[which(
+  ini_ar5_val$log_like == min(ini_ar5_val$log_like[ini_ar5_val$convergence == 0], na.rm = TRUE) &
+    ini_ar5_val$convergence == 0
+)]]
+
+# Verificando a convergência
+
+conver_ar5<-rbind(ar5_val$fit$convergence)
+colnames(conver_ar5)<-c("convergence")
+
+# Parâmetros estimados:
+
+parametros_ar5<-rbind(c(round(exp(ar5_val$fit$par),4)))
+row.names(parametros_ar5)<-c("BSM_error")
+colnames(parametros_ar5)<-c("Slope","Seasonal","Irregular","Sample Error")
+
+# Critérios de informação: AIC e BIC
+
+AIC_ar5<-rbind(2*(ar5_val$fit$value)+2*5)
+colnames(AIC_ar5)<-"AIC"
+
+BIC_ar5<-2*(ar5_val$fit$value)+2*5*log(ar5_val$T)
+
+# Matriz Hessiana
+
+all(eigen(ar5_val$fit$hessian, only.values = TRUE)$values > 0) # true
+
+# Diagnosticando os resíduos
+
+lista_ar5<-list(ar5_val)
+testes_ar5<-sapply(lista_ar5, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes_ar5<-t(testes_ar5)
+row.names(testes_ar5)<-c("BSM_error")
+colnames(testes_ar5)<-c("Shapiro","Box","H")
+resultadosval_ar5<-cbind(conver_ar5, parametros_ar5, testes_ar5, AIC_ar5, BIC_ar5)
+resultadosval_ar5
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar5 <- window(ts.union(
+  ts(ar5_val$ts.original, start = 2012, frequency = 4),
+  ts(ar5_val$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar5, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig_ar5.cv <- window(ts.union(
+  ts((ar5_val$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar5_val$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar5.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topright", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("06 - Vale do Rio Doce (AR(5))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE AR(5)
+
+figtend_ar5<-window(ts.union(ts(ar5_val$ts.original, start = 2012, frequency = 4),ts(ar5_val$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar5<-window(ts.union(ts(ar5_val$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar5<-window(ts.union(ts(ar5_val$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar5<-window(ts.union(ts(ar5_val$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar5, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Ocupação: design-based",
+                            "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_ar5, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottom", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar5, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("topright", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar5, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("topright", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("07-Vale do Rio Doce AR5", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["07-Vale do Rio Doce"]][["sinal_smooth_ar5val"]]<-ar5_val$ts.signal
+result_mods_ocup[["07-Vale do Rio Doce"]][["cv_sinal_smooth_ar5val"]]<-ar5_val$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
+
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/07_mod_val.Rdata")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/07_mod_val.Rdata")
 
 ### CENTRAL ####################################################################
-# Modelos para Central: AR(1); MA(1)
+# Modelos para Central: AR(1)
 
 rm(list = ls())
 
@@ -1405,7 +1706,7 @@ fig_ar1 <- window(ts.union(
   ts(ar1_cen$ts.original, start = 2012, frequency = 4),
   ts(ar1_cen$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
 plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
+legend("topleft", legend = c("Desocupação: design-based",
                             "Sinal da desocupação: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
@@ -1438,7 +1739,7 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
 plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Sazonalidade"),
+legend("bottom", legend = c("Sazonalidade"),
        lty = c(1), col = c(4), bty = 'n', lwd = c(2))
 mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
@@ -1472,8 +1773,6 @@ save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/08_mod_c
 ### MINAS GERAIS ###############################################################
 
 rm(list = ls())
-
-# UCM: # 53.27499 # 0.001126252 # 83.0792
 
 ## Funções e base de dados
 
@@ -1645,6 +1944,159 @@ result_mods_ocup[["09 - Minas Gerais"]][["sinal_smooth_ar1mg"]]<-ar1_mg$ts.signa
 result_mods_ocup[["09 - Minas Gerais"]][["cv_sinal_smooth_ar1mg"]]<-ar1_mg$cv.signal
 saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
 rm(result_mods_ocup)
+
+
+
+#### MODELO AR(5)
+
+source("data/funcoes/11_smooth_AR5.R")
+phi1_ar5 <- dbmg[["mod_ar5"]][["phi_o"]][1]
+phi2_ar5 <- dbmg[["mod_ar5"]][["phi_o"]][2]
+phi3_ar5 <- dbmg[["mod_ar5"]][["phi_o"]][3]
+phi4_ar5 <- dbmg[["mod_ar5"]][["phi_o"]][4]
+phi5_ar5 <- dbmg[["mod_ar5"]][["phi_o"]][5]
+
+# Estimação do Modelo
+
+numCores<-detectCores()
+numCores
+cl<- makeCluster(numCores-1)
+save.image("partial.Rdata")
+clusterEvalQ(cl,{load("partial.Rdata")
+  library(dlm)
+})
+
+start_time <- Sys.time()
+run_ar5mg<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.smooth_ar5(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+end_time <- Sys.time()
+end_time - start_time
+
+stopCluster(cl)
+showConnections()
+
+# Avaliação das iterações:
+
+ini_ar5_mg <- cbind(
+  round(exp(grid_error), 4),
+  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+    tryCatch({
+      params <- round(exp(run_ar5mg[[i]][["fit"]][["par"]]), 4)
+      convergence <- run_ar5mg[[i]][["fit"]][["convergence"]]
+      log_like <- run_ar5mg[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 6))
+  }))
+)
+
+colnames(ini_ar5_mg) <- c("slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                          "slope","seasonal","irregular", "sampl_error",
+                          "convergence","log_like")
+
+## Após iniciais, seleção do modelo:
+
+ar5_mg <- run_ar5mg[[which(
+  ini_ar5_mg$log_like == min(ini_ar5_mg$log_like[ini_ar5_mg$convergence == 0], na.rm = TRUE) &
+    ini_ar5_mg$convergence == 0
+)]]
+
+# Verificando a convergência
+
+conver_ar5<-rbind(ar5_mg$fit$convergence)
+colnames(conver_ar5)<-c("convergence")
+
+# Parâmetros estimados:
+
+parametros_ar5<-rbind(c(round(exp(ar5_mg$fit$par),4)))
+row.names(parametros_ar5)<-c("BSM_error")
+colnames(parametros_ar5)<-c("Slope","Seasonal","Irregular","Sample Error")
+
+# Critérios de informação: AIC e BIC
+
+AIC_ar5<-rbind(2*(ar5_mg$fit$value)+2*5)
+colnames(AIC_ar5)<-"AIC"
+
+BIC_ar5<-2*(ar5_mg$fit$value)+2*5*log(ar5_mg$T)
+
+# Matriz Hessiana
+
+all(eigen(ar5_mg$fit$hessian, only.values = TRUE)$values > 0) # false
+
+# Diagnosticando os resíduos
+
+lista_ar5<-list(ar5_mg)
+testes_ar5<-sapply(lista_ar5, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]],4),
+                                                 round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],4),
+                                                 teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes_ar5<-t(testes_ar5)
+row.names(testes_ar5)<-c("BSM_error")
+colnames(testes_ar5)<-c("Shapiro","Box","H")
+resultadosmg_ar5<-cbind(conver_ar5, parametros_ar5, testes_ar5, AIC_ar5, BIC_ar5)
+resultadosmg_ar5
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ar5 <- window(ts.union(
+  ts(ar5_mg$ts.original, start = 2012, frequency = 4),
+  ts(ar5_mg$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar5, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Sinal da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig_ar5.cv <- window(ts.union(
+  ts((ar5_mg$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ar5_mg$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ar5.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV desocupados: design-based",
+                             "Sinal CV desocupados: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("09 - Minas Gerais (AR(5))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE AR(5)
+
+figtend_ar5<-window(ts.union(ts(ar5_mg$ts.original, start = 2012, frequency = 4),ts(ar5_mg$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ar5<-window(ts.union(ts(ar5_mg$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ar5<-window(ts.union(ts(ar5_mg$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ar5<-window(ts.union(ts(ar5_mg$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ar5, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Ocupação: design-based",
+                            "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_ar5, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottom", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ar5, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("topright", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ar5, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("topright", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Ocupados", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("09 - Minas Gerais AR5", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+result_mods_ocup[["09 - Minas Gerais"]][["sinal_smooth_ar5mg"]]<-ar5_mg$ts.signal
+result_mods_ocup[["09 - Minas Gerais"]][["cv_sinal_smooth_ar5mg"]]<-ar5_mg$cv.signal
+saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+rm(result_mods_ocup)
+
+
 # Salvando o .Rdata
 
 save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/09_mod_mg.Rdata")
