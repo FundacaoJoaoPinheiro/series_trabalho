@@ -20,4 +20,4 @@ Nesse diretório são apresentados os scripts em R de todas as etapas para a est
 - Paulo Gonçalves (Desenvolvimento dos scripts)
 
 ## Dúvidas ou Contribuições
-Abra uma issue neste repositório ou contate-nos via: dados@fjp.mg.gov.br
+Abra um issue neste repositório ou contate-nos via: dados@fjp.mg.gov.br
