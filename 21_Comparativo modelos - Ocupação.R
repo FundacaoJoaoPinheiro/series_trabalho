@@ -7,9 +7,10 @@
 dev.new()
 dev.new()
 
-
 ### 01 - BELO HORIZONTE ########################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/01_mod_bh.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
 
@@ -60,8 +61,36 @@ mtext("Ano", side = 1, line = 3)
 mtext("01 - Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
+### GRÁFICO IC SINAL
+
+se_sinal_bh<-ar1_bh$se.signal
+
+ICinf_sinal <- est_ar1_bh - 1.96 * se_sinal_bh
+ICsup_sinal <- est_ar1_bh + 1.96 * se_sinal_bh
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ar1_bh, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(ocup_bh, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "01-Belo Horizonte",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
+     ylim = c(1100,1500))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Ocupação - Estrutural AR(1)","Ocupação: design-based","IC 95%: signal-based"), 
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
+
+
 ### 02 - COLAR E ENTORNO METROPOLITANO DE BELO HORIZONTE #######################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/02_mod_ent.Rdata")
 
 baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
 ent<-baseestr8reg$`02-Colar e Entorno metropolitano de BH`
@@ -112,9 +141,35 @@ mtext("Ano", side = 1, line = 3)
 mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_ent<-ar1_ent$se.signal
+
+ICinf_sinal <- est_ar1_ent - 1.96 * se_sinal_ent
+ICsup_sinal <- est_ar1_ent + 1.96 * se_sinal_ent
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ar1_ent, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(ocup_ent, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "02-Colar e Entorno metropolitano de Belo Horizonte",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
+     ylim = c(1400,2080))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Ocupação - Estrutural AR(1)","Ocupação: design-based","IC 95%: signal-based"), 
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
 ### 03 - SUL DE MINAS ##########################################################
 
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/03_mod_sul.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
   
@@ -165,8 +220,34 @@ mtext("Ano", side = 1, line = 3)
 mtext("03 - Sul de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_sul<-ar1_sul$se.signal
+
+ICinf_sinal <- est_ar1_sul - 1.96 * se_sinal_sul
+ICsup_sinal <- est_ar1_sul + 1.96 * se_sinal_sul
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ar1_sul, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(ocup_sul, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "03-Sul de Minas",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
+     ylim = c(1080,1550))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Ocupação - Estrutural AR(1)","Ocupação: design-based","IC 95%: signal-based"), 
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
 ### 04 - TRIÂNGULO MINEIRO #####################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/04_mod_trg.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
 
@@ -196,7 +277,7 @@ fig_trg <- window(ts.union(
   ts(ICsup_trg,start = 2012, frequency = 4)
 ), start=c(2013,3))
 plot(fig_trg, plot.type = "single", col = c(1, 4, 2, 1, 1),lty = c(1, 1, 1, 2, 2),lwd = c(2, 2, 2, 1, 1),ylab = "", xlab = "")
-legend("topleft", legend = c("Ocupação: design-based",
+legend("topright", legend = c("Ocupação: design-based",
                             "Sinal da Ocupação - Smooth AR(1)",
                             "Sinal da Ocupação - Estrutural AR(1)"),lty = c(1, 1, 1),col = c(1, 4, 2),bty = 'n',lwd = c(2, 2, 2))
 mtext("Total de ocupados (milhares de pessoas)", side = 2, line = 3)
@@ -208,7 +289,7 @@ fig_trg.cv <- window(ts.union(
   ts(cv_est_ar1_trg, start = 2012, frequency = 4)
 ), start=c(2013,3))
 plot(fig_trg.cv, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
-legend("topleft", legend = c("CV ocupados: design-based",
+legend("topright", legend = c("CV ocupados: design-based",
                              "Sinal CV ocupados - Smooth AR(1)",
                              "Sinal CV ocupados - Estrutural AR(1)"),
        lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
@@ -217,8 +298,77 @@ mtext("Ano", side = 1, line = 3)
 mtext("04 - Triângulo Mineiro", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
+### GRÁFICO SLOPE
+
+sl_ar1_trg<-mods$`04-Triângulo Mineiro`$slope_estrutural_ar1trg
+
+se_slope_trg<-ar1_trg$se.slope
+
+ICinf_slope <- sl_ar1_trg - 1.96 * se_slope_trg
+ICsup_slope <- sl_ar1_trg + 1.96 * se_slope_trg
+
+ICinf_slope <- window(ts(ICinf_slope,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_slope <- window(ts(ICsup_slope,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_slope<-window(ts.union(ts(sl_ar1_trg, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_slope, type = "l", col = "blue", lwd = 2,
+     main = "04-Triangulo Mineiro",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
+     ylim = c(-25, 70))
+lines(ICinf_slope, col = "red", lty = 2)
+lines(ICsup_slope, col = "red", lty = 2)
+legend("topright", legend = c("Inclinação da tendência do total de ocupados", "IC 95%"), col = c("blue", "red"),lty = c(1, 2),lwd = c(2, 1),bty = "n")
+
+
+## Tentando fazer com a série de ocupação
+
+win.ocup_trg<-window(ts(ocup_trg,start = 2012, frequency = 4), start = c(2013,3))
+win.trend_trg<-window(ts(ar1_trg$ts.trend,start = 2012, frequency = 4), start = c(2013,3))
+win.ICinf_trg <- window(ts(ICinf_trg,start = 2012, frequency = 4), start = c(2013,3))
+win.ICsup_trg <- window(ts(ICsup_trg,start = 2012, frequency = 4), start = c(2013,3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(win.ocup_trg, type = "l", col = "black", lwd = 2,
+     main = "04-Triangulo Mineiro",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
+     ylim = c(1000,1900))
+lines(win.trend_trg, col = "blue",lwd = 2, lty = 1)
+lines(win.ICinf_trg, col = "red", lty = 2)
+lines(win.ICsup_trg, col = "red", lty = 2)
+legend("topright", legend = c("Total de ocupados (milhares de pessoas)","Tendência da ocupação: model", "IC 95%"),
+       col = c("black","blue", "red"),lty = c(1, 1, 2),lwd = c(2, 2, 1),bty = "n")
+
+
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_trg<-ar1_trg$se.signal
+
+ICinf_sinal <- est_ar1_trg - 1.96 * se_sinal_trg
+ICsup_sinal <- est_ar1_trg + 1.96 * se_sinal_trg
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ar1_trg, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(ocup_trg, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "04-Triângulo Mineiro",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
+     ylim = c(600,1680))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Ocupação - Estrutural AR(1)","Ocupação: design-based","IC 95%: signal-based"), 
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
 ### 05 - ZONA DA MATA ##########################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/05_mod_mat.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
 
@@ -268,8 +418,35 @@ mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("05 - Zona da Mata", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_mat<-ar1_mat$se.signal
+
+ICinf_sinal <- est_ar1_mat - 1.96 * se_sinal_mat
+ICsup_sinal <- est_ar1_mat + 1.96 * se_sinal_mat
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ar1_mat, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(ocup_mat, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "05-Zona da Mata",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
+     ylim = c(880,1300))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Ocupação - Estrutural AR(1)","Ocupação: design-based","IC 95%: signal-based"), 
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
 ### 06 - NORTE DE MINAS ########################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/06_mod_nrt.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
 
@@ -319,8 +496,35 @@ mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("06 - Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_nrt<-ar1_nrt$se.signal
+
+ICinf_sinal <- est_ar1_nrt - 1.96 * se_sinal_nrt
+ICsup_sinal <- est_ar1_nrt + 1.96 * se_sinal_nrt
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ar1_nrt, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(ocup_nrt, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "06-Norte de Minas",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
+     ylim = c(850,1400))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Ocupação - Estrutural AR(1)","Ocupação: design-based","IC 95%: signal-based"), 
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
 ### 07 - VALE DO RIO DOCE ######################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/07_mod_val.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
 
@@ -370,8 +574,35 @@ mtext("Ano", side = 1, line = 3)
 mtext("07 - Vale do Rio Doce", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_val<-ar1_val$se.signal
+
+ICinf_sinal <- est_ar1_val - 1.96 * se_sinal_val
+ICsup_sinal <- est_ar1_val + 1.96 * se_sinal_val
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ar1_val, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(ocup_val, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "07-Vale do Rio Doce",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
+     ylim = c(600,1150))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Ocupação - Estrutural AR(1)","Ocupação: design-based","IC 95%: signal-based"), 
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
+
 ### 08 - CENTRAL ###############################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/08_mod_cen.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
 
@@ -421,8 +652,35 @@ mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_cen<-ar1_cen$se.signal
+
+ICinf_sinal <- est_ar1_cen - 1.96 * se_sinal_cen
+ICsup_sinal <- est_ar1_cen + 1.96 * se_sinal_cen
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ar1_cen, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(ocup_cen, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "08-Central",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
+     ylim = c(1000,1500))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Ocupação - Estrutural AR(1)","Ocupação: design-based","IC 95%: signal-based"), 
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
 ### 09 - MINAS GERAIS ##########################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/09_mod_mg.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
 
@@ -473,3 +731,26 @@ mtext("Ano", side = 1, line = 3)
 mtext("09 - Minas Gerais", side = 3, outer = TRUE, line = 0.5)
 
 
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_mg<-ar1_mg$se.signal
+
+ICinf_sinal <- est_ar1_mg - 1.96 * se_sinal_mg
+ICsup_sinal <- est_ar1_mg + 1.96 * se_sinal_mg
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ar1_mg, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(ocup_mg, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "09 - Minas Gerais",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
+     ylim = c(9000,11150))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Ocupação - Estrutural AR(1)","Ocupação: design-based","IC 95%: signal-based"), 
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
