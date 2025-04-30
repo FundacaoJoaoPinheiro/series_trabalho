@@ -1689,7 +1689,7 @@ rm(result_mods_ocup)
 
 # Salvando o .Rdata
 
-save.image(file = "D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/08_mod_cen.Rdata")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/08_mod_cen.Rdata")
 
 
 ### MINAS GERAIS ###############################################################
