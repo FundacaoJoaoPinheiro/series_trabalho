@@ -11,6 +11,8 @@ dev.new()
 ### 01 - BELO HORIZONTE ########################################################
 rm(list = ls())
 
+load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/01_mod_bh.Rdata")
+
 baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
 bh<-baseestr8reg$`01-Belo Horizonte`
 baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
@@ -60,8 +62,35 @@ mtext("Ano", side = 1, line = 3)
 mtext("01 - Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_bh<-ma1_bh$se.signal
+
+ICinf_sinal <- est_ma1_bh - 1.96 * se_sinal_bh
+ICsup_sinal <- est_ma1_bh + 1.96 * se_sinal_bh
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ma1_bh, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(desoc_bh, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "01-Belo Horizonte",
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     ylim = c(45,270))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Desocupação - Estrutural MA(1)","Desocupação: design-based","IC 95%: signal-based"), 
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
+
 ### 02 - COLAR E ENTORNO METROPOLITANO DE BELO HORIZONTE #######################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/02_mod_ent.Rdata")
 
 baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
 ent<-baseestr8reg$`02-Colar e Entorno metropolitano de BH`
@@ -113,9 +142,36 @@ mtext("Ano", side = 1, line = 3)
 mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_ent<-ma1_ent$se.signal
+
+ICinf_sinal <- est_ma1_ent - 1.96 * se_sinal_ent
+ICsup_sinal <- est_ma1_ent + 1.96 * se_sinal_ent
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ma1_ent, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(desoc_ent, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "02-Colar e Entorno metropolitano de Belo Horizonte",
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     ylim = c(80,400))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Desocupação - Estrutural MA(1)","Desocupação: design-based","IC 95%: signal-based"),
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
+
 ### 03 - SUL DE MINAS ##########################################################
 
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/03_mod_sul.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
   
@@ -167,8 +223,35 @@ mtext("Ano", side = 1, line = 3)
 mtext("03 - Sul de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_sul<-arma11_sul$se.signal
+
+ICinf_sinal <- est_arma11_sul - 1.96 * se_sinal_sul
+ICsup_sinal <- est_arma11_sul + 1.96 * se_sinal_sul
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_arma11_sul, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(desoc_sul, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "03-Sul de Minas",
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     ylim = c(20,200))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Desocupação - Estrutural MA(1)","Desocupação: design-based","IC 95%: model-based"),
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
+
 ### 04 - TRIÂNGULO MINEIRO #####################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/04_mod_trg.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
 
@@ -220,8 +303,35 @@ mtext("Ano", side = 1, line = 3)
 mtext("04 - Triângulo Mineiro", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_trg<-ma1_trg$se.signal
+
+ICinf_sinal <- est_ma1_trg - 1.96 * se_sinal_trg
+ICsup_sinal <- est_ma1_trg + 1.96 * se_sinal_trg
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ma1_trg, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(desoc_trg, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "04-Triângulo Mineiro",
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     ylim = c(30,190))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Desocupação - Estrutural MA(1)","Desocupação: design-based","IC 95%: model-based"),
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
+
 ### 05 - ZONA DA MATA ##########################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/05_mod_mat.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
 
@@ -272,8 +382,35 @@ mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("05 - Zona da Mata", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_mat<-ma1_mat$se.signal
+
+ICinf_sinal <- est_ma1_mat - 1.96 * se_sinal_mat
+ICsup_sinal <- est_ma1_mat + 1.96 * se_sinal_mat
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ma1_mat, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(desoc_mat, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "05-Zona da Mata",
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     ylim = c(30,180))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Desocupação - Estrutural MA(1)","Desocupação: design-based","IC 95%: model-based"),
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
 ### 06 - NORTE DE MINAS ########################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/06_mod_nrt.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
 
@@ -324,8 +461,35 @@ mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("06 - Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_nrt<-ma1_nrt$se.signal
+
+ICinf_sinal <- est_ma1_nrt - 1.96 * se_sinal_nrt
+ICsup_sinal <- est_ma1_nrt + 1.96 * se_sinal_nrt
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ma1_nrt, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(desoc_nrt, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "06-Norte de Minas",
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     ylim = c(50,250))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Desocupação - Estrutural MA(1)","Desocupação: design-based","IC 95%: model-based"),
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
 ### 07 - VALE DO RIO DOCE ######################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/07_mod_val.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
 
@@ -376,8 +540,35 @@ mtext("Ano", side = 1, line = 3)
 mtext("07 - Vale do Rio Doce", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_val<-ar1_val$se.signal
+
+ICinf_sinal <- est_ar1_val - 1.96 * se_sinal_val
+ICsup_sinal <- est_ar1_val + 1.96 * se_sinal_val
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ar1_val, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(desoc_val, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "07-Vale do Rio Doce",
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     ylim = c(30,210))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Desocupação - Estrutural AR(1)","Desocupação: design-based","IC 95%: model-based"),
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
+
 ### 08 - CENTRAL ###############################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/08_mod_cen.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
 
@@ -428,8 +619,35 @@ mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_cen<-ma1_cen$se.signal
+
+ICinf_sinal <- est_ma1_cen - 1.96 * se_sinal_cen
+ICsup_sinal <- est_ma1_cen + 1.96 * se_sinal_cen
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ma1_cen, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(desoc_cen, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "08-Central",
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     ylim = c(45,270))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Desocupação - Estrutural MA(1)","Desocupação: design-based","IC 95%: model-based"),
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
 ### 09 - MINAS GERAIS ##########################################################
 rm(list = ls())
+
+load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/09_mod_mg.Rdata")
 
 mods<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
 
@@ -480,4 +698,28 @@ mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("09 - Minas Gerais", side = 3, outer = TRUE, line = 0.5)
 
+
+### GRÁFICO COM IC DO SINAL
+
+se_sinal_mg<-ma1_mg$se.signal
+
+ICinf_sinal <- est_ma1_mg - 1.96 * se_sinal_mg
+ICsup_sinal <- est_ma1_mg + 1.96 * se_sinal_mg
+
+ICinf_sinal <- window(ts(ICinf_sinal,start = 2012, frequency = 4), start = c(2013,3))
+ICsup_sinal <- window(ts(ICsup_sinal,start = 2012, frequency = 4), start = c(2013,3))
+
+fig_sinal<-window(ts.union(ts(est_ma1_mg, start = 2012, frequency = 4)), start = c(2013, 3))
+fig_estimativa<-window(ts.union(ts(desoc_mg, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(fig_sinal, type = "l", col = "red", lwd = 2,
+     main = "09 - Minas Gerais",
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     ylim = c(450,1700))
+lines(fig_estimativa, col = "black", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "red", lty = 2)
+lines(ICsup_sinal, col = "red", lty = 2)
+legend("topleft", legend = c("Sinal da Desocupação - Estrutural MA(1)","Desocupação: design-based","IC 95%: model-based"),
+       col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
 
