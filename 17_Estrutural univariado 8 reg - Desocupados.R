@@ -2889,7 +2889,7 @@ colnames(ini_ar1_cen) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini
 ## Seleção do modelo:
 
 ar1_cen <- mod_ar1cen_ini[[which(
-  ini_ar1_cen$log_like == min(ini_ar1_cen$log_like[ini_ar1_cen$convergence == 0], na.rm = TRUE) & 
+  ini_ar1_cen$log_like == min(ini_ar1_cen$log_like[ini_ar1_cen$convergence == 0], na.rm = TRUE) &
     ini_ar1_cen$convergence == 0
 )]]
 
