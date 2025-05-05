@@ -263,23 +263,26 @@ cv_trg <- se_db/ocup_trg
 ICinf_trg<-ocup_trg-1.96*se_db
 ICsup_trg<-ocup_trg+1.96*se_db
 
+ocup_trg <- ts(ocup_trg, start = 2012, frequency = 4)
+ICinf_trg<-ts(ICinf_trg, start = 2012, frequency = 4)
+ICsup_trg<-ts(ICsup_trg, start = 2012, frequency = 4)
+
 sm_ar1_trg<-mods$`04-Triângulo Mineiro`$sinal_smooth_ar1trg
 cv_sm_ar1_trg<-mods$`04-Triângulo Mineiro`$cv_sinal_smooth_ar1trg
 est_ar1_trg<-mods$`04-Triângulo Mineiro`$sinal_estrutural_ar1trg
 cv_est_ar1_trg<-mods$`04-Triângulo Mineiro`$cv_sinal_estrutural_ar1trg
 
+sm_ar1_trg <- window(ts.union(ts(sm_ar1_trg, start = 2012, frequency = 4)), start = c(2013, 3))
+est_ar1_trg <- window(ts.union(ts(est_ar1_trg, start = 2012, frequency = 4)), start = c(2013, 3))
+
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
-fig_trg <- window(ts.union(
-  ts(ocup_trg, start = 2012, frequency = 4),
-  ts(sm_ar1_trg, start = 2012, frequency = 4),
-  ts(est_ar1_trg, start = 2012, frequency = 4),
-  ts(ICinf_trg,start = 2012, frequency = 4),
-  ts(ICsup_trg,start = 2012, frequency = 4)
-), start=c(2013,3))
-plot(fig_trg, plot.type = "single", col = c(1, 4, 2, 1, 1),lty = c(1, 1, 1, 2, 2),lwd = c(2, 2, 2, 1, 1),ylab = "", xlab = "")
-legend("topright", legend = c("Ocupação: design-based",
-                            "Sinal da Ocupação - Smooth AR(1)",
-                            "Sinal da Ocupação - Estrutural AR(1)"),lty = c(1, 1, 1),col = c(1, 4, 2),bty = 'n',lwd = c(2, 2, 2))
+ts.plot(ocup_trg, sm_ar1_trg, est_ar1_trg, ICinf_trg, ICsup_trg,
+        col = c(1, 4, 2, 1, 1), lty = c(1, 1, 1, 2, 2), lwd = c(2, 2, 2, 1, 1), ylab = "", xlab = "")
+legend("topleft", legend = c("Ocupação: design-based",
+                  "Sinal da Ocupação - Smooth AR(1)",
+                  "Sinal da Ocupação - Estrutural AR(1)",
+                  "IC 95%: design-based"),
+       lty = c(1, 1, 1, 2), col = c(1, 4, 2, 1), bty = 'n', lwd = c(2, 2, 2, 1))
 mtext("Total de ocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
@@ -290,8 +293,8 @@ fig_trg.cv <- window(ts.union(
 ), start=c(2013,3))
 plot(fig_trg.cv, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
 legend("topright", legend = c("CV ocupados: design-based",
-                             "Sinal CV ocupados - Smooth AR(1)",
-                             "Sinal CV ocupados - Estrutural AR(1)"),
+                              "Sinal CV ocupados - Smooth AR(1)",
+                              "Sinal CV ocupados - Estrutural AR(1)"),
        lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
@@ -540,23 +543,26 @@ cv_val <- se_db/ocup_val
 ICinf_val<-ocup_val-1.96*se_db
 ICsup_val<-ocup_val+1.96*se_db
 
+ocup_val <- ts(ocup_val, start = 2012, frequency = 4)
+ICinf_val <- ts(ICinf_val, start = 2012, frequency = 4) 
+ICsup_val <- ts(ICsup_val, start = 2012, frequency = 4)
+
 sm_ar1_val<-mods$`07-Vale do Rio Doce`$sinal_smooth_ar1val
 cv_sm_ar1_val<-mods$`07-Vale do Rio Doce`$cv_sinal_smooth_ar1val
 est_ar1_val<-mods$`07-Vale do Rio Doce`$sinal_estrutural_ar1val
 cv_est_ar1_val<-mods$`07-Vale do Rio Doce`$cv_sinal_estrutural_ar1val
 
+sm_ar1_val<-window(ts.union(ts(sm_ar1_val, start = 2012, frequency = 4)), start = c(2013, 3))
+est_ar1_val<-window(ts.union(ts(est_ar1_val, start = 2012, frequency = 4)), start = c(2013, 3))
+
 par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
-fig_ar1 <- window(ts.union(
-  ts(ocup_val, start = 2012, frequency = 4),
-  ts(sm_ar1_val, start = 2012, frequency = 4),
-  ts(est_ar1_val, start = 2012, frequency = 4),
-  ts(ICinf_val,start = 2012, frequency = 4),
-  ts(ICsup_val,start = 2012, frequency = 4)
-), start=c(2013,3))
-plot(fig_ar1, plot.type = "single", col = c(1, 4, 2, 1, 1),lty = c(1, 1, 1, 2, 2),lwd = c(2, 2, 2, 1, 1),ylab = "", xlab = "")
+ts.plot(ocup_val, sm_ar1_val, est_ar1_val, ICinf_val, ICsup_val,
+        col = c(1, 4, 2, 1, 1), lty = c(1, 1, 1, 2, 2), lwd = c(2, 2, 2, 1, 1), ylab = "", xlab = "")
 legend("topleft", legend = c("Ocupação: design-based",
-                            "Sinal da Ocupação - Smooth AR(1)",
-                            "Sinal da Ocupação - Estrutural AR(1)"),lty = c(1, 1, 1),col = c(1, 4, 2),bty = 'n',lwd = c(2, 2, 2))
+                             "Sinal da Ocupação - Smooth AR(1)",
+                             "Sinal da Ocupação - Estrutural AR(1)",
+                             "IC 95%: design-based"),
+       lty = c(1, 1, 1, 2), col = c(1, 4, 2, 1), bty = 'n', lwd = c(2, 2, 2, 1))
 mtext("Total de ocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
@@ -618,23 +624,26 @@ cv_cen <- se_db/ocup_cen
 ICinf_cen<-ocup_cen-1.96*se_db
 ICsup_cen<-ocup_cen+1.96*se_db
 
+ocup_cen <- ts(ocup_cen, start = 2012, frequency = 4)
+ICinf_cen <- ts(ICinf_cen, start = 2012, frequency = 4)
+ICsup_cen <- ts(ICsup_cen, start = 2012, frequency = 4)
+
 sm_ar1_cen<-mods$`08-Central`$sinal_smooth_ar1cen
 cv_sm_ar1_cen<-mods$`08-Central`$cv_sinal_smooth_ar1cen
 est_ar1_cen<-mods$`08-Central`$sinal_estrutural_ar1cen
 cv_est_ar1_cen<-mods$`08-Central`$cv_sinal_estrutural_ar1cen
 
+sm_ar1_cen<-window(ts.union(ts(sm_ar1_cen, start = 2012, frequency = 4)), start = c(2013, 3))
+est_ar1_cen<-window(ts.union(ts(est_ar1_cen, start = 2012, frequency = 4)), start = c(2013, 3))
+
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
-fig_cen <- window(ts.union(
-  ts(ocup_cen, start = 2012, frequency = 4),
-  ts(sm_ar1_cen, start = 2012, frequency = 4),
-  ts(est_ar1_cen, start = 2012, frequency = 4),
-  ts(ICinf_cen,start = 2012, frequency = 4),
-  ts(ICsup_cen,start = 2012, frequency = 4)
-), start=c(2013,3))
-plot(fig_cen, plot.type = "single", col = c(1, 4, 2, 1, 1),lty = c(1, 1, 1, 2, 2),lwd = c(2, 2, 2, 1, 1),ylab = "", xlab = "")
+ts.plot(ocup_cen, sm_ar1_cen, est_ar1_cen, ICinf_cen, ICsup_cen,
+        col = c(1, 4, 2, 1, 1), lty = c(1, 1, 1, 2, 2), lwd = c(2, 2, 2, 1, 1), ylab = "", xlab = "")
 legend("topleft", legend = c("Ocupação: design-based",
-                            "Sinal da Ocupação - Smooth AR(1)",
-                            "Sinal da Ocupação - Estrutural AR(1)"),lty = c(1, 1, 1),col = c(1, 4, 2),bty = 'n',lwd = c(2, 2, 2))
+                             "Sinal da Ocupação - Smooth AR(1)",
+                             "Sinal da Ocupação - Estrutural AR(1)",
+                             "IC 95%: design-based"),
+       lty = c(1, 1, 1, 2), col = c(1, 4, 2, 1), bty = 'n', lwd = c(2, 2, 2, 1))
 mtext("Total de ocupados (milhares de pessoas)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
