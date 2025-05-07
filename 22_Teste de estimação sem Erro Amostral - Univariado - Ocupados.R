@@ -209,7 +209,7 @@ grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 source("data/funcoes/02_modelo_bsm.R")
 source("data/funcoes/23_rodar_grid_semEA.R")
 
-grid_semEA<-grid_error
+grid_semEA<-grid_error[-c(13),]
 
 # Estimação do Modelo
 
@@ -286,7 +286,7 @@ fig_ent <- window(ts.union(
   ts(estimacao_ent$ts.original, start = 2012, frequency = 4),
   ts(estimacao_ent$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
 plot(fig_ent, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottomleft", legend = c("Desocupação: design-based",
+legend("topleft", legend = c("Desocupação: design-based",
                                 "Sinal da desocupação: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
@@ -301,7 +301,7 @@ legend("topleft", legend = c("CV desocupados: design-based",
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("01 - Belo Horizonte (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 ## GRÁFICO DE ANÁLISE
 
@@ -328,7 +328,7 @@ legend("bottomleft", legend = c("Termo irregular"),
        lty = c(1), col = c(4), bty = 'n', lwd = c(2))
 mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("01 - Belo Horizonte (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 # Salvando o .Rdata
 
@@ -337,8 +337,6 @@ save.image(file = "D:/FJP2425/Programacao/data/Rdatas/9_semEAocup_8reg/02_mod_en
 ### SUL DE MINAS ###############################################################
 
 rm(list = ls())
-
-# UCM: 56.85534; 0.0008044187; 90.04413
 
 ## Funções e base de dados
 
@@ -534,34 +532,28 @@ grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 #### MODELO SEM ERRO AMOSTRAL
 
 source("data/funcoes/02_modelo_bsm.R")
+source("data/funcoes/23_rodar_grid_semEA.R")
 
-numCores<-detectCores()
-numCores
-cl<- makeCluster(numCores-1)
-save.image("partial.Rdata")
-clusterEvalQ(cl,{load("partial.Rdata")
-  library(dlm)
-})
+grid_semEA<-grid_error[-c(122),]
 
 # Estimação do Modelo
 
 start_time <- Sys.time()
-run_trg<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.modelo_bsm(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_trg <- rodar_grid_semEA(y, grid_semEA, f.modelo_bsm)
 end_time <- Sys.time()
 end_time - start_time
 
-stopCluster(cl)
-showConnections()
+mod_trg_ini <- run_trg$resultados
 
 # Avaliação das iterações:
 
 ini_trg <- cbind(
-  round(exp(grid_error), 4),
-  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+  round(exp(grid_semEA), 4),
+  do.call(rbind, lapply(1:nrow(grid_semEA), function(i) {
     tryCatch({
-      params <- round(exp(run_trg[[i]][["fit"]][["par"]]), 4)
-      convergence <- run_trg[[i]][["fit"]][["convergence"]]
-      log_like <- run_trg[[i]][["fit"]][["value"]]
+      params <- round(exp(mod_trg_ini[[i]][["fit"]][["par"]]), 4)
+      convergence <- mod_trg_ini[[i]][["fit"]][["convergence"]]
+      log_like <- mod_trg_ini[[i]][["fit"]][["value"]]
       c(params, convergence, log_like)
     }, error = function(e) rep(NA, 6))
   }))
@@ -574,7 +566,7 @@ colnames(ini_trg) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini",
 
 ## Após iniciais, seleção do modelo:
 
-estimacao_trg <- run_trg[[which(
+estimacao_trg <- mod_trg_ini[[which(
   ini_trg$log_like == min(ini_trg$log_like[ini_trg$convergence == 0], na.rm = TRUE) &
     ini_trg$convergence == 0
 )]]
@@ -619,7 +611,7 @@ fig_trg <- window(ts.union(
   ts(estimacao_trg$ts.original, start = 2012, frequency = 4),
   ts(estimacao_trg$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
 plot(fig_trg, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottomleft", legend = c("Desocupação: design-based",
+legend("topleft", legend = c("Desocupação: design-based",
                                 "Sinal da desocupação: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
@@ -629,12 +621,12 @@ fig_trg.cv <- window(ts.union(
   ts((estimacao_trg$cv.original) * 100, start = 2012, frequency = 4),
   ts(estimacao_trg$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
 plot(fig_trg.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("topleft", legend = c("CV desocupados: design-based",
+legend("topright", legend = c("CV desocupados: design-based",
                              "Sinal CV desocupados: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("01 - Belo Horizonte (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("04 - Triângulo Mineiro (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 ## GRÁFICO DE ANÁLISE
 
@@ -661,7 +653,7 @@ legend("bottomleft", legend = c("Termo irregular"),
        lty = c(1), col = c(4), bty = 'n', lwd = c(2))
 mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("01 - Belo Horizonte (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("04 - Triângulo Mineiro (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
 # Salvando o .Rdata
@@ -671,8 +663,6 @@ save.image(file = "D:/FJP2425/Programacao/data/Rdatas/9_semEAocup_8reg/04_mod_tr
 ### ZONA DA MATA ###############################################################
 
 rm(list = ls())
-
-# UCM: # 16.0373 # 0.0004886218 # 82.69742
 
 ## Funções e base de dados
 
@@ -835,8 +825,6 @@ mtext("05 - Zona da Mata (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.
 save.image(file = "D:/FJP2425/Programacao/data/Rdatas/9_semEAocup_8reg/05_mod_mat.Rdata")
 
 ### NORTE DE MINAS GERAIS ######################################################
-# Modelos para Norte: AR(1);AR(5)
-
 rm(list = ls())
 
 ## Funções e base de dados
@@ -866,46 +854,41 @@ grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 #### MODELO SEM ERRO AMOSTRAL
 
 source("data/funcoes/02_modelo_bsm.R")
+source("data/funcoes/23_rodar_grid_semEA.R")
 
-numCores<-detectCores()
-numCores
-cl<- makeCluster(numCores-1)
-save.image("partial.Rdata")
-clusterEvalQ(cl,{load("partial.Rdata")
-  library(dlm)
-})
+grid_semEA<-grid_error[-c(92),]
 
 # Estimação do Modelo
 
 start_time <- Sys.time()
-run_nrt<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.modelo_bsm(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_nrt <- rodar_grid_semEA(y, grid_semEA, f.modelo_bsm)
 end_time <- Sys.time()
 end_time - start_time
 
-stopCluster(cl)
-showConnections()
+mod_nrt_ini <- run_nrt$resultados
 
 # Avaliação das iterações:
 
 ini_nrt <- cbind(
-  round(exp(grid_error), 4),
-  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+  round(exp(grid_semEA), 4),
+  do.call(rbind, lapply(1:nrow(grid_semEA), function(i) {
     tryCatch({
-      params <- round(exp(run_nrt[[i]][["fit"]][["par"]]), 4)
-      convergence <- run_nrt[[i]][["fit"]][["convergence"]]
-      log_like <- run_nrt[[i]][["fit"]][["value"]]
+      params <- round(exp(mod_nrt_ini[[i]][["fit"]][["par"]]), 4)
+      convergence <- mod_nrt_ini[[i]][["fit"]][["convergence"]]
+      log_like <- mod_nrt_ini[[i]][["fit"]][["value"]]
       c(params, convergence, log_like)
     }, error = function(e) rep(NA, 6))
   }))
 )
 
 
-colnames(ini_nrt) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","level","slope","seasonal","irregular",
+colnames(ini_nrt) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini",
+                       "level","slope","seasonal","irregular",
                        "convergence","log_like")
 
 ## Após iniciais, seleção do modelo:
 
-estimacao_nrt <- run_nrt[[which(
+estimacao_nrt <- mod_nrt_ini[[which(
   ini_nrt$log_like == min(ini_nrt$log_like[ini_nrt$convergence == 0], na.rm = TRUE) &
     ini_nrt$convergence == 0
 )]]
@@ -1030,34 +1013,28 @@ grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 #### MODELO SEM ERRO AMOSTRAL
 
 source("data/funcoes/02_modelo_bsm.R")
+source("data/funcoes/23_rodar_grid_semEA.R")
 
-numCores<-detectCores()
-numCores
-cl<- makeCluster(numCores-1)
-save.image("partial.Rdata")
-clusterEvalQ(cl,{load("partial.Rdata")
-  library(dlm)
-})
+grid_semEA<-grid_error[-c(73),]
 
 # Estimação do Modelo
 
 start_time <- Sys.time()
-run_val<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.modelo_bsm(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_val <- rodar_grid_semEA(y, grid_semEA, f.modelo_bsm)
 end_time <- Sys.time()
 end_time - start_time
 
-stopCluster(cl)
-showConnections()
+mod_val_ini <- run_val$resultados
 
 # Avaliação das iterações:
 
 ini_val <- cbind(
-  round(exp(grid_error), 4),
-  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+  round(exp(grid_semEA), 4),
+  do.call(rbind, lapply(1:nrow(grid_semEA), function(i) {
     tryCatch({
-      params <- round(exp(run_val[[i]][["fit"]][["par"]]), 4)
-      convergence <- run_val[[i]][["fit"]][["convergence"]]
-      log_like <- run_val[[i]][["fit"]][["value"]]
+      params <- round(exp(mod_val_ini[[i]][["fit"]][["par"]]), 4)
+      convergence <- mod_val_ini[[i]][["fit"]][["convergence"]]
+      log_like <- mod_val_ini[[i]][["fit"]][["value"]]
       c(params, convergence, log_like)
     }, error = function(e) rep(NA, 6))
   }))
@@ -1070,7 +1047,7 @@ colnames(ini_val) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini",
 
 ## Após iniciais, seleção do modelo:
 
-estimacao_val <- run_val[[which(
+estimacao_val <- mod_val_ini[[which(
   ini_val$log_like == min(ini_val$log_like[ini_val$convergence == 0], na.rm = TRUE) &
     ini_val$convergence == 0
 )]]
@@ -1115,7 +1092,7 @@ fig_val <- window(ts.union(
   ts(estimacao_val$ts.original, start = 2012, frequency = 4),
   ts(estimacao_val$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
 plot(fig_val, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottomleft", legend = c("Desocupação: design-based",
+legend("topleft", legend = c("Desocupação: design-based",
                                 "Sinal da desocupação: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
@@ -1140,7 +1117,7 @@ figirr_val<-window(ts.union(ts(estimacao_val$ts.irregular, start = 2012, frequen
 
 par(mfrow = c(3, 1), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
 plot(figtend_val, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottomleft", legend = c("Ocupação: design-based",
+legend("topleft", legend = c("Ocupação: design-based",
                                 "Tendência da ocupação: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("Ocupados", side = 2, line = 3)
@@ -1165,8 +1142,6 @@ save.image(file = "D:/FJP2425/Programacao/data/Rdatas/9_semEAocup_8reg/07_mod_va
 
 ### CENTRAL ####################################################################
 rm(list = ls())
-
-# UCM: # 53.27499 # 0.001126252 # 83.0792
 
 ## Funções e base de dados
 
@@ -1195,34 +1170,28 @@ grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 #### MODELO SEM ERRO AMOSTRAL
 
 source("data/funcoes/02_modelo_bsm.R")
+source("data/funcoes/23_rodar_grid_semEA.R")
 
-numCores<-detectCores()
-numCores
-cl<- makeCluster(numCores-1)
-save.image("partial.Rdata")
-clusterEvalQ(cl,{load("partial.Rdata")
-  library(dlm)
-})
+grid_semEA<-grid_error[-c(23),]
 
 # Estimação do Modelo
 
 start_time <- Sys.time()
-run_cen<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.modelo_bsm(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_cen <- rodar_grid_semEA(y, grid_semEA, f.modelo_bsm)
 end_time <- Sys.time()
 end_time - start_time
 
-stopCluster(cl)
-showConnections()
+mod_cen_ini <- run_cen$resultados
 
 # Avaliação das iterações:
 
 ini_cen <- cbind(
-  round(exp(grid_error), 4),
-  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+  round(exp(grid_semEA), 4),
+  do.call(rbind, lapply(1:nrow(grid_semEA), function(i) {
     tryCatch({
-      params <- round(exp(run_cen[[i]][["fit"]][["par"]]), 4)
-      convergence <- run_cen[[i]][["fit"]][["convergence"]]
-      log_like <- run_cen[[i]][["fit"]][["value"]]
+      params <- round(exp(mod_cen_ini[[i]][["fit"]][["par"]]), 4)
+      convergence <- mod_cen_ini[[i]][["fit"]][["convergence"]]
+      log_like <- mod_cen_ini[[i]][["fit"]][["value"]]
       c(params, convergence, log_like)
     }, error = function(e) rep(NA, 6))
   }))
@@ -1235,7 +1204,7 @@ colnames(ini_cen) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini",
 
 ## Após iniciais, seleção do modelo:
 
-estimacao_cen <- run_cen[[which(
+estimacao_cen <- mod_cen_ini[[which(
   ini_cen$log_like == min(ini_cen$log_like[ini_cen$convergence == 0], na.rm = TRUE) &
     ini_cen$convergence == 0
 )]]
@@ -1280,7 +1249,7 @@ fig_cen <- window(ts.union(
   ts(estimacao_cen$ts.original, start = 2012, frequency = 4),
   ts(estimacao_cen$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
 plot(fig_cen, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottomleft", legend = c("Desocupação: design-based",
+legend("topleft", legend = c("Desocupação: design-based",
                                 "Sinal da desocupação: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
@@ -1360,34 +1329,28 @@ grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 #### MODELO SEM ERRO AMOSTRAL
 
 source("data/funcoes/02_modelo_bsm.R")
+source("data/funcoes/23_rodar_grid_semEA.R")
 
-numCores<-detectCores()
-numCores
-cl<- makeCluster(numCores-1)
-save.image("partial.Rdata")
-clusterEvalQ(cl,{load("partial.Rdata")
-  library(dlm)
-})
+grid_semEA<-grid_error[-c(94),]
 
 # Estimação do Modelo
 
 start_time <- Sys.time()
-run_mg<-parLapply(cl,1:nrow(grid_error), function(i) tryCatch(f.modelo_bsm(y,grid_error[i,]),error=function(e) {rep(NA,4)}))
+run_mg <- rodar_grid_semEA(y, grid_semEA, f.modelo_bsm)
 end_time <- Sys.time()
 end_time - start_time
 
-stopCluster(cl)
-showConnections()
+mod_mg_ini <- run_mg$resultados
 
 # Avaliação das iterações:
 
 ini_mg <- cbind(
-  round(exp(grid_error), 4),
-  do.call(rbind, lapply(1:nrow(grid_error), function(i) {
+  round(exp(grid_semEA), 4),
+  do.call(rbind, lapply(1:nrow(grid_semEA), function(i) {
     tryCatch({
-      params <- round(exp(run_mg[[i]][["fit"]][["par"]]), 4)
-      convergence <- run_mg[[i]][["fit"]][["convergence"]]
-      log_like <- run_mg[[i]][["fit"]][["value"]]
+      params <- round(exp(mod_mg_ini[[i]][["fit"]][["par"]]), 4)
+      convergence <- mod_mg_ini[[i]][["fit"]][["convergence"]]
+      log_like <- mod_mg_ini[[i]][["fit"]][["value"]]
       c(params, convergence, log_like)
     }, error = function(e) rep(NA, 6))
   }))
@@ -1400,7 +1363,7 @@ colnames(ini_mg) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini",
 
 ## Após iniciais, seleção do modelo:
 
-estimacao_mg <- run_mg[[which(
+estimacao_mg <- mod_mg_ini[[which(
   ini_mg$log_like == min(ini_mg$log_like[ini_mg$convergence == 0], na.rm = TRUE) &
     ini_mg$convergence == 0
 )]]
@@ -1445,7 +1408,7 @@ fig_mg <- window(ts.union(
   ts(estimacao_mg$ts.original, start = 2012, frequency = 4),
   ts(estimacao_mg$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
 plot(fig_mg, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottomleft", legend = c("Desocupação: design-based",
+legend("topleft", legend = c("Desocupação: design-based",
                                 "Sinal da desocupação: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
@@ -1460,7 +1423,7 @@ legend("topleft", legend = c("CV desocupados: design-based",
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("01 - Belo Horizonte (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("09 - Minas Gerais (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 ## GRÁFICO DE ANÁLISE
 
@@ -1470,7 +1433,7 @@ figirr_mg<-window(ts.union(ts(estimacao_mg$ts.irregular, start = 2012, frequency
 
 par(mfrow = c(3, 1), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
 plot(figtend_mg, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottomleft", legend = c("Ocupação: design-based",
+legend("topleft", legend = c("Ocupação: design-based",
                                 "Tendência da ocupação: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("Ocupados", side = 2, line = 3)
@@ -1487,7 +1450,7 @@ legend("bottomleft", legend = c("Termo irregular"),
        lty = c(1), col = c(4), bty = 'n', lwd = c(2))
 mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("01 - Belo Horizonte (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("09 - Minas Gerais (Sem Erro Amostral)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 # Salvando o .Rdata
 
