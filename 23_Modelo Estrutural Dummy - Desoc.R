@@ -963,8 +963,7 @@ save.image(file = "D:/FJP2425/Programacao/data/Rdatas/10_estdummy - desoc_8reg/0
 ### NORTE DE MINAS GERAIS ######################################################
 rm(list = ls())
 
-# Parâmetros do modelo UCM (referência para o grid): # 43.22508 # 0.0009056865 # 142.2077
-# Modelos para Norte: AR(1); ARMA(1,1)
+# Modelos para escolhido Norte: MA1
 
 ## Funções e base de dados
 
@@ -992,157 +991,37 @@ par_5<-c(0)
 grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
 
 
-#### MODELO AR(1)
+#### MODELO AR(1) - TESTE PARA TRAVAMENTO
 
-source("data/funcoes/12_estrutural_AR1.R")
+source("data/funcoes/24_estruturaldummy_AR1.R")
 phi1_ar1 <- dbnrt[["mod_ar1"]][["phi1_ar1_dnrt"]]
-grid_ar1 <- grid_error[-c(25,74),]
+grid_ar1 <- grid_error[-c(242),]
 
 # Rodando o modelo
 
-source("data/funcoes/17_rodar_grid_ar1.R")
+source("data/funcoes/25_grid_dummy_ar1.R")
 start_time <- Sys.time()
-run_ar1nrt <- rodar_grid_ar1(y, grid_ar1, f.estrutural_ar1)
+run_ar1nrt <- grid_dummy_ar1(y, grid_ar1, f.estruturaldummy_ar1)
 end_time <- Sys.time()
 end_time - start_time
 
 mod_ar1nrt_ini <- run_ar1nrt$resultados
 
-# Avaliação das iterações:
-ini_ar1_nrt <- cbind(
-  round(exp(grid_ar1), 5),
-  do.call(rbind, lapply(1:nrow(grid_ar1), function(i) {
-    tryCatch({
-      params <- round(exp(mod_ar1nrt_ini[[i]][["fit"]][["par"]]), 5)
-      convergence <- mod_ar1nrt_ini[[i]][["fit"]][["convergence"]]
-      log_like <- mod_ar1nrt_ini[[i]][["fit"]][["value"]]
-      c(params, convergence, log_like)
-    }, error = function(e) rep(NA, 7))
-  }))
-)
-
-colnames(ini_ar1_nrt) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
-                           "level","slope","seasonal","irregular", "sampl_error",
-                           "convergence","log_like")
-
-## Seleção do modelo:
-
-ar1_nrt <- mod_ar1nrt_ini[[which(
-  ini_ar1_nrt$log_like == min(ini_ar1_nrt$log_like[ini_ar1_nrt$convergence == 0], na.rm = TRUE) & 
-    ini_ar1_nrt$convergence == 0
-)]]
-
-# Verificando a convergência
-
-conver_ar1 <- rbind(ar1_nrt$fit$convergence)
-colnames(conver_ar1) <- c("convergence")
-
-# Parâmetros estimados:
-
-parametros_ar1 <- rbind(c(round(exp(ar1_nrt$fit$par), 5)))
-row.names(parametros_ar1) <- c("BSM_error")
-colnames(parametros_ar1) <- c("Level","Slope","Seasonal","Irregular","Sample Error")
-
-# Critérios de informação: AIC e BIC
-
-AIC_ar1 <- rbind(2*(ar1_nrt$fit$value) + 2*5)
-colnames(AIC_ar1) <- "AIC"
-
-BIC_ar1 <- 2*(ar1_nrt$fit$value) + 2*5*log(ar1_nrt$T)
-
-# Matriz Hessiana
-
-all(eigen(ar1_nrt$fit$hessian, only.values = TRUE)$values > 0) # TRUE
-
-# Diagnosticando os resíduos
-
-lista_ar1 <- list(ar1_nrt)
-testes_ar1 <- sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]], 5),
-                                                   round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]], 5),
-                                                   teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
-)
-testes_ar1 <- t(testes_ar1)
-row.names(testes_ar1) <- c("BSM_error")
-colnames(testes_ar1) <- c("Shapiro", "Box", "H")
-
-resultadosnrt_ar1 <- cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
-resultadosnrt_ar1
-
-par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
-fig_ar1 <- window(ts.union(
-  ts(ar1_nrt$ts.original, start = 2012, frequency = 4),
-  ts(ar1_nrt$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
-plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Sinal da desocupação: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-fig_ar1.cv <- window(ts.union(
-  ts((ar1_nrt$cv.original) * 100, start = 2012, frequency = 4),
-  ts(ar1_nrt$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
-plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("topleft", legend = c("CV desocupados: design-based",
-                             "Sinal CV desocupados: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("CV (%)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("06 - Estrutural (AR1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
-## GRÁFICO DE ANÁLISE AR(1)
-
-figtend_ar1<-window(ts.union(ts(ar1_nrt$ts.original, start = 2012, frequency = 4),ts(ar1_nrt$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
-figsaz_ar1<-window(ts.union(ts(ar1_nrt$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
-figirr_ar1<-window(ts.union(ts(ar1_nrt$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
-figsample_ar1<-window(ts.union(ts(ar1_nrt$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
-
-par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
-plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Tendência da desocupação: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Sazonalidade"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Termo irregular"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Erro amostral"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("06- Estrutural Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["06-Norte de Minas"]][["sinal_estrutural_ar1nrt"]]<-ar1_nrt$ts.signal
-result_mods_deso[["06-Norte de Minas"]][["cv_sinal_estrutural_ar1nrt"]]<-ar1_nrt$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+rm(list = c("run_ar1nrt","mod_ar1nrt_ini","grid_ar1"))
 
 
 
 #### MODELO MA(1)
 
-source("data/funcoes/14_estrutural_MA1.R")
+source("data/funcoes/26_estruturaldummy_MA1.R")
 theta1_ma1 <- dbnrt[["mod_ma1"]][["theta1_ma1_dnrt"]]
-grid_ma1 <- grid_error[-c(25,74),]
+grid_ma1 <- grid_error[-c(242),]
 
 # Rodando o modelo
 
-source("data/funcoes/18_rodar_grid_ma1.R")
+source("data/funcoes/27_grid_dummy_ma1.R")
 start_time <- Sys.time()
-run_ma1nrt <- rodar_grid_ma1(y, grid_ma1, f.estrutural_ma1)
+run_ma1nrt <- grid_dummy_ma1(y, grid_ma1, f.estruturaldummy_ma1)
 end_time <- Sys.time()
 end_time - start_time
 
@@ -1264,185 +1143,6 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("06- Estrutural Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["06-Norte de Minas"]][["sinal_estrutural_ma1nrt"]]<-ma1_nrt$ts.signal
-result_mods_deso[["06-Norte de Minas"]][["cv_sinal_estrutural_ma1nrt"]]<-ma1_nrt$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
-
-
-#### MODELO ARMA(1,1):
-
-source("data/funcoes/15_estrutural_ARMA11.R")
-phi1_arma11 <- dbnrt[["mod_arma11"]][["phi1_arma11_dnrt"]]
-theta1_arma11 <- dbnrt[["mod_arma11"]][["theta1_arma11_dnrt"]]
-grid_arma11<-grid_error[-c(25,74),]
-
-# Rodando o modelo
-
-source("data/funcoes/19_rodar_grid_arma11.R")
-start_time <- Sys.time()
-run_arma11nrt <- rodar_grid_arma11(y, grid_arma11, f.estrutural_arma11)
-end_time <- Sys.time()
-end_time - start_time
-
-mod_arma11nrt_ini <- run_arma11nrt$resultados
-
-# Avaliação das iterações:
-ini_arma11_nrt <- cbind(
-  round(exp(grid_arma11), 5),
-  do.call(rbind, lapply(1:nrow(grid_arma11), function(i) {
-    tryCatch({
-      params <- round(exp(mod_arma11nrt_ini[[i]][["fit"]][["par"]]), 5)
-      convergence <- mod_arma11nrt_ini[[i]][["fit"]][["convergence"]]
-      log_like <- mod_arma11nrt_ini[[i]][["fit"]][["value"]]
-      c(params, convergence, log_like)
-    }, error = function(e) rep(NA, 7))
-  }))
-)
-
-colnames(ini_arma11_nrt) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
-                              "level","slope","seasonal","irregular", "sampl_error",
-                              "convergence","log_like")
-
-## Seleção do modelo:
-
-arma11_nrt <- mod_arma11nrt_ini[[which(
-  ini_arma11_nrt$log_like == min(ini_arma11_nrt$log_like[ini_arma11_nrt$convergence == 0], na.rm = TRUE) & 
-    ini_arma11_nrt$convergence == 0
-)]]
-
-# Verificando a convergência
-
-conver_arma11 <- rbind(arma11_nrt$fit$convergence)
-colnames(conver_arma11) <- c("convergence")
-
-# Parâmetros estimados:
-
-parametros_arma11 <- rbind(c(round(exp(arma11_nrt$fit$par), 5)))
-row.names(parametros_arma11) <- c("BSM_error")
-colnames(parametros_arma11) <- c("Level","Slope","Seasonal","Irregular","Sample Error")
-
-# Critérios de informação: AIC e BIC
-
-AIC_arma11 <- rbind(2*(arma11_nrt$fit$value) + 2*5)
-colnames(AIC_arma11) <- "AIC"
-
-BIC_arma11 <- 2*(arma11_nrt$fit$value) + 2*5*log(arma11_nrt$T)
-
-# Matriz Hessiana
-
-all(eigen(arma11_nrt$fit$hessian, only.values = TRUE)$values > 0) # false
-
-# Diagnosticando os resíduos
-
-lista_arma11 <- list(arma11_nrt)
-testes_arma11 <- sapply(lista_arma11, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]], 5),
-                                                         round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]], 5),
-                                                         teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
-)
-testes_arma11 <- t(testes_arma11)
-row.names(testes_arma11) <- c("BSM_error")
-colnames(testes_arma11) <- c("Shapiro", "Box", "H")  
-resultadosnrt_arma11 <- cbind(conver_arma11, parametros_arma11, testes_arma11, AIC_arma11, BIC_arma11)
-resultadosnrt_arma11
-
-par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
-fig_arma11 <- window(ts.union(
-  ts(arma11_nrt$ts.original, start = 2012, frequency = 4),
-  ts(arma11_nrt$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
-plot(fig_arma11, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Sinal da desocupação: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-fig_arma11.cv <- window(ts.union(
-  ts((arma11_nrt$cv.original) * 100, start = 2012, frequency = 4),
-  ts(arma11_nrt$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
-plot(fig_arma11.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("topleft", legend = c("CV desocupados: design-based",
-                             "Sinal CV desocupados: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("CV (%)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("06 - Estrutural Norte de Minas (ARMA(1,1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
-## GRÁFICO DE ANÁLISE ARMA(1,1)
-
-figtend_arma11<-window(ts.union(ts(arma11_nrt$ts.original, start = 2012, frequency = 4),ts(arma11_nrt$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
-figsaz_arma11<-window(ts.union(ts(arma11_nrt$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
-figirr_arma11<-window(ts.union(ts(arma11_nrt$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
-figsample_arma11<-window(ts.union(ts(arma11_nrt$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
-
-par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
-plot(figtend_arma11, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Tendência da desocupação: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figsaz_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Sazonalidade"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figirr_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Termo irregular"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figsample_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Erro amostral"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("06 - EstruturalNorte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["06-Norte de Minas"]][["sinal_Estrutural_arma11nrt"]]<-arma11_nrt$ts.signal
-result_mods_deso[["06-Norte de Minas"]][["cv_sinal_Estrutural_arma11nrt"]]<-arma11_nrt$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
-
-
-# GRÁFICO UNIFICADO
-
-par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
-fig_nrt <- window(ts.union(
-  ts(ma1_nrt$ts.original, start = 2012, frequency = 4),
-  ts(ar1_nrt$ts.signal, start = 2012, frequency = 4),
-  ts(ma1_nrt$ts.signal, start = 2012, frequency = 4),
-  ts(arma11_nrt$ts.signal, start = 2012, frequency = 4)
-), start=c(2013,3))
-plot(fig_nrt, plot.type = "single", col = c(1,4,2,3), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Sinal da desocupação AR(1): model-based",
-                            "Sinal da Desocupação MA(1): model-based",
-                            "Sinal da Desocupação ARMA(1,1): model-based"),
-       lty = c(1,1,1,1), col = c(1,4,2,3), bty = 'n', lwd=c(2))
-mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-fig_nrt.cv <- window(ts.union(
-  ts((ma1_nrt$cv.original) * 100, start = 2012, frequency = 4),
-  ts(ar1_nrt$cv.signal, start = 2012, frequency = 4),
-  ts(ma1_nrt$cv.signal, start = 2012, frequency = 4),
-  ts(arma11_nrt$cv.signal, start = 2012, frequency = 4)
-), start=c(2013,3))
-plot(fig_nrt.cv, plot.type = "single", col = c(1,4,2,3), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
-legend("topleft", legend = c("CV desocupados: design-based",
-                             "Sinal CV desocupados AR(1): model-based",
-                             "Sinal CV desocupados MA(1): model-based",
-                             "Sinal CV desocupados ARMA(1,1): model-based"),
-       lty = c(1,1,1,1), col = c(1,4,2,3), bty = 'n', lwd=c(2))
-mtext("CV (%)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("06 - Estrutural Norte de Minas (AR(1), MA(1) e ARMA(1,1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 # Salvando o .Rdata
 
@@ -1480,15 +1180,15 @@ grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
 
 #### MODELO AR(1)
 
-source("data/funcoes/12_estrutural_AR1.R")
+source("data/funcoes/24_estruturaldummy_AR1.R")
 phi1_ar1 <- dbvl[["mod_ar1"]][["phi1_ar1_drio"]]
-grid_ar1 <- grid_error[-c(177),]
+grid_ar1 <- grid_error[-c(69),]
 
 # Rodando o modelo
 
-source("data/funcoes/17_rodar_grid_ar1.R")
+source("data/funcoes/25_grid_dummy_ar1.R")
 start_time <- Sys.time()
-run_ar1val <- rodar_grid_ar1(y, grid_ar1, f.estrutural_ar1)
+run_ar1val <- grid_dummy_ar1(y, grid_ar1, f.estruturaldummy_ar1)
 end_time <- Sys.time()
 end_time - start_time
 
@@ -1538,7 +1238,7 @@ BIC_ar1 <- 2*(ar1_val$fit$value) + 2*5*log(ar1_val$T)
 
 # Matriz Hessiana
 
-all(eigen(ar1_val$fit$hessian, only.values = TRUE)$values > 0) # TRUE
+all(eigen(ar1_val$fit$hessian, only.values = TRUE)$values > 0) # FALSE
 
 # Diagnosticando os resíduos
 
@@ -1610,14 +1310,6 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("07- Estrutural Vale do Rio Doce (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["07-Vale do Rio Doce"]][["sinal_estrutural_ar1vl"]]<-ar1_val$ts.signal
-result_mods_deso[["07-Vale do Rio Doce"]][["cv_sinal_estrutural_ar1vl"]]<-ar1_val$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
-
-
-
 # Salvando o .Rdata
 
 save.image(file = "D:/FJP2425/Programacao/data/Rdatas/10_estdummy - desoc_8reg/07_mod_val.Rdata")
@@ -1655,153 +1347,35 @@ grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
 
 #### MODELO AR(1)
 
-source("data/funcoes/12_estrutural_AR1.R")
+source("data/funcoes/24_estruturaldummy_AR1.R")
 phi1_ar1 <- dbcen[["mod_ar1"]][["phi1_ar1_dcen"]]
-grid_ar1 <- grid_error[-c(241),]
+grid_ar1 <- grid_error
 
 # Rodando o modelo
 
-source("data/funcoes/17_rodar_grid_ar1.R")
+source("data/funcoes/25_grid_dummy_ar1.R")
 start_time <- Sys.time()
-run_ar1cen <- rodar_grid_ar1(y, grid_ar1, f.estrutural_ar1)
+run_ar1cen <- grid_dummy_ar1(y, grid_ar1, f.estruturaldummy_ar1)
 end_time <- Sys.time()
 end_time - start_time
 
 mod_ar1cen_ini <- run_ar1cen$resultados
 
-# Avaliação das iterações:
-ini_ar1_cen <- cbind(
-  round(exp(grid_ar1), 5),
-  do.call(rbind, lapply(1:nrow(grid_ar1), function(i) {
-    tryCatch({
-      params <- round(exp(mod_ar1cen_ini[[i]][["fit"]][["par"]]), 5)
-      convergence <- mod_ar1cen_ini[[i]][["fit"]][["convergence"]]
-      log_like <- mod_ar1cen_ini[[i]][["fit"]][["value"]]
-      c(params, convergence, log_like)
-    }, error = function(e) rep(NA, 7))
-  }))
-)
+rm(list = c("run_ar1cen","mod_ar1cen_ini","grid_ar1"))
 
-colnames(ini_ar1_cen) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
-                           "level","slope","seasonal","irregular", "sampl_error",
-                           "convergence","log_like")
 
-## Seleção do modelo:
-
-ar1_cen <- mod_ar1cen_ini[[which(
-  ini_ar1_cen$log_like == min(ini_ar1_cen$log_like[ini_ar1_cen$convergence == 0], na.rm = TRUE) &
-    ini_ar1_cen$convergence == 0
-)]]
-
-# Verificando a convergência
-
-conver_ar1 <- rbind(ar1_cen$fit$convergence)
-colnames(conver_ar1) <- c("convergence")
-
-# Parâmetros estimados:
-
-parametros_ar1 <- rbind(c(round(exp(ar1_cen$fit$par), 5)))
-row.names(parametros_ar1) <- c("BSM_error")
-colnames(parametros_ar1) <- c("Level","Slope","Seasonal","Irregular","Sample Error")
-
-# Critérios de informação: AIC e BIC
-
-AIC_ar1 <- rbind(2*(ar1_cen$fit$value) + 2*5)
-colnames(AIC_ar1) <- "AIC"
-
-BIC_ar1 <- 2*(ar1_cen$fit$value) + 2*5*log(ar1_cen$T)
-
-# Matriz Hessiana
-
-all(eigen(ar1_cen$fit$hessian, only.values = TRUE)$values > 0) # TRUE
-
-# Diagnosticando os resíduos
-
-lista_ar1 <- list(ar1_cen)
-testes_ar1 <- sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]], 5),
-                                                   round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]], 5),
-                                                   teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
-)
-testes_ar1 <- t(testes_ar1)
-row.names(testes_ar1) <- c("BSM_error")
-colnames(testes_ar1) <- c("Shapiro", "Box", "H")
-
-resultadoscen_ar1 <- cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
-resultadoscen_ar1
-
-par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
-fig_ar1 <- window(ts.union(
-  ts(ar1_cen$ts.original, start = 2012, frequency = 4),
-  ts(ar1_cen$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
-plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Sinal da desocupação: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-fig_ar1.cv <- window(ts.union(
-  ts((ar1_cen$cv.original) * 100, start = 2012, frequency = 4),
-  ts(ar1_cen$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
-plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("topleft", legend = c("CV desocupados: design-based",
-                             "Sinal CV desocupados: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("CV (%)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("08 - Estrutural Central (AR1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
-## GRÁFICO DE ANÁLISE AR(1)
-
-figtend_ar1<-window(ts.union(ts(ar1_cen$ts.original, start = 2012, frequency = 4),ts(ar1_cen$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
-figsaz_ar1<-window(ts.union(ts(ar1_cen$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
-figirr_ar1<-window(ts.union(ts(ar1_cen$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
-figsample_ar1<-window(ts.union(ts(ar1_cen$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
-
-par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
-plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Tendência da desocupação: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Sazonalidade"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Termo irregular"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Erro amostral"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("08 - Estrutural Central", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["08-Central"]][["sinal_estrutural_ar1cen"]]<-ar1_cen$ts.signal
-result_mods_deso[["08-Central"]][["cv_sinal_estrutural_ar1cen"]]<-ar1_cen$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
 
 #### MODELO MA(1)
 
-source("data/funcoes/14_estrutural_MA1.R")
+source("data/funcoes/26_estruturaldummy_MA1.R")
 theta1_ma1 <- dbcen[["mod_ma1"]][["theta1_ma1_dcen"]]
-grid_ma1 <- grid_error[-c(241),]
+grid_ma1 <- grid_error
 
 # Rodando o modelo
 
-source("data/funcoes/18_rodar_grid_ma1.R")
+source("data/funcoes/27_grid_dummy_ma1.R")
 start_time <- Sys.time()
-run_ma1cen <- rodar_grid_ma1(y, grid_ma1, f.estrutural_ma1)
+run_ma1cen <- grid_dummy_ma1(y, grid_ma1, f.estruturaldummy_ma1)
 end_time <- Sys.time()
 end_time - start_time
 
@@ -1923,43 +1497,6 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("08 - Estrutural Central", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["08-Central"]][["sinal_estrutural_ma1cen"]]<-ma1_cen$ts.signal
-result_mods_deso[["08-Central"]][["cv_sinal_estrutural_ma1cen"]]<-ma1_cen$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
-
-
-### GRÁFICO UNIFICADO
-
-par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
-fig_cen <- window(ts.union(
-  ts(ma1_cen$ts.original, start = 2012, frequency = 4),
-  ts(ar1_cen$ts.signal, start = 2012, frequency = 4),
-  ts(ma1_cen$ts.signal, start = 2012, frequency = 4) 
-), start=c(2013,3))
-plot(fig_cen, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Sinal da desocupação AR(1): model-based",
-                            "Sinal da Desocupação MA(1): model-based"),
-       lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
-mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-fig_cen.cv <- window(ts.union(
-  ts((ma1_cen$cv.original) * 100, start = 2012, frequency = 4),
-  ts(ar1_cen$cv.signal, start = 2012, frequency = 4),
-  ts(ma1_cen$cv.signal, start = 2012, frequency = 4)
-), start=c(2013,3))
-plot(fig_cen.cv, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
-legend("topleft", legend = c("CV desocupados: design-based",
-                             "Sinal CV desocupados AR(1): model-based",
-                             "Sinal CV desocupados MA(1): model-based"),
-       lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
-mtext("CV (%)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("10 - Estrutural Central (AR(1) e MA(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
 
 # Salvando o .Rdata
 
@@ -1997,155 +1534,34 @@ grid_error <- expand.grid(par_1,par_2,par_3,par_4,par_5)
 
 #### MODELO AR(1)
 
-source("data/funcoes/12_estrutural_AR1.R")
+source("data/funcoes/24_estruturaldummy_AR1.R")
 phi1_ar1 <- dbmg[["mod_ar1"]][["phi1_ar1_dmg"]]
-grid_ar1 <- grid_error
+grid_ar1 <- grid_error[-c(131),]
 
 # Rodando o modelo
 
-source("data/funcoes/17_rodar_grid_ar1.R")
+source("data/funcoes/25_grid_dummy_ar1.R")
 start_time <- Sys.time()
-run_ar1mg <- rodar_grid_ar1(y, grid_ar1, f.estrutural_ar1)
+run_ar1mg <- grid_dummy_ar1(y, grid_ar1, f.estruturaldummy_ar1)
 end_time <- Sys.time()
 end_time - start_time
 
 mod_ar1mg_ini <- run_ar1mg$resultados
 
-# Avaliação das iterações:
-ini_ar1_mg <- cbind(
-  round(exp(grid_ar1), 5),
-  do.call(rbind, lapply(1:nrow(grid_ar1), function(i) {
-    tryCatch({
-      params <- round(exp(mod_ar1mg_ini[[i]][["fit"]][["par"]]), 5)
-      convergence <- mod_ar1mg_ini[[i]][["fit"]][["convergence"]]
-      log_like <- mod_ar1mg_ini[[i]][["fit"]][["value"]]
-      c(params, convergence, log_like)
-    }, error = function(e) rep(NA, 7))
-  }))
-)
-
-colnames(ini_ar1_mg) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
-                          "level","slope","seasonal","irregular", "sampl_error",
-                          "convergence","log_like")
-
-## Seleção do modelo:
-
-ar1_mg <- mod_ar1mg_ini[[which(
-  ini_ar1_mg$log_like == min(ini_ar1_mg$log_like[ini_ar1_mg$convergence == 0], na.rm = TRUE) &
-    ini_ar1_mg$convergence == 0
-)]]
-
-# Verificando a convergência
-
-conver_ar1 <- rbind(ar1_mg$fit$convergence)
-colnames(conver_ar1) <- c("convergence")
-
-# Parâmetros estimados:
-
-parametros_ar1 <- rbind(c(round(exp(ar1_mg$fit$par), 5)))
-row.names(parametros_ar1) <- c("BSM_error")
-colnames(parametros_ar1) <- c("Level","Slope","Seasonal","Irregular","Sample Error")
-
-# Critérios de informação: AIC e BIC
-
-AIC_ar1 <- rbind(2*(ar1_mg$fit$value) + 2*5)
-colnames(AIC_ar1) <- "AIC"
-
-BIC_ar1 <- 2*(ar1_mg$fit$value) + 2*5*log(ar1_mg$T)
-
-# Matriz Hessiana
-
-all(eigen(ar1_mg$fit$hessian, only.values = TRUE)$values > 0) # false
-
-# Diagnosticando os resíduos
-
-lista_ar1 <- list(ar1_mg)
-testes_ar1 <- sapply(lista_ar1, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]], 5),
-                                                   round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]], 5),
-                                                   teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
-)
-testes_ar1 <- t(testes_ar1)
-row.names(testes_ar1) <- c("BSM_error")
-colnames(testes_ar1) <- c("Shapiro", "Box", "H")
-
-resultadosmg_ar1 <- cbind(conver_ar1, parametros_ar1, testes_ar1, AIC_ar1, BIC_ar1)
-resultadosmg_ar1
-
-par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
-fig_ar1 <- window(ts.union(
-  ts(ar1_mg$ts.original, start = 2012, frequency = 4),
-  ts(ar1_mg$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
-plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Sinal da desocupação: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-fig_ar1.cv <- window(ts.union(
-  ts((ar1_mg$cv.original) * 100, start = 2012, frequency = 4),
-  ts(ar1_mg$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
-plot(fig_ar1.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("topleft", legend = c("CV desocupados: design-based",
-                             "Sinal CV desocupados: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("CV (%)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("09 - Estrutural Minas Gerais (AR1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
-## GRÁFICO DE ANÁLISE AR(1)
-
-figtend_ar1<-window(ts.union(ts(ar1_mg$ts.original, start = 2012, frequency = 4),ts(ar1_mg$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
-figsaz_ar1<-window(ts.union(ts(ar1_mg$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
-figirr_ar1<-window(ts.union(ts(ar1_mg$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
-figsample_ar1<-window(ts.union(ts(ar1_mg$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
-
-par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
-plot(figtend_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Tendência da desocupação: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figsaz_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Sazonalidade"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figirr_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Termo irregular"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figsample_ar1, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Erro amostral"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("09 - Estrutural Minas Gerais", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["09 - Minas Gerais"]][["sinal_estrutural_ar1mg"]]<-ar1_mg$ts.signal
-result_mods_deso[["09 - Minas Gerais"]][["cv_sinal_estrutural_ar1mg"]]<-ar1_mg$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
-
+rm(list = c("run_ar1mg","mod_ar1mg_ini","grid_ar1"))
 
 
 #### MODELO MA(1)
 
-source("data/funcoes/14_estrutural_MA1.R")
+source("data/funcoes/26_estruturaldummy_MA1.R")
 theta1_ma1 <- dbmg[["mod_ma1"]][["theta1_ma1_dmg"]]
-grid_ma1 <- grid_error
+grid_ma1 <- grid_error[-c(131),]
 
 # Rodando o modelo
 
-source("data/funcoes/18_rodar_grid_ma1.R")
+source("data/funcoes/27_grid_dummy_ma1.R")
 start_time <- Sys.time()
-run_ma1mg <- rodar_grid_ma1(y, grid_ma1, f.estrutural_ma1)
+run_ma1mg <- grid_dummy_ma1(y, grid_ma1, f.estruturaldummy_ma1)
 end_time <- Sys.time()
 end_time - start_time
 
@@ -2266,186 +1682,6 @@ legend("bottomleft", legend = c("Erro amostral"),
 mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("09 - Estrutural Minas Gerais", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["09 - Minas Gerais"]][["sinal_estrutural_ma1mg"]]<-ma1_mg$ts.signal
-result_mods_deso[["09 - Minas Gerais"]][["cv_sinal_estrutural_ma1mg"]]<-ma1_mg$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
-
-
-
-#### MODELO ARMA(1,1):
-
-source("data/funcoes/15_estrutural_ARMA11.R")
-phi1_arma11 <- dbmg[["mod_arma11"]][["phi1_arma11_dmg"]]
-theta1_arma11 <- dbmg[["mod_arma11"]][["theta1_arma11_dmg"]]
-grid_arma11<-grid_error
-
-# Rodando o modelo
-
-source("data/funcoes/19_rodar_grid_arma11.R")
-start_time <- Sys.time()
-run_arma11mg <- rodar_grid_arma11(y, grid_arma11, f.estrutural_arma11)
-end_time <- Sys.time()
-end_time - start_time
-
-mod_arma11mg_ini <- run_arma11mg$resultados
-
-# Avaliação das iterações:
-ini_arma11_mg <- cbind(
-  round(exp(grid_arma11), 5),
-  do.call(rbind, lapply(1:nrow(grid_arma11), function(i) {
-    tryCatch({
-      params <- round(exp(mod_arma11mg_ini[[i]][["fit"]][["par"]]), 5)
-      convergence <- mod_arma11mg_ini[[i]][["fit"]][["convergence"]]
-      log_like <- mod_arma11mg_ini[[i]][["fit"]][["value"]]
-      c(params, convergence, log_like)
-    }, error = function(e) rep(NA, 7))
-  }))
-)
-
-colnames(ini_arma11_mg) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
-                             "level","slope","seasonal","irregular", "sampl_error",
-                             "convergence","log_like")
-
-## Seleção do modelo:
-
-arma11_mg <- mod_arma11mg_ini[[which(
-  ini_arma11_mg$log_like == min(ini_arma11_mg$log_like[ini_arma11_mg$convergence == 0], na.rm = TRUE) &
-    ini_arma11_mg$convergence == 0
-)]]
-
-# Verificando a convergência
-
-conver_arma11 <- rbind(arma11_mg$fit$convergence)
-colnames(conver_arma11) <- c("convergence")
-
-# Parâmetros estimados:
-
-parametros_arma11 <- rbind(c(round(exp(arma11_mg$fit$par), 5)))
-row.names(parametros_arma11) <- c("BSM_error")
-colnames(parametros_arma11) <- c("Level","Slope","Seasonal","Irregular","Sample Error")
-
-# Critérios de informação: AIC e BIC
-
-AIC_arma11 <- rbind(2*(arma11_mg$fit$value) + 2*5)
-colnames(AIC_arma11) <- "AIC"
-
-BIC_arma11 <- 2*(arma11_mg$fit$value) + 2*5*log(arma11_mg$T)
-
-# Matriz Hessiana
-
-all(eigen(arma11_mg$fit$hessian, only.values = TRUE)$values > 0) # false
-
-# Diagnosticando os resíduos
-
-lista_arma11 <- list(arma11_mg)
-testes_arma11 <- sapply(lista_arma11, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]], 5),
-                                                         round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]], 5),
-                                                         teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
-)
-testes_arma11 <- t(testes_arma11)
-row.names(testes_arma11) <- c("BSM_error")
-colnames(testes_arma11) <- c("Shapiro", "Box", "H")
-resultadosmg_arma11 <- cbind(conver_arma11, parametros_arma11, testes_arma11, AIC_arma11, BIC_arma11)
-resultadosmg_arma11
-
-par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
-fig_arma11 <- window(ts.union(
-  ts(arma11_mg$ts.original, start = 2012, frequency = 4),
-  ts(arma11_mg$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
-plot(fig_arma11, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Sinal da desocupação: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-fig_arma11.cv <- window(ts.union(
-  ts((arma11_mg$cv.original) * 100, start = 2012, frequency = 4),
-  ts(arma11_mg$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
-plot(fig_arma11.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("topleft", legend = c("CV desocupados: design-based",
-                             "Sinal CV desocupados: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("CV (%)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("09 - Estrutural Minas Gerais (ARMA(1,1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
-## GRÁFICO DE ANÁLISE ARMA(1,1)
-
-figtend_arma11<-window(ts.union(ts(arma11_mg$ts.original, start = 2012, frequency = 4),ts(arma11_mg$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
-figsaz_arma11<-window(ts.union(ts(arma11_mg$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
-figirr_arma11<-window(ts.union(ts(arma11_mg$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
-figsample_arma11<-window(ts.union(ts(arma11_mg$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
-
-par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
-plot(figtend_arma11, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Tendência da desocupação: model-based"),
-       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figsaz_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Sazonalidade"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figirr_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Termo irregular"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-plot(figsample_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
-legend("bottomleft", legend = c("Erro amostral"),
-       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
-mtext("Desocupados", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("09 - Estrutural Minas Gerais", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["09 - Minas Gerais"]][["sinal_estrutural_arma11mg"]]<-arma11_mg$ts.signal
-result_mods_deso[["09 - Minas Gerais"]][["cv_sinal_estrutural_arma11mg"]]<-arma11_mg$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
-
-## GRÁFICO CONJUNTO
-
-par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
-fig_mg <- window(ts.union(
-  ts(ma1_mg$ts.original, start = 2012, frequency = 4),
-  ts(ar1_mg$ts.signal, start = 2012, frequency = 4),
-  ts(ma1_mg$ts.signal, start = 2012, frequency = 4),
-  ts(arma11_mg$ts.signal, start = 2012, frequency = 4)
-), start=c(2013,3))
-plot(fig_mg, plot.type = "single", col = c(1,4,2,3), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
-legend("bottom", legend = c("Desocupação: design-based",
-                            "Sinal da desocupação AR(1): model-based",
-                            "Sinal da Desocupação MA(1): model-based",
-                            "Sinal da Desocupação ARMA(1,1): model-based"),
-       lty = c(1,1,1,1), col = c(1,4,2,3), bty = 'n', lwd=c(2))
-mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-
-fig_mg.cv <- window(ts.union(
-  ts((ma1_mg$cv.original) * 100, start = 2012, frequency = 4),
-  ts(ar1_mg$cv.signal, start = 2012, frequency = 4),
-  ts(ma1_mg$cv.signal, start = 2012, frequency = 4),
-  ts(arma11_mg$cv.signal, start = 2012, frequency = 4)
-), start=c(2013,3))
-plot(fig_mg.cv, plot.type = "single", col = c(1,4,2,3), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
-legend("topleft", legend = c("CV desocupados: design-based",
-                             "Sinal CV desocupados AR(1): model-based",
-                             "Sinal CV desocupados MA(1): model-based",
-                             "Sinal CV desocupados ARMA(1,1): model-based"),
-       lty = c(1,1,1,1), col = c(1,4,2,3), bty = 'n', lwd=c(2))
-mtext("CV (%)", side = 2, line = 3)
-mtext("Ano", side = 1, line = 3)
-mtext("09 - Estrutural Minas Gerais (AR(1), MA(1) e ARMA(1,1))", side = 3, outer = TRUE, line = 0.5)
 
 
 # Salvando o .Rdata
