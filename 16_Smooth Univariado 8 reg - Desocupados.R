@@ -373,7 +373,7 @@ mtext("01 - Belo Horizonte (AR e MA)", side = 3, outer = TRUE, line = 0.5, font 
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/01_mod_bh.Rdata")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/01_mod_bh.Rdata")
 
 ### COLAR e ENTORNO METROPOLITANO ###############################################
 
@@ -876,7 +876,7 @@ mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (AR e MA)", side = 3
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/02_mod_ent.Rdata")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/02_mod_ent.Rdata")
 
 ### SUL DE MINAS ###############################################################
 
@@ -1194,11 +1194,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("03 - Smooth Sul de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["03-Sul de Minas"]][["sinal_smooth_ma1sul"]]<-ma1_sul$ts.signal
-result_mods_deso[["03-Sul de Minas"]][["cv_sinal_smooth_ma1sul"]]<-ma1_sul$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["03-Sul de Minas"]][["sinal_smooth_ma1sul"]]<-ma1_sul$ts.signal
+#result_mods_deso[["03-Sul de Minas"]][["cv_sinal_smooth_ma1sul"]]<-ma1_sul$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 
 #### MODELO ARMA(1,1)
@@ -1341,11 +1341,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("03 - Smooth Sul de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["03-Sul de Minas"]][["sinal_smooth_arma11sul"]]<-arma11_sul$ts.signal
-result_mods_deso[["03-Sul de Minas"]][["cv_sinal_smooth_arma11sul"]]<-arma11_sul$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["03-Sul de Minas"]][["sinal_smooth_arma11sul"]]<-arma11_sul$ts.signal
+#result_mods_deso[["03-Sul de Minas"]][["cv_sinal_smooth_arma11sul"]]<-arma11_sul$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 ## GRÁFICO UNIFICADO:
 
@@ -1556,11 +1556,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("04 - Triângulo Mineiro", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["04-Triângulo Mineiro"]][["sinal_smooth_ar1trg"]]<-ar1_trg$ts.signal
-result_mods_deso[["04-Triângulo Mineiro"]][["cv_sinal_smooth_ar1trg"]]<-ar1_trg$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["04-Triângulo Mineiro"]][["sinal_smooth_ar1trg"]]<-ar1_trg$ts.signal
+##result_mods_deso[["04-Triângulo Mineiro"]][["cv_sinal_smooth_ar1trg"]]<-ar1_trg$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 
 
@@ -1703,11 +1703,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("04 - Triângulo Mineiro", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["04-Triângulo Mineiro"]][["sinal_smooth_ma1trg"]]<-ma1_trg$ts.signal
-result_mods_deso[["04-Triângulo Mineiro"]][["cv_sinal_smooth_ma1trg"]]<-ma1_trg$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["04-Triângulo Mineiro"]][["sinal_smooth_ma1trg"]]<-ma1_trg$ts.signal
+#result_mods_deso[["04-Triângulo Mineiro"]][["cv_sinal_smooth_ma1trg"]]<-ma1_trg$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 
 #### GRÁFICO UNIFICADO
@@ -1914,11 +1914,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("05 - Zona da Mata", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["05-Zona da Mata"]][["sinal_smooth_ar1mat"]]<-ar1_mat$ts.signal
-result_mods_deso[["05-Zona da Mata"]][["cv_sinal_smooth_ar1mat"]]<-ar1_mat$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["05-Zona da Mata"]][["sinal_smooth_ar1mat"]]<-ar1_mat$ts.signal
+#result_mods_deso[["05-Zona da Mata"]][["cv_sinal_smooth_ar1mat"]]<-ar1_mat$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 
 
@@ -2061,11 +2061,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("05 - Zona da Mata", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["05-Zona da Mata"]][["sinal_smooth_ma1mat"]]<-ma1_mat$ts.signal
-result_mods_deso[["05-Zona da Mata"]][["cv_sinal_smooth_ma1mat"]]<-ma1_mat$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["05-Zona da Mata"]][["sinal_smooth_ma1mat"]]<-ma1_mat$ts.signal
+#result_mods_deso[["05-Zona da Mata"]][["cv_sinal_smooth_ma1mat"]]<-ma1_mat$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 
 
@@ -2209,11 +2209,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("05 - Smooth Zona da Mata", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["05-Zona da Mata"]][["sinal_smooth_arma11mat"]]<-arma11_mat$ts.signal
-result_mods_deso[["05-Zona da Mata"]][["cv_sinal_smooth_arma11mat"]]<-arma11_mat$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["05-Zona da Mata"]][["sinal_smooth_arma11mat"]]<-arma11_mat$ts.signal
+#result_mods_deso[["05-Zona da Mata"]][["cv_sinal_smooth_arma11mat"]]<-arma11_mat$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 ## GRÁFICO UNIFICADO:
 
@@ -2251,7 +2251,7 @@ mtext("05-Zona da Mata (AR, MA e ARMA)", side = 3, outer = TRUE, line = 0.5, fon
 
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/05_mod_mat.Rdata")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/05_mod_mat.Rdata")
 
 ### NORTE DE MINAS GERAIS ######################################################
 # Modelos para Norte: AR(1); MA(1); ARMA(1,1)
@@ -2423,11 +2423,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("06-Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["06-Norte de Minas"]][["sinal_smooth_ar1nrt"]]<-ar1_nrt$ts.signal
-result_mods_deso[["06-Norte de Minas"]][["cv_sinal_smooth_ar1nrt"]]<-ar1_nrt$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["06-Norte de Minas"]][["sinal_smooth_ar1nrt"]]<-ar1_nrt$ts.signal
+##result_mods_deso[["06-Norte de Minas"]][["cv_sinal_smooth_ar1nrt"]]<-ar1_nrt$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 
 
@@ -2570,11 +2570,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("06-Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["06-Norte de Minas"]][["sinal_smooth_ma1nrt"]]<-ma1_nrt$ts.signal
-result_mods_deso[["06-Norte de Minas"]][["cv_sinal_smooth_ma1nrt"]]<-ma1_nrt$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["06-Norte de Minas"]][["sinal_smooth_ma1nrt"]]<-ma1_nrt$ts.signal
+#result_mods_deso[["06-Norte de Minas"]][["cv_sinal_smooth_ma1nrt"]]<-ma1_nrt$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 
 
@@ -2718,11 +2718,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("06-Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["06-Norte de Minas"]][["sinal_smooth_arma11nrt"]]<-arma11_nrt$ts.signal
-result_mods_deso[["06-Norte de Minas"]][["cv_sinal_smooth_arma11nrt"]]<-arma11_nrt$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["06-Norte de Minas"]][["sinal_smooth_arma11nrt"]]<-arma11_nrt$ts.signal
+#result_mods_deso[["06-Norte de Minas"]][["cv_sinal_smooth_arma11nrt"]]<-arma11_nrt$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 ## GRÁFICO UNIFICADO:
 
@@ -2760,7 +2760,7 @@ mtext("06-Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1
 
 # Salvando o .Rdata
 
-# save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/06_mod_nrt.Rdata")
+ save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/06_mod_nrt.Rdata")
 
 ### VALE DO RIO DOCE ###########################################################
 # Modelos para Vale: AR(1);
@@ -2932,15 +2932,9 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("07-Vale do Rio Doce (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["07-Vale do Rio Doce"]][["sinal_smooth_ar1vl"]]<-ar1_vl$ts.signal
-result_mods_deso[["07-Vale do Rio Doce"]][["cv_sinal_smooth_ar1vl"]]<-ar1_vl$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
-
 # Salvando o .Rdata
 
-#save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/07_mod_val.Rdata")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/07_mod_val.Rdata")
 
 ### CENTRAL ####################################################################
 # Modelos para Central: AR(1); MA(1)
@@ -3112,11 +3106,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("08-Central", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["08-Central"]][["sinal_smooth_ar1cen"]]<-ar1_cen$ts.signal
-result_mods_deso[["08-Central"]][["cv_sinal_smooth_ar1cen"]]<-ar1_cen$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["08-Central"]][["sinal_smooth_ar1cen"]]<-ar1_cen$ts.signal
+#result_mods_deso[["08-Central"]][["cv_sinal_smooth_ar1cen"]]<-ar1_cen$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 
 
@@ -3259,11 +3253,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["08-Central"]][["sinal_smooth_ma1cen"]]<-ma1_cen$ts.signal
-result_mods_deso[["08-Central"]][["cv_sinal_smooth_ma1cen"]]<-ma1_cen$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["08-Central"]][["sinal_smooth_ma1cen"]]<-ma1_cen$ts.signal
+#result_mods_deso[["08-Central"]][["cv_sinal_smooth_ma1cen"]]<-ma1_cen$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 
 #### GRÁFICO UNIFICADO
@@ -3470,11 +3464,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("09 - Minas Gerais", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["09 - Minas Gerais"]][["sinal_smooth_ar1mg"]]<-ar1_mg$ts.signal
-result_mods_deso[["09 - Minas Gerais"]][["cv_sinal_smooth_ar1mg"]]<-ar1_mg$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["09 - Minas Gerais"]][["sinal_smooth_ar1mg"]]<-ar1_mg$ts.signal
+#result_mods_deso[["09 - Minas Gerais"]][["cv_sinal_smooth_ar1mg"]]<-ar1_mg$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 
 
@@ -3617,11 +3611,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("09 - Minas Gerais", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["09 - Minas Gerais"]][["sinal_smooth_ma1mg"]]<-ma1_mg$ts.signal
-result_mods_deso[["09 - Minas Gerais"]][["cv_sinal_smooth_ma1mg"]]<-ma1_mg$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["09 - Minas Gerais"]][["sinal_smooth_ma1mg"]]<-ma1_mg$ts.signal
+#result_mods_deso[["09 - Minas Gerais"]][["cv_sinal_smooth_ma1mg"]]<-ma1_mg$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 
 #### GRÁFICO UNIFICADO
