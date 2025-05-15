@@ -271,7 +271,7 @@ dmytrend_sul <- window(ts.union(ts(dmytrend_sul, start = 2012, frequency = 4)), 
 
 estsaz_sul <- env1$arma11_sul$ts.seasonal
 estsaz_sul <- window(ts.union(ts(estsaz_sul, start = 2012, frequency = 4)), start = c(2013,4))
-dmysaz_sul <- env2$arma11_sul$ts.seasonal
+dmysaz_sul <- -(env2$arma11_sul$ts.seasonal)
 dmysaz_sul <- window(ts.union(ts(dmysaz_sul, start = 2012, frequency = 4)), start = c(2013,4))
 
 estirr_sul <- env1$arma11_sul$ts.irregular
@@ -337,6 +337,11 @@ legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
        col = c("red","blue"),lty = c(1,1),lwd = c(2,2),bty = "n", cex=0.8)
 mtext("03 - Sul de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+a<- data.frame(cbind(desoc_sul,esttrend_sul,dmytrend_sul,estsaz_sul,dmysaz_sul,estirr_sul,dmyirr_sul,esterro_sul,dmyerro_sul))
+a<- a %>% mutate(
+  provatrig = esttrend_sul+estsaz_sul+estirr_sul+esterro_sul,
+  provadmy = dmytrend_sul+dmysaz_sul+dmyirr_sul+dmyerro_sul
+)
 
 ### 04 - TRIÂNGULO MINEIRO #####################################################
 rm(list = ls())
