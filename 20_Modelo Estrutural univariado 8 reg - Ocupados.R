@@ -175,11 +175,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("01 - Belo Horizonte (AR1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["01-Belo Horizonte"]][["sinal_estrutural_ar1bh"]]<-ar1_bh$ts.signal
-result_mods_ocup[["01-Belo Horizonte"]][["cv_sinal_estrutural_ar1bh"]]<-ar1_bh$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["01-Belo Horizonte"]][["sinal_estrutural_ar1bh"]]<-ar1_bh$ts.signal
+#result_mods_ocup[["01-Belo Horizonte"]][["cv_sinal_estrutural_ar1bh"]]<-ar1_bh$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 # Salvando o .Rdata
@@ -354,11 +354,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (AR1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["sinal_estrutural_ar1ent"]]<-ar1_ent$ts.signal
-result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["cv_sinal_estrutural_ar1ent"]]<-ar1_ent$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["sinal_estrutural_ar1ent"]]<-ar1_ent$ts.signal
+#result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["cv_sinal_estrutural_ar1ent"]]<-ar1_ent$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 # Salvando o .Rdata
@@ -527,11 +527,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("03 - Estrutural Sul de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["03-Sul de Minas"]][["sinal_estrutural_ar1sul"]]<-ar1_sul$ts.signal
-result_mods_ocup[["03-Sul de Minas"]][["cv_sinal_estrutural_ar1sul"]]<-ar1_sul$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["03-Sul de Minas"]][["sinal_estrutural_ar1sul"]]<-ar1_sul$ts.signal
+#result_mods_ocup[["03-Sul de Minas"]][["cv_sinal_estrutural_ar1sul"]]<-ar1_sul$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 # Salvando o .Rdata
 
@@ -700,11 +700,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("04 - Estrutural Triângulo Mineiro", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["04-Triângulo Mineiro"]][["sinal_estrutural_ar1trg"]]<-ar1_trg$ts.signal
-result_mods_ocup[["04-Triângulo Mineiro"]][["cv_sinal_estrutural_ar1trg"]]<-ar1_trg$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["04-Triângulo Mineiro"]][["sinal_estrutural_ar1trg"]]<-ar1_trg$ts.signal
+#result_mods_ocup[["04-Triângulo Mineiro"]][["cv_sinal_estrutural_ar1trg"]]<-ar1_trg$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 # Salvando o .Rdata
 
@@ -872,11 +872,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("05 - Estrutural Zona da Mata", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["05-Zona da Mata"]][["sinal_estrutural_ar1mat"]]<-ar1_mat$ts.signal
-result_mods_ocup[["05-Zona da Mata"]][["cv_sinal_estrutural_ar1mat"]]<-ar1_mat$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+##result_mods_ocup[["05-Zona da Mata"]][["sinal_estrutural_ar1mat"]]<-ar1_mat$ts.signal
+#result_mods_ocup[["05-Zona da Mata"]][["cv_sinal_estrutural_ar1mat"]]<-ar1_mat$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 # Salvando o .Rdata
@@ -1046,11 +1046,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("06- Estrutural Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["06-Norte de Minas"]][["sinal_estrutural_ar1nrt"]]<-ar1_nrt$ts.signal
-result_mods_ocup[["06-Norte de Minas"]][["cv_sinal_estrutural_ar1nrt"]]<-ar1_nrt$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["06-Norte de Minas"]][["sinal_estrutural_ar1nrt"]]<-ar1_nrt$ts.signal
+#result_mods_ocup[["06-Norte de Minas"]][["cv_sinal_estrutural_ar1nrt"]]<-ar1_nrt$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 
@@ -1190,11 +1190,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("06- Estrutural Norte de Minas AR(5)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["06-Norte de Minas"]][["sinal_estrutural_ar5nrt"]]<-ar5_nrt$ts.signal
-result_mods_ocup[["06-Norte de Minas"]][["cv_sinal_estrutural_ar5nrt"]]<-ar5_nrt$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["06-Norte de Minas"]][["sinal_estrutural_ar5nrt"]]<-ar5_nrt$ts.signal
+#result_mods_ocup[["06-Norte de Minas"]][["cv_sinal_estrutural_ar5nrt"]]<-ar5_nrt$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 # Salvando o .Rdata
@@ -1362,11 +1362,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("07- Estrutural Vale do Rio Doce (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["07-Vale do Rio Doce"]][["sinal_estrutural_ar1val"]]<-ar1_val$ts.signal
-result_mods_ocup[["07-Vale do Rio Doce"]][["cv_sinal_estrutural_ar1val"]]<-ar1_val$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["07-Vale do Rio Doce"]][["sinal_estrutural_ar1val"]]<-ar1_val$ts.signal
+#result_mods_ocup[["07-Vale do Rio Doce"]][["cv_sinal_estrutural_ar1val"]]<-ar1_val$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 
@@ -1506,11 +1506,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("07-Estrututral Vale do Rio Doce AR(5)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["07-Vale do Rio Doce"]][["sinal_estrutural_ar5val"]]<-ar5_val$ts.signal
-result_mods_ocup[["07-Vale do Rio Doce"]][["cv_sinal_estrutural_ar5val"]]<-ar5_val$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["07-Vale do Rio Doce"]][["sinal_estrutural_ar5val"]]<-ar5_val$ts.signal
+#result_mods_ocup[["07-Vale do Rio Doce"]][["cv_sinal_estrutural_ar5val"]]<-ar5_val$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 # Salvando o .Rdata
@@ -1680,11 +1680,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("08 - Estrutural Central AR(1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["08-Central"]][["sinal_estrutural_ar1cen"]]<-ar1_cen$ts.signal
-result_mods_ocup[["08-Central"]][["cv_sinal_estrutural_ar1cen"]]<-ar1_cen$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["08-Central"]][["sinal_estrutural_ar1cen"]]<-ar1_cen$ts.signal
+#result_mods_ocup[["08-Central"]][["cv_sinal_estrutural_ar1cen"]]<-ar1_cen$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 # Salvando o .Rdata
@@ -1853,11 +1853,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("09 - Estrutural Minas Gerais AR(1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["09 - Minas Gerais"]][["sinal_estrutural_ar1mg"]]<-ar1_mg$ts.signal
-result_mods_ocup[["09 - Minas Gerais"]][["cv_sinal_estrutural_ar1mg"]]<-ar1_mg$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["09 - Minas Gerais"]][["sinal_estrutural_ar1mg"]]<-ar1_mg$ts.signal
+#result_mods_ocup[["09 - Minas Gerais"]][["cv_sinal_estrutural_ar1mg"]]<-ar1_mg$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 
@@ -1997,11 +1997,11 @@ mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("09 - Minas Gerais AR(5)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["09 - Minas Gerais"]][["sinal_estrutural_ar5mg"]]<-ar5_mg$ts.signal
-result_mods_ocup[["09 - Minas Gerais"]][["cv_sinal_estrutural_ar5mg"]]<-ar5_mg$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["09 - Minas Gerais"]][["sinal_estrutural_ar5mg"]]<-ar5_mg$ts.signal
+#result_mods_ocup[["09 - Minas Gerais"]][["cv_sinal_estrutural_ar5mg"]]<-ar5_mg$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 # Salvando o .Rdata
 
