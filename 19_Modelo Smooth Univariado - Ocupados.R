@@ -180,13 +180,13 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("01 - Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["01-Belo Horizonte"]][["ocup_bh"]]<-y
-result_mods_ocup[["01-Belo Horizonte"]][["cv.ocup_bh"]]<-cv_db
-result_mods_ocup[["01-Belo Horizonte"]][["sinal_smooth_ar1bh"]]<-ar1_bh$ts.signal
-result_mods_ocup[["01-Belo Horizonte"]][["cv_sinal_smooth_ar1bh"]]<-ar1_bh$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["01-Belo Horizonte"]][["ocup_bh"]]<-y
+#result_mods_ocup[["01-Belo Horizonte"]][["cv.ocup_bh"]]<-cv_db
+#result_mods_ocup[["01-Belo Horizonte"]][["sinal_smooth_ar1bh"]]<-ar1_bh$ts.signal
+#result_mods_ocup[["01-Belo Horizonte"]][["cv_sinal_smooth_ar1bh"]]<-ar1_bh$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 # Salvando o .Rdata
 
@@ -365,13 +365,13 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("02 - Smooth Colar e Entorno Metropolitano de BH", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["ocup_ent"]]<-y
-result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["cv.ocup_ent"]]<-cv_db
-result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["sinal_smooth_ar1ent"]]<-ar1_ent$ts.signal
-result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["cv_sinal_smooth_ar1ent"]]<-ar1_ent$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["ocup_ent"]]<-y
+#result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["cv.ocup_ent"]]<-cv_db
+#result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["sinal_smooth_ar1ent"]]<-ar1_ent$ts.signal
+#result_mods_ocup[["02-Colar e Entorno Metropolitano de BH"]][["cv_sinal_smooth_ar1ent"]]<-ar1_ent$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 # Salvando o .Rdata
 
@@ -548,13 +548,13 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("03 - Smooth Sul de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["03-Sul de Minas"]][["ocup_sul"]]<-y
-result_mods_ocup[["03-Sul de Minas"]][["cv.ocup_sul"]]<-cv_db
-result_mods_ocup[["03-Sul de Minas"]][["sinal_smooth_ar1sul"]]<-ar1_sul$ts.signal
-result_mods_ocup[["03-Sul de Minas"]][["cv_sinal_smooth_ar1sul"]]<-ar1_sul$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["03-Sul de Minas"]][["ocup_sul"]]<-y
+#result_mods_ocup[["03-Sul de Minas"]][["cv.ocup_sul"]]<-cv_db
+#result_mods_ocup[["03-Sul de Minas"]][["sinal_smooth_ar1sul"]]<-ar1_sul$ts.signal
+#result_mods_ocup[["03-Sul de Minas"]][["cv_sinal_smooth_ar1sul"]]<-ar1_sul$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 # Salvando o .Rdata
 
@@ -730,13 +730,14 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("04 - Triângulo Mineiro", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["04-Triângulo Mineiro"]][["ocup_trg"]]<-y
-result_mods_ocup[["04-Triângulo Mineiro"]][["cv.ocup_trg"]]<-cv_db
-result_mods_ocup[["04-Triângulo Mineiro"]][["sinal_smooth_ar1trg"]]<-ar1_trg$ts.signal
-result_mods_ocup[["04-Triângulo Mineiro"]][["cv_sinal_smooth_ar1trg"]]<-ar1_trg$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["04-Triângulo Mineiro"]][["ocup_trg"]]<-y
+#result_mods_ocup[["04-Triângulo Mineiro"]][["cv.ocup_trg"]]<-cv_db
+#result_mods_ocup[["04-Triângulo Mineiro"]][["sinal_smooth_ar1trg"]]<-ar1_trg$ts.signal
+#result_mods_ocup[["04-Triângulo Mineiro"]][["cv_sinal_smooth_ar1trg"]]<-ar1_trg$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
+
 # Salvando o .Rdata
 
 save.image(file = "D:/FJP2425/Programacao/data/Rdatas/7_smoothocup_8reg/04_mod_trg.Rdata")
@@ -911,13 +912,13 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("05 - Zona da Mata", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["05-Zona da Mata"]][["ocup_mat"]]<-y
-result_mods_ocup[["05-Zona da Mata"]][["cv.ocup_mat"]]<-cv_db
-result_mods_ocup[["05-Zona da Mata"]][["sinal_smooth_ar1mat"]]<-ar1_mat$ts.signal
-result_mods_ocup[["05-Zona da Mata"]][["cv_sinal_smooth_ar1mat"]]<-ar1_mat$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["05-Zona da Mata"]][["ocup_mat"]]<-y
+#result_mods_ocup[["05-Zona da Mata"]][["cv.ocup_mat"]]<-cv_db
+#result_mods_ocup[["05-Zona da Mata"]][["sinal_smooth_ar1mat"]]<-ar1_mat$ts.signal
+#result_mods_ocup[["05-Zona da Mata"]][["cv_sinal_smooth_ar1mat"]]<-ar1_mat$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 # Salvando o .Rdata
@@ -1092,13 +1093,13 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("06-Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["06-Norte de Minas"]][["ocup_nrt"]]<-y
-result_mods_ocup[["06-Norte de Minas"]][["cv.ocup_nrt"]]<-cv_db
-result_mods_ocup[["06-Norte de Minas"]][["sinal_smooth_ar1nrt"]]<-ar1_nrt$ts.signal
-result_mods_ocup[["06-Norte de Minas"]][["cv_sinal_smooth_ar1nrt"]]<-ar1_nrt$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["06-Norte de Minas"]][["ocup_nrt"]]<-y
+#result_mods_ocup[["06-Norte de Minas"]][["cv.ocup_nrt"]]<-cv_db
+#result_mods_ocup[["06-Norte de Minas"]][["sinal_smooth_ar1nrt"]]<-ar1_nrt$ts.signal
+#result_mods_ocup[["06-Norte de Minas"]][["cv_sinal_smooth_ar1nrt"]]<-ar1_nrt$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 
@@ -1245,11 +1246,11 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("06-Norte de Minas AR5", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["06-Norte de Minas"]][["sinal_smooth_ar5nrt"]]<-ar5_nrt$ts.signal
-result_mods_ocup[["06-Norte de Minas"]][["cv_sinal_smooth_ar5nrt"]]<-ar5_nrt$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["06-Norte de Minas"]][["sinal_smooth_ar5nrt"]]<-ar5_nrt$ts.signal
+#result_mods_ocup[["06-Norte de Minas"]][["cv_sinal_smooth_ar5nrt"]]<-ar5_nrt$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 # Salvando o .Rdata
@@ -1424,13 +1425,13 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("07-Vale do Rio Doce", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["07-Vale do Rio Doce"]][["ocup_val"]]<-y
-result_mods_ocup[["07-Vale do Rio Doce"]][["cv.ocup_val"]]<-cv_db
-result_mods_ocup[["07-Vale do Rio Doce"]][["sinal_smooth_ar1val"]]<-ar1_vl$ts.signal
-result_mods_ocup[["07-Vale do Rio Doce"]][["cv_sinal_smooth_ar1val"]]<-ar1_vl$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["07-Vale do Rio Doce"]][["ocup_val"]]<-y
+#result_mods_ocup[["07-Vale do Rio Doce"]][["cv.ocup_val"]]<-cv_db
+#result_mods_ocup[["07-Vale do Rio Doce"]][["sinal_smooth_ar1val"]]<-ar1_vl$ts.signal
+#result_mods_ocup[["07-Vale do Rio Doce"]][["cv_sinal_smooth_ar1val"]]<-ar1_vl$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 
@@ -1577,11 +1578,11 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("07-Vale do Rio Doce AR5", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["07-Vale do Rio Doce"]][["sinal_smooth_ar5val"]]<-ar5_val$ts.signal
-result_mods_ocup[["07-Vale do Rio Doce"]][["cv_sinal_smooth_ar5val"]]<-ar5_val$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["07-Vale do Rio Doce"]][["sinal_smooth_ar5val"]]<-ar5_val$ts.signal
+#result_mods_ocup[["07-Vale do Rio Doce"]][["cv_sinal_smooth_ar5val"]]<-ar5_val$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 # Salvando o .Rdata
 
@@ -1757,13 +1758,13 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("08-Central", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["08-Central"]][["ocup_cen"]]<-y
-result_mods_ocup[["08-Central"]][["cv.ocup_cen"]]<-cv_db
-result_mods_ocup[["08-Central"]][["sinal_smooth_ar1cen"]]<-ar1_cen$ts.signal
-result_mods_ocup[["08-Central"]][["cv_sinal_smooth_ar1cen"]]<-ar1_cen$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["08-Central"]][["ocup_cen"]]<-y
+#result_mods_ocup[["08-Central"]][["cv.ocup_cen"]]<-cv_db
+#result_mods_ocup[["08-Central"]][["sinal_smooth_ar1cen"]]<-ar1_cen$ts.signal
+#result_mods_ocup[["08-Central"]][["cv_sinal_smooth_ar1cen"]]<-ar1_cen$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 # Salvando o .Rdata
 
@@ -1937,13 +1938,13 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("09 - Minas Gerais", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["09 - Minas Gerais"]][["ocup_mg"]]<-y
-result_mods_ocup[["09 - Minas Gerais"]][["cv.ocup_mg"]]<-cv_db
-result_mods_ocup[["09 - Minas Gerais"]][["sinal_smooth_ar1mg"]]<-ar1_mg$ts.signal
-result_mods_ocup[["09 - Minas Gerais"]][["cv_sinal_smooth_ar1mg"]]<-ar1_mg$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["09 - Minas Gerais"]][["ocup_mg"]]<-y
+#result_mods_ocup[["09 - Minas Gerais"]][["cv.ocup_mg"]]<-cv_db
+#result_mods_ocup[["09 - Minas Gerais"]][["sinal_smooth_ar1mg"]]<-ar1_mg$ts.signal
+#result_mods_ocup[["09 - Minas Gerais"]][["cv_sinal_smooth_ar1mg"]]<-ar1_mg$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 
@@ -2090,11 +2091,11 @@ mtext("Ocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("09 - Minas Gerais AR5", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-result_mods_ocup[["09 - Minas Gerais"]][["sinal_smooth_ar5mg"]]<-ar5_mg$ts.signal
-result_mods_ocup[["09 - Minas Gerais"]][["cv_sinal_smooth_ar5mg"]]<-ar5_mg$cv.signal
-saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
-rm(result_mods_ocup)
+#result_mods_ocup<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#result_mods_ocup[["09 - Minas Gerais"]][["sinal_smooth_ar5mg"]]<-ar5_mg$ts.signal
+#result_mods_ocup[["09 - Minas Gerais"]][["cv_sinal_smooth_ar5mg"]]<-ar5_mg$cv.signal
+#saveRDS(result_mods_ocup, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_ocup.rds")
+#rm(result_mods_ocup)
 
 
 # Salvando o .Rdata
