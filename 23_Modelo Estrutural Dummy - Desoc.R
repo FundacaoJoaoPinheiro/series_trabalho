@@ -202,11 +202,11 @@ legend("bottomleft", legend = c("Erro amostral"),
 mtext("Desocupados", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-result_mods_deso[["01-Belo Horizonte"]][["sinal_estrutural_ma1bh"]]<-ma1_bh$ts.signal
-result_mods_deso[["01-Belo Horizonte"]][["cv_sinal_estrutural_ma1bh"]]<-ma1_bh$cv.signal
-saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
-rm(result_mods_deso)
+#result_mods_deso<-readRDS("D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#result_mods_deso[["01-Belo Horizonte"]][["sinal_estrutural_ma1bh"]]<-ma1_bh$ts.signal
+#result_mods_deso[["01-Belo Horizonte"]][["cv_sinal_estrutural_ma1bh"]]<-ma1_bh$cv.signal
+#saveRDS(result_mods_deso, file = "D:/FJP2425/Programacao/data/RDS de modelos/result_mods_deso.rds")
+#rm(result_mods_deso)
 
 # Salvando o .Rdata
 
