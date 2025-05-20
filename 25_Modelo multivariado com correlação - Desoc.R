@@ -135,16 +135,16 @@ estimated_cen <- env8$ma1_cen[["fit"]][["par"]]
 
 # 09 - mg
 
-mg<-baseestr8reg$`09 - Minas Gerais`
-dbmg<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/09_params_mg.RDS")
-desoc_mg<-mg$Total.de.desocupados/1000
-se_mg<-mg$sd_d/1000
-cv_mg<-se_mg/desoc_mg
+#mg<-baseestr8reg$`09 - Minas Gerais`
+#dbmg<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/09_params_mg.RDS")
+#desoc_mg<-mg$Total.de.desocupados/1000
+#se_mg<-mg$sd_d/1000
+#cv_mg<-se_mg/desoc_mg
 
-theta1_ma1_mg <- dbmg[["mod_ma1"]][["theta1_ma1_dmg"]]
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/09_mod_mg.Rdata", envir = env9)
-initial_mg <- env9$ma1_mg[["initial"]]
-estimated_mg <- env9$ma1_mg[["fit"]][["par"]]
+#theta1_ma1_mg <- dbmg[["mod_ma1"]][["theta1_ma1_dmg"]]
+#load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/09_mod_mg.Rdata", envir = env9)
+#initial_mg <- env9$ma1_mg[["initial"]]
+#estimated_mg <- env9$ma1_mg[["fit"]][["par"]]
 
 keep(desoc_bh,se_bh,cv_bh,theta1_ma1_bh,initial_bh,estimated_bh,
      desoc_ent,se_ent,cv_ent,theta1_ma1_ent,initial_ent,estimated_ent,
@@ -161,12 +161,19 @@ gc()
 #### TESTANDO MODELO MULTIVARIADO SEM CORRELAÇÃO E SEM BENCHMARKING #####################
 
 modelo_mult_sem_corr<- list("fn"=function(params){
-  m = dlmModPoly(2) + dlmModTrig(4) + dlmModReg(se_bh,addInt = FALSE) # Por que o erro de bh?
+  m = dlmModPoly(2) + dlmModTrig(4) + dlmModReg(se_bh,addInt = FALSE) # Erro de bh como ref do modelo
+  m$FF <- cbind(m$FF, rep(0,1))
+  m$GG <- rbind(m$GG, rep(0,6))
+  m$GG <- cbind(m$GG, rep(0,7))
+  m$GG[6,6] <- 0
+  m$GG[6,7] <- 0       
+  m$GG[7,6] <- 0
+  m$GG[7,7] <- 0 
   
   FF <- m$FF %x% diag(8)
   m$FF <- FF
   
-  JFF <- matrix(0,8,48)
+  JFF <- matrix(0,8,56)
   JFF[1,41] <- 1
   JFF[2,42] <- 2
   JFF[3,43] <- 3
@@ -192,16 +199,27 @@ modelo_mult_sem_corr<- list("fn"=function(params){
   m$V <- V
   
   GG <- m$GG %x% diag(8) # Resolver matriz GG
-  GG[41,41] <- theta1_ma1_bh
-  GG[42,42] <- theta1_ma1_ent
-  GG[43,43] <- theta1_ma1_sul
-  GG[44,44] <- theta1_ma1_trg
-  GG[45,45] <- theta1_ma1_mat
-  GG[46,46] <- theta1_ma1_nrt
+  GG[41,41] <- 0
+  GG[42,42] <- 0
+  GG[43,43] <- 0
+  GG[44,44] <- 0
+  GG[45,45] <- 0
+  GG[46,46] <- 0
   GG[47,47] <- phi1_ar1_val
-  GG[48,48] <- theta1_ma1_cen
+  GG[48,48] <- 0
+  
+  GG[41,49] <- theta1_ma1_bh
+  GG[42,50] <- theta1_ma1_ent
+  GG[43,51] <- theta1_ma1_sul
+  GG[44,52] <- theta1_ma1_trg
+  GG[45,53] <- theta1_ma1_mat
+  GG[46,54] <- theta1_ma1_nrt
+  GG[47,55] <- 0
+  GG[48,56] <- theta1_ma1_cen
   m$GG <- GG
   
+  W <- matrix(0, 7, 7)
+  m$W <- W
   W <- m$W %x% diag(8)
   W[1,1] <- exp(params[1])
   W[2,2] <- exp(params[2])
@@ -228,7 +246,7 @@ modelo_mult_sem_corr<- list("fn"=function(params){
   W[21,21] <- exp(params[21])
   W[22,22] <- exp(params[22])
   W[23,23] <- exp(params[23])
-  W[24,24] <- exp(params[24]) # Por que o salto? Não deveria continuar no 40 (pos. na matriz)?
+  W[24,24] <- exp(params[24])
   
   W[41,41] <- exp(params[33])
   W[42,42] <- exp(params[34])
@@ -241,11 +259,14 @@ modelo_mult_sem_corr<- list("fn"=function(params){
 
   m$W <- W
   
+  m$m0<- rep(0,7)
   m0 <- m$m0 %x% diag(8)
   m$m0 <- m0
   
+  m$C0<- diag(x=10^7,7)
   C0 <- m$C0 %x% diag(8)
   m$C0 <- C0
+  
   return(m)
 })
 
@@ -287,89 +308,635 @@ modelo_mult_sem_corr$sm <- dropFirst(modelo_mult_sem_corr$smoothed$s)
 modelo_mult_sem_corr$res <- residuals(modelo_mult_sem_corr$filtered,sd=FALSE)
 
 # definição de variável
-modelo_mult_sem_corr$d<-length(modelo_mult_sem_corr$mod$m0)/100+1 # Por que 100+1?
+modelo_mult_sem_corr$d<-length(modelo_mult_sem_corr$mod$m0)/56+1 # 
 modelo_mult_sem_corr$T<-length(data[,1])
 
 # estatísticas de interesse
+# Corrigir os vetores pensando na matriz até 56
+  # Sazonalidade a 
+
 modelo_mult_sem_corr$ts.original_1<- desoc_bh
 modelo_mult_sem_corr$ts.trend_1 <- modelo_mult_sem_corr[["m"]][,1]
 modelo_mult_sem_corr$ts.slope_1 <- modelo_mult_sem_corr[["m"]][,9]
-modelo_mult_sem_corr$ts.seasonal_1 <- modelo_mult_sem_corr[["m"]][,21]+modelo_mult_sem_corr[["m"]][,41] # Por que esse "salto"?
+modelo_mult_sem_corr$ts.seasonal_1 <- modelo_mult_sem_corr[["m"]][,17]+modelo_mult_sem_corr[["m"]][,33] # Por que esse "salto"?
 modelo_mult_sem_corr$ts.signal_1 <- modelo_mult_sem_corr$ts.trend_1 +modelo_mult_sem_corr$ts.seasonal_1
-modelo_mult_sem_corr$ts.sampling_e_1 <- modelo_mult_sem_corr[["m"]][,51]*se_db_1
-modelo_mult_sem_corr$ts.sampling_e_til_1 <- modelo_mult_sem_corr[["m"]][,51]
+modelo_mult_sem_corr$ts.sampling_e_1 <- modelo_mult_sem_corr[["m"]][,41]*se_bh # trocar nome do erro
+modelo_mult_sem_corr$ts.sampling_e_til_1 <- modelo_mult_sem_corr[["m"]][,41]
 modelo_mult_sem_corr$ts.irregular_1 <- modelo_mult_sem_corr$ts.original_1-(modelo_mult_sem_corr$ts.signal_1+modelo_mult_sem_corr$ts.sampling_error_1)
 modelo_mult_sem_corr$ts.seasonal_adj_1 <- modelo_mult_sem_corr$ts.trend_1+modelo_mult_sem_corr$ts.irregular_1
 
 modelo_mult_sem_corr$ts.original_2<- desoc_ent
 modelo_mult_sem_corr$ts.trend_2 <- modelo_mult_sem_corr[["m"]][,2]
 modelo_mult_sem_corr$ts.slope_2 <- modelo_mult_sem_corr[["m"]][,10]
-modelo_mult_sem_corr$ts.seasonal_2 <- modelo_mult_sem_corr[["m"]][,22]+modelo_mult_sem_corr[["m"]][,42]
+modelo_mult_sem_corr$ts.seasonal_2 <- modelo_mult_sem_corr[["m"]][,18]+modelo_mult_sem_corr[["m"]][,34]
 modelo_mult_sem_corr$ts.signal_2 <- modelo_mult_sem_corr$ts.trend_2 +modelo_mult_sem_corr$ts.seasonal_2
-modelo_mult_sem_corr$ts.sampling_e_2 <- modelo_mult_sem_corr[["m"]][,52]*se_db_2
-modelo_mult_sem_corr$ts.sampling_e_til_2 <- modelo_mult_sem_corr[["m"]][,52]
+modelo_mult_sem_corr$ts.sampling_e_2 <- modelo_mult_sem_corr[["m"]][,42]*se_ent
+modelo_mult_sem_corr$ts.sampling_e_til_2 <- modelo_mult_sem_corr[["m"]][,42]
 modelo_mult_sem_corr$ts.irregular_2 <- modelo_mult_sem_corr$ts.original_2-(modelo_mult_sem_corr$ts.signal_2+modelo_mult_sem_corr$ts.sampling_e_2)
 modelo_mult_sem_corr$ts.seasonal_adj_2 <- modelo_mult_sem_corr$ts.trend_2+modelo_mult_sem_corr$ts.irregular_2
 
 modelo_mult_sem_corr$ts.original_3<- desoc_sul
 modelo_mult_sem_corr$ts.trend_3 <- modelo_mult_sem_corr[["m"]][,3]
 modelo_mult_sem_corr$ts.slope_3 <- modelo_mult_sem_corr[["m"]][,11]
-modelo_mult_sem_corr$ts.seasonal_3 <- modelo_mult_sem_corr[["m"]][,23]+modelo_mult_sem_corr[["m"]][,43]
+modelo_mult_sem_corr$ts.seasonal_3 <- modelo_mult_sem_corr[["m"]][,19]+modelo_mult_sem_corr[["m"]][,35]
 modelo_mult_sem_corr$ts.signal_3 <- modelo_mult_sem_corr$ts.trend_3 +modelo_mult_sem_corr$ts.seasonal_3
-modelo_mult_sem_corr$ts.sampling_e_3 <- modelo_mult_sem_corr[["m"]][,53]*se_db_3
-modelo_mult_sem_corr$ts.sampling_e_til_3 <- modelo_mult_sem_corr[["m"]][,53]
+modelo_mult_sem_corr$ts.sampling_e_3 <- modelo_mult_sem_corr[["m"]][,43]*se_sul
+modelo_mult_sem_corr$ts.sampling_e_til_3 <- modelo_mult_sem_corr[["m"]][,43]
 modelo_mult_sem_corr$ts.irregular_3 <- modelo_mult_sem_corr$ts.original_3-(modelo_mult_sem_corr$ts.signal_3+modelo_mult_sem_corr$ts.sampling_e_3)
 modelo_mult_sem_corr$ts.seasonal_adj_3 <- modelo_mult_sem_corr$ts.trend_3+modelo_mult_sem_corr$ts.irregular_3
 
 modelo_mult_sem_corr$ts.original_4<- desoc_trg
 modelo_mult_sem_corr$ts.trend_4 <- modelo_mult_sem_corr[["m"]][,4]
 modelo_mult_sem_corr$ts.slope_4 <- modelo_mult_sem_corr[["m"]][,12]
-modelo_mult_sem_corr$ts.seasonal_4 <- modelo_mult_sem_corr[["m"]][,24]+modelo_mult_sem_corr[["m"]][,44]
+modelo_mult_sem_corr$ts.seasonal_4 <- modelo_mult_sem_corr[["m"]][,20]+modelo_mult_sem_corr[["m"]][,36]
 modelo_mult_sem_corr$ts.signal_4 <- modelo_mult_sem_corr$ts.trend_4 +modelo_mult_sem_corr$ts.seasonal_4
-modelo_mult_sem_corr$ts.sampling_e_4 <- modelo_mult_sem_corr[["m"]][,54]*se_db_4
-modelo_mult_sem_corr$ts.sampling_e_til_4 <- modelo_mult_sem_corr[["m"]][,54]
+modelo_mult_sem_corr$ts.sampling_e_4 <- modelo_mult_sem_corr[["m"]][,44]*se_trg
+modelo_mult_sem_corr$ts.sampling_e_til_4 <- modelo_mult_sem_corr[["m"]][,44]
 modelo_mult_sem_corr$ts.irregular_4 <- modelo_mult_sem_corr$ts.original_4-(modelo_mult_sem_corr$ts.signal_4+modelo_mult_sem_corr$ts.sampling_e_4)
 modelo_mult_sem_corr$ts.seasonal_adj_4 <- modelo_mult_sem_corr$ts.trend_4+modelo_mult_sem_corr$ts.irregular_4
 
 modelo_mult_sem_corr$ts.original_5<- desoc_mat
 modelo_mult_sem_corr$ts.trend_5 <- modelo_mult_sem_corr[["m"]][,5]
 modelo_mult_sem_corr$ts.slope_5 <- modelo_mult_sem_corr[["m"]][,13]
-modelo_mult_sem_corr$ts.seasonal_5 <- modelo_mult_sem_corr[["m"]][,25]+modelo_mult_sem_corr[["m"]][,45]
+modelo_mult_sem_corr$ts.seasonal_5 <- modelo_mult_sem_corr[["m"]][,21]+modelo_mult_sem_corr[["m"]][,37]
 modelo_mult_sem_corr$ts.signal_5 <- modelo_mult_sem_corr$ts.trend_5 +modelo_mult_sem_corr$ts.seasonal_5
-modelo_mult_sem_corr$ts.sampling_e_5 <- modelo_mult_sem_corr[["m"]][,55]*se_db_5
-modelo_mult_sem_corr$ts.sampling_e_til_5 <- modelo_mult_sem_corr[["m"]][,55]
+modelo_mult_sem_corr$ts.sampling_e_5 <- modelo_mult_sem_corr[["m"]][,45]*se_mat
+modelo_mult_sem_corr$ts.sampling_e_til_5 <- modelo_mult_sem_corr[["m"]][,45]
 modelo_mult_sem_corr$ts.irregular_5 <- modelo_mult_sem_corr$ts.original_5-(modelo_mult_sem_corr$ts.signal_5+modelo_mult_sem_corr$ts.sampling_e_5)
 modelo_mult_sem_corr$ts.seasonal_adj_5 <- modelo_mult_sem_corr$ts.trend_5+modelo_mult_sem_corr$ts.irregular_5
 
 modelo_mult_sem_corr$ts.original_6<- desoc_nrt
 modelo_mult_sem_corr$ts.trend_6 <- modelo_mult_sem_corr[["m"]][,6]
 modelo_mult_sem_corr$ts.slope_6 <- modelo_mult_sem_corr[["m"]][,14]
-modelo_mult_sem_corr$ts.seasonal_6 <- modelo_mult_sem_corr[["m"]][,26]+modelo_mult_sem_corr[["m"]][,46]
+modelo_mult_sem_corr$ts.seasonal_6 <- modelo_mult_sem_corr[["m"]][,22]+modelo_mult_sem_corr[["m"]][,38]
 modelo_mult_sem_corr$ts.signal_6 <- modelo_mult_sem_corr$ts.trend_6 +modelo_mult_sem_corr$ts.seasonal_6
-modelo_mult_sem_corr$ts.sampling_e_6 <- modelo_mult_sem_corr[["m"]][,56]*se_db_6
-modelo_mult_sem_corr$ts.sampling_e_til_6 <- modelo_mult_sem_corr[["m"]][,56]
+modelo_mult_sem_corr$ts.sampling_e_6 <- modelo_mult_sem_corr[["m"]][,46]*se_nrt
+modelo_mult_sem_corr$ts.sampling_e_til_6 <- modelo_mult_sem_corr[["m"]][,46]
 modelo_mult_sem_corr$ts.irregular_6 <- modelo_mult_sem_corr$ts.original_6-(modelo_mult_sem_corr$ts.signal_6+modelo_mult_sem_corr$ts.sampling_e_6)
 modelo_mult_sem_corr$ts.seasonal_adj_6 <- modelo_mult_sem_corr$ts.trend_6+modelo_mult_sem_corr$ts.irregular_6
 
 modelo_mult_sem_corr$ts.original_7<- desoc_val
 modelo_mult_sem_corr$ts.trend_7 <- modelo_mult_sem_corr[["m"]][,7]
 modelo_mult_sem_corr$ts.slope_7 <- modelo_mult_sem_corr[["m"]][,15]
-modelo_mult_sem_corr$ts.seasonal_7 <- modelo_mult_sem_corr[["m"]][,27]+modelo_mult_sem_corr[["m"]][,47]
+modelo_mult_sem_corr$ts.seasonal_7 <- modelo_mult_sem_corr[["m"]][,23]+modelo_mult_sem_corr[["m"]][,39]
 modelo_mult_sem_corr$ts.signal_7 <- modelo_mult_sem_corr$ts.trend_7 +modelo_mult_sem_corr$ts.seasonal_7
-modelo_mult_sem_corr$ts.sampling_e_7 <- modelo_mult_sem_corr[["m"]][,57]*se_db_7
-modelo_mult_sem_corr$ts.sampling_e_til_7 <- modelo_mult_sem_corr[["m"]][,57]
+modelo_mult_sem_corr$ts.sampling_e_7 <- modelo_mult_sem_corr[["m"]][,47]*se_val
+modelo_mult_sem_corr$ts.sampling_e_til_7 <- modelo_mult_sem_corr[["m"]][,47]
 modelo_mult_sem_corr$ts.irregular_7 <- modelo_mult_sem_corr$ts.original_7-(modelo_mult_sem_corr$ts.signal_7+modelo_mult_sem_corr$ts.sampling_e_7)
 modelo_mult_sem_corr$ts.seasonal_adj_7 <- modelo_mult_sem_corr$ts.trend_7+modelo_mult_sem_corr$ts.irregular_7
 
 modelo_mult_sem_corr$ts.original_8<- desoc_cen
 modelo_mult_sem_corr$ts.trend_8 <- modelo_mult_sem_corr[["m"]][,8]
 modelo_mult_sem_corr$ts.slope_8 <- modelo_mult_sem_corr[["m"]][,16] # Com 10 reg estava 18
-modelo_mult_sem_corr$ts.seasonal_8 <- modelo_mult_sem_corr[["m"]][,28]+modelo_mult_sem_corr[["m"]][,48]
+modelo_mult_sem_corr$ts.seasonal_8 <- modelo_mult_sem_corr[["m"]][,24]+modelo_mult_sem_corr[["m"]][,40]
 modelo_mult_sem_corr$ts.signal_8 <- modelo_mult_sem_corr$ts.trend_8 +modelo_mult_sem_corr$ts.seasonal_8
-modelo_mult_sem_corr$ts.sampling_e_8 <- modelo_mult_sem_corr[["m"]][,58]*se_db_8
-modelo_mult_sem_corr$ts.sampling_e_til_8 <- modelo_mult_sem_corr[["m"]][,58]
+modelo_mult_sem_corr$ts.sampling_e_8 <- modelo_mult_sem_corr[["m"]][,48]*se_cen
+modelo_mult_sem_corr$ts.sampling_e_til_8 <- modelo_mult_sem_corr[["m"]][,48]
 modelo_mult_sem_corr$ts.irregular_8 <- modelo_mult_sem_corr$ts.original_8-(modelo_mult_sem_corr$ts.signal_8+modelo_mult_sem_corr$ts.sampling_e_8)
 modelo_mult_sem_corr$ts.seasonal_adj_8 <- modelo_mult_sem_corr$ts.trend_8+modelo_mult_sem_corr$ts.irregular_8
+
+
+# Painel de gráficos
+
+par(mfrow=c(3,4),mar=c(5,5,1,1),cex=0.8)
+ts.plot(modelo_mult_sem_corr$ts.trend_1[8:52])
+ts.plot(modelo_mult_sem_corr$ts.trend_2[8:52])
+ts.plot(modelo_mult_sem_corr$ts.trend_3[8:52])
+ts.plot(modelo_mult_sem_corr$ts.trend_4[8:52])
+ts.plot(modelo_mult_sem_corr$ts.trend_5[8:52])
+ts.plot(modelo_mult_sem_corr$ts.trend_6[8:52])
+ts.plot(modelo_mult_sem_corr$ts.trend_7[8:52])
+ts.plot(modelo_mult_sem_corr$ts.trend_8[8:52])
+ts.plot(modelo_mult_sem_corr$ts.trend_9[8:52])
+ts.plot(modelo_mult_sem_corr$ts.trend_10[8:52])
+
+par(mfrow=c(3,4),mar=c(5,5,1,1),cex=0.8)
+ts.plot(modelo_mult_sem_corr$ts.signal_1[8:52])
+ts.plot(modelo_mult_sem_corr$ts.signal_2[8:52])
+ts.plot(modelo_mult_sem_corr$ts.signal_3[8:52])
+ts.plot(modelo_mult_sem_corr$ts.signal_4[8:52])
+ts.plot(modelo_mult_sem_corr$ts.signal_5[8:52])
+ts.plot(modelo_mult_sem_corr$ts.signal_6[8:52])
+ts.plot(modelo_mult_sem_corr$ts.signal_7[8:52])
+ts.plot(modelo_mult_sem_corr$ts.signal_8[8:52])
+ts.plot(modelo_mult_sem_corr$ts.signal_9[8:52])
+ts.plot(modelo_mult_sem_corr$ts.signal_10[8:52])
+
+par(mfrow=c(3,4),mar=c(5,5,1,1),cex=0.8)
+ts.plot(modelo_mult_sem_corr$ts.original_1[8:52])
+ts.plot(modelo_mult_sem_corr$ts.original_2[8:52])
+ts.plot(modelo_mult_sem_corr$ts.original_3[8:52])
+ts.plot(modelo_mult_sem_corr$ts.original_4[8:52])
+ts.plot(modelo_mult_sem_corr$ts.original_5[8:52])
+ts.plot(modelo_mult_sem_corr$ts.original_6[8:52])
+ts.plot(modelo_mult_sem_corr$ts.original_7[8:52])
+ts.plot(modelo_mult_sem_corr$ts.original_8[8:52])
+ts.plot(modelo_mult_sem_corr$ts.original_9[8:52])
+ts.plot(modelo_mult_sem_corr$ts.original_10[8:52])
+
+par(mfrow=c(3,4),mar=c(5,5,1,1),cex=0.8)
+ts.plot(modelo_mult_sem_corr$ts.sampling_e_1[8:52])
+ts.plot(modelo_mult_sem_corr$ts.sampling_e_2[8:52])
+ts.plot(modelo_mult_sem_corr$ts.sampling_e_3[8:52])
+ts.plot(modelo_mult_sem_corr$ts.sampling_e_4[8:52])
+ts.plot(modelo_mult_sem_corr$ts.sampling_e_5[8:52])
+ts.plot(modelo_mult_sem_corr$ts.sampling_e_6[8:52])
+ts.plot(modelo_mult_sem_corr$ts.sampling_e_7[8:52])
+ts.plot(modelo_mult_sem_corr$ts.sampling_e_8[8:52])
+ts.plot(modelo_mult_sem_corr$ts.sampling_e_9[8:52])
+ts.plot(modelo_mult_sem_corr$ts.sampling_e_10[8:52])
+
+# calculo erro padrão
+mse.list = dlmSvd2var(modelo_mult_sem_corr[["filtered"]][["U.C"]], modelo_mult_sem_corr[["filtered"]][["D.C"]])
+se.mat = dropFirst(t(sapply(mse.list, FUN=function(x) sqrt(diag(x)))))
+
+# cria vertores indicadores para soma de estados
+c_sinal1 <- matrix(c(1,0,0,0,0,0,0,0, # Tend
+                     0,0,0,0,0,0,0,0, # n somo o slope
+                     1,0,0,0,0,0,0,0, # Somo saz 1 trig
+                     0,0,0,0,0,0,0,0, # pulo saz 2 trig
+                     1,0,0,0,0,0,0,0, # somo saz 3 trig
+                     0,0,0,0,0,0,0,0, # EA não entra no sinal
+                     0,0,0,0,0,0,0,0),1,56) # esse é por causa do eta
+
+c_sinal2 <- matrix(c(0,1,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,1,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,1,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_sinal3 <- matrix(c(0,0,1,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,1,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,1,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_sinal4 <- matrix(c(0,0,0,1,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,1,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,1,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_sinal5 <- matrix(c(0,0,0,0,1,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,1,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,1,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_sinal6 <- matrix(c(0,0,0,0,0,1,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,1,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,1,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_sinal7 <- matrix(c(0,0,0,0,0,0,1,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,1,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,1,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_sinal8 <- matrix(c(0,0,0,0,0,0,0,1, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,1, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,1, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+# Para a sazonalidade
+
+c_seasonal1 <- matrix(c(0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     1,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     1,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_seasonal2 <- matrix(c(0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,1,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,1,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_seasonal3 <- matrix(c(0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,1,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,1,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_seasonal4 <- matrix(c(0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,1,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,1,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_seasonal5 <- matrix(c(0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,1,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,1,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_seasonal6 <- matrix(c(0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,1,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,1,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_seasonal7 <- matrix(c(0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,1,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,1,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+c_seasonal8 <- matrix(c(0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,1, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,1, 
+                     0,0,0,0,0,0,0,0, 
+                     0,0,0,0,0,0,0,0),1,56)
+
+se.mat1_sinal = dropFirst((sapply(mse.list, function(i) sqrt(c_sinal1%*%i%*%t(c_sinal1)) )))
+se.mat1_seasonal = dropFirst((sapply(mse.list, function(i) sqrt(c_seasonal1%*%i%*%t(c_seasonal1)) )))
+
+se.mat2_sinal = dropFirst((sapply(mse.list, function(i) sqrt(c_sinal2%*%i%*%t(c_sinal2)) )))
+se.mat2_seasonal = dropFirst((sapply(mse.list, function(i) sqrt(c_seasonal2%*%i%*%t(c_seasonal2)) )))
+
+se.mat3_sinal = dropFirst((sapply(mse.list, function(i) sqrt(c_sinal3%*%i%*%t(c_sinal3)) )))
+se.mat3_seasonal = dropFirst((sapply(mse.list, function(i) sqrt(c_seasonal3%*%i%*%t(c_seasonal3)) )))
+
+se.mat4_sinal = dropFirst((sapply(mse.list, function(i) sqrt(c_sinal4%*%i%*%t(c_sinal4)) )))
+se.mat4_seasonal = dropFirst((sapply(mse.list, function(i) sqrt(c_seasonal4%*%i%*%t(c_seasonal4)) )))
+
+se.mat5_sinal = dropFirst((sapply(mse.list, function(i) sqrt(c_sinal5%*%i%*%t(c_sinal5)) )))
+se.mat5_seasonal = dropFirst((sapply(mse.list, function(i) sqrt(c_seasonal5%*%i%*%t(c_seasonal5)) )))
+
+se.mat6_sinal = dropFirst((sapply(mse.list, function(i) sqrt(c_sinal6%*%i%*%t(c_sinal6)) )))
+se.mat6_seasonal = dropFirst((sapply(mse.list, function(i) sqrt(c_seasonal6%*%i%*%t(c_seasonal6)) )))
+
+se.mat7_sinal = dropFirst((sapply(mse.list, function(i) sqrt(c_sinal7%*%i%*%t(c_sinal7)) )))
+se.mat7_seasonal = dropFirst((sapply(mse.list, function(i) sqrt(c_seasonal7%*%i%*%t(c_seasonal7)) )))
+
+se.mat8_sinal = dropFirst((sapply(mse.list, function(i) sqrt(c_sinal8%*%i%*%t(c_sinal8)) )))
+se.mat8_seasonal = dropFirst((sapply(mse.list, function(i) sqrt(c_seasonal8%*%i%*%t(c_seasonal8)) )))
+
+modelo_mult_sem_corr$se.original_1<- se_bh
+modelo_mult_sem_corr$se.trend_1 <- se.mat[,1]
+modelo_mult_sem_corr$se.slope_1 <- se.mat[,9]
+modelo_mult_sem_corr$se.sampling_e_til_1 <- se.mat[,41]
+modelo_mult_sem_corr$se.seasonal_1 <- se.mat1_seasonal
+modelo_mult_sem_corr$se.signal_1 <- se.mat1_sinal
+modelo_mult_sem_corr$cv.original_1<- cv_db_1*100
+modelo_mult_sem_corr$cv.trend_1<- modelo_mult_sem_corr$se.trend_1/modelo_mult_sem_corr$ts.trend_1*100
+modelo_mult_sem_corr$cv.slope_1<- modelo_mult_sem_corr$se.slope_1/modelo_mult_sem_corr$ts.slope_1*100
+modelo_mult_sem_corr$cv.sampling_e_til_1<- modelo_mult_sem_corr$se.sampling_e_til_1/modelo_mult_sem_corr$ts.sampling_e_til_1*100
+modelo_mult_sem_corr$cv.seasonal_1<- modelo_mult_sem_corr$se.seasonal_1/modelo_mult_sem_corr$ts.seasonal_1*100
+modelo_mult_sem_corr$cv.signal_1<- modelo_mult_sem_corr$se.signal_1/modelo_mult_sem_corr$ts.signal_1*100
+
+modelo_mult_sem_corr$se.original_2<- se_ent
+modelo_mult_sem_corr$se.trend_2 <- se.mat[,2]
+modelo_mult_sem_corr$se.slope_2 <- se.mat[,10]
+modelo_mult_sem_corr$se.sampling_e_til_2 <- se.mat[,42]
+modelo_mult_sem_corr$se.seasonal_2 <- se.mat2_seasonal
+modelo_mult_sem_corr$se.signal_2 <- se.mat2_sinal
+modelo_mult_sem_corr$cv.original_2<- cv_db_2*100
+modelo_mult_sem_corr$cv.trend_2<- modelo_mult_sem_corr$se.trend_2/modelo_mult_sem_corr$ts.trend_2*100
+modelo_mult_sem_corr$cv.slope_2<- modelo_mult_sem_corr$se.slope_2/modelo_mult_sem_corr$ts.slope_2*100
+modelo_mult_sem_corr$cv.sampling_e_til_2<- modelo_mult_sem_corr$se.sampling_e_til_2/modelo_mult_sem_corr$ts.sampling_e_til_2*100
+modelo_mult_sem_corr$cv.seasonal_2<- modelo_mult_sem_corr$se.seasonal_2/modelo_mult_sem_corr$ts.seasonal_2*100
+modelo_mult_sem_corr$cv.signal_2<- modelo_mult_sem_corr$se.signal_2/modelo_mult_sem_corr$ts.signal_2*100
+
+modelo_mult_sem_corr$se.original_3<- se_sul
+modelo_mult_sem_corr$se.trend_3 <- se.mat[,3]
+modelo_mult_sem_corr$se.slope_3 <- se.mat[,11]
+modelo_mult_sem_corr$se.sampling_e_til_3 <- se.mat[,43]
+modelo_mult_sem_corr$se.seasonal_3 <- se.mat3_seasonal
+modelo_mult_sem_corr$se.signal_3 <- se.mat3_sinal
+modelo_mult_sem_corr$cv.original_3<- cv_db_3*100
+modelo_mult_sem_corr$cv.trend_3<- modelo_mult_sem_corr$se.trend_3/modelo_mult_sem_corr$ts.trend_3*100
+modelo_mult_sem_corr$cv.slope_3<- modelo_mult_sem_corr$se.slope_3/modelo_mult_sem_corr$ts.slope_3*100
+modelo_mult_sem_corr$cv.sampling_e_til_3<- modelo_mult_sem_corr$se.sampling_e_til_3/modelo_mult_sem_corr$ts.sampling_e_til_3*100
+modelo_mult_sem_corr$cv.seasonal_3<- modelo_mult_sem_corr$se.seasonal_3/modelo_mult_sem_corr$ts.seasonal_3*100
+modelo_mult_sem_corr$cv.signal_3<- modelo_mult_sem_corr$se.signal_3/modelo_mult_sem_corr$ts.signal_3*100
+
+modelo_mult_sem_corr$se.original_4<- se_trg
+modelo_mult_sem_corr$se.trend_4 <- se.mat[,4]
+modelo_mult_sem_corr$se.slope_4 <- se.mat[,12]
+modelo_mult_sem_corr$se.sampling_e_til_4 <- se.mat[,44]
+modelo_mult_sem_corr$se.seasonal_4 <- se.mat4_seasonal
+modelo_mult_sem_corr$se.signal_4 <- se.mat4_sinal
+modelo_mult_sem_corr$cv.original_4<- cv_db_4*100
+modelo_mult_sem_corr$cv.trend_4<- modelo_mult_sem_corr$se.trend_4/modelo_mult_sem_corr$ts.trend_4*100
+modelo_mult_sem_corr$cv.slope_4<- modelo_mult_sem_corr$se.slope_4/modelo_mult_sem_corr$ts.slope_4*100
+modelo_mult_sem_corr$cv.sampling_e_til_4<- modelo_mult_sem_corr$se.sampling_e_til_4/modelo_mult_sem_corr$ts.sampling_e_til_4*100
+modelo_mult_sem_corr$cv.seasonal_4<- modelo_mult_sem_corr$se.seasonal_4/modelo_mult_sem_corr$ts.seasonal_4*100
+modelo_mult_sem_corr$cv.signal_4<- modelo_mult_sem_corr$se.signal_4/modelo_mult_sem_corr$ts.signal_4*100
+
+modelo_mult_sem_corr$se.original_5<- se_mat
+modelo_mult_sem_corr$se.trend_5 <- se.mat[,5]
+modelo_mult_sem_corr$se.slope_5 <- se.mat[,13]
+modelo_mult_sem_corr$se.sampling_e_til_5 <- se.mat[,45]
+modelo_mult_sem_corr$se.seasonal_5 <- se.mat5_seasonal
+modelo_mult_sem_corr$se.signal_5 <- se.mat5_sinal
+modelo_mult_sem_corr$cv.original_5<- cv_db_5*100
+modelo_mult_sem_corr$cv.trend_5<- modelo_mult_sem_corr$se.trend_5/modelo_mult_sem_corr$ts.trend_5*100
+modelo_mult_sem_corr$cv.slope_5<- modelo_mult_sem_corr$se.slope_5/modelo_mult_sem_corr$ts.slope_5*100
+modelo_mult_sem_corr$cv.sampling_e_til_5<- modelo_mult_sem_corr$se.sampling_e_til_5/modelo_mult_sem_corr$ts.sampling_e_til_5*100
+modelo_mult_sem_corr$cv.seasonal_5<- modelo_mult_sem_corr$se.seasonal_5/modelo_mult_sem_corr$ts.seasonal_5*100
+modelo_mult_sem_corr$cv.signal_5<- modelo_mult_sem_corr$se.signal_5/modelo_mult_sem_corr$ts.signal_5*100
+
+modelo_mult_sem_corr$se.original_6<- se_nrt
+modelo_mult_sem_corr$se.trend_6 <- se.mat[,6]
+modelo_mult_sem_corr$se.slope_6 <- se.mat[,14]
+modelo_mult_sem_corr$se.sampling_e_til_6 <- se.mat[,46]
+modelo_mult_sem_corr$se.seasonal_6 <- se.mat6_seasonal
+modelo_mult_sem_corr$se.signal_6 <- se.mat6_sinal
+modelo_mult_sem_corr$cv.original_6<- cv_db_6*100
+modelo_mult_sem_corr$cv.trend_6<- modelo_mult_sem_corr$se.trend_6/modelo_mult_sem_corr$ts.trend_6*100
+modelo_mult_sem_corr$cv.slope_6<- modelo_mult_sem_corr$se.slope_6/modelo_mult_sem_corr$ts.slope_6*100
+modelo_mult_sem_corr$cv.sampling_e_til_6<- modelo_mult_sem_corr$se.sampling_e_til_6/modelo_mult_sem_corr$ts.sampling_e_til_6*100
+modelo_mult_sem_corr$cv.seasonal_6<- modelo_mult_sem_corr$se.seasonal_6/modelo_mult_sem_corr$ts.seasonal_6*100
+modelo_mult_sem_corr$cv.signal_6<- modelo_mult_sem_corr$se.signal_6/modelo_mult_sem_corr$ts.signal_6*100
+
+modelo_mult_sem_corr$se.original_7<- se_val
+modelo_mult_sem_corr$se.trend_7 <- se.mat[,7]
+modelo_mult_sem_corr$se.slope_7 <- se.mat[,15]
+modelo_mult_sem_corr$se.sampling_e_til_7 <- se.mat[,47]
+modelo_mult_sem_corr$se.seasonal_7 <- se.mat7_seasonal
+modelo_mult_sem_corr$se.signal_7 <- se.mat7_sinal
+modelo_mult_sem_corr$cv.original_7<- cv_db_7*100
+modelo_mult_sem_corr$cv.trend_7<- modelo_mult_sem_corr$se.trend_7/modelo_mult_sem_corr$ts.trend_7*100
+modelo_mult_sem_corr$cv.slope_7<- modelo_mult_sem_corr$se.slope_7/modelo_mult_sem_corr$ts.slope_7*100
+modelo_mult_sem_corr$cv.sampling_e_til_7<- modelo_mult_sem_corr$se.sampling_e_til_7/modelo_mult_sem_corr$ts.sampling_e_til_7*100
+modelo_mult_sem_corr$cv.seasonal_7<- modelo_mult_sem_corr$se.seasonal_7/modelo_mult_sem_corr$ts.seasonal_7*100
+modelo_mult_sem_corr$cv.signal_7<- modelo_mult_sem_corr$se.signal_7/modelo_mult_sem_corr$ts.signal_7*100
+
+modelo_mult_sem_corr$se.original_8<- se_cen
+modelo_mult_sem_corr$se.trend_8 <- se.mat[,8]
+modelo_mult_sem_corr$se.slope_8 <- se.mat[,16]
+modelo_mult_sem_corr$se.sampling_e_til_8 <- se.mat[,48]
+modelo_mult_sem_corr$se.seasonal_8 <- se.mat8_seasonal
+modelo_mult_sem_corr$se.signal_8 <- se.mat8_sinal
+modelo_mult_sem_corr$cv.original_8<- cv_db_8*100
+modelo_mult_sem_corr$cv.trend_8<- modelo_mult_sem_corr$se.trend_8/modelo_mult_sem_corr$ts.trend_8*100
+modelo_mult_sem_corr$cv.slope_8<- modelo_mult_sem_corr$se.slope_8/modelo_mult_sem_corr$ts.slope_8*100
+modelo_mult_sem_corr$cv.sampling_e_til_8<- modelo_mult_sem_corr$se.sampling_e_til_8/modelo_mult_sem_corr$ts.sampling_e_til_8*100
+modelo_mult_sem_corr$cv.seasonal_8<- modelo_mult_sem_corr$se.seasonal_8/modelo_mult_sem_corr$ts.seasonal_8*100
+modelo_mult_sem_corr$cv.signal_8<- modelo_mult_sem_corr$se.signal_8/modelo_mult_sem_corr$ts.signal_8*100
+
+round(exp(modelo_mult_sem_corr$fit$par[1:40]),4)
+round(exp(modelo_mult$fit$par[1:40]),4)
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_1<- window(ts.union(
+  ts(modelo_mult_sem_corr$ts.original_1,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.signal_1,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.trend_1,start = 2012,frequency=4)),start=c(2013,4))
+plot(fig_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Desocupação",
+                             "Sinal da desocupação: model-based",
+                             "Tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Desocupação (milhares de pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig.cv_1<- window(ts.union(
+  ts(modelo_mult_sem_corr$cv.original_1,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.signal_1,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.trend_1,start = 2012,frequency=4)),start=c(2013,4))
+plot(fig.cv_1, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV da desocupação",
+                              "CV do sinal da desocupação: model-based",
+                              "CV da tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_2<- window(ts.union(
+  ts(modelo_mult_sem_corr$ts.original_2,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.signal_2,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.trend_2,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_2, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Desocupação",
+                             "Sinal da desocupação: model-based",
+                             "Tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig.cv_2<- window(ts.union(
+  ts(modelo_mult_sem_corr$cv.original_2,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.signal_2,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.trend_2,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_2, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV da desocupação",
+                              "CV do sinal da desocupação: model-based",
+                              "CV da tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_3<- window(ts.union(
+  ts(modelo_mult_sem_corr$ts.original_3,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.signal_3,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.trend_3,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_3, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Desocupação",
+                             "Sinal da desocupação: model-based",
+                             "Tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig.cv_3<- window(ts.union(
+  ts(modelo_mult_sem_corr$cv.original_3,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.signal_3,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.trend_3,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_3, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV da desocupação",
+                              "CV do sinal da desocupação: model-based",
+                              "CV da tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_4<- window(ts.union(
+  ts(modelo_mult_sem_corr$ts.original_4,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.signal_4,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.trend_4,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_4, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Desocupação",
+                             "Sinal da desocupação: model-based",
+                             "Tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig.cv_4<- window(ts.union(
+  ts(modelo_mult_sem_corr$cv.original_4,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.signal_4,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.trend_4,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_4, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV da desocupação",
+                              "CV do sinal da desocupação: model-based",
+                              "CV da tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_5<- window(ts.union(
+  ts(modelo_mult_sem_corr$ts.original_5,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.signal_5,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.trend_5,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_5, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Desocupação",
+                             "Sinal da desocupação: model-based",
+                             "Tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig.cv_5<- window(ts.union(
+  ts(modelo_mult_sem_corr$cv.original_5,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.signal_5,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.trend_5,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_5, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV da desocupação",
+                              "CV do sinal da desocupação: model-based",
+                              "CV da tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_6<- window(ts.union(
+  ts(modelo_mult_sem_corr$ts.original_6,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.signal_6,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.trend_6,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_6, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Desocupação",
+                             "Sinal da desocupação: model-based",
+                             "Tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig.cv_6<- window(ts.union(
+  ts(modelo_mult_sem_corr$cv.original_6,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.signal_6,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.trend_6,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_6, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV da desocupação",
+                              "CV do sinal da desocupação: model-based",
+                              "CV da tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_7<- window(ts.union(
+  ts(modelo_mult_sem_corr$ts.original_7,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.signal_7,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.trend_7,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_7, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Desocupação",
+                             "Sinal da desocupação: model-based",
+                             "Tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig.cv_7<- window(ts.union(
+  ts(modelo_mult_sem_corr$cv.original_7,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.signal_7,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.trend_7,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_7, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV da desocupação",
+                              "CV do sinal da desocupação: model-based",
+                              "CV da tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
+fig_8<- window(ts.union(
+  ts(modelo_mult_sem_corr$ts.original_8,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.signal_8,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$ts.trend_8,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig_8, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topleft", legend = c("Desocupação",
+                             "Sinal da desocupação: model-based",
+                             "Tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("Unemployment (thousand persons)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig.cv_8<- window(ts.union(
+  ts(modelo_mult_sem_corr$cv.original_8,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.signal_8,start = 2012,frequency=4),
+  ts(modelo_mult_sem_corr$cv.trend_8,start = 2012,frequency=4)),start=c(2013,3))
+plot(fig.cv_8, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
+legend("topright", legend = c("CV da desocupação",
+                              "CV do sinal da desocupação: model-based",
+                              "CV da tendência da desocupação: model-based"),
+       lty = c(1,1,1), col = c(1,2,3), bty = 'n',lwd=c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+#save.image("modelos_mult_com_correlecao.RData")
+#load("modelos_mult_com_correlecao.RData")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
