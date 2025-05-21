@@ -407,8 +407,6 @@ ts.plot(modelo_mult_sem_corr$ts.trend_5[8:52])
 ts.plot(modelo_mult_sem_corr$ts.trend_6[8:52])
 ts.plot(modelo_mult_sem_corr$ts.trend_7[8:52])
 ts.plot(modelo_mult_sem_corr$ts.trend_8[8:52])
-ts.plot(modelo_mult_sem_corr$ts.trend_9[8:52])
-ts.plot(modelo_mult_sem_corr$ts.trend_10[8:52])
 
 par(mfrow=c(3,4),mar=c(5,5,1,1),cex=0.8)
 ts.plot(modelo_mult_sem_corr$ts.signal_1[8:52])
@@ -419,8 +417,6 @@ ts.plot(modelo_mult_sem_corr$ts.signal_5[8:52])
 ts.plot(modelo_mult_sem_corr$ts.signal_6[8:52])
 ts.plot(modelo_mult_sem_corr$ts.signal_7[8:52])
 ts.plot(modelo_mult_sem_corr$ts.signal_8[8:52])
-ts.plot(modelo_mult_sem_corr$ts.signal_9[8:52])
-ts.plot(modelo_mult_sem_corr$ts.signal_10[8:52])
 
 par(mfrow=c(3,4),mar=c(5,5,1,1),cex=0.8)
 ts.plot(modelo_mult_sem_corr$ts.original_1[8:52])
@@ -431,8 +427,6 @@ ts.plot(modelo_mult_sem_corr$ts.original_5[8:52])
 ts.plot(modelo_mult_sem_corr$ts.original_6[8:52])
 ts.plot(modelo_mult_sem_corr$ts.original_7[8:52])
 ts.plot(modelo_mult_sem_corr$ts.original_8[8:52])
-ts.plot(modelo_mult_sem_corr$ts.original_9[8:52])
-ts.plot(modelo_mult_sem_corr$ts.original_10[8:52])
 
 par(mfrow=c(3,4),mar=c(5,5,1,1),cex=0.8)
 ts.plot(modelo_mult_sem_corr$ts.sampling_e_1[8:52])
@@ -443,8 +437,7 @@ ts.plot(modelo_mult_sem_corr$ts.sampling_e_5[8:52])
 ts.plot(modelo_mult_sem_corr$ts.sampling_e_6[8:52])
 ts.plot(modelo_mult_sem_corr$ts.sampling_e_7[8:52])
 ts.plot(modelo_mult_sem_corr$ts.sampling_e_8[8:52])
-ts.plot(modelo_mult_sem_corr$ts.sampling_e_9[8:52])
-ts.plot(modelo_mult_sem_corr$ts.sampling_e_10[8:52])
+
 
 # calculo erro padrão
 mse.list = dlmSvd2var(modelo_mult_sem_corr[["filtered"]][["U.C"]], modelo_mult_sem_corr[["filtered"]][["D.C"]])
@@ -611,7 +604,7 @@ modelo_mult_sem_corr$se.slope_1 <- se.mat[,9]
 modelo_mult_sem_corr$se.sampling_e_til_1 <- se.mat[,41]
 modelo_mult_sem_corr$se.seasonal_1 <- se.mat1_seasonal
 modelo_mult_sem_corr$se.signal_1 <- se.mat1_sinal
-modelo_mult_sem_corr$cv.original_1<- cv_db_1*100
+modelo_mult_sem_corr$cv.original_1<- cv_bh*100
 modelo_mult_sem_corr$cv.trend_1<- modelo_mult_sem_corr$se.trend_1/modelo_mult_sem_corr$ts.trend_1*100
 modelo_mult_sem_corr$cv.slope_1<- modelo_mult_sem_corr$se.slope_1/modelo_mult_sem_corr$ts.slope_1*100
 modelo_mult_sem_corr$cv.sampling_e_til_1<- modelo_mult_sem_corr$se.sampling_e_til_1/modelo_mult_sem_corr$ts.sampling_e_til_1*100
@@ -624,7 +617,7 @@ modelo_mult_sem_corr$se.slope_2 <- se.mat[,10]
 modelo_mult_sem_corr$se.sampling_e_til_2 <- se.mat[,42]
 modelo_mult_sem_corr$se.seasonal_2 <- se.mat2_seasonal
 modelo_mult_sem_corr$se.signal_2 <- se.mat2_sinal
-modelo_mult_sem_corr$cv.original_2<- cv_db_2*100
+modelo_mult_sem_corr$cv.original_2<- cv_ent*100
 modelo_mult_sem_corr$cv.trend_2<- modelo_mult_sem_corr$se.trend_2/modelo_mult_sem_corr$ts.trend_2*100
 modelo_mult_sem_corr$cv.slope_2<- modelo_mult_sem_corr$se.slope_2/modelo_mult_sem_corr$ts.slope_2*100
 modelo_mult_sem_corr$cv.sampling_e_til_2<- modelo_mult_sem_corr$se.sampling_e_til_2/modelo_mult_sem_corr$ts.sampling_e_til_2*100
@@ -637,7 +630,7 @@ modelo_mult_sem_corr$se.slope_3 <- se.mat[,11]
 modelo_mult_sem_corr$se.sampling_e_til_3 <- se.mat[,43]
 modelo_mult_sem_corr$se.seasonal_3 <- se.mat3_seasonal
 modelo_mult_sem_corr$se.signal_3 <- se.mat3_sinal
-modelo_mult_sem_corr$cv.original_3<- cv_db_3*100
+modelo_mult_sem_corr$cv.original_3<- cv_sul*100
 modelo_mult_sem_corr$cv.trend_3<- modelo_mult_sem_corr$se.trend_3/modelo_mult_sem_corr$ts.trend_3*100
 modelo_mult_sem_corr$cv.slope_3<- modelo_mult_sem_corr$se.slope_3/modelo_mult_sem_corr$ts.slope_3*100
 modelo_mult_sem_corr$cv.sampling_e_til_3<- modelo_mult_sem_corr$se.sampling_e_til_3/modelo_mult_sem_corr$ts.sampling_e_til_3*100
@@ -650,7 +643,7 @@ modelo_mult_sem_corr$se.slope_4 <- se.mat[,12]
 modelo_mult_sem_corr$se.sampling_e_til_4 <- se.mat[,44]
 modelo_mult_sem_corr$se.seasonal_4 <- se.mat4_seasonal
 modelo_mult_sem_corr$se.signal_4 <- se.mat4_sinal
-modelo_mult_sem_corr$cv.original_4<- cv_db_4*100
+modelo_mult_sem_corr$cv.original_4<- cv_trg*100
 modelo_mult_sem_corr$cv.trend_4<- modelo_mult_sem_corr$se.trend_4/modelo_mult_sem_corr$ts.trend_4*100
 modelo_mult_sem_corr$cv.slope_4<- modelo_mult_sem_corr$se.slope_4/modelo_mult_sem_corr$ts.slope_4*100
 modelo_mult_sem_corr$cv.sampling_e_til_4<- modelo_mult_sem_corr$se.sampling_e_til_4/modelo_mult_sem_corr$ts.sampling_e_til_4*100
@@ -663,7 +656,7 @@ modelo_mult_sem_corr$se.slope_5 <- se.mat[,13]
 modelo_mult_sem_corr$se.sampling_e_til_5 <- se.mat[,45]
 modelo_mult_sem_corr$se.seasonal_5 <- se.mat5_seasonal
 modelo_mult_sem_corr$se.signal_5 <- se.mat5_sinal
-modelo_mult_sem_corr$cv.original_5<- cv_db_5*100
+modelo_mult_sem_corr$cv.original_5<- cv_mat*100
 modelo_mult_sem_corr$cv.trend_5<- modelo_mult_sem_corr$se.trend_5/modelo_mult_sem_corr$ts.trend_5*100
 modelo_mult_sem_corr$cv.slope_5<- modelo_mult_sem_corr$se.slope_5/modelo_mult_sem_corr$ts.slope_5*100
 modelo_mult_sem_corr$cv.sampling_e_til_5<- modelo_mult_sem_corr$se.sampling_e_til_5/modelo_mult_sem_corr$ts.sampling_e_til_5*100
@@ -676,7 +669,7 @@ modelo_mult_sem_corr$se.slope_6 <- se.mat[,14]
 modelo_mult_sem_corr$se.sampling_e_til_6 <- se.mat[,46]
 modelo_mult_sem_corr$se.seasonal_6 <- se.mat6_seasonal
 modelo_mult_sem_corr$se.signal_6 <- se.mat6_sinal
-modelo_mult_sem_corr$cv.original_6<- cv_db_6*100
+modelo_mult_sem_corr$cv.original_6<- cv_nrt*100
 modelo_mult_sem_corr$cv.trend_6<- modelo_mult_sem_corr$se.trend_6/modelo_mult_sem_corr$ts.trend_6*100
 modelo_mult_sem_corr$cv.slope_6<- modelo_mult_sem_corr$se.slope_6/modelo_mult_sem_corr$ts.slope_6*100
 modelo_mult_sem_corr$cv.sampling_e_til_6<- modelo_mult_sem_corr$se.sampling_e_til_6/modelo_mult_sem_corr$ts.sampling_e_til_6*100
@@ -689,7 +682,7 @@ modelo_mult_sem_corr$se.slope_7 <- se.mat[,15]
 modelo_mult_sem_corr$se.sampling_e_til_7 <- se.mat[,47]
 modelo_mult_sem_corr$se.seasonal_7 <- se.mat7_seasonal
 modelo_mult_sem_corr$se.signal_7 <- se.mat7_sinal
-modelo_mult_sem_corr$cv.original_7<- cv_db_7*100
+modelo_mult_sem_corr$cv.original_7<- cv_val*100
 modelo_mult_sem_corr$cv.trend_7<- modelo_mult_sem_corr$se.trend_7/modelo_mult_sem_corr$ts.trend_7*100
 modelo_mult_sem_corr$cv.slope_7<- modelo_mult_sem_corr$se.slope_7/modelo_mult_sem_corr$ts.slope_7*100
 modelo_mult_sem_corr$cv.sampling_e_til_7<- modelo_mult_sem_corr$se.sampling_e_til_7/modelo_mult_sem_corr$ts.sampling_e_til_7*100
@@ -702,7 +695,7 @@ modelo_mult_sem_corr$se.slope_8 <- se.mat[,16]
 modelo_mult_sem_corr$se.sampling_e_til_8 <- se.mat[,48]
 modelo_mult_sem_corr$se.seasonal_8 <- se.mat8_seasonal
 modelo_mult_sem_corr$se.signal_8 <- se.mat8_sinal
-modelo_mult_sem_corr$cv.original_8<- cv_db_8*100
+modelo_mult_sem_corr$cv.original_8<- cv_cen*100
 modelo_mult_sem_corr$cv.trend_8<- modelo_mult_sem_corr$se.trend_8/modelo_mult_sem_corr$ts.trend_8*100
 modelo_mult_sem_corr$cv.slope_8<- modelo_mult_sem_corr$se.slope_8/modelo_mult_sem_corr$ts.slope_8*100
 modelo_mult_sem_corr$cv.sampling_e_til_8<- modelo_mult_sem_corr$se.sampling_e_til_8/modelo_mult_sem_corr$ts.sampling_e_til_8*100
@@ -710,7 +703,6 @@ modelo_mult_sem_corr$cv.seasonal_8<- modelo_mult_sem_corr$se.seasonal_8/modelo_m
 modelo_mult_sem_corr$cv.signal_8<- modelo_mult_sem_corr$se.signal_8/modelo_mult_sem_corr$ts.signal_8*100
 
 round(exp(modelo_mult_sem_corr$fit$par[1:40]),4)
-round(exp(modelo_mult$fit$par[1:40]),4)
 
 par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
 fig_1<- window(ts.union(
@@ -864,7 +856,7 @@ mtext("Ano", side = 1, line = 3)
 
 par(mfrow=c(1,2),mar=c(5,5,1,1),cex=0.8)
 fig_7<- window(ts.union(
-  ts(modelo_mult_sem_corr$ts.original_7,start = 2012,frequency=4),
+  ts(desoc_val,start = 2012,frequency=4),
   ts(modelo_mult_sem_corr$ts.signal_7,start = 2012,frequency=4),
   ts(modelo_mult_sem_corr$ts.trend_7,start = 2012,frequency=4)),start=c(2013,3))
 plot(fig_7, plot.type = "single", col = c(1,2,3,4), ylab="", xlab="",lty = c(1,1,1),lwd=c(2))
@@ -912,8 +904,8 @@ legend("topright", legend = c("CV da desocupação",
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
-#save.image("modelos_mult_com_correlecao.RData")
-#load("modelos_mult_com_correlecao.RData")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/11_multivariado - desoc_8reg/01_mod_semcorr.Rdata")
+load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado - desoc_8reg/01_mod_semcorr.Rdata")
 
 
 
