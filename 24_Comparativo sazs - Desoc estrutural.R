@@ -104,7 +104,7 @@ legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
 
 plot(estirr_bh, type = "l", col = "red", lwd = 2,
      main = "Termo irregular",
-     xlab = "Ano", ylab = "Desocupados", ylim=c(-25,25))
+     xlab = "Ano", ylab = "Desocupados", ylim=c(-15,15))
 lines(dmyirr_bh, col = "blue", lty = 1, lwd = 2)
 legend("bottomleft", legend = c("Trigonométrica", "Dummy"), 
        col = c("red","blue"),lty = c(1,1),lwd = c(2,2),bty = "n", cex=0.8)
@@ -214,7 +214,7 @@ legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
 
 plot(estirr_ent, type = "l", col = "red", lwd = 2,
      main = "Termo irregular",
-     xlab = "Ano", ylab = "Desocupados", ylim=c(-35,30))
+     xlab = "Ano", ylab = "Desocupados", ylim=c(-15,15))
 lines(dmyirr_ent, col = "blue", lty = 1, lwd = 2)
 legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
        col = c("red","blue"),lty = c(1,1),lwd = c(2,2),bty = "n", cex=0.8)
@@ -324,7 +324,7 @@ legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
 
 plot(estirr_sul, type = "l", col = "red", lwd = 2,
      main = "Termo irregular",
-     xlab = "Ano", ylab = "Desocupados", ylim=c(-20,32))
+     xlab = "Ano", ylab = "Desocupados", ylim=c(-10,25))
 lines(dmyirr_sul, col = "blue", lty = 1, lwd = 2)
 legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
        col = c("red","blue"),lty = c(1,1),lwd = c(2,2),bty = "n", cex=0.8)
@@ -439,7 +439,7 @@ legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
 
 plot(estirr_trg, type = "l", col = "red", lwd = 2,
      main = "Termo irregular",
-     xlab = "Ano", ylab = "Desocupados", ylim=c(-25,25))
+     xlab = "Ano", ylab = "Desocupados", ylim=c(-12,10))
 lines(dmyirr_trg, col = "blue", lty = 1, lwd = 2)
 legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
        col = c("red","blue"),lty = c(1,1),lwd = c(2,2),bty = "n", cex=0.8)
@@ -549,7 +549,7 @@ legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
 
 plot(estirr_mat, type = "l", col = "red", lwd = 2,
      main = "Termo irregular",
-     xlab = "Ano", ylab = "Desocupados", ylim=c(-20,20))
+     xlab = "Ano", ylab = "Desocupados", ylim=c(-10,10))
 lines(dmyirr_mat, col = "blue", lty = 1, lwd = 2)
 legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
        col = c("red","blue"),lty = c(1,1),lwd = c(2,2),bty = "n", cex=0.8)
@@ -658,7 +658,7 @@ legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
 
 plot(estirr_nrt, type = "l", col = "red", lwd = 2,
      main = "Termo irregular",
-     xlab = "Ano", ylab = "Desocupados", ylim=c(-25,25))
+     xlab = "Ano", ylab = "Desocupados", ylim=c(-15,15))
 lines(dmyirr_nrt, col = "blue", lty = 1, lwd = 2)
 legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
        col = c("red","blue"),lty = c(1,1),lwd = c(2,2),bty = "n", cex=0.8)
@@ -767,7 +767,7 @@ legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
 
 plot(estirr_val, type = "l", col = "red", lwd = 2,
      main = "Termo irregular",
-     xlab = "Ano", ylab = "Desocupados", ylim=c(-3,5))
+     xlab = "Ano", ylab = "Desocupados", ylim=c(-2,3))
 lines(dmyirr_val, col = "blue", lty = 1, lwd = 2)
 legend("bottomleft", legend = c("Trigonométrica", "Dummy"),
        col = c("red","blue"),lty = c(1,1),lwd = c(2,2),bty = "n", cex=0.8)
