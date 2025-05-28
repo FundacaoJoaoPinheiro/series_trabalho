@@ -330,7 +330,7 @@ estimados <- c(estimated_bh[1], estimated_ent[1], estimated_sul[1], estimated_tr
 
 data <- cbind(desoc_bh,desoc_ent,desoc_sul,desoc_trg,desoc_mat,desoc_nrt,desoc_val,desoc_cen)
 
-modelo_mult$initial<- c(iniciais, rep(0,45)) # Anotação Caio: inicial p o erro amostral rep(0,45)
+modelo_mult$initial<- c(iniciais, rep(0,28)) # Iniciais para as correlações
 # Essa linha não existia no modelo sem correlação
 
 
