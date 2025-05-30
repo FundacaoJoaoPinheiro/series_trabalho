@@ -368,7 +368,7 @@ modelo_mult$ts.seasonal_1 <- modelo_mult[["m"]][,17]+modelo_mult[["m"]][,33]
 modelo_mult$ts.signal_1 <- modelo_mult$ts.trend_1 +modelo_mult$ts.seasonal_1
 modelo_mult$ts.sampling_e_1 <- modelo_mult[["m"]][,41]*se_bh
 modelo_mult$ts.sampling_e_til_1 <- modelo_mult[["m"]][,41]
-modelo_mult$ts.irregular_1 <- modelo_mult$ts.original_1-(modelo_mult$ts.signal_1+modelo_mult$ts.sampling_error_1)
+modelo_mult$ts.irregular_1 <- modelo_mult$ts.original_1-(modelo_mult$ts.signal_1+modelo_mult$ts.sampling_e_1)
 modelo_mult$ts.seasonal_adj_1 <- modelo_mult$ts.trend_1+modelo_mult$ts.irregular_1
 
 modelo_mult$ts.original_2<- desoc_ent
@@ -487,6 +487,119 @@ ts.plot(modelo_mult$ts.sampling_e_6[8:52], main = "06 - NRT")
 ts.plot(modelo_mult$ts.sampling_e_7[8:52], main = "07 - VAL")
 ts.plot(modelo_mult$ts.sampling_e_8[8:52], main = "08 - CEN")
 mtext("Erro amostral extraído para cada região", outer = TRUE, cex = 1.2, line = -1)
+
+par(mfrow = c(4, 2), mar = c(2, 2, 1, 1), oma = c(0, 0, 3, 0))
+ts.plot(modelo_mult$ts.irregular_1[8:52], main = "01 - BH")
+ts.plot(modelo_mult$ts.irregular_2[8:52], main = "02 - ENT")
+ts.plot(modelo_mult$ts.irregular_3[8:52], main = "03 - SUL")
+ts.plot(modelo_mult$ts.irregular_4[8:52], main = "04 - TRG")
+ts.plot(modelo_mult$ts.irregular_5[8:52], main = "05 - MAT")
+ts.plot(modelo_mult$ts.irregular_6[8:52], main = "06 - NRT")
+ts.plot(modelo_mult$ts.irregular_7[8:52], main = "07 - VAL")
+ts.plot(modelo_mult$ts.irregular_8[8:52], main = "08 - CEN")
+mtext("Termo irregular extraído para cada região", outer = TRUE, cex = 1.2, line = -1)
+
+par(mfrow = c(4, 2), mar = c(2, 2, 1, 1), oma = c(0, 0, 3, 0))
+ts.plot(modelo_mult$ts.seasonal_1[8:52], main = "01 - BH")
+ts.plot(modelo_mult$ts.seasonal_2[8:52], main = "02 - ENT")
+ts.plot(modelo_mult$ts.seasonal_3[8:52], main = "03 - SUL")
+ts.plot(modelo_mult$ts.seasonal_4[8:52], main = "04 - TRG")
+ts.plot(modelo_mult$ts.seasonal_5[8:52], main = "05 - MAT")
+ts.plot(modelo_mult$ts.seasonal_6[8:52], main = "06 - NRT")
+ts.plot(modelo_mult$ts.seasonal_7[8:52], main = "07 - VAL")
+ts.plot(modelo_mult$ts.seasonal_8[8:52], main = "08 - CEN")
+mtext("Sazonalidade extraída para cada região", outer = TRUE, cex = 1.2, line = -1)
+
+## Separando os parâmetros obtidos para análise
+
+# Iniciais
+
+componentes_ini <- c("level_ini", "slope_ini", "seasonality_ini", "irregular_ini", "sample_error_ini")
+
+# Extração dos valores iniciais para cada região
+first_bh <- data.frame(
+  componente = componentes_ini,
+  valor = round(exp(modelo_mult$initial[1:5]), 5)
+)
+
+first_ent <- data.frame(
+  componente = componentes_ini,
+  valor = round(exp(modelo_mult$initial[6:10]), 5)
+)
+
+first_sul <- data.frame(
+  componente = componentes_ini,
+  valor = round(exp(modelo_mult$initial[11:15]), 5)
+)
+
+first_trg <- data.frame(
+  componente = componentes_ini,
+  valor = round(exp(modelo_mult$initial[16:20]), 5)
+)
+
+first_mat <- data.frame(
+  componente = componentes_ini,
+  valor = round(exp(modelo_mult$initial[21:25]), 5)
+)
+
+first_nrt <- data.frame(
+  componente = componentes_ini,
+  valor = round(exp(modelo_mult$initial[26:30]), 5)
+)
+
+first_val <- data.frame(
+  componente = componentes_ini,
+  valor = round(exp(modelo_mult$initial[31:35]), 5)
+)
+
+first_cen <- data.frame(
+  componente = componentes_ini,
+  valor = round(exp(modelo_mult$initial[36:40]), 5)
+)
+
+# Hiperparâmetros estimados
+
+componentes <- c("level", "slope", "seasonality", "irregular", "sample_error")
+
+pars_bh <- data.frame(
+  componente = componentes,
+  valor = round(exp(modelo_mult$fit$par[1:5]), 5)
+)
+
+pars_ent <- data.frame(
+  componente = componentes,
+  valor = round(exp(modelo_mult$fit$par[6:10]), 5)
+)
+
+pars_sul <- data.frame(
+  componente = componentes,
+  valor = round(exp(modelo_mult$fit$par[11:15]), 5)
+)
+
+pars_trg <- data.frame(
+  componente = componentes,
+  valor = round(exp(modelo_mult$fit$par[16:20]), 5)
+)
+
+pars_mat <- data.frame(
+  componente = componentes,
+  valor = round(exp(modelo_mult$fit$par[21:25]), 5)
+)
+
+pars_nrt <- data.frame(
+  componente = componentes,
+  valor = round(exp(modelo_mult$fit$par[26:30]), 5)
+)
+
+pars_val <- data.frame(
+  componente = componentes,
+  valor = round(exp(modelo_mult$fit$par[31:35]), 5)
+)
+
+pars_cen <- data.frame(
+  componente = componentes,
+  valor = round(exp(modelo_mult$fit$par[36:40]), 5)
+)
 
 # Calculando o erro padrão
 
@@ -971,9 +1084,9 @@ mtext("Ano", side = 1, line = 3)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5)
 
 
-save.image(file = "D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA1.Rdata")
+save.image(file = "D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata")
 
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA1.Rdata")
+load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata")
 
 
 
