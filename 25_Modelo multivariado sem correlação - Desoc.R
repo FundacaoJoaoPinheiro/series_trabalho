@@ -286,7 +286,7 @@ estimados <- c(estimated_bh[1], estimated_ent[1], estimated_sul[1], estimated_tr
                estimated_bh[5], estimated_ent[5], estimated_sul[5], estimated_trg[5], estimated_mat[5], estimated_nrt[5], estimated_val[5], estimated_cen[5])
 
 data <- cbind(desoc_bh,desoc_ent,desoc_sul,desoc_trg,desoc_mat,desoc_nrt,desoc_val,desoc_cen)
-modelo_mult_sem_corr$initial<- c(estimados)
+modelo_mult_sem_corr$initial<- c(iniciais)
 
 
 start_time <- Sys.time()
@@ -474,42 +474,42 @@ componentes_ini <- c("level_ini", "slope_ini", "seasonality_ini", "irregular_ini
 # Extração dos valores iniciais para cada região
 first_bh <- data.frame(
   componente = componentes_ini,
-  valor = round(exp(modelo_mult_sem_corr$initial[1:5]), 5)
+  valor = round(exp(modelo_mult_sem_corr$initial[c(1, 9, 17, 25, 33)]), 5)
 )
 
 first_ent <- data.frame(
   componente = componentes_ini,
-  valor = round(exp(modelo_mult_sem_corr$initial[6:10]), 5)
+  valor = round(exp(modelo_mult_sem_corr$initial[c(2, 10, 18, 26, 34)]), 5)
 )
 
 first_sul <- data.frame(
   componente = componentes_ini,
-  valor = round(exp(modelo_mult_sem_corr$initial[11:15]), 5)
+  valor = round(exp(modelo_mult_sem_corr$initial[c(3, 11, 19, 27, 35)]), 5)
 )
 
 first_trg <- data.frame(
   componente = componentes_ini,
-  valor = round(exp(modelo_mult_sem_corr$initial[16:20]), 5)
+  valor = round(exp(modelo_mult_sem_corr$initial[c(4, 12, 20, 28, 36)]), 5)
 )
 
 first_mat <- data.frame(
   componente = componentes_ini,
-  valor = round(exp(modelo_mult_sem_corr$initial[21:25]), 5)
+  valor = round(exp(modelo_mult_sem_corr$initial[c(5, 13, 21, 29, 37)]), 5)
 )
 
 first_nrt <- data.frame(
   componente = componentes_ini,
-  valor = round(exp(modelo_mult_sem_corr$initial[26:30]), 5)
+  valor = round(exp(modelo_mult_sem_corr$initial[c(6, 14, 22, 30, 38)]), 5)
 )
 
 first_val <- data.frame(
   componente = componentes_ini,
-  valor = round(exp(modelo_mult_sem_corr$initial[31:35]), 5)
+  valor = round(exp(modelo_mult_sem_corr$initial[c(7, 15, 23, 31, 39)]), 5)
 )
 
 first_cen <- data.frame(
   componente = componentes_ini,
-  valor = round(exp(modelo_mult_sem_corr$initial[36:40]), 5)
+  valor = round(exp(modelo_mult_sem_corr$initial[c(8, 16, 24, 32, 40)]), 5)
 )
 
 # Hiperparâmetros estimados
@@ -518,42 +518,42 @@ componentes <- c("level", "slope", "seasonality", "irregular", "sample_error")
 
 pars_bh <- data.frame(
   componente = componentes,
-  valor = round(exp(modelo_mult_sem_corr$fit$par[1:5]), 5)
+  valor = round(exp(modelo_mult_sem_corr$fit$par[c(1, 9, 17, 25, 33)]), 5)
 )
 
 pars_ent <- data.frame(
   componente = componentes,
-  valor = round(exp(modelo_mult_sem_corr$fit$par[6:10]), 5)
+  valor = round(exp(modelo_mult_sem_corr$fit$par[c(2, 10, 18, 26, 34)]), 5)
 )
 
 pars_sul <- data.frame(
   componente = componentes,
-  valor = round(exp(modelo_mult_sem_corr$fit$par[11:15]), 5)
+  valor = round(exp(modelo_mult_sem_corr$fit$par[c(3, 11, 19, 27, 35)]), 5)
 )
 
 pars_trg <- data.frame(
   componente = componentes,
-  valor = round(exp(modelo_mult_sem_corr$fit$par[16:20]), 5)
+  valor = round(exp(modelo_mult_sem_corr$fit$par[c(4, 12, 20, 28, 36)]), 5)
 )
 
 pars_mat <- data.frame(
   componente = componentes,
-  valor = round(exp(modelo_mult_sem_corr$fit$par[21:25]), 5)
+  valor = round(exp(modelo_mult_sem_corr$fit$par[c(5, 13, 21, 29, 37)]), 5)
 )
 
 pars_nrt <- data.frame(
   componente = componentes,
-  valor = round(exp(modelo_mult_sem_corr$fit$par[26:30]), 5)
+  valor = round(exp(modelo_mult_sem_corr$fit$par[c(6, 14, 22, 30, 38)]), 5)
 )
 
 pars_val <- data.frame(
   componente = componentes,
-  valor = round(exp(modelo_mult_sem_corr$fit$par[31:35]), 5)
+  valor = round(exp(modelo_mult_sem_corr$fit$par[c(7, 15, 23, 31, 39)]), 5)
 )
 
 pars_cen <- data.frame(
   componente = componentes,
-  valor = round(exp(modelo_mult_sem_corr$fit$par[36:40]), 5)
+  valor = round(exp(modelo_mult_sem_corr$fit$par[c(8, 16, 24, 32, 40)]), 5)
 )
 
 
@@ -1030,7 +1030,7 @@ mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5)
 
-# save.image(file = "D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/02_mod_semcorr_SULARMA11.Rdata")
+# save.image(file = "D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata")
 
 # load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado - desoc_8reg/01_mod_semcorr_SULMA1.Rdata")
 
