@@ -19,8 +19,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/01_mod_bh.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/02_mod_semcorr_SULARMA11.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
 bh<-baseestr8reg$`01-Belo Horizonte`
@@ -84,8 +84,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/02_mod_ent.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/02_mod_semcorr_SULARMA11.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
 ent<-baseestr8reg$`02-Colar e Entorno metropolitano de BH`
@@ -150,8 +150,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/03_mod_sul.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/02_mod_semcorr_SULARMA11.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
 sul<-baseestr8reg$`03-Sul de Minas`
@@ -215,8 +215,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/04_mod_trg.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/02_mod_semcorr_SULARMA11.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
 trg<-baseestr8reg$`04-Triângulo Mineiro`
@@ -279,8 +279,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/05_mod_mat.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/02_mod_semcorr_SULARMA11.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
 mat<-baseestr8reg$`05-Mata de Minas Gerais`
@@ -344,8 +344,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/06_mod_nrt.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/02_mod_semcorr_SULARMA11.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
 nrt<-baseestr8reg$`06-Norte de Minas`
@@ -409,8 +409,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/07_mod_val.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/02_mod_semcorr_SULARMA11.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
 vl<-baseestr8reg$`07-Vale do Rio Doce`
@@ -434,6 +434,11 @@ estsinal_ar1val <- window(ts.union(ts(estsinal_ar1val, start = 2012, frequency =
 estcv_ar1val <- env1$ar1_val$cv.signal
 estcv_ar1val <- window(ts.union(ts(estcv_ar1val, start = 2012, frequency = 4)), start = c(2013,4))
 
+multsinal_semcorr_val <- env2$modelo_mult_sem_corr$ts.signal_7
+multsinal_semcorr_val <- window(ts.union(ts(multsinal_semcorr_val, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multsinal_semcorr_val <- env2$modelo_mult_sem_corr$cv.signal_7
+cv_multsinal_semcorr_val <- window(ts.union(ts(cv_multsinal_semcorr_val, start = 2012, frequency = 4)), start = c(2013,4))
+
 multsinal_val <- env3$modelo_mult$ts.signal_7
 multsinal_val <- window(ts.union(ts(multsinal_val, start = 2012, frequency = 4)), start = c(2013,4))
 cv_multsinal_val <- env3$modelo_mult$cv.signal_7
@@ -443,19 +448,22 @@ par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(desoc_val, type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(20,230))
 lines(estsinal_ar1val, col = "blue", lty = 1, lwd = 2)
+lines(multsinal_semcorr_val, col = "red", lty = 1, lwd = 2)
 lines(multsinal_val, col= "green", lty = 1, lwd = 2)
 lines(ICinf_val, col = "black", lty = 2)
 lines(ICsup_val, col = "black", lty = 2)
-legend("topleft", legend = c("Desocupação", "Sinal univariado - MA(1)","Sinal multivariado com corr - MA(1)",
-                             "IC 95% - estimativa direta"),
-       col = c("black","blue","green","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
+legend("topleft", legend = c("Desocupação", "Sinal univariado - AR(1)","Sinal multivariado sem corr - AR(1)",
+                             "Sinal multivariado com corr - AR(1)","IC 95% - estimativa direta"),
+       col = c("black","blue","red","green","black"),lty = c(1,1,1,1,2),lwd = c(2,2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_val*100), type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "CV (%)",  ylim=c(3.5,18))
 lines(estcv_ar1val, col = "blue",lwd=2, lty = 1)
+lines(cv_multsinal_semcorr_val, col = "red",lwd=2, lty = 1)
 lines(cv_multsinal_val, col = "green",lwd=2,lty = 1)
-legend("topleft", legend = c("CV desocupados","CV sinal - univariado", "CV sinal - multivariado com corr."),
-       col = c("black","blue", "green"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+legend("topleft", legend = c("CV desocupados","CV sinal - univariado", "CV sinal - multivariado sem corr.",
+                             "CV sinal - multivariado com corr."),
+       col = c("black","blue", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("07 - Vale do Rio Doce", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 ### 08 - CENTRAL ###############################################################
@@ -466,8 +474,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/08_mod_cen.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/02_mod_semcorr_SULARMA11.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
 cen<-baseestr8reg$`08-Central`
@@ -491,6 +499,11 @@ estsinal_ma1cen <- window(ts.union(ts(estsinal_ma1cen, start = 2012, frequency =
 estcv_ma1cen <- env1$ma1_cen$cv.signal
 estcv_ma1cen <- window(ts.union(ts(estcv_ma1cen, start = 2012, frequency = 4)), start = c(2013,4))
 
+multsinal_semcorr_cen <- env2$modelo_mult_sem_corr$ts.signal_8
+multsinal_semcorr_cen <- window(ts.union(ts(multsinal_semcorr_cen, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multsinal_semcorr_cen <- env2$modelo_mult_sem_corr$cv.signal_8
+cv_multsinal_semcorr_cen <- window(ts.union(ts(cv_multsinal_semcorr_cen, start = 2012, frequency = 4)), start = c(2013,4))
+
 multsinal_cen <- env3$modelo_mult$ts.signal_8
 multsinal_cen <- window(ts.union(ts(multsinal_cen, start = 2012, frequency = 4)), start = c(2013,4))
 cv_multsinal_cen <- env3$modelo_mult$cv.signal_8
@@ -500,18 +513,20 @@ par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(desoc_cen, type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(25,220))
 lines(estsinal_ma1cen, col = "blue", lty = 1, lwd = 2)
+lines(multsinal_semcorr_cen, col = "red", lty = 1, lwd = 2)
 lines(multsinal_cen, col= "green", lty = 1, lwd = 2)
 lines(ICinf_cen, col = "black", lty = 2)
 lines(ICsup_cen, col = "black", lty = 2)
-legend("topleft", legend = c("Desocupação", "Sinal univariado - MA(1)","Sinal multivariado com corr - MA(1)",
-                             "IC 95% - estimativa direta"),
-       col = c("black","blue","green","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
+legend("topleft", legend = c("Desocupação", "Sinal univariado - MA(1)","Sinal multivariado sem corr - MA(1)",
+                             "Sinal multivariado com corr - MA(1)","IC 95% - estimativa direta"),
+       col = c("black","blue","red","green","black"),lty = c(1,1,1,1,2),lwd = c(2,2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_cen*100), type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "CV (%)",  ylim=c(3,20))
 lines(estcv_ma1cen, col = "blue",lwd=2, lty = 1)
+lines(cv_multsinal_semcorr_cen, col = "red",lwd=2, lty = 1)
 lines(cv_multsinal_cen, col = "green",lwd=2,lty = 1)
-legend("topleft", legend = c("CV desocupados","CV sinal - univariado", "CV sinal - multivariado com corr."),
-       col = c("black","blue", "green"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+legend("topleft", legend = c("CV desocupados","CV sinal - univariado","CV sinal - multivariado sem corr.", "CV sinal - multivariado com corr."),
+       col = c("black","blue","red","green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
