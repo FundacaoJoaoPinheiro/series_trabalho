@@ -2,8 +2,6 @@
 ## COMPARANDO RESULTADOS DO MODELO MULTIVARIADO COM MODELO UNIVARIADO - DESOC ##
 ################################################################################
 
-# A PRINCÍPIO, NESTE SCRIPT OS RESUTADOS FORAM MODIFICADOS APENAS PARA BH e VALE
-
 ## Para visualizar os gráficos em segunda tela:
 
 dev.new()
