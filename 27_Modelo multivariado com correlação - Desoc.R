@@ -1086,7 +1086,7 @@ mtext("08 - Central", side = 3, outer = TRUE, line = 0.5)
 
 save.image(file = "C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata")
 
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata")
+#load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata")
 
 
 
