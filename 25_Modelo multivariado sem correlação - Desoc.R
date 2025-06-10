@@ -14,8 +14,8 @@ options(scipen=999)
 
 #### BASE DE DADOS #############################################################
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 
 # Environment para cada região
 
@@ -32,7 +32,7 @@ env9<-new.env()
 # 01 - bh
 
 bh<-baseestr8reg$`01-Belo Horizonte`
-dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/01_params_bh.RDS")
+dbbh<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/01_params_bh.RDS")
 desoc_bh <- bh$Total.de.desocupados/1000
 se_bh<- bh$sd_d/1000
 cv_bh <- se_bh/desoc_bh
@@ -111,13 +111,13 @@ estimated_nrt <- env6$ma1_nrt[["fit"]][["par"]]
 # 07 - val (ar1)
 
 val<-baseestr8reg$`07-Vale do Rio Doce`
-dbval<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/07_params_rio.RDS")
+dbval<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/07_params_rio.RDS")
 desoc_val<-val$Total.de.desocupados/1000
 se_val<- val$sd_d/1000
 cv_val<- se_val/desoc_val
 
 phi1_ar1_val <- dbval[["mod_ar1"]][["phi1_ar1_drio"]]
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/07_mod_val.Rdata", envir = env7)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/07_mod_val.Rdata", envir = env7)
 initial_val <- env7$ar1_val[["initial"]]
 estimated_val <- env7$ar1_val[["fit"]][["par"]]
 
