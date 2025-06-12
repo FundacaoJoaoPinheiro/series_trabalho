@@ -2196,7 +2196,7 @@ grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
 
 source("data/funcoes/12_estrutural_AR1.R")
 phi1_ar1 <- dbnrt[["mod_ar1"]][["phi1_ar1_dnrt"]]
-grid_ar1 <- grid_error[-c(25,74),]
+grid_ar1 <- grid_error[-c(74),]
 
 # Rodando o modelo
 
@@ -2336,7 +2336,7 @@ mtext("06- Estrutural Norte de Minas", side = 3, outer = TRUE, line = 0.5, font 
 
 source("data/funcoes/14_estrutural_MA1.R")
 theta1_ma1 <- dbnrt[["mod_ma1"]][["theta1_ma1_dnrt"]]
-grid_ma1 <- grid_error[-c(25,74),]
+grid_ma1 <- grid_error[-c(74),]
 
 # Rodando o modelo
 
@@ -2476,7 +2476,7 @@ mtext("06- Estrutural Norte de Minas", side = 3, outer = TRUE, line = 0.5, font 
 source("data/funcoes/15_estrutural_ARMA11.R")
 phi1_arma11 <- dbnrt[["mod_arma11"]][["phi1_arma11_dnrt"]]
 theta1_arma11 <- dbnrt[["mod_arma11"]][["theta1_arma11_dnrt"]]
-grid_arma11<-grid_error[-c(25,74),]
+grid_arma11<-grid_error[-c(74),]
 
 # Rodando o modelo
 
@@ -2682,7 +2682,7 @@ grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
 
 source("data/funcoes/12_estrutural_AR1.R")
 phi1_ar1 <- dbvl[["mod_ar1"]][["phi1_ar1_drio"]]
-grid_ar1 <- grid_error[-c(177),]
+grid_ar1 <- grid_error
 
 # Rodando o modelo
 
@@ -2857,7 +2857,7 @@ grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
 
 source("data/funcoes/12_estrutural_AR1.R")
 phi1_ar1 <- dbcen[["mod_ar1"]][["phi1_ar1_dcen"]]
-grid_ar1 <- grid_error[-c(241),]
+grid_ar1 <- grid_error[-c(117,165,169),]
 
 # Rodando o modelo
 
@@ -2995,7 +2995,7 @@ mtext("08 - Estrutural Central", side = 3, outer = TRUE, line = 0.5, font = 2, c
 
 source("data/funcoes/14_estrutural_MA1.R")
 theta1_ma1 <- dbcen[["mod_ma1"]][["theta1_ma1_dcen"]]
-grid_ma1 <- grid_error[-c(241),]
+grid_ma1 <- grid_error[-c(117,165,169),]
 
 # Rodando o modelo
 
