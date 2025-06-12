@@ -33,11 +33,11 @@ rm(list = ls())
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 bh<-baseestr8reg$`01-Belo Horizonte`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtbh<-baseal8reg$`01-Belo Horizonte` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/01_params_bh.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+dbbh<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/01_params_bh.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 y <- bh$Total.de.desocupados/1000
 se_db<- bh$sd_d/1000
@@ -47,8 +47,8 @@ cv_db <- se_db/y
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0)
+par_3<-c(0)
+par_4<-seq(-6,6,3)
 
 grid_error<- expand.grid(par_1,par_2,par_3,par_4)
 
@@ -373,7 +373,7 @@ mtext("01 - Belo Horizonte (AR e MA)", side = 3, outer = TRUE, line = 0.5, font 
 
 # Salvando o .Rdata
 
-save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/01_mod_bh.Rdata")
+save.image(file = "C:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/01_mod_bh.Rdata")
 
 ### COLAR e ENTORNO METROPOLITANO ###############################################
 
@@ -388,11 +388,11 @@ rm(list = ls())
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 ent<-baseestr8reg$`02-Colar e Entorno metropolitano de BH`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtent<-baseal8reg$`02-Colar e Entorno Metropolitano de BH` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbent<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/02_params_ent.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+dbent<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/02_params_ent.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 ## Definindo variáveis e inputs:
 
@@ -404,8 +404,8 @@ cv_db <- se_db/y
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0)
+par_3<-c(0)
+par_4<-seq(-6,6,3)
 
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
@@ -876,7 +876,7 @@ mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (AR e MA)", side = 3
 
 # Salvando o .Rdata
 
-save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/02_mod_ent.Rdata")
+save.image(file = "C:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/02_mod_ent.Rdata")
 
 ### SUL DE MINAS ###############################################################
 
@@ -891,11 +891,11 @@ rm(list = ls())
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 sul<-baseestr8reg$`03-Sul de Minas`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtsul<-baseal8reg$`03-Sul de Minas` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbsul<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/03_params_sul.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+dbsul<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/03_params_sul.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 y <- sul$Total.de.desocupados/1000
 se_db <- sul$sd_d/1000
@@ -905,8 +905,8 @@ cv_db <- se_db/y
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0)
+par_3<-c(0)
+par_4<-seq(-6,6,3)
 
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
@@ -1384,7 +1384,7 @@ mtext("03 - Sul de Minas (AR, MA e ARMA)", side = 3, outer = TRUE, line = 0.5, f
 
 # Salvando o .Rdata
 
-save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/03_mod_sul.Rdata")
+save.image(file = "C:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/03_mod_sul.Rdata")
 
 ### TRIÂNGULO MINEIRO ##########################################################
 # Modelos para Triângulo: AR(1); MA(1)
@@ -1398,11 +1398,11 @@ rm(list = ls())
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 trg<-baseestr8reg$`04-Triângulo Mineiro`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dttrg<-baseal8reg$`04-Triângulo Mineiro` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbtrg<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/04_params_trg.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+dbtrg<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/04_params_trg.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 y <- trg$Total.de.desocupados/1000
 se_db <- trg$sd_d/1000
@@ -1412,8 +1412,8 @@ cv_db <- se_db/y
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0)
+par_3<-c(0)
+par_4<-seq(-6,6,3)
 
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
@@ -1742,7 +1742,7 @@ mtext("04 - Triângulo Mineiro (AR e MA)", side = 3, outer = TRUE, line = 0.5, f
 
 # Salvando o .Rdata
 
-save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/04_mod_trg.Rdata")
+save.image(file = "C:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/04_mod_trg.Rdata")
 
 ### ZONA DA MATA ###############################################################
 # Modelos para Mata: AR(1); MA(1), ARMA(1,1)
@@ -1756,11 +1756,11 @@ rm(list = ls())
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 mat<-baseestr8reg$`05-Mata de Minas Gerais`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtmat<-baseal8reg$`05-Mata de Minas Gerais` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbmat<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/05_params_mat.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+dbmat<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/05_params_mat.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 y <- mat$Total.de.desocupados/1000
 se_db <- mat$sd_d/1000
@@ -1770,8 +1770,8 @@ cv_db <- se_db/y
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0)
+par_3<-c(0)
+par_4<-seq(-6,6,3)
 
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
@@ -2251,7 +2251,7 @@ mtext("05-Zona da Mata (AR, MA e ARMA)", side = 3, outer = TRUE, line = 0.5, fon
 
 # Salvando o .Rdata
 
-save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/05_mod_mat.Rdata")
+save.image(file = "C:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/05_mod_mat.Rdata")
 
 ### NORTE DE MINAS GERAIS ######################################################
 # Modelos para Norte: AR(1); MA(1); ARMA(1,1)
@@ -2265,11 +2265,11 @@ rm(list = ls())
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 nrt<-baseestr8reg$`06-Norte de Minas`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtnrt<-baseal8reg$`06-Norte de Minas` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbnrt<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/06_params_nrt.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+dbnrt<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/06_params_nrt.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 y <- nrt$Total.de.desocupados/1000
 se_db <- nrt$sd_d/1000
@@ -2279,8 +2279,8 @@ cv_db <- se_db/y
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0)
+par_3<-c(0)
+par_4<-seq(-6,6,3)
 
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
@@ -2760,7 +2760,7 @@ mtext("06-Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1
 
 # Salvando o .Rdata
 
- save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/06_mod_nrt.Rdata")
+ save.image(file = "C:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/06_mod_nrt.Rdata")
 
 ### VALE DO RIO DOCE ###########################################################
 # Modelos para Vale: AR(1);
@@ -2774,11 +2774,11 @@ rm(list = ls())
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 vl<-baseestr8reg$`07-Vale do Rio Doce`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtvl<-baseal8reg$`07-Vale do Rio Doce` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbvl<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/07_params_rio.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+dbvl<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/07_params_rio.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 y <- vl$Total.de.desocupados/1000
 se_db <- vl$sd_d/1000
@@ -2788,8 +2788,8 @@ cv_db <- se_db/y
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0)
+par_3<-c(0)
+par_4<-seq(-6,6,3)
 
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
@@ -2934,7 +2934,7 @@ mtext("07-Vale do Rio Doce (AR(1))", side = 3, outer = TRUE, line = 0.5, font = 
 
 # Salvando o .Rdata
 
-save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/07_mod_val.Rdata")
+save.image(file = "C:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/07_mod_val.Rdata")
 
 ### CENTRAL ####################################################################
 # Modelos para Central: AR(1); MA(1)
@@ -2948,11 +2948,11 @@ rm(list = ls())
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 cen<-baseestr8reg$`08-Central`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtcen<-baseal8reg$`08-Central` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbcen<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/08_params_cen.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+dbcen<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/08_params_cen.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 y <- cen$Total.de.desocupados/1000
 se_db <- cen$sd_d/1000
@@ -2962,8 +2962,8 @@ cv_db <- se_db/y
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0)
+par_3<-c(0)
+par_4<-seq(-6,6,3)
 
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
@@ -3292,7 +3292,7 @@ mtext("08 - Central (AR e MA)", side = 3, outer = TRUE, line = 0.5, font = 2, ce
 
 # Salvando o .Rdata
 
-save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/08_mod_cen.Rdata")
+save.image(file = "C:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/08_mod_cen.Rdata")
 
 
 ### MINAS GERAIS ###############################################################
@@ -3306,11 +3306,11 @@ rm(list = ls())
 source("data/funcoes/01_funcoes_pseudo_erro.R")
 source("data/funcoes/05_teste_H.R")
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 mg<-baseestr8reg$`09 - Minas Gerais`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtmg<-baseal8reg$`09 - Minas Gerais` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbmg<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/09_params_mg.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+dbmg<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/09_params_mg.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 y <- mg$Total.de.desocupados/1000
 se_db <- mg$sd_d/1000
@@ -3320,8 +3320,8 @@ cv_db <- se_db/y
 
 par_1<-seq(-6,6,3)
 par_2<-seq(-6,6,3)
-par_3<-seq(-6,6,3)
-par_4<-c(0)
+par_3<-c(0)
+par_4<-seq(-6,6,3)
 
 grid_error <- expand.grid(par_1,par_2,par_3,par_4)
 
@@ -3650,6 +3650,6 @@ mtext("09 - Minas Gerais (AR e MA)", side = 3, outer = TRUE, line = 0.5, font = 
 
 # Salvando o .Rdata
 
-save.image(file = "D:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/09_mod_mg.Rdata")
+save.image(file = "C:/FJP2425/Programacao/data/Rdatas/5_smoothdesocup_8reg/09_mod_mg.Rdata")
 
 
