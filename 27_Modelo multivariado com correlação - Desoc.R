@@ -1,5 +1,5 @@
 ################################################################################
-##                  MODELO MULTIVARIADO SEM CORRELAÇÃO                        ##
+##                  MODELO MULTIVARIADO COM CORRELAÇÃO                        ##
 ################################################################################
 
 library(dlm)
@@ -54,7 +54,7 @@ load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/02_mod_ent.Rda
 initial_ent <- env2$ma1_ent[["initial"]]
 estimated_ent <- env2$ma1_ent[["fit"]][["par"]]
 
-# 03 - sul (teste com resultado ma1)
+# 03 - sul
 
 sul<-baseestr8reg$`03-Sul de Minas`
 dbsul<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/03_params_sul.RDS")
@@ -62,11 +62,11 @@ desoc_sul <- sul$Total.de.desocupados/1000
 se_sul <- sul$sd_d/1000
 cv_sul <- se_sul/desoc_sul
 
-phi1_ar1_sul <- dbsul[["mod_ar1"]][["phi1_ar1_dsul"]]
-theta1_ma1_sul <- dbsul[["mod_ma1"]][["theta1_ma1_dsul"]]
+phi1_arma11_sul <- dbsul[["mod_arma11"]][["phi1_arma11_dsul"]]
+theta1_arma11_sul <- dbsul[["mod_arma11"]][["theta1_arma11_dsul"]]
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/03_mod_sul.Rdata", envir = env3)
-initial_sul <- env3$ma1_sul[["initial"]]
-estimated_sul <- env3$ma1_sul[["fit"]][["par"]]
+initial_sul <- env3$arma11_sul[["initial"]]
+estimated_sul <- env3$arma11_sul[["fit"]][["par"]]
 
 # 04 - trg
 
@@ -148,7 +148,7 @@ estimated_cen <- env8$ma1_cen[["fit"]][["par"]]
 
 keep(desoc_bh,se_bh,cv_bh,theta1_ma1_bh,initial_bh,estimated_bh,
      desoc_ent,se_ent,cv_ent,theta1_ma1_ent,initial_ent,estimated_ent,
-     desoc_sul,se_sul,cv_sul,phi1_ar1_sul,theta1_ma1_sul,initial_sul,estimated_sul,
+     desoc_sul,se_sul,cv_sul,phi1_arma11_sul,theta1_arma11_sul,initial_sul,estimated_sul,
      desoc_trg,se_trg,cv_trg,theta1_ma1_trg,initial_trg,estimated_trg,
      desoc_mat,se_mat,cv_mat,theta1_ma1_mat,initial_mat,estimated_mat,
      desoc_nrt,se_nrt,cv_nrt,theta1_ma1_nrt,initial_nrt,estimated_nrt,
@@ -202,7 +202,7 @@ modelo_mult<- list("fn"=function(params){
   #dimnames(GG) <- list(1:nrow(GG), 1:ncol(GG)) # Para se orientar ao dar "view" na matriz
   GG[41,41] <- 0
   GG[42,42] <- 0
-  GG[43,43] <- phi1_ar1_sul
+  GG[43,43] <- phi1_arma11_sul
   GG[44,44] <- 0
   GG[45,45] <- 0
   GG[46,46] <- 0
@@ -211,7 +211,7 @@ modelo_mult<- list("fn"=function(params){
   
   GG[41,49] <- theta1_ma1_bh
   GG[42,50] <- theta1_ma1_ent
-  GG[43,51] <- theta1_ma1_sul
+  GG[43,51] <- theta1_arma11_sul
   GG[44,52] <- theta1_ma1_trg
   GG[45,53] <- theta1_ma1_mat
   GG[46,54] <- theta1_ma1_nrt
@@ -330,7 +330,7 @@ estimados <- c(estimated_bh[1], estimated_ent[1], estimated_sul[1], estimated_tr
 
 data <- cbind(desoc_bh,desoc_ent,desoc_sul,desoc_trg,desoc_mat,desoc_nrt,desoc_val,desoc_cen)
 
-modelo_mult$initial<- c(estimados, rep(0,28)) # Iniciais para as correlações
+modelo_mult$initial<- c(iniciais, rep(0,28)) # Iniciais para as correlações
 # Essa linha não existia no modelo sem correlação
 
 
@@ -1084,7 +1084,7 @@ mtext("Ano", side = 1, line = 3)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5)
 
 
-save.image(file = "C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata")
+#save.image(file = "C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata")
 
 #load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata")
 
