@@ -16,15 +16,15 @@ env1<-new.env()
 env2<-new.env()
 env3<-new.env()
 
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/01_mod_bh.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/01_mod_bh.Rdata", envir = env1)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 bh<-baseestr8reg$`01-Belo Horizonte`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtbh<-baseal8reg$`01-Belo Horizonte` 
-dbbh<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/01_params_bh.RDS")
+dbbh<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/01_params_bh.RDS")
 
 desoc_bh <- bh$Total.de.desocupados/1000
 se_db<- bh$sd_d/1000
@@ -81,15 +81,15 @@ env1<-new.env()
 env2<-new.env()
 env3<-new.env()
 
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/02_mod_ent.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/02_mod_ent.Rdata", envir = env1)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 ent<-baseestr8reg$`02-Colar e Entorno metropolitano de BH`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtent<-baseal8reg$`02-Colar e Entorno Metropolitano de BH`
-dbent<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/02_params_ent.RDS")
+dbent<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/02_params_ent.RDS")
 
 desoc_ent <- (ent$Total.de.desocupados)/1000
 se_db <- (ent$sd_d)/1000
@@ -117,7 +117,7 @@ multsinal_ent <- window(ts.union(ts(multsinal_ent, start = 2012, frequency = 4))
 cv_multsinal_ent <- env3$modelo_mult$cv.signal_2
 cv_multsinal_ent <- window(ts.union(ts(cv_multsinal_ent, start = 2012, frequency = 4)), start = c(2013,4))
 
-par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(4, 0, 2, 0), cex = 0.8)
 plot(desoc_ent, type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(70,450))
 lines(estsinal_ma1ent, col = "blue", lty = 1, lwd = 2)
@@ -137,7 +137,8 @@ lines(cv_multsinal_ent, col = "green",lwd=2,lty = 1)
 legend("topleft", legend = c("CV desocupados","CV sinal - univariado", "CV sinal - multivariado sem corr.", "CV sinal - multivariado com corr."),
        col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("02 - Entorno metropolitano de Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-
+mtext("Nota: A estimação do sinal no modelo sem correlação ficou sobreajustada. Isso resultou em um CV próximo a 0.", 
+      side = 1, outer = TRUE, line = 1.0, cex = 0.8, font = 3)
 
 
 ### 03 - SUL DE MINAS ##########################################################
@@ -147,15 +148,15 @@ env1<-new.env()
 env2<-new.env()
 env3<-new.env()
 
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/03_mod_sul.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/03_mod_sul.Rdata", envir = env1)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 sul<-baseestr8reg$`03-Sul de Minas`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtsul<-baseal8reg$`03-Sul de Minas` ## Arquivo "cru", saída direta da rotina da base por rotação
-dbsul<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/03_params_sul.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
+dbsul<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/03_params_sul.RDS") ## Arquivo retirado da rotina de elaboração dos pseudo erros
 
 desoc_sul <- sul$Total.de.desocupados/1000
 se_db <- sul$sd_d/1000
@@ -212,15 +213,15 @@ env1<-new.env()
 env2<-new.env()
 env3<-new.env()
 
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/04_mod_trg.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/04_mod_trg.Rdata", envir = env1)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 trg<-baseestr8reg$`04-Triângulo Mineiro`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dttrg<-baseal8reg$`04-Triângulo Mineiro` 
-dbtrg<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/04_params_trg.RDS") 
+dbtrg<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/04_params_trg.RDS") 
 
 desoc_trg <- trg$Total.de.desocupados/1000
 se_db <- trg$sd_d/1000
@@ -276,15 +277,15 @@ env1<-new.env()
 env2<-new.env()
 env3<-new.env()
 
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/05_mod_mat.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/05_mod_mat.Rdata", envir = env1)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 mat<-baseestr8reg$`05-Mata de Minas Gerais`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtmat<-baseal8reg$`05-Mata de Minas Gerais`
-dbmat<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/05_params_mat.RDS")
+dbmat<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/05_params_mat.RDS")
 
 desoc_mat<- mat$Total.de.desocupados/1000
 se_db <- mat$sd_d/1000
@@ -341,15 +342,15 @@ env1<-new.env()
 env2<-new.env()
 env3<-new.env()
 
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/06_mod_nrt.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/06_mod_nrt.Rdata", envir = env1)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 nrt<-baseestr8reg$`06-Norte de Minas`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtnrt<-baseal8reg$`06-Norte de Minas`
-dbnrt<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/06_params_nrt.RDS") 
+dbnrt<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/06_params_nrt.RDS") 
 
 desoc_nrt <- nrt$Total.de.desocupados/1000
 se_db <- nrt$sd_d/1000
@@ -406,15 +407,15 @@ env1<-new.env()
 env2<-new.env()
 env3<-new.env()
 
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/07_mod_val.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/07_mod_val.Rdata", envir = env1)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 vl<-baseestr8reg$`07-Vale do Rio Doce`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtvl<-baseal8reg$`07-Vale do Rio Doce`
-dbvl<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/07_params_rio.RDS") 
+dbvl<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/07_params_rio.RDS") 
 
 desoc_val <- vl$Total.de.desocupados/1000
 se_db <- vl$sd_d/1000
@@ -471,15 +472,15 @@ env1<-new.env()
 env2<-new.env()
 env3<-new.env()
 
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/08_mod_cen.Rdata", envir = env1)
-load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr_SULARMA11.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/08_mod_cen.Rdata", envir = env1)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
 
-baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 cen<-baseestr8reg$`08-Central`
-baseal8reg<- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 dtcen<-baseal8reg$`08-Central`
-dbcen<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/08_params_cen.RDS") 
+dbcen<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/08_params_cen.RDS") 
 
 desoc_cen <- cen$Total.de.desocupados/1000
 se_db <- cen$sd_d/1000
