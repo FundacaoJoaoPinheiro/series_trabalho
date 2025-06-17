@@ -1042,7 +1042,7 @@ fig_ar1 <- window(ts.union(
   ts(ar1_nrt$ts.original, start = 2012, frequency = 4),
   ts(ar1_nrt$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
 plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
+legend("topleft", legend = c("Desocupação: design-based",
                             "Sinal da desocupação: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
@@ -1887,7 +1887,7 @@ fig_ar1 <- window(ts.union(
   ts(ar1_mg$ts.original, start = 2012, frequency = 4),
   ts(ar1_mg$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
 plot(fig_ar1, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
-legend("bottom", legend = c("Desocupação: design-based",
+legend("topleft", legend = c("Desocupação: design-based",
                             "Sinal da desocupação: model-based"),
        lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
 mtext("Total de desocupados (milhares de pessoas)", side = 2, line = 3)
