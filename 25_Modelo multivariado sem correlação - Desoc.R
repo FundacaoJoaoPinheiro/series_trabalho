@@ -38,73 +38,73 @@ se_bh<- bh$sd_d/1000
 cv_bh <- se_bh/desoc_bh
 
 theta1_ma1_bh <- dbbh[["mod_ma1"]][["theta1_ma1_dbh"]]
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/01_mod_bh.Rdata", envir = env1)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/01_mod_bh.Rdata", envir = env1)
 initial_bh <- env1$ma1_bh[["initial"]]
 estimated_bh <- env1$ma1_bh[["fit"]][["par"]]
 
 # 02 - ent
 
 ent<-baseestr8reg$`02-Colar e Entorno metropolitano de BH`
-dbent<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/02_params_ent.RDS")
+dbent<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/02_params_ent.RDS")
 desoc_ent<-(ent$Total.de.desocupados)/1000
 se_ent <- (ent$sd_d)/1000
 cv_ent <- se_ent/desoc_ent
 
 theta1_ma1_ent <- dbent[["mod_ma1"]][["theta1_ma1_dent"]]
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/02_mod_ent.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/02_mod_ent.Rdata", envir = env2)
 initial_ent <- env2$ma1_ent[["initial"]]
 estimated_ent <- env2$ma1_ent[["fit"]][["par"]]
  
-# 03 - sul (teste com resultado ma1)
+# 03 - sul
 
 sul<-baseestr8reg$`03-Sul de Minas`
-dbsul<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/03_params_sul.RDS")
+dbsul<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/03_params_sul.RDS")
 desoc_sul <- sul$Total.de.desocupados/1000
 se_sul <- sul$sd_d/1000
 cv_sul <- se_sul/desoc_sul
 
-phi1_ar1_sul <- dbsul[["mod_ar1"]][["phi1_ar1_dsul"]]
-theta1_ma1_sul <- dbsul[["mod_ma1"]][["theta1_ma1_dsul"]]
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/03_mod_sul.Rdata", envir = env3)
-initial_sul <- env3$ma1_sul[["initial"]]
-estimated_sul <- env3$ma1_sul[["fit"]][["par"]]
+phi1_arma11_sul <- dbsul[["mod_arma11"]][["phi1_arma11_dsul"]]
+theta1_arma11_sul <- dbsul[["mod_arma11"]][["theta1_arma11_dsul"]]
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/03_mod_sul.Rdata", envir = env3)
+initial_sul <- env3$arma11_sul[["initial"]]
+estimated_sul <- env3$arma11_sul[["fit"]][["par"]]
 
 # 04 - trg
 
 trg <- baseestr8reg$`04-Triângulo Mineiro`
-dbtrg<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/04_params_trg.RDS")
+dbtrg<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/04_params_trg.RDS")
 desoc_trg<-trg$Total.de.desocupados/1000
 se_trg <- trg$sd_d/1000
 cv_trg <- se_trg/desoc_trg
 
 theta1_ma1_trg <- dbtrg[["mod_ma1"]][["theta1_ma1_dtrg"]]
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/04_mod_trg.Rdata", envir = env4)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/04_mod_trg.Rdata", envir = env4)
 initial_trg <- env4$ma1_trg[["initial"]]
 estimated_trg <- env4$ma1_trg[["fit"]][["par"]]
 
 # 05 - mat
 
 mat<-baseestr8reg$`05-Mata de Minas Gerais`
-dbmat<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/05_params_mat.RDS")
+dbmat<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/05_params_mat.RDS")
 desoc_mat<- mat$Total.de.desocupados/1000
 se_mat<-mat$sd_d/1000
 cv_mat<-se_mat/desoc_mat
 
 theta1_ma1_mat <- dbmat[["mod_ma1"]][["theta1_ma1_dmat"]]
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/05_mod_mat.Rdata", envir = env5)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/05_mod_mat.Rdata", envir = env5)
 initial_mat <- env5$ma1_mat[["initial"]]
 estimated_mat <- env5$ma1_mat[["fit"]][["par"]]
 
 # 06 - nrt
 
 nrt<-baseestr8reg$`06-Norte de Minas`
-dbnrt<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/06_params_nrt.RDS")
+dbnrt<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/06_params_nrt.RDS")
 desoc_nrt<-nrt$Total.de.desocupados/1000
 se_nrt <- nrt$sd_d/1000
 cv_nrt <- se_nrt/desoc_nrt
 
 theta1_ma1_nrt <- dbnrt[["mod_ma1"]][["theta1_ma1_dnrt"]]
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/06_mod_nrt.Rdata", envir = env6)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/06_mod_nrt.Rdata", envir = env6)
 initial_nrt <- env6$ma1_nrt[["initial"]]
 estimated_nrt <- env6$ma1_nrt[["fit"]][["par"]]
 
@@ -124,13 +124,13 @@ estimated_val <- env7$ar1_val[["fit"]][["par"]]
 # 08 - cen
 
 cen<-baseestr8reg$`08-Central`
-dbcen<-readRDS("D:/FJP2425/Programacao/data/pseudoerros_8reg/08_params_cen.RDS")
+dbcen<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_8reg/08_params_cen.RDS")
 desoc_cen<-cen$Total.de.desocupados/1000
 se_cen<-cen$sd_d/1000
 cv_cen<-se_cen/desoc_cen
 
 theta1_ma1_cen <- dbcen[["mod_ma1"]][["theta1_ma1_dcen"]]
-load("D:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/08_mod_cen.Rdata", envir = env8)
+load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/08_mod_cen.Rdata", envir = env8)
 initial_cen <- env8$ma1_cen[["initial"]]
 estimated_cen <- env8$ma1_cen[["fit"]][["par"]]
 
@@ -149,7 +149,7 @@ estimated_cen <- env8$ma1_cen[["fit"]][["par"]]
 
 keep(desoc_bh,se_bh,cv_bh,theta1_ma1_bh,initial_bh,estimated_bh,
      desoc_ent,se_ent,cv_ent,theta1_ma1_ent,initial_ent,estimated_ent,
-     desoc_sul,se_sul,cv_sul,phi1_ar1_sul,theta1_ma1_sul,initial_sul,estimated_sul,
+     desoc_sul,se_sul,cv_sul,phi1_arma11_sul,theta1_arma11_sul,initial_sul,estimated_sul,
      desoc_trg,se_trg,cv_trg,theta1_ma1_trg,initial_trg,estimated_trg,
      desoc_mat,se_mat,cv_mat,theta1_ma1_mat,initial_mat,estimated_mat,
      desoc_nrt,se_nrt,cv_nrt,theta1_ma1_nrt,initial_nrt,estimated_nrt,
@@ -203,7 +203,7 @@ modelo_mult_sem_corr<- list("fn"=function(params){
  #dimnames(GG) <- list(1:nrow(GG), 1:ncol(GG)) # Para se orientar ao dar "view" na matriz
   GG[41,41] <- 0
   GG[42,42] <- 0
-  GG[43,43] <- phi1_ar1_sul
+  GG[43,43] <- phi1_arma11_sul
   GG[44,44] <- 0
   GG[45,45] <- 0
   GG[46,46] <- 0
@@ -212,7 +212,7 @@ modelo_mult_sem_corr<- list("fn"=function(params){
   
   GG[41,49] <- theta1_ma1_bh
   GG[42,50] <- theta1_ma1_ent
-  GG[43,51] <- theta1_ma1_sul
+  GG[43,51] <- theta1_arma11_sul
   GG[44,52] <- theta1_ma1_trg
   GG[45,53] <- theta1_ma1_mat
   GG[46,54] <- theta1_ma1_nrt
@@ -1030,7 +1030,7 @@ mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5)
 
-# save.image(file = "D:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata")
+# save.image(file = "C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata")
 
 # load("D:/FJP2425/Programacao/data/Rdatas/11_multivariado - desoc_8reg/01_mod_semcorr_SULMA1.Rdata")
 
