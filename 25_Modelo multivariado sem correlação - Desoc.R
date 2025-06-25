@@ -286,7 +286,7 @@ estimados <- c(estimated_bh[1], estimated_ent[1], estimated_sul[1], estimated_tr
                estimated_bh[5], estimated_ent[5], estimated_sul[5], estimated_trg[5], estimated_mat[5], estimated_nrt[5], estimated_val[5], estimated_cen[5])
 
 data <- cbind(desoc_bh,desoc_ent,desoc_sul,desoc_trg,desoc_mat,desoc_nrt,desoc_val,desoc_cen)
-modelo_mult_sem_corr$initial<- c(iniciais)
+modelo_mult_sem_corr$initial<- c(estimados)
 
 
 start_time <- Sys.time()
