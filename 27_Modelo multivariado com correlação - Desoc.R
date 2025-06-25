@@ -330,9 +330,8 @@ estimados <- c(estimated_bh[1], estimated_ent[1], estimated_sul[1], estimated_tr
 
 data <- cbind(desoc_bh,desoc_ent,desoc_sul,desoc_trg,desoc_mat,desoc_nrt,desoc_val,desoc_cen)
 
-modelo_mult$initial<- c(iniciais, rep(0,28)) # Iniciais para as correlações
+modelo_mult$initial<- c(estimados, rep(0,28)) # Iniciais para as correlações
 # Essa linha não existia no modelo sem correlação
-
 
 start_time <- Sys.time()
 modelo_mult$fit <- dlmMLE(data, modelo_mult$initial,modelo_mult$fn, hessian=T,
@@ -340,7 +339,6 @@ modelo_mult$fit <- dlmMLE(data, modelo_mult$initial,modelo_mult$fn, hessian=T,
 end_time <- Sys.time()
 end_time - start_time
 beep(3)
-
 
 ## Separação dos resultados:
 
