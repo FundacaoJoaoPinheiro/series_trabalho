@@ -52,6 +52,21 @@ multsinal_bh <- window(ts.union(ts(multsinal_bh, start = 2012, frequency = 4)), 
 cv_multsinal_bh <- env3$modelo_mult$cv.signal_1
 cv_multsinal_bh <- window(ts.union(ts(cv_multsinal_bh, start = 2012, frequency = 4)), start = c(2013,4))
 
+esttrend_ma1bh <- env1$ma1_bh$ts.trend
+esttrend_ma1bh <- window(ts.union(ts(esttrend_ma1bh, start = 2012, frequency = 4)), start = c(2013,4))
+cv_esttrend_bh <- env1$ma1_bh$cv.trend
+cv_esttrend_bh <- window(ts.union(ts(cv_esttrend_bh, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_semcorr_bh <- env2$modelo_mult_sem_corr$ts.trend_1
+multtrend_semcorr_bh <- window(ts.union(ts(multtrend_semcorr_bh, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_semcorr_bh <- env2$modelo_mult_sem_corr$cv.trend_1
+cv_multtrend_semcorr_bh <- window(ts.union(ts(cv_multtrend_semcorr_bh, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_bh <- env3$modelo_mult$ts.trend_1
+multtrend_bh <- window(ts.union(ts(multtrend_bh, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_bh <- env3$modelo_mult$cv.trend_1
+cv_multtrend_bh <- window(ts.union(ts(cv_multtrend_bh, start = 2012, frequency = 4)), start = c(2013,4))
+
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(desoc_bh, type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(40,245))
@@ -72,6 +87,30 @@ lines(cv_multsinal_bh, col = "green", lty = 1, lwd = 2)
 legend("topleft", legend = c("CV desocupados","CV sinal - univariado", "CV sinal - multivariado sem corr.", "CV sinal - multivariado com corr."), 
        col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("01 - Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+
+## Gráfico das tendências
+
+par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
+plot(desoc_bh, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(40,245))
+lines(esttrend_ma1bh, col = "blue", lty = 1, lwd = 2)
+lines(multtrend_semcorr_bh, col= "red", lty = 1, lwd = 2)
+lines(multtrend_bh, col= "green", lty = 1, lwd = 2)
+lines(ICinf_bh, col = "black", lty = 2)
+lines(ICsup_bh, col = "black", lty = 2)
+legend("topleft", legend = c("Desocupação", "Tendência univariado - MA(1)","Tendência multivariado sem corr. - MA(1)", 
+                             "Tendência multivariado com corr - MA(1)", "IC 95% - estimativa direta"), 
+       col = c("black","blue","red","green","black"),lty = c(1,1,1,1,2),lwd = c(2,2,2,2,1),bty = "n", cex=0.8)
+
+plot((cv_bh*100), type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(3,15))
+lines(cv_esttrend_bh, col = "blue",lwd=2, lty = 1)
+lines(cv_multtrend_semcorr_bh, col = "red",lwd=2,lty = 1)
+lines(cv_multtrend_bh, col = "green", lty = 1, lwd = 2)
+legend("topleft", legend = c("CV desocupados","CV tendência - univariado", "CV tendência - multivariado sem corr.", "CV tendência - multivariado com corr."), 
+       col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
+mtext("01 - Belo Horizonte (tendências)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
 ### 02 - COLAR E ENTORNO METROPOLITANO DE BELO HORIZONTE #######################
@@ -117,6 +156,21 @@ multsinal_ent <- window(ts.union(ts(multsinal_ent, start = 2012, frequency = 4))
 cv_multsinal_ent <- env3$modelo_mult$cv.signal_2
 cv_multsinal_ent <- window(ts.union(ts(cv_multsinal_ent, start = 2012, frequency = 4)), start = c(2013,4))
 
+esttrend_ma1ent <- env1$ma1_ent$ts.trend
+esttrend_ma1ent <- window(ts.union(ts(esttrend_ma1ent, start = 2012, frequency = 4)), start = c(2013,4))
+cv_esttrend_ent <- env1$ma1_ent$cv.trend
+cv_esttrend_ent <- window(ts.union(ts(cv_esttrend_ent, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_semcorr_ent <- env2$modelo_mult_sem_corr$ts.trend_2
+multtrend_semcorr_ent <- window(ts.union(ts(multtrend_semcorr_ent, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_semcorr_ent <- env2$modelo_mult_sem_corr$cv.trend_2
+cv_multtrend_semcorr_ent <- window(ts.union(ts(cv_multtrend_semcorr_ent, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_ent <- env3$modelo_mult$ts.trend_2
+multtrend_ent <- window(ts.union(ts(multtrend_ent, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_ent <- env3$modelo_mult$cv.trend_2
+cv_multtrend_ent <- window(ts.union(ts(cv_multtrend_ent, start = 2012, frequency = 4)), start = c(2013,4))
+
 par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(4, 0, 2, 0), cex = 0.8)
 plot(desoc_ent, type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(70,450))
@@ -138,6 +192,31 @@ legend("topleft", legend = c("CV desocupados","CV sinal - univariado", "CV sinal
        col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("02 - Entorno metropolitano de Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 mtext("Nota: A estimação do sinal no modelo sem correlação ficou sobreajustada. Isso resultou em um CV próximo a 0.", 
+      side = 1, outer = TRUE, line = 1.0, cex = 0.8, font = 3)
+
+# Tendências:
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(4, 0, 2, 0), cex = 0.8)
+plot(desoc_ent, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(70,450))
+lines(esttrend_ma1ent, col = "blue", lty = 1, lwd = 2)
+lines(multtrend_semcorr_ent, col= "red", lty = 1, lwd = 2)
+lines(multtrend_ent, col = "green", lty = 1, lwd = 2)
+lines(ICinf_ent, col = "black", lty = 2)
+lines(ICsup_ent, col = "black", lty = 2)
+legend("topleft", legend = c("Desocupação", "Tendência univariado - MA(1)","Tendência multivariado sem corr. - MA(1)", 
+                             "Tendência multivariado com corr - MA(1)", "IC 95% - estimativa direta"), 
+       col = c("black","blue","red","green","black"),lty = c(1,1,1,1,2),lwd = c(2,2,2,2,1),bty = "n", cex=0.8)
+
+plot((cv_ent*100), type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(1,13))
+lines(cv_esttrend_ent, col = "blue",lwd=2, lty = 1)
+lines(cv_multtrend_semcorr_ent, col = "red",lwd=2,lty = 1)
+lines(cv_multtrend_ent, col = "green",lwd=2,lty = 1)
+legend("topleft", legend = c("CV desocupados","CV tendência - univariado", "CV tendência - multivariado sem corr.", "CV tendência - multivariado com corr."), 
+       col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
+mtext("02 - Entorno metropolitano de Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("Nota: Dado o sobreajuste na estimação dos somponentes da série, o modelo sem correlação se distanciou do univairado.", 
       side = 1, outer = TRUE, line = 1.0, cex = 0.8, font = 3)
 
 
@@ -184,6 +263,21 @@ multsinal_sul <- window(ts.union(ts(multsinal_sul, start = 2012, frequency = 4))
 cv_multsinal_sul <- env3$modelo_mult$cv.signal_3
 cv_multsinal_sul <- window(ts.union(ts(cv_multsinal_sul, start = 2012, frequency = 4)), start = c(2013,4))
 
+esttrend_arma11sul <- env1$arma11_sul$ts.trend
+esttrend_arma11sul <- window(ts.union(ts(esttrend_arma11sul, start = 2012, frequency = 4)), start = c(2013,4))
+cv_esttrend_sul <- env1$arma11_sul$cv.trend
+cv_esttrend_sul <- window(ts.union(ts(cv_esttrend_sul, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_semcorr_sul <- env2$modelo_mult_sem_corr$ts.trend_3
+multtrend_semcorr_sul <- window(ts.union(ts(multtrend_semcorr_sul, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_semcorr_sul <- env2$modelo_mult_sem_corr$cv.trend_3
+cv_multtrend_semcorr_sul <- window(ts.union(ts(cv_multtrend_semcorr_sul, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_sul <- env3$modelo_mult$ts.trend_3
+multtrend_sul <- window(ts.union(ts(multtrend_sul, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_sul <- env3$modelo_mult$cv.trend_3
+cv_multtrend_sul <- window(ts.union(ts(cv_multtrend_sul, start = 2012, frequency = 4)), start = c(2013,4))
+
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(desoc_sul, type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(15,230))
@@ -205,6 +299,28 @@ legend("topleft", legend = c("CV desocupados","CV sinal - univariado", "CV sinal
        col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("03 - Sul de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+# Tendências:
+
+par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
+plot(desoc_sul, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(15,230))
+lines(esttrend_arma11sul, col = "blue", lty = 1, lwd = 2)
+lines(multtrend_semcorr_sul, col= "red", lty = 1, lwd = 2)
+lines(multtrend_sul, col = "green", lty = 1, lwd = 2)
+lines(ICinf_sul, col = "black", lty = 2)
+lines(ICsup_sul, col = "black", lty = 2)
+legend("topleft", legend = c("Desocupação", "Tendência univariado - ARMA(1,1)","Tendência multivariado sem corr - ARMA(1,1)",
+                             "Tendência multivariado com corr - ARMA(1,1)","IC 95% - estimativa direta"),
+       col = c("black","blue","red","green","black"),lty = c(1,1,1,1,2),lwd = c(2,2,2,2,1),bty = "n", cex=0.8)
+
+plot((cv_sul*100), type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(5,20))
+lines(cv_esttrend_sul, col = "blue",lwd=2, lty = 1)
+lines(cv_multtrend_semcorr_sul, col = "red",lwd=2,lty = 1)
+lines(cv_multtrend_sul, col = "green", lty = 1, lwd = 2)
+legend("topleft", legend = c("CV desocupados","CV Tendência - univariado", "CV Tendência - multivariado sem corr.", "CV Tendência - multivariado com corr."),
+       col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
+mtext("03 - Sul de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 ### 04 - TRIÂNGULO MINEIRO #####################################################
 rm(list = ls())
@@ -249,6 +365,21 @@ multsinal_trg <- window(ts.union(ts(multsinal_trg, start = 2012, frequency = 4))
 cv_multsinal_trg <- env3$modelo_mult$cv.signal_4
 cv_multsinal_trg <- window(ts.union(ts(cv_multsinal_trg, start = 2012, frequency = 4)), start = c(2013,4))
 
+esttrend_ma1trg <- env1$ma1_trg$ts.trend
+esttrend_ma1trg <- window(ts.union(ts(esttrend_ma1trg, start = 2012, frequency = 4)), start = c(2013,4))
+cv_esttrend_trg <- env1$ma1_trg$cv.trend
+cv_esttrend_trg <- window(ts.union(ts(cv_esttrend_trg, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_semcorr_trg <- env2$modelo_mult_sem_corr$ts.trend_4
+multtrend_semcorr_trg <- window(ts.union(ts(multtrend_semcorr_trg, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_semcorr_trg <- env2$modelo_mult_sem_corr$cv.trend_4
+cv_multtrend_semcorr_trg <- window(ts.union(ts(cv_multtrend_semcorr_trg, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_trg <- env3$modelo_mult$ts.trend_4
+multtrend_trg <- window(ts.union(ts(multtrend_trg, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_trg <- env3$modelo_mult$cv.trend_4
+cv_multtrend_trg <- window(ts.union(ts(cv_multtrend_trg, start = 2012, frequency = 4)), start = c(2013,4))
+
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(desoc_trg, type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(30,215))
@@ -267,6 +398,29 @@ lines(estcv_ma1trg, col = "blue",lwd=2, lty = 1)
 lines(cv_multsinal_semcorr_trg, col = "red",lwd=2,lty = 1)
 lines(cv_multsinal_trg, col = "green", lty = 1, lwd = 2)
 legend("topleft", legend = c("CV desocupados","CV sinal - univariado", "CV sinal - multivariado sem corr.", "CV sinal - multivariado com corr."),
+       col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
+mtext("04 - Triângulo mineiro", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+# Tendências:
+
+par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
+plot(desoc_trg, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(30,215))
+lines(esttrend_ma1trg, col = "blue", lty = 1, lwd = 2)
+lines(multtrend_semcorr_trg, col= "red", lty = 1, lwd = 2)
+lines(multtrend_trg, col = "green", lty = 1, lwd = 2)
+lines(ICinf_trg, col = "black", lty = 2)
+lines(ICsup_trg, col = "black", lty = 2)
+legend("topleft", legend = c("Desocupação", "Tendência univariado - MA(1)","Tendência multivariado sem corr - MA(1)",
+                             "Tendência multivariado com corr - MA(1)","IC 95% - estimativa direta"),
+       col = c("black","blue","red","green","black"),lty = c(1,1,1,1,2),lwd = c(2,2,2,2,1),bty = "n", cex=0.8)
+
+plot((cv_trg*100), type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(4,18))
+lines(cv_esttrend_trg, col = "blue",lwd=2, lty = 1)
+lines(cv_multtrend_semcorr_trg, col = "red",lwd=2,lty = 1)
+lines(cv_multtrend_trg, col = "green", lty = 1, lwd = 2)
+legend("topleft", legend = c("CV desocupados","CV tendência - univariado", "CV tendência - multivariado sem corr.", "CV tendência - multivariado com corr."),
        col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("04 - Triângulo mineiro", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
@@ -313,6 +467,21 @@ multsinal_mat <- window(ts.union(ts(multsinal_mat, start = 2012, frequency = 4))
 cv_multsinal_mat <- env3$modelo_mult$cv.signal_5
 cv_multsinal_mat <- window(ts.union(ts(cv_multsinal_mat, start = 2012, frequency = 4)), start = c(2013,4))
 
+esttrend_ma1mat <- env1$ma1_mat$ts.trend
+esttrend_ma1mat <- window(ts.union(ts(esttrend_ma1mat, start = 2012, frequency = 4)), start = c(2013,4))
+cv_esttrend_mat <- env1$ma1_mat$cv.trend
+cv_esttrend_mat <- window(ts.union(ts(cv_esttrend_mat, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_semcorr_mat <- env2$modelo_mult_sem_corr$ts.trend_5
+multtrend_semcorr_mat <- window(ts.union(ts(multtrend_semcorr_mat, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_semcorr_mat <- env2$modelo_mult_sem_corr$cv.trend_5
+cv_multtrend_semcorr_mat <- window(ts.union(ts(cv_multtrend_semcorr_mat, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_mat <- env3$modelo_mult$ts.trend_5
+multtrend_mat <- window(ts.union(ts(multtrend_mat, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_mat <- env3$modelo_mult$cv.trend_5
+cv_multtrend_mat <- window(ts.union(ts(cv_multtrend_mat, start = 2012, frequency = 4)), start = c(2013,4))
+
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(desoc_mat, type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(25,210))
@@ -334,6 +503,28 @@ legend("topleft", legend = c("CV desocupados","CV sinal - univariado", "CV sinal
        col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("05 - Zona da Mata", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+# Tendências:
+
+par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
+plot(desoc_mat, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(25,210))
+lines(esttrend_ma1mat, col = "blue", lty = 1, lwd = 2)
+lines(multtrend_semcorr_mat, col= "red", lty = 1, lwd = 2)
+lines(multtrend_mat, col = "green", lty = 1, lwd = 2)
+lines(ICinf_mat, col = "black", lty = 2)
+lines(ICsup_mat, col = "black", lty = 2)
+legend("topleft", legend = c("Desocupação", "Tendência univariado - MA(1)","Tendência multivariado sem corr - MA(1)",
+                             "Tendência multivariado com corr - MA(1)","IC 95% - estimativa direta"),
+       col = c("black","blue","red","green","black"),lty = c(1,1,1,1,2),lwd = c(2,2,2,2,1),bty = "n", cex=0.8)
+
+plot((cv_mat*100), type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(3,18))
+lines(cv_esttrend_mat, col = "blue",lwd=2, lty = 1)
+lines(cv_multtrend_semcorr_mat, col = "red",lwd=2,lty = 1)
+lines(cv_multtrend_mat, col = "green", lty = 1, lwd = 2)
+legend("topleft", legend = c("CV desocupados","CV tendência - univariado", "CV tendência - multivariado sem corr.", "CV tendência - multivariado com corr."),
+       col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
+mtext("05 - Zona da Mata", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 ### 06 - NORTE DE MINAS ########################################################
 rm(list = ls())
@@ -378,6 +569,21 @@ multsinal_nrt <- window(ts.union(ts(multsinal_nrt, start = 2012, frequency = 4))
 cv_multsinal_nrt <- env3$modelo_mult$cv.signal_6
 cv_multsinal_nrt <- window(ts.union(ts(cv_multsinal_nrt, start = 2012, frequency = 4)), start = c(2013,4))
 
+esttrend_ma1nrt <- env1$ma1_nrt$ts.trend
+esttrend_ma1nrt <- window(ts.union(ts(esttrend_ma1nrt, start = 2012, frequency = 4)), start = c(2013,4))
+cv_esttrend_nrt <- env1$ma1_nrt$cv.trend
+cv_esttrend_nrt <- window(ts.union(ts(cv_esttrend_nrt, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_semcorr_nrt <- env2$modelo_mult_sem_corr$ts.trend_6
+multtrend_semcorr_nrt <- window(ts.union(ts(multtrend_semcorr_nrt, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_semcorr_nrt <- env2$modelo_mult_sem_corr$cv.trend_6
+cv_multtrend_semcorr_nrt <- window(ts.union(ts(cv_multtrend_semcorr_nrt, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_nrt <- env3$modelo_mult$ts.trend_6
+multtrend_nrt <- window(ts.union(ts(multtrend_nrt, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_nrt <- env3$modelo_mult$cv.trend_6
+cv_multtrend_nrt <- window(ts.union(ts(cv_multtrend_nrt, start = 2012, frequency = 4)), start = c(2013,4))
+
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(desoc_nrt, type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(40,280))
@@ -399,6 +605,28 @@ legend("topleft", legend = c("CV desocupados","CV sinal - univariado", "CV sinal
        col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("06 - Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+# Tendências:
+
+par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
+plot(desoc_nrt, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(40,280))
+lines(esttrend_ma1nrt, col = "blue", lty = 1, lwd = 2)
+lines(multtrend_semcorr_nrt, col= "red", lty = 1, lwd = 2)
+lines(multtrend_nrt, col = "green", lty = 1, lwd = 2)
+lines(ICinf_nrt, col = "black", lty = 2)
+lines(ICsup_nrt, col = "black", lty = 2)
+legend("topleft", legend = c("Desocupação", "Tendência univariado - MA(1)","Tendência multivariado sem corr - MA(1)",
+                             "Tendência multivariado com corr - MA(1)","IC 95% - estimativa direta"),
+       col = c("black","blue","red","green","black"),lty = c(1,1,1,1,2),lwd = c(2,2,2,2,1),bty = "n", cex=0.8)
+
+plot((cv_nrt*100), type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(2.5,22))
+lines(cv_esttrend_nrt, col = "blue",lwd=2, lty = 1)
+lines(cv_multtrend_semcorr_nrt, col = "red",lwd=2,lty = 1)
+lines(cv_multtrend_nrt, col = "green", lty = 1, lwd = 2)
+legend("topleft", legend = c("CV desocupados","CV tendência - univariado", "CV tendência - multivariado sem corr.", "CV tendência - multivariado com corr."),
+       col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
+mtext("06 - Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 ### 07 - VALE DO RIO DOCE ######################################################
 rm(list = ls())
@@ -443,7 +671,22 @@ multsinal_val <- window(ts.union(ts(multsinal_val, start = 2012, frequency = 4))
 cv_multsinal_val <- env3$modelo_mult$cv.signal_7
 cv_multsinal_val <- window(ts.union(ts(cv_multsinal_val, start = 2012, frequency = 4)), start = c(2013,4))
 
-par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
+esttrend_ar1val <- env1$ar1_val$ts.trend
+esttrend_ar1val <- window(ts.union(ts(esttrend_ar1val, start = 2012, frequency = 4)), start = c(2013,4))
+cv_esttrend_val <- env1$ar1_val$cv.trend
+cv_esttrend_val <- window(ts.union(ts(cv_esttrend_val, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_semcorr_val <- env2$modelo_mult_sem_corr$ts.trend_7
+multtrend_semcorr_val <- window(ts.union(ts(multtrend_semcorr_val, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_semcorr_val <- env2$modelo_mult_sem_corr$cv.trend_7
+cv_multtrend_semcorr_val <- window(ts.union(ts(cv_multtrend_semcorr_val, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_val <- env3$modelo_mult$ts.trend_7
+multtrend_val <- window(ts.union(ts(multtrend_val, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_val <- env3$modelo_mult$cv.trend_7
+cv_multtrend_val <- window(ts.union(ts(cv_multtrend_val, start = 2012, frequency = 4)), start = c(2013,4))
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(4, 0, 2, 0), cex = 0.8)
 plot(desoc_val, type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(20,230))
 lines(estsinal_ar1val, col = "blue", lty = 1, lwd = 2)
@@ -462,8 +705,36 @@ lines(cv_multsinal_semcorr_val, col = "red",lwd=2, lty = 1)
 lines(cv_multsinal_val, col = "green",lwd=2,lty = 1)
 legend("topleft", legend = c("CV desocupados","CV sinal - univariado", "CV sinal - multivariado sem corr.",
                              "CV sinal - multivariado com corr."),
-       col = c("black","blue", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
+       col = c("black","blue","red","green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("07 - Vale do Rio Doce", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("Nota: A estimação do sinal no modelo sem correlação ficou sobreajustada. Isso resultou em um CV próximo a 0.", 
+      side = 1, outer = TRUE, line = 1.0, cex = 0.8, font = 3)
+
+# Tendências:
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(4, 0, 2, 0), cex = 0.8)
+plot(desoc_val, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(20,230))
+lines(esttrend_ar1val, col = "blue", lty = 1, lwd = 2)
+lines(multtrend_semcorr_val, col = "red", lty = 1, lwd = 2)
+lines(multtrend_val, col= "green", lty = 1, lwd = 2)
+lines(ICinf_val, col = "black", lty = 2)
+lines(ICsup_val, col = "black", lty = 2)
+legend("topleft", legend = c("Desocupação", "Tendência univariado - AR(1)","Tendência multivariado sem corr - AR(1)",
+                             "Tendência multivariado com corr - AR(1)","IC 95% - estimativa direta"),
+       col = c("black","blue","red","green","black"),lty = c(1,1,1,1,2),lwd = c(2,2,2,2,1),bty = "n", cex=0.8)
+
+plot((cv_val*100), type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(1,18))
+lines(cv_esttrend_val, col = "blue",lwd=2, lty = 1)
+lines(cv_multtrend_semcorr_val, col = "red",lwd=2, lty = 1)
+lines(cv_multtrend_val, col = "green",lwd=2,lty = 1)
+legend("topleft", legend = c("CV desocupados","CV tendência - univariado", "CV tendência - multivariado sem corr.",
+                             "CV tendência - multivariado com corr."),
+       col = c("black","blue","red","green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
+mtext("07 - Vale do Rio Doce", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("Nota: Dado o sobreajuste na estimação dos somponentes da série, o modelo sem correlação se distanciou do univairado.", 
+      side = 1, outer = TRUE, line = 1.0, cex = 0.8, font = 3)
 
 ### 08 - CENTRAL ###############################################################
 rm(list = ls())
@@ -508,6 +779,21 @@ multsinal_cen <- window(ts.union(ts(multsinal_cen, start = 2012, frequency = 4))
 cv_multsinal_cen <- env3$modelo_mult$cv.signal_8
 cv_multsinal_cen <- window(ts.union(ts(cv_multsinal_cen, start = 2012, frequency = 4)), start = c(2013,4))
 
+esttrend_ma1cen <- env1$ma1_cen$ts.trend
+esttrend_ma1cen <- window(ts.union(ts(esttrend_ma1cen, start = 2012, frequency = 4)), start = c(2013,4))
+cv_esttrend_cen <- env1$ma1_cen$cv.trend
+cv_esttrend_cen <- window(ts.union(ts(cv_esttrend_cen, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_semcorr_cen <- env2$modelo_mult_sem_corr$ts.trend_8
+multtrend_semcorr_cen <- window(ts.union(ts(multtrend_semcorr_cen, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_semcorr_cen <- env2$modelo_mult_sem_corr$cv.trend_8
+cv_multtrend_semcorr_cen <- window(ts.union(ts(cv_multtrend_semcorr_cen, start = 2012, frequency = 4)), start = c(2013,4))
+
+multtrend_cen <- env3$modelo_mult$ts.trend_8
+multtrend_cen <- window(ts.union(ts(multtrend_cen, start = 2012, frequency = 4)), start = c(2013,4))
+cv_multtrend_cen <- env3$modelo_mult$cv.trend_8
+cv_multtrend_cen <- window(ts.union(ts(cv_multtrend_cen, start = 2012, frequency = 4)), start = c(2013,4))
+
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(desoc_cen, type = "l", col = "black", lwd = 2,
      xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(25,220))
@@ -529,3 +815,25 @@ legend("topleft", legend = c("CV desocupados","CV sinal - univariado","CV sinal 
        col = c("black","blue","red","green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+# Tendências:
+
+par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
+plot(desoc_cen, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)", ylim=c(25,220))
+lines(esttrend_ma1cen, col = "blue", lty = 1, lwd = 2)
+lines(multtrend_semcorr_cen, col = "red", lty = 1, lwd = 2)
+lines(multtrend_cen, col= "green", lty = 1, lwd = 2)
+lines(ICinf_cen, col = "black", lty = 2)
+lines(ICsup_cen, col = "black", lty = 2)
+legend("topleft", legend = c("Desocupação", "Tendência univariado - MA(1)","Tendência multivariado sem corr - MA(1)",
+                             "Tendência multivariado com corr - MA(1)","IC 95% - estimativa direta"),
+       col = c("black","blue","red","green","black"),lty = c(1,1,1,1,2),lwd = c(2,2,2,2,1),bty = "n", cex=0.8)
+
+plot((cv_cen*100), type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(3,20))
+lines(cv_esttrend_cen, col = "blue",lwd=2, lty = 1)
+lines(cv_multtrend_semcorr_cen, col = "red",lwd=2, lty = 1)
+lines(cv_multtrend_cen, col = "green",lwd=2,lty = 1)
+legend("topleft", legend = c("CV desocupados","CV tendência - univariado","CV tendência - multivariado sem corr.", "CV tendência - multivariado com corr."),
+       col = c("black","blue","red","green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
+mtext("08 - Central", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
