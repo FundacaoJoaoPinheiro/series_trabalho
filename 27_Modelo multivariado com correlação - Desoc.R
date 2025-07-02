@@ -300,7 +300,7 @@ modelo_mult<- list("fn"=function(params){
   W[15,14] <- W[14,15] <- tanh(params[66]) * prod(exp(0.5 * params[c(14,15)])) # NRT COM VAL
   W[16,14] <- W[14,16] <- tanh(params[67]) * prod(exp(0.5 * params[c(14,16)])) # NRT COM CEN
   
-  W[16,15] <- W[16,16] <- tanh(params[68]) * prod(exp(0.5 * params[c(17,18)])) # VAL COM CEN
+  W[16,15] <- W[15,16] <- tanh(params[68]) * prod(exp(0.5 * params[c(15,16)])) # VAL COM CEN
   
   m$W <- W
   
@@ -1082,7 +1082,7 @@ mtext("Ano", side = 1, line = 3)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5)
 
 
-#save.image(file = "C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata")
+# save.image(file = "C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata")
 
 #load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata")
 
