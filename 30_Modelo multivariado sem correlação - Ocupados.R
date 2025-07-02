@@ -153,7 +153,7 @@ modelo_mult_sem_corr<- list("fn"=function(params){
   FF <- m$FF %x% diag(8)
   m$FF <- FF
   
-  JFF <- matrix(0,8,56)
+  JFF <- matrix(0,8,48)
   JFF[1,41] <- 1
   JFF[2,42] <- 2
   JFF[3,43] <- 3
@@ -274,7 +274,7 @@ modelo_mult_sem_corr$sm <- dropFirst(modelo_mult_sem_corr$smoothed$s)
 modelo_mult_sem_corr$res <- residuals(modelo_mult_sem_corr$filtered,sd=FALSE)
 
 # definição de variável
-modelo_mult_sem_corr$d<-length(modelo_mult_sem_corr$mod$m0)/56+1 # 
+modelo_mult_sem_corr$d<-length(modelo_mult_sem_corr$mod$m0)/48+1 # 
 modelo_mult_sem_corr$T<-length(data[,1])
 
 # Estatísticas de interesse
@@ -978,6 +978,6 @@ mtext("Ano", side = 1, line = 3)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5)
 
 
-# save.image(file = "C:/FJP2425/Programacao/data/Rdatas/13_multivariado_semcorrelacao - ocup_8reg/estimados/01_mod_semcorr.Rdata")
+#save.image(file = "C:/FJP2425/Programacao/data/Rdatas/13_multivariado_semcorrelacao - ocup_8reg/estimados/01_mod_semcorr.Rdata")
 
 
