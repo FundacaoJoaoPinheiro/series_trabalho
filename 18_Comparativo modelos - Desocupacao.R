@@ -468,6 +468,117 @@ lines(ICsup_sinal_nrt, col = "red", lty = 2)
 legend("topleft", legend = c("Sinal da Desocupação - Estrutural MA(1)","Desocupação: design-based","IC 95%: model-based"),
        col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
 
+
+## GRÁFICO DA TENDÊNCIA COM IC ESTIMATIVA DIRETA
+
+esttrend_ma1nrt <- env2$ma1_nrt$ts.trend
+se_est_trend_nrt<-env2$ma1_nrt$se.trend
+ICinf_trend_nrt <- esttrend_ma1nrt - 1.96 * se_est_trend_nrt
+ICinf_trend_nrt <- window(ts.union(ts(ICinf_trend_nrt, start = 2012, frequency = 4)), start = c(2013,4))
+ICsup_trend_nrt <- esttrend_ma1nrt + 1.96 * se_est_trend_nrt
+ICsup_trend_nrt <- window(ts.union(ts(ICsup_trend_nrt, start = 2012, frequency = 4)), start = c(2013,4))
+esttrend_ma1nrt <- window(ts.union(ts(esttrend_ma1nrt, start = 2012, frequency = 4)), start = c(2013,4))
+cv_esttrend_nrt <- env2$ma1_nrt$cv.trend
+cv_esttrend_nrt <- window(ts.union(ts(cv_esttrend_nrt, start = 2012, frequency = 4)), start = c(2013,4))
+
+
+par(mfrow=c(1,2), mar=c(5,5,3,1), oma=c(0,0,2,0), cex=0.8)
+plot(esttrend_ma1nrt, type = "l", col = "red", lwd = 2,
+     main = "Tendência",
+     xlab = "Ano", ylab = "Total de desocupados (mil pessoas)",
+     ylim = c(50,250))
+lines(desoc_nrt, col = "black", lty = 1, lwd = 2)
+lines(ICinf_trend_nrt, col = "red", lty = 2)
+lines(ICsup_trend_nrt, col = "red", lty = 2)
+legend("topleft", legend = c("Tendência: model-based","Estimativa direta","IC 95%: tendência"),
+       col = c("red","black", "red"), lty = c(1,1, 2), lwd = c(2,2,1), bty = "n")
+
+plot((cv_nrt*100), type = "l", col = "black", lwd = 2,
+     main = "Coeficiente de Variação (CV) da tendência",
+     xlab = "Ano", ylab = "CV(%)",
+     ylim = c(2.5,23))
+lines(cv_esttrend_nrt, col = "red", lty = 1, lwd = 2)
+legend("topleft", legend = c("CV: estimativa direta","CV: model-based"),
+       col = c("black","red"), lty = c(1,1), lwd = c(2,2), bty = "n")
+mtext("06 - Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## Sinal da série
+
+par(mfrow=c(1,2), mar=c(5,5,3,1), oma=c(0,0,2,0), cex=0.8)
+plot(desoc_nrt, type = "l", col = "black", lwd = 2,
+     main = "Sinal",
+     xlab = "Ano", ylab = "Total de desocupados (mil pessoas)",
+     ylim = c(50,250))
+lines(est_ma1_nrt, col = "blue", lty = 1, lwd = 2)
+lines(ICinf_sinal_nrt, col = "black", lty = 2)
+lines(ICsup_sinal_nrt, col = "black", lty = 2)
+legend("topleft", legend = c("Estimativa direta","Sinal: model-based","IC 95%: estimativa direta"),
+       col = c("black","blue", "black"), lty = c(1,1, 2), lwd = c(2,2,1), bty = "n")
+
+plot((cv_nrt*100), type = "l", col = "black", lwd = 2,
+     main = "Coeficiente de Variação (CV)",
+     xlab = "Ano", ylab = "CV(%)",
+     ylim = c(2.5,23))
+lines(cv_esttrend_nrt, col = "blue", lty = 1, lwd = 2)
+legend("topleft", legend = c("CV: estimativa direta","CV: model-based"),
+       col = c("black","blue"), lty = c(1,1), lwd = c(2,2), bty = "n")
+mtext("06 - Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## Gráfico 4 plots:
+
+figttrend_nrt<-window(ts.union(ts(env2$ma1_nrt$ts.original, start = 2012, frequency = 4),ts(env2$ma1_nrt$ts.trend, start = 2012, frequency = 4)), start = c(2013, 4))
+figsaz_nrt<-window(ts.union(ts(env2$ma1_nrt$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 4))
+figirr_nrt<-window(ts.union(ts(env2$ma1_nrt$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 4))
+figsample_nrt<-window(ts.union(ts(env2$ma1_nrt$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 4))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figttrend_nrt, plot.type = "single", col = c(1, 2), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Desocupação: design-based",
+                            "Tendência da desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 2), bty = 'n', lwd = c(2))
+mtext("Desocupados (mil pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_nrt, plot.type = "single", col = c(1), ylab = "", xlab = "", lty = c(1), lwd = c(2), ylim=c(-20,20))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(1), bty = 'n', lwd = c(2))
+mtext("Desocupados (mil pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_nrt, plot.type = "single", col = c(1), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(1), bty = 'n', lwd = c(2))
+mtext("Desocupados (mil pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_nrt, plot.type = "single", col = c(1), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(1), bty = 'n', lwd = c(2))
+mtext("Desocupados (mil pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("06 - Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## Slope da tendência com IC
+
+estslope_ma1nrt <- env2$ma1_nrt$ts.slope
+se_est_slope_nrt <- env2$ma1_nrt$se.slope
+ICinf_slope_nrt <- estslope_ma1nrt - 1.96 * se_est_slope_nrt
+ICinf_slope_nrt <- window(ts.union(ts(ICinf_slope_nrt, start = 2012, frequency = 4)), start = c(2013,4))
+ICsup_slope_nrt <- estslope_ma1nrt + 1.96 * se_est_slope_nrt
+ICsup_slope_nrt <- window(ts.union(ts(ICsup_slope_nrt, start = 2012, frequency = 4)), start = c(2013,4))
+estslope_ma1nrt <- window(ts.union(ts(estslope_ma1nrt, start = 2012, frequency = 4)), start = c(2013,4))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(estslope_ma1nrt, type = "l", col = "black", lwd = 2,
+     main = "06 - Norte de Minas",
+     xlab = "Ano", ylab = "Inclinação da tendência (mil pessoas/trimestre)",
+     ylim = c(-20,20))
+abline(h = 0, col = "gray40", lwd = 1.5, lty = 3)
+lines(ICinf_slope_nrt, col = "black", lty = 2)
+lines(ICsup_slope_nrt, col = "black", lty = 2)
+legend("topleft", legend = c("Inclinação da tendência: model-based","IC 95%: model-based"),
+       col = c("black","black"),lty = c(1, 2),lwd = c(2,1),bty = "n")
+
 ### 07 - VALE DO RIO DOCE ######################################################
 rm(list = ls())
 

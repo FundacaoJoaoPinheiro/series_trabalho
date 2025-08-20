@@ -50,7 +50,7 @@ cv_est_ar1_bh<-window(ts.union(ts(cv_est_ar1_bh, start = 2012, frequency = 4)), 
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(ocup_bh, type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(1000,1600))
 lines(sm_ar1_bh, col = "blue", lty = 1, lwd = 2)
 lines(est_ar1_bh, col = "red", lty = 1, lwd = 2)
@@ -61,11 +61,11 @@ legend("topleft", legend = c("Ocupação: design-based", "Sinal da Ocupação - 
        col = c("black","blue", "red","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_bh*100), type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(1,3))
 lines(cv_sm_ar1_bh, col = "blue",lwd=2,lty = 1)
 lines(cv_est_ar1_bh, col = "red",lwd=2, lty = 1)
-legend("topleft", legend = c("CV desocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"), 
+legend("topleft", legend = c("CV ocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"), 
        col = c("black","blue", "red"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
 mtext("01 - Belo Horizonte (AR1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
@@ -128,7 +128,7 @@ cv_est_ar1_ent<-window(ts.union(ts(cv_est_ar1_ent, start = 2012, frequency = 4))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(ocup_ent, type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(1300,2100))
 lines(sm_ar1_ent, col = "blue", lty = 1, lwd = 2)
 lines(est_ar1_ent, col = "red", lty = 1, lwd = 2)
@@ -139,11 +139,11 @@ legend("topleft", legend = c("Ocupação: design-based", "Sinal da Ocupação - 
        col = c("black","blue", "red","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_ent*100), type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(1,3.5))
 lines(cv_sm_ar1_ent, col = "blue",lwd=2,lty = 1)
 lines(cv_est_ar1_ent, col = "red",lwd=2, lty = 1)
-legend("topleft", legend = c("CV desocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
+legend("topleft", legend = c("CV ocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
        col = c("black","blue", "red"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
 mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte AR(1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
@@ -205,7 +205,7 @@ cv_est_ar1_sul<-window(ts.union(ts(cv_est_ar1_sul, start = 2012, frequency = 4))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(ocup_sul, type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(1000,1650))
 lines(sm_ar1_sul, col = "blue", lty = 1, lwd = 2)
 lines(est_ar1_sul, col = "red", lty = 1, lwd = 2)
@@ -216,11 +216,11 @@ legend("topleft", legend = c("Ocupação: design-based", "Sinal da Ocupação - 
        col = c("black","blue", "red","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_sul*100), type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(1,8))
 lines(cv_sm_ar1_sul, col = "blue",lwd=2,lty = 1)
 lines(cv_est_ar1_sul, col = "red",lwd=2, lty = 1)
-legend("topleft", legend = c("CV desocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
+legend("topleft", legend = c("CV ocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
        col = c("black","blue", "red"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
 mtext("03 - Sul de Minas AR(1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
@@ -281,7 +281,7 @@ cv_est_ar1_trg<-window(ts.union(ts(cv_est_ar1_trg, start = 2012, frequency = 4))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(ocup_trg, type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(1000,1850))
 lines(sm_ar1_trg, col = "blue", lty = 1, lwd = 2)
 lines(est_ar1_trg, col = "red", lty = 1, lwd = 2)
@@ -292,11 +292,11 @@ legend("topleft", legend = c("Ocupação: design-based", "Sinal da Ocupação - 
        col = c("black","blue", "red","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_trg*100), type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(2,15))
 lines(cv_sm_ar1_trg, col = "blue",lwd=2,lty = 1)
 lines(cv_est_ar1_trg, col = "red",lwd=2, lty = 1)
-legend("topleft", legend = c("CV desocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
+legend("topleft", legend = c("CV ocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
        col = c("black","blue", "red"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
 mtext("04 - Triângulo Mineiro AR(1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
@@ -400,7 +400,7 @@ cv_est_ar1_mat<-window(ts.union(ts(cv_est_ar1_mat, start = 2012, frequency = 4))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(ocup_mat, type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(800,1400))
 lines(sm_ar1_mat, col = "blue", lty = 1, lwd = 2)
 lines(est_ar1_mat, col = "red", lty = 1, lwd = 2)
@@ -411,11 +411,11 @@ legend("topleft", legend = c("Ocupação: design-based", "Sinal da Ocupação - 
        col = c("black","blue", "red","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_mat*100), type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(1.5,7))
 lines(cv_sm_ar1_mat, col = "blue",lwd=2,lty = 1)
 lines(cv_est_ar1_mat, col = "red",lwd=2, lty = 1)
-legend("topleft", legend = c("CV desocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
+legend("topleft", legend = c("CV ocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
        col = c("black","blue", "red"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
 mtext("05 - Zona da Mata AR(1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
@@ -476,7 +476,7 @@ cv_est_ar1_nrt<-window(ts.union(ts(cv_est_ar1_nrt, start = 2012, frequency = 4))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(ocup_nrt, type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(800,1500))
 lines(sm_ar1_nrt, col = "blue", lty = 1, lwd = 2)
 lines(est_ar1_nrt, col = "red", lty = 1, lwd = 2)
@@ -487,11 +487,11 @@ legend("topleft", legend = c("Ocupação: design-based", "Sinal da Ocupação - 
        col = c("black","blue", "red","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_nrt*100), type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(2,8))
 lines(cv_sm_ar1_nrt, col = "blue",lwd=2,lty = 1)
 lines(cv_est_ar1_nrt, col = "red",lwd=2, lty = 1)
-legend("topleft", legend = c("CV desocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
+legend("topleft", legend = c("CV ocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
        col = c("black","blue", "red"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
 mtext("06 - Norte de Minas AR(1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
@@ -508,6 +508,115 @@ lines(ICinf_sinal, col = "red", lty = 2)
 lines(ICsup_sinal, col = "red", lty = 2)
 legend("topleft", legend = c("Sinal da Ocupação - Estrutural AR(1)","Ocupação: design-based","IC 95%: signal-based"), 
        col = c("red","black", "red"),lty = c(1,1, 2),lwd = c(2,2,1),bty = "n")
+
+## Gráfico tendência com IC
+
+esttrend_ar1nrt <- env2$ar1_nrt$ts.trend
+se_est_trend_nrt<-env2$ar1_nrt$se.trend
+ICinf_trend_nrt <- esttrend_ar1nrt - 1.96 * se_est_trend_nrt
+ICinf_trend_nrt <- window(ts.union(ts(ICinf_trend_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+ICsup_trend_nrt <- esttrend_ar1nrt + 1.96 * se_est_trend_nrt
+ICsup_trend_nrt <- window(ts.union(ts(ICsup_trend_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+esttrend_ar1nrt <- window(ts.union(ts(esttrend_ar1nrt, start = 2012, frequency = 4)), start = c(2013,3))
+cv_esttrend_nrt <- env2$ar1_nrt$cv.trend
+cv_esttrend_nrt <- window(ts.union(ts(cv_esttrend_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+
+par(mfrow=c(1,2), mar=c(5,5,3,1), oma=c(0,0,2,0), cex=0.8)
+plot(esttrend_ar1nrt, type = "l", col = "red", lwd = 2,
+     main = "Tendência",
+     xlab = "Ano", ylab = "Total de ocupados (mil pessoas)",
+     ylim = c(900,1500))
+lines(ocup_nrt, col = "black", lty = 1, lwd = 2)
+lines(ICinf_trend_nrt, col = "red", lty = 2)
+lines(ICsup_trend_nrt, col = "red", lty = 2)
+legend("topleft", legend = c("Tendência: model-based","Estimativa direta","IC 95%: tendência"),
+       col = c("red","black", "red"), lty = c(1,1, 2), lwd = c(2,2,1), bty = "n")
+
+plot((cv_nrt*100), type = "l", col = "black", lwd = 2,
+     main = "Coeficiente de Variação (CV) da tendência",
+     xlab = "Ano", ylab = "CV(%)",
+     ylim = c(2,8))
+lines(cv_esttrend_nrt, col = "red", lty = 1, lwd = 2)
+legend("topleft", legend = c("CV: estimativa direta","CV: model-based"),
+       col = c("black","red"), lty = c(1,1), lwd = c(2,2), bty = "n")
+mtext("06 - Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## Sinal da série
+
+par(mfrow=c(1,2), mar=c(5,5,3,1), oma=c(0,0,2,0), cex=0.8)
+plot(ocup_nrt, type = "l", col = "black", lwd = 2,
+     main = "Sinal",
+     xlab = "Ano", ylab = "Total de ocupados (mil pessoas)",
+     ylim = c(900,1500))
+lines(est_ar1_nrt, col = "blue", lty = 1, lwd = 2)
+lines(ICinf_sinal, col = "black", lty = 2)
+lines(ICsup_sinal, col = "black", lty = 2)
+legend("topleft", legend = c("Estimativa direta","Sinal: model-based","IC 95%: estimativa direta"),
+       col = c("black","blue", "black"), lty = c(1,1, 2), lwd = c(2,2,1), bty = "n")
+
+plot((cv_nrt*100), type = "l", col = "black", lwd = 2,
+     main = "Coeficiente de Variação (CV)",
+     xlab = "Ano", ylab = "CV(%)",
+     ylim = c(2,8))
+lines(cv_est_ar1_nrt, col = "blue", lty = 1, lwd = 2)
+legend("topleft", legend = c("CV: estimativa direta","CV: model-based"),
+       col = c("black","blue"), lty = c(1,1), lwd = c(2,2), bty = "n")
+mtext("06 - Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## Gráfico 4 plots:
+
+figttrend_nrt<-window(ts.union(ts(env2$ar1_nrt$ts.original, start = 2012, frequency = 4),ts(env2$ar1_nrt$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_nrt<-window(ts.union(ts(env2$ar1_nrt$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_nrt<-window(ts.union(ts(env2$ar1_nrt$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_nrt<-window(ts.union(ts(env2$ar1_nrt$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figttrend_nrt, plot.type = "single", col = c(1, 2), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottomleft", legend = c("Ocupação: design-based",
+                            "Tendência da ocupação: model-based"),
+       lty = c(1, 1), col = c(1, 2), bty = 'n', lwd = c(2))
+mtext("Ocupados (mil pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_nrt, plot.type = "single", col = c(1), ylab = "", xlab = "", lty = c(1), lwd = c(2), ylim=c(-60,40))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(1), bty = 'n', lwd = c(2))
+mtext("Ocupados (mil pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_nrt, plot.type = "single", col = c(1), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(1), bty = 'n', lwd = c(2))
+mtext("Ocupados (mil pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_nrt, plot.type = "single", col = c(1), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(1), bty = 'n', lwd = c(2))
+mtext("Ocupados (mil pessoas)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("06 - Norte de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## Slope da tendência com IC
+
+estslope_ar1nrt <- env2$ar1_nrt$ts.slope
+se_est_slope_nrt <- env2$ar1_nrt$se.slope
+ICinf_slope_nrt <- estslope_ar1nrt - 1.96 * se_est_slope_nrt
+ICinf_slope_nrt <- window(ts.union(ts(ICinf_slope_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+ICsup_slope_nrt <- estslope_ar1nrt + 1.96 * se_est_slope_nrt
+ICsup_slope_nrt <- window(ts.union(ts(ICsup_slope_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+estslope_ar1nrt <- window(ts.union(ts(estslope_ar1nrt, start = 2012, frequency = 4)), start = c(2013,3))
+
+par(mfrow=c(1,1), mar=c(4,4,2,1), oma=c(0,0,2,0), cex=1)
+plot(estslope_ar1nrt, type = "l", col = "black", lwd = 2,
+     main = "06 - Norte de Minas",
+     xlab = "Ano", ylab = "Inclinação da tendência (mil pessoas/trimestre)",
+     ylim = c(-90,60))
+abline(h = 0, col = "gray40", lwd = 1.5, lty = 3)
+lines(ICinf_slope_nrt, col = "black", lty = 2)
+lines(ICsup_slope_nrt, col = "black", lty = 2)
+legend("topleft", legend = c("Inclinação da tendência: model-based","IC 95%: model-based"),
+       col = c("black","black"),lty = c(1, 2),lwd = c(2,1),bty = "n")
 
 ### 07 - VALE DO RIO DOCE ######################################################
 rm(list = ls())
@@ -552,7 +661,7 @@ cv_est_ar1_val<-window(ts.union(ts(cv_est_ar1_val, start = 2012, frequency = 4))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(ocup_val, type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(700,1300))
 lines(sm_ar1_val, col = "blue", lty = 1, lwd = 2)
 lines(est_ar1_val, col = "red", lty = 1, lwd = 2)
@@ -563,11 +672,11 @@ legend("topleft", legend = c("Ocupação: design-based", "Sinal da Ocupação - 
        col = c("black","blue", "red","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_val*100), type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(2,8))
 lines(cv_sm_ar1_val, col = "blue",lwd=2,lty = 1)
 lines(cv_est_ar1_val, col = "red",lwd=2, lty = 1)
-legend("topleft", legend = c("CV desocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
+legend("topleft", legend = c("CV ocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
        col = c("black","blue", "red"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
 mtext("07 - Vale do Rio Doce (AR1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
@@ -629,7 +738,7 @@ cv_est_ar1_cen<-window(ts.union(ts(cv_est_ar1_cen, start = 2012, frequency = 4))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(ocup_cen, type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(900,1700))
 lines(sm_ar1_cen, col = "blue", lty = 1, lwd = 2)
 lines(est_ar1_cen, col = "red", lty = 1, lwd = 2)
@@ -640,11 +749,11 @@ legend("topleft", legend = c("Ocupação: design-based", "Sinal da Ocupação - 
        col = c("black","blue", "red","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_cen*100), type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(0,7))
 lines(cv_sm_ar1_cen, col = "blue",lwd=2,lty = 1)
 lines(cv_est_ar1_cen, col = "red",lwd=2, lty = 1)
-legend("topleft", legend = c("CV desocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
+legend("topleft", legend = c("CV ocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
        col = c("black","blue", "red"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
 mtext("08 - Central AR(1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
@@ -705,7 +814,7 @@ cv_est_ar1_mg<-window(ts.union(ts(cv_est_ar1_mg, start = 2012, frequency = 4)), 
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 plot(ocup_mg, type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(8000,11500))
 lines(sm_ar1_mg, col = "blue", lty = 1, lwd = 2)
 lines(est_ar1_mg, col = "red", lty = 1, lwd = 2)
@@ -716,11 +825,11 @@ legend("topleft", legend = c("Ocupação: design-based", "Sinal da Ocupação - 
        col = c("black","blue", "red","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_mg*100), type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de desocupados (milhares de pessoas)",
+     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)",
      ylim = c(0,3))
 lines(cv_sm_ar1_mg, col = "blue",lwd=2,lty = 1)
 lines(cv_est_ar1_mg, col = "red",lwd=2, lty = 1)
-legend("topleft", legend = c("CV desocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
+legend("topleft", legend = c("CV ocupados: design-based","Sinal CV - Smooth","Sinal CV - Estrutural"),
        col = c("black","blue", "red"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
 mtext("09 - Minas Gerais", side = 3, outer = TRUE, line = 0.5)
 

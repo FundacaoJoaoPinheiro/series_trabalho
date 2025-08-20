@@ -274,7 +274,7 @@ modelo_mult_sem_corr$sm <- dropFirst(modelo_mult_sem_corr$smoothed$s)
 modelo_mult_sem_corr$res <- residuals(modelo_mult_sem_corr$filtered,sd=FALSE)
 
 # definição de variável
-modelo_mult_sem_corr$d<-length(modelo_mult_sem_corr$mod$m0)/48+1 # 
+modelo_mult_sem_corr$d<-length(modelo_mult_sem_corr$mod$m0)/48-1 # Coloquei -1 para ficar igual a 7: tamanho do espaço de estados (6) +1
 modelo_mult_sem_corr$T<-length(data[,1])
 
 # Estatísticas de interesse
@@ -978,6 +978,136 @@ mtext("Ano", side = 1, line = 3)
 mtext("08 - Central", side = 3, outer = TRUE, line = 0.5)
 
 
-#save.image(file = "C:/FJP2425/Programacao/data/Rdatas/13_multivariado_semcorrelacao - ocup_8reg/estimados/01_mod_semcorr.Rdata")
+### Testes de diagnóstico
+
+source("data/funcoes/05_teste_H.R")
+
+diagmult <- matrix(NA, nrow = 3, ncol = 8)
+colnames(diagmult) <- c("BH", "ENT", "SUL", "TRG", "MAT", "NRT", "VAL", "CEN")
+rownames(diagmult) <- c("Shapiro", "Box", "Teste H")
+
+# 01 - Belo Horizonte
+
+shap_bh <- round(
+  shapiro.test(modelo_mult_sem_corr[["res"]][,1][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])[["p.value"]],
+  5
+)
+
+box_bh <- round((Box.test(modelo_mult_sem_corr[["res"]][,1][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],5)
+
+testh_bh <- teste_H(modelo_mult_sem_corr[["res"]][,1][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])
+
+diagmult["Shapiro", "BH"]  <- shap_bh
+diagmult["Box",     "BH"]  <- box_bh
+diagmult["Teste H", "BH"]  <- testh_bh
+
+# 02 - Colar e Entorno de BH
+
+shap_ent <- round(
+  shapiro.test(modelo_mult_sem_corr[["res"]][,2][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])[["p.value"]],
+  5
+)
+
+box_ent <- round((Box.test(modelo_mult_sem_corr[["res"]][,2][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],5)
+
+testh_ent <- teste_H(modelo_mult_sem_corr[["res"]][,2][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])
+
+diagmult["Shapiro", "ENT"] <- shap_ent
+diagmult["Box",     "ENT"] <- box_ent
+diagmult["Teste H", "ENT"] <- testh_ent
+
+# 03 - Sul de Minas
+
+shap_sul <- round(
+  shapiro.test(modelo_mult_sem_corr[["res"]][,3][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])[["p.value"]],
+  5
+)
+
+box_sul <- round((Box.test(modelo_mult_sem_corr[["res"]][,3][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],5)
+
+testh_sul <- teste_H(modelo_mult_sem_corr[["res"]][,3][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])
+
+diagmult["Shapiro", "SUL"] <- shap_sul
+diagmult["Box",     "SUL"] <- box_sul
+diagmult["Teste H", "SUL"] <- testh_sul
+
+# 04 - Triângulo Mineiro
+
+shap_trg <- round(
+  shapiro.test(modelo_mult_sem_corr[["res"]][,4][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])[["p.value"]],
+  5
+)
+
+box_trg <- round((Box.test(modelo_mult_sem_corr[["res"]][,4][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],5)
+
+testh_trg <- teste_H(modelo_mult_sem_corr[["res"]][,4][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])
+
+diagmult["Shapiro", "TRG"] <- shap_trg
+diagmult["Box",     "TRG"] <- box_trg
+diagmult["Teste H", "TRG"] <- testh_trg
+
+# 05 - Zona da Mata
+
+shap_mat <- round(
+  shapiro.test(modelo_mult_sem_corr[["res"]][,5][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])[["p.value"]],
+  5
+)
+
+box_mat <- round((Box.test(modelo_mult_sem_corr[["res"]][,5][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],5)
+
+testh_mat <- teste_H(modelo_mult_sem_corr[["res"]][,5][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])
+
+diagmult["Shapiro", "MAT"] <- shap_mat
+diagmult["Box",     "MAT"] <- box_mat
+diagmult["Teste H", "MAT"] <- testh_mat
+
+# 06 - Norte de Minas
+
+shap_nrt <- round(
+  shapiro.test(modelo_mult_sem_corr[["res"]][,6][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])[["p.value"]],
+  5
+)
+
+box_nrt <- round((Box.test(modelo_mult_sem_corr[["res"]][,6][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],5)
+
+testh_nrt <- teste_H(modelo_mult_sem_corr[["res"]][,6][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])
+
+diagmult["Shapiro", "NRT"] <- shap_nrt
+diagmult["Box",     "NRT"] <- box_nrt
+diagmult["Teste H", "NRT"] <- testh_nrt
+
+# 07 - Vale do Rio Doce
+
+shap_val <- round(
+  shapiro.test(modelo_mult_sem_corr[["res"]][,7][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])[["p.value"]],
+  5
+)
+
+box_val <- round((Box.test(modelo_mult_sem_corr[["res"]][,7][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],5)
+
+testh_val <- teste_H(modelo_mult_sem_corr[["res"]][,7][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])
+
+diagmult["Shapiro", "VAL"] <- shap_val
+diagmult["Box",     "VAL"] <- box_val
+diagmult["Teste H", "VAL"] <- testh_val
+
+# 08 - Central
+
+shap_cen <- round(
+  shapiro.test(modelo_mult_sem_corr[["res"]][,8][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])[["p.value"]],
+  5
+)
+
+box_cen <- round((Box.test(modelo_mult_sem_corr[["res"]][,8][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]], lag = 24, type = "Ljung"))[["p.value"]],5)
+
+testh_cen <- teste_H(modelo_mult_sem_corr[["res"]][,8][modelo_mult_sem_corr[["d"]]:modelo_mult_sem_corr[["T"]]])
+
+diagmult["Shapiro", "CEN"] <- shap_cen
+diagmult["Box",     "CEN"] <- box_cen
+diagmult["Teste H", "CEN"] <- testh_cen
+
+View(diagmult)
+
+save.image(file = "C:/FJP2425/Programacao/data/Rdatas/13_multivariado_semcorrelacao - ocup_8reg/estimados/01_mod_semcorr.Rdata")
 
 
