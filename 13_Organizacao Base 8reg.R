@@ -818,5 +818,5 @@ print(cvmedestratos2)
                    "05-Mata de Minas Gerais"=zonamata, "06-Norte de Minas"=nortemg, "07-Vale do Rio Doce"=riodoce,
                    "08-Central"=central, "09 - Minas Gerais"=mg)
 
- saveRDS(baseestr8reg,file = "D:/FJP2425/Programacao/data/baseestr8reg.rds")
- baseestr8reg <- readRDS("D:/FJP2425/Programacao/data/baseestr8reg.RDS")
+ saveRDS(baseestr8reg,file = "C:/FJP2425/Programacao/data/baseestr8reg.rds")
+ baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")

@@ -5,7 +5,7 @@
 
 # Diretório principal
 
-setwd("D:/FJP2425/Programacao")
+setwd("C:/FJP2425/Programacao")
 
 library(PNADcIBGE)
 library(survey)
@@ -973,5 +973,5 @@ print(cvmedestratos2)
                    "07-Mata de Minas Gerais"=zonamata, "08-Norte de Minas"=nortemg, "09-Vale do Rio Doce"=riodoce,
                    "10-Central"=central, "11 - Minas Gerais"=mg)
 
- saveRDS(baseestr0424,file = "D:/FJP2425/Programacao/data/baseestr0424.rds")
- baseestr0424 <- readRDS("D:/FJP2425/Programacao/data/baseestr0424.RDS")
+ saveRDS(baseestr0424,file = "C:/FJP2425/Programacao/data/baseestr0424.rds")
+ baseestr0424 <- readRDS("C:/FJP2425/Programacao/data/baseestr0424.RDS")
