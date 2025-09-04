@@ -295,7 +295,7 @@ estimados <- c(estimated_bh[1], estimated_ent[1], estimated_sul[1], estimated_tr
 
 data <- cbind(ocup_bh,ocup_ent,ocup_sul,ocup_trg,ocup_mat,ocup_nrt,ocup_val,ocup_cen)
 
-modelo_mult$initial<- c(estimados, rep(0,28)) 
+modelo_mult$initial<- c(estimados, rep(0,28)) # Trocar 0 por 0.5 e trocar 0 por 9
 
 start_time <- Sys.time()
 modelo_mult$fit <- dlmMLE(data, modelo_mult$initial,modelo_mult$fn, hessian=T,
