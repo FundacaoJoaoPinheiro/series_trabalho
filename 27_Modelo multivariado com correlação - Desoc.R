@@ -267,7 +267,7 @@ modelo_mult<- list("fn"=function(params){
   # Fiz o ajuste das correlações conforme as posições do slope de cada região
   #  posições de 9 a 16
   
-  W[10,9] <- W[9,10] <- tanh(params[41]) * prod(exp(0.5 * params[c(9,10)])) # BH COM ENT
+  W[10,9] <- W[9,10] <- tanh(params[41]) * prod(exp(0.5 * params[c(9,10)])) # tanh(params[41]) * sqrt(exp(params[9])) * sqrt(exp(params[10])) # BH COM ENT
   W[11,9] <- W[9,11] <- tanh(params[42]) * prod(exp(0.5 * params[c(9,11)])) # BH COM SUL
   W[12,9] <- W[9,12] <- tanh(params[43]) * prod(exp(0.5 * params[c(9,12)])) # BH COM TRG
   W[13,9] <- W[9,13] <- tanh(params[44]) * prod(exp(0.5 * params[c(9,13)])) # BH COM MAT
@@ -330,7 +330,7 @@ estimados <- c(estimated_bh[1], estimated_ent[1], estimated_sul[1], estimated_tr
 
 data <- cbind(desoc_bh,desoc_ent,desoc_sul,desoc_trg,desoc_mat,desoc_nrt,desoc_val,desoc_cen)
 
-modelo_mult$initial<- c(estimados, rep(0,28)) # Iniciais para as correlações
+modelo_mult$initial<- c(estimados, rep(-0.5,28)) # Iniciais para as correlações
 # Essa linha não existia no modelo sem correlação
 
 start_time <- Sys.time()
@@ -1212,7 +1212,7 @@ diagmult["Teste H", "CEN"] <- testh_cen
 
 View(diagmult)
 
-save.image(file = "C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata")
+save.image(file = "C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/sensibilidade corr-05/01_mod_comcorr-05.Rdata")
 
 #load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata")
 
