@@ -34,13 +34,16 @@ load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/07_mod_val.Rda
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/08_mod_cen.Rdata", envir = env8)
 load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/estimados/01_mod_semcorr.Rdata", envir = env9)
 load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/sensibilidade corr05/01_mod_comcorr05.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/sensibilidade corr9/01_mod_comcorr9.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/sensibilidade corr-05/01_mod_comcorr-05.Rdata",envir = env10)
+
+mod_semcorr <- env9$modelo_mult_sem_corr
+mod_comcorr <- env10$modelo_mult
 
 ### Teste Razão Verossimilhança entre s/corr e c/corr ##########################
 
 source("data/funcoes/30_teste_razvero.R")
-
-mod_semcorr <- env9$modelo_mult_sem_corr
-mod_comcorr <- env10$modelo_mult
 
 teste_razvero(mod_semcorr,mod_comcorr)
 
@@ -64,7 +67,7 @@ for(i in 1:(n-1)){
   }
 }
 
-print(round(cor_mat, 4))
+View(round(cor_mat, 4))
 
 
 ### Diferença relativa média do erro padrão ##########################################
@@ -185,8 +188,8 @@ vicio_cen <- calcula_vicio(window(ts(mod_comcorr$ts.original_8, start = 2012, fr
 
 ## Resultados agrupados
 
-lista_vicio <- list(BH  = (vicio_bh)*100,ENT = (vicio_ent)*100,SUL = (vicio_sul)*100,TRG = (vicio_trg)*100,
-                    MAT = (vicio_mat)*100, NRT = (vicio_nrt)*100,VAL = (vicio_val)*100,CEN = (vicio_cen)*100)
+lista_vicio <- list(BH  = (vicio_bh),ENT = (vicio_ent),SUL = (vicio_sul),TRG = (vicio_trg),
+                    MAT = (vicio_mat), NRT = (vicio_nrt),VAL = (vicio_val),CEN = (vicio_cen))
 
 df_vicio <- do.call(rbind, lista_vicio)
 
@@ -237,7 +240,7 @@ plot(desoc_mg, type = "l", col = "black", lwd = 2,
 lines(sinalmg_uni, col = "blue", lty = 1, lwd = 2)
 lines(sinalmg_mult, col= "red", lty = 1, lwd = 2)
 legend("topleft", legend = c("Estimativa direta", "Sinal - Mod. Univariado","Sinal - Mod. Multivariado"),
-       col = c("black","blue","green"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+       col = c("black","blue","red"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
 
 
 
