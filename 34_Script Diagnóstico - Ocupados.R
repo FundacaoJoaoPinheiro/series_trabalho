@@ -11,11 +11,6 @@ rm(list=ls())
 gc()
 options(scipen=999)
 
-## Para visualizar os gráficos em segunda tela (se necessário):
-
-dev.new()
-dev.new()
-
 ## Uploads dos dados:
 
 env1<-new.env()
@@ -40,12 +35,12 @@ load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/08_mod_cen.Rdata"
 load("C:/FJP2425/Programacao/data/Rdatas/13_multivariado_semcorrelacao - ocup_8reg/estimados/01_mod_semcorr.Rdata", envir = env9)
 load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/estimados/01_mod_comcorr.Rdata",envir = env10)
 
+mod_semcorr <- env9$modelo_mult_sem_corr
+mod_comcorr <- env10$modelo_mult
+
 ### Teste Razão Verossimilhança entre s/corr e c/corr ##########################
 
 source("data/funcoes/30_teste_razvero.R")
-
-mod_semcorr <- env9$modelo_mult_sem_corr
-mod_comcorr <- env10$modelo_mult
 
 teste_razvero(mod_semcorr,mod_comcorr)
 
@@ -190,8 +185,8 @@ vicio_cen <- calcula_vicio(window(ts(mod_comcorr$ts.original_8, start = 2012, fr
 
 ## Resultados agrupados
 
-lista_vicio <- list(BH  = (vicio_bh)*100,ENT = (vicio_ent)*100,SUL = (vicio_sul)*100,TRG = (vicio_trg)*100,
-                    MAT = (vicio_mat)*100, NRT = (vicio_nrt)*100,VAL = (vicio_val)*100,CEN = (vicio_cen)*100)
+lista_vicio <- list(BH  = (vicio_bh),ENT = (vicio_ent),SUL = (vicio_sul),TRG = (vicio_trg),
+                    MAT = (vicio_mat), NRT = (vicio_nrt),VAL = (vicio_val),CEN = (vicio_cen))
 
 df_vicio <- do.call(rbind, lista_vicio)
 
