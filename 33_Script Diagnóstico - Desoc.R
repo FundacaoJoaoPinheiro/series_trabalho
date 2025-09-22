@@ -8,8 +8,8 @@ options(scipen=999)
 
 ## Para visualizar os gráficos em segunda tela (se necessário):
 
-dev.new()
-dev.new()
+#dev.new()
+#dev.new()
 
 ## Uploads dos dados:
 
@@ -32,11 +32,28 @@ load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/05_mod_mat.Rda
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/06_mod_nrt.Rdata", envir = env6)
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/07_mod_val.Rdata", envir = env7)
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/08_mod_cen.Rdata", envir = env8)
-load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/estimados/01_mod_semcorr.Rdata", envir = env9)
-load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env10)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env9)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env10)
+
+  # Estimados
+
+#load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/estimados/01_mod_semcorr.Rdata", envir = env9)
+#load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env10)
 #load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/sensibilidade corr05/01_mod_comcorr05.Rdata",envir = env10)
 #load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/sensibilidade corr9/01_mod_comcorr9.Rdata",envir = env10)
 #load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/sensibilidade corr-05/01_mod_comcorr-05.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/sensibilidade corr-1/01_mod_comcorr-1.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/sensibilidade corr1/01_mod_comcorr1.Rdata",envir = env10)
+
+  # Iniciais
+
+#load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env9)
+#load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/sensibilidade corr05/01_mod_comcorr05.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/sensibilidade corr-05/01_mod_comcorr-05.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/sensibilidade corr-1/01_mod_comcorr-1.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/sensibilidade corr1/01_mod_comcorr1.Rdata",envir = env10)
+
 
 mod_semcorr <- env9$modelo_mult_sem_corr
 mod_comcorr <- env10$modelo_mult

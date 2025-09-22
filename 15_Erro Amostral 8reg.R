@@ -16,7 +16,7 @@ options(scipen=999)
 ## Leitura da base de dados:
 rm(list = ls())
 
-base <- readRDS("D:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+base <- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
 
 ## Utilizando conjunto de funções já prontas para o script
 

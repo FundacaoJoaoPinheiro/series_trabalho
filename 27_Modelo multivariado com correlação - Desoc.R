@@ -330,7 +330,7 @@ estimados <- c(estimated_bh[1], estimated_ent[1], estimated_sul[1], estimated_tr
 
 data <- cbind(desoc_bh,desoc_ent,desoc_sul,desoc_trg,desoc_mat,desoc_nrt,desoc_val,desoc_cen)
 
-modelo_mult$initial<- c(estimados, rep(-0.5,28)) # Iniciais para as correlações
+modelo_mult$initial<- c(iniciais, rep(1,28)) # Iniciais para as correlações
 # Essa linha não existia no modelo sem correlação
 
 start_time <- Sys.time()
@@ -1212,7 +1212,7 @@ diagmult["Teste H", "CEN"] <- testh_cen
 
 View(diagmult)
 
-save.image(file = "C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/sensibilidade corr-05/01_mod_comcorr-05.Rdata")
+save.image(file = "C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/sensibilidade corr1/01_mod_comcorr1.Rdata")
 
 #load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata")
 

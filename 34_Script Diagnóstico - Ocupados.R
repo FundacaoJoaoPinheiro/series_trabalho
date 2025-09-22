@@ -32,8 +32,20 @@ load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/05_mod_mat.Rdata"
 load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/06_mod_nrt.Rdata", envir = env6)
 load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/07_mod_val.Rdata", envir = env7)
 load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/08_mod_cen.Rdata", envir = env8)
+
+# Estimados
+
 load("C:/FJP2425/Programacao/data/Rdatas/13_multivariado_semcorrelacao - ocup_8reg/estimados/01_mod_semcorr.Rdata", envir = env9)
-load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/estimados/01_mod_comcorr.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/estimados/01_mod_comcorr.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/estimados/sensibilidade corr-05/01_mod_comcorr-05.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/estimados/sensibilidade corr05/01_mod_comcorr05.Rdata",envir = env10)
+
+# Iniciais
+
+load("C:/FJP2425/Programacao/data/Rdatas/13_multivariado_semcorrelacao - ocup_8reg/iniciais/01_mod_semcorr.Rdata", envir = env9)
+#load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/iniciais/01_mod_comcorr.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/iniciais/sensibilidade corr-05/01_mod_comcorr-05.Rdata",envir = env10)
+#load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/iniciais/sensibilidade corr05/01_mod_comcorr05.Rdata",envir = env10)
 
 mod_semcorr <- env9$modelo_mult_sem_corr
 mod_comcorr <- env10$modelo_mult
@@ -64,7 +76,7 @@ for(i in 1:(n-1)){
   }
 }
 
-print(round(cor_mat, 4))
+View(round(cor_mat, 4))
 
 
 ### Diferença relativa média do erro padrão ##########################################
