@@ -17,8 +17,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/01_mod_bh.Rdata", envir = env1)
-load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/estimados/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 bh<-baseestr8reg$`01-Belo Horizonte`
@@ -121,8 +121,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/02_mod_ent.Rdata", envir = env1)
-load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/estimados/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 ent<-baseestr8reg$`02-Colar e Entorno metropolitano de BH`
@@ -209,16 +209,13 @@ legend("topleft", legend = c("Desocupação", "Tendência univariado - MA(1)","T
        col = c("black","blue","red","green","black"),lty = c(1,1,1,1,2),lwd = c(2,2,2,2,1),bty = "n", cex=0.8)
 
 plot((cv_ent*100), type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "CV (%)",  ylim=c(1,13))
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(2,13))
 lines(cv_esttrend_ent, col = "blue",lwd=2, lty = 1)
 lines(cv_multtrend_semcorr_ent, col = "red",lwd=2,lty = 1)
 lines(cv_multtrend_ent, col = "green",lwd=2,lty = 1)
 legend("topleft", legend = c("CV desocupados","CV tendência - univariado", "CV tendência - multivariado sem corr.", "CV tendência - multivariado com corr."), 
        col = c("black","blue", "red", "green"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("02 - Entorno metropolitano de Belo Horizonte", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
-mtext("Nota: Dado o sobreajuste na estimação dos somponentes da série, o modelo sem correlação se distanciou do univairado.", 
-      side = 1, outer = TRUE, line = 1.0, cex = 0.8, font = 3)
-
 
 ### 03 - SUL DE MINAS ##########################################################
 rm(list = ls())
@@ -228,8 +225,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/03_mod_sul.Rdata", envir = env1)
-load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/estimados/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 sul<-baseestr8reg$`03-Sul de Minas`
@@ -330,8 +327,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/04_mod_trg.Rdata", envir = env1)
-load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/estimados/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 trg<-baseestr8reg$`04-Triângulo Mineiro`
@@ -432,8 +429,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/05_mod_mat.Rdata", envir = env1)
-load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/estimados/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 mat<-baseestr8reg$`05-Mata de Minas Gerais`
@@ -534,8 +531,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/06_mod_nrt.Rdata", envir = env1)
-load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/estimados/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 nrt<-baseestr8reg$`06-Norte de Minas`
@@ -636,8 +633,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/07_mod_val.Rdata", envir = env1)
-load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/estimados/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 vl<-baseestr8reg$`07-Vale do Rio Doce`
@@ -744,8 +741,8 @@ env2<-new.env()
 env3<-new.env()
 
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/08_mod_cen.Rdata", envir = env1)
-load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/iniciais/01_mod_semcorr.Rdata", envir = env2)
-load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/11_multivariado_semcorr - desoc_8reg/estimados/01_mod_semcorr.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env3)
 
 baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 cen<-baseestr8reg$`08-Central`
@@ -862,7 +859,7 @@ load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/05_mod_mat.Rda
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/06_mod_nrt.Rdata", envir = env6)
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/07_mod_val.Rdata", envir = env7)
 load("C:/FJP2425/Programacao/data/Rdatas/6_estruturaldesocup_8reg/08_mod_cen.Rdata", envir = env8)
-load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/iniciais/01_mod_comcorr.Rdata",envir = env9)
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata",envir = env9)
 
 baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
 baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")

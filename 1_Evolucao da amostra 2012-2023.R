@@ -191,7 +191,7 @@ lista <- c(012012,012013,012014,012015,012016,012017,012018,012019,012020,012021
 
 ## Juntando os resultados:
 
-# tam_amos<- bind_rows(lapply(lista,calculo_amostra)) #rode apenas para gerar os dfs e armazenar as informações
+tam_amos<- bind_rows(lapply(lista,calculo_amostra)) #rode apenas para gerar os dfs e armazenar as informações
 tam_amos_pes <- bind_rows(tam_amos$df_amostra_pes)
 tam_amos_dom <- bind_rows(tam_amos$df_amostra_dom)
 
@@ -231,7 +231,7 @@ ordemlinhas<- c(1,14,27,40,
                 10,23,36,49,
                 11,24,37,50,
                 12,25,38,51,
-                13,26,39)
+                13,26,39,52)
 
 
 am.pessoas<-pessoas[ordemlinhas,]
@@ -241,8 +241,8 @@ am.domicilios<-domicilios[ordemlinhas,]
 View(am.pessoas)
 
 
-#write_xlsx(am.pessoas, "D:/FJP2425/Programacao/data/tampessoas3t2024.xlsx")
-#write_xlsx(am.domicilios, "D:/FJP2425/Programacao/data/tamdom3t2024.xlsx")
+write_xlsx(am.pessoas, "C:/FJP2425/Programacao/data/tampessoas4t2024.xlsx")
+write_xlsx(am.domicilios, "C:/FJP2425/Programacao/data/tamdom4t2024.xlsx")
 
 
 
@@ -253,19 +253,19 @@ View(am.pessoas)
 ## Total de pessoas:
   ## Lembrar de fazer o upload da base
 
-am.pessoas <- read_xlsx("D:/FJP2425/Programacao/data/tampessoas3t2024.xlsx")
+am.pessoas <- read_xlsx("C:/FJP2425/Programacao/data/tampessoas4t2024.xlsx")
 
-{pes_mg<-ts(am.pessoas$`Total MG`[1:51],start=c(2012,1),frequency = 4)
-  pes_bh<-ts(am.pessoas$`01-Belo Horizonte`[1:51],start=c(2012,1),frequency = 4)
-  pes_entorno<-ts(am.pessoas$`02-Entorno metropolitono de BH`[1:51],start=c(2012,1),frequency = 4)
-  pes_colar<-ts(am.pessoas$`03-Colar metropolitano de BH`[1:51],start=c(2012,1),frequency = 4)
-  pes_RIDE<-ts(am.pessoas$`04-RIDE de Brasília em Minas`[1:51],start=c(2012,1),frequency = 4)
-  pes_sul<-ts(am.pessoas$`05-Sul de Minas`[1:51],start=c(2012,1),frequency = 4)
-  pes_trng<-ts(am.pessoas$`06-Triângulo Mineiro`[1:51],start=c(2012,1),frequency = 4)
-  pes_mata<-ts(am.pessoas$`07-Mata de Minas Gerais`[1:51],start=c(2012,1),frequency = 4)
-  pes_norte<-ts(am.pessoas$`08-Norte de Minas`[1:51],start=c(2012,1),frequency = 4)
-  pes_vale<-ts(am.pessoas$`09-Vale do Rio Doce`[1:51],start=c(2012,1),frequency = 4)
-  pes_central<-ts(am.pessoas$`10-Central`[1:51],start=c(2012,1),frequency = 4)
+{pes_mg<-ts(am.pessoas$`Total MG`[1:52],start=c(2012,1),frequency = 4)
+  pes_bh<-ts(am.pessoas$`01-Belo Horizonte`[1:52],start=c(2012,1),frequency = 4)
+  pes_entorno<-ts(am.pessoas$`02-Entorno metropolitono de BH`[1:52],start=c(2012,1),frequency = 4)
+  pes_colar<-ts(am.pessoas$`03-Colar metropolitano de BH`[1:52],start=c(2012,1),frequency = 4)
+  pes_RIDE<-ts(am.pessoas$`04-RIDE de Brasília em Minas`[1:52],start=c(2012,1),frequency = 4)
+  pes_sul<-ts(am.pessoas$`05-Sul de Minas`[1:52],start=c(2012,1),frequency = 4)
+  pes_trng<-ts(am.pessoas$`06-Triângulo Mineiro`[1:52],start=c(2012,1),frequency = 4)
+  pes_mata<-ts(am.pessoas$`07-Mata de Minas Gerais`[1:52],start=c(2012,1),frequency = 4)
+  pes_norte<-ts(am.pessoas$`08-Norte de Minas`[1:52],start=c(2012,1),frequency = 4)
+  pes_vale<-ts(am.pessoas$`09-Vale do Rio Doce`[1:52],start=c(2012,1),frequency = 4)
+  pes_central<-ts(am.pessoas$`10-Central`[1:52],start=c(2012,1),frequency = 4)
 }
 
 
@@ -308,19 +308,19 @@ plot.ts(pes_central,col = "black", xlab="Ano", ylab="Quantidade de pessoas",main
 
 ### Total de domicílios
 
-am.domicilios <- read_xlsx("D:/FJP2425/Programacao/data/tamdom3t2024.xlsx")
+am.domicilios <- read_xlsx("C:/FJP2425/Programacao/data/tamdom4t2024.xlsx")
 
-{dom_mg<-ts(am.domicilios$`Total MG`[1:51],start=c(2012,1),frequency = 4)
-dom_bh<-ts(am.domicilios$`01-Belo Horizonte`[1:51],start=c(2012,1),frequency = 4)
-dom_entorno<-ts(am.domicilios$`02-Entorno metropolitono de BH`[1:51],start=c(2012,1),frequency = 4)
-dom_colar<-ts(am.domicilios$`03-Colar metropolitano de BH`[1:51],start=c(2012,1),frequency = 4)
-dom_RIDE<-ts(am.domicilios$`04-RIDE de Brasília em Minas`[1:51],start=c(2012,1),frequency = 4)
-dom_sul<-ts(am.domicilios$`05-Sul de Minas`[1:51],start=c(2012,1),frequency = 4)
-dom_trng<-ts(am.domicilios$`06-Triângulo Mineiro`[1:51],start=c(2012,1),frequency = 4)
-dom_mata<-ts(am.domicilios$`07-Mata de Minas Gerais`[1:51],start=c(2012,1),frequency = 4)
-dom_norte<-ts(am.domicilios$`08-Norte de Minas`[1:51],start=c(2012,1),frequency = 4)
-dom_vale<-ts(am.domicilios$`09-Vale do Rio Doce`[1:51],start=c(2012,1),frequency = 4)
-dom_central<-ts(am.domicilios$`10-Central`[1:51],start=c(2012,1),frequency = 4)
+{dom_mg<-ts(am.domicilios$`Total MG`[1:52],start=c(2012,1),frequency = 4)
+dom_bh<-ts(am.domicilios$`01-Belo Horizonte`[1:52],start=c(2012,1),frequency = 4)
+dom_entorno<-ts(am.domicilios$`02-Entorno metropolitono de BH`[1:52],start=c(2012,1),frequency = 4)
+dom_colar<-ts(am.domicilios$`03-Colar metropolitano de BH`[1:52],start=c(2012,1),frequency = 4)
+dom_RIDE<-ts(am.domicilios$`04-RIDE de Brasília em Minas`[1:52],start=c(2012,1),frequency = 4)
+dom_sul<-ts(am.domicilios$`05-Sul de Minas`[1:52],start=c(2012,1),frequency = 4)
+dom_trng<-ts(am.domicilios$`06-Triângulo Mineiro`[1:52],start=c(2012,1),frequency = 4)
+dom_mata<-ts(am.domicilios$`07-Mata de Minas Gerais`[1:52],start=c(2012,1),frequency = 4)
+dom_norte<-ts(am.domicilios$`08-Norte de Minas`[1:52],start=c(2012,1),frequency = 4)
+dom_vale<-ts(am.domicilios$`09-Vale do Rio Doce`[1:52],start=c(2012,1),frequency = 4)
+dom_central<-ts(am.domicilios$`10-Central`[1:52],start=c(2012,1),frequency = 4)
 }
 
 

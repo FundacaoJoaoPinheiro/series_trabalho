@@ -5,6 +5,7 @@
 library(dlm)
 library(tidyverse)
 library(parallel)
+library(rucm)
 options(scipen=999)
 
 # Neste script a grande diferença é deixar variar o nível da tendência na matriz W
@@ -12,8 +13,6 @@ options(scipen=999)
 
 ### MODELO BH ##################################################################
 rm(list = ls())
-
-# Modelos para BH: AR(1) e MA(1)
 
 ## Funções e base de dados
 
@@ -30,12 +29,40 @@ y <- (bh$Taxa.de.desocupação)*100
 se_db<- (bh$sd_txd)*100
 cv_db <- se_db/y
 
+# Teste inicial com o pct UCM
+
+y_t<-ts(y, start = c(2012, 1), frequency = 4)
+ep_t<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_t<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+# Modelo com suavização
+
+cnobh_est<-ucm(y_t~0,data=y_t,level=TRUE, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+bhtrend_est<-(cnobh_est$s.level)+(cnobh_est$s.slope)
+bhtrend_est
+
+ts.plot(y_t, bhtrend_est, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "01-Belo Horizonte",
+        ylab = "Taxa de desocupação (%)",xlab = "Tempo")
+legend("bottom", legend = c("Taxa de Desocupação", "Tendência Estimada da Taxa de Desocupação"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnobh_est$est.var.level # 0.7963613
+cnobh_est$est.var.slope # 0.01194633 
+cnobh_est$est.var.season # 0.000005251138  
+cnobh_est$irr.var # 0.1051211
+
+# Modelos para BH: AR(1) e MA(1)
+
+## MODELO DLM
+
 # Parâmetros iniciais:
-par_1<-seq(-5,5,3)
-par_2<-seq(-5,5,3)
-par_3<-seq(-5,5,3)
+par_1<-seq(-4,6,3)
+par_2<-seq(-4,6,3)
+par_3<-seq(-4,6,3)
 par_4<-c(0)
-par_5<-seq(-5,5,3)
+par_5<-seq(-4,6,3)
 
 grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
 
@@ -362,6 +389,32 @@ y <- (ent$Taxa.de.desocupação)*100
 se_db <- (ent$sd_txd)*100
 cv_db <- se_db/y
 
+# Teste inicial com o pct UCM
+
+y_t<-ts(y, start = c(2012, 1), frequency = 4)
+ep_t<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_t<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+# Modelo com suavização
+
+cnoent_est<-ucm(y_t~0,data=y_t,level=TRUE, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+enttrend_est<-(cnoent_est$s.level)+(cnoent_est$s.slope)
+enttrend_est
+
+ts.plot(y_t, enttrend_est, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "02-Colar e Entorno Metropolitano de Belo Horizonte",
+        ylab = "Taxa de desocupação (%)",xlab = "Tempo")
+legend("bottom", legend = c("Taxa de Desocupação", "Tendência Estimada da Taxa de Desocupação"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnoent_est$est.var.level # 1.167732 
+cnoent_est$est.var.slope #  0.1132882 
+cnoent_est$est.var.season #  0.000002186387  
+cnoent_est$irr.var # 0.00005084566
+
+## Modelo DLM
+
 # Parâmetros iniciais:
 # Realizei várias alterações nos iniciais, visto que alguns estavam quebrando o cálculo
 
@@ -506,6 +559,7 @@ mtext("Taxa de desocupação (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (AR1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+
 #### MODELO MA(1)
 
 source("data/funcoes/14_estrutural_MA1.R")
@@ -634,37 +688,173 @@ legend("bottomleft", legend = c("Erro amostral"),
        lty = c(1), col = c(4), bty = 'n', lwd = c(2))
 mtext("Taxa de desocupação (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (AR1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (MA1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+
+#### MODELO MA(2)
+
+source("data/funcoes/16_estrutural_MA2.R")
+theta1_ma2 <- dbent[["taxamod_ma2"]][["theta1_ma2_txent"]]
+theta2_ma2 <- dbent[["taxamod_ma2"]][["theta2_ma2_txent"]]
+grid_ma2 <- grid_error[-c(145),]
+
+# Rodando o modelo
+
+source("data/funcoes/20_rodar_grid_ma2.R")
+start_time <- Sys.time()
+run_ma2ent <- rodar_grid_ma2(y, grid_ma2, f.estrutural_ma2)
+end_time <- Sys.time()
+end_time - start_time
+
+mod_ma2ent_ini <- run_ma2ent$resultados
+
+# Avaliação das iterações:
+ini_ma2_ent <- cbind(
+  round(exp(grid_ma2), 5),
+  do.call(rbind, lapply(1:nrow(grid_ma2), function(i) {
+    tryCatch({
+      params <- round(exp(mod_ma2ent_ini[[i]][["fit"]][["par"]]), 5)
+      convergence <- mod_ma2ent_ini[[i]][["fit"]][["convergence"]]
+      log_like <- mod_ma2ent_ini[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 7))
+  }))
+)
+
+colnames(ini_ma2_ent) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "level","slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
+
+ma2_ent <- mod_ma2ent_ini[[which(
+  ini_ma2_ent$log_like == min(ini_ma2_ent$log_like[ini_ma2_ent$convergence == 0], na.rm = TRUE) & 
+    ini_ma2_ent$convergence == 0
+)]]
+
+# Verificando a convergência
+
+conver_ma2 <- rbind(ma2_ent$fit$convergence)
+colnames(conver_ma2) <- c("convergence")
+
+# Parâmetros estimados:
+
+parametros_ma2 <- rbind(c(round(exp(ma2_ent$fit$par), 5)))
+row.names(parametros_ma2) <- c("BSM_error")
+colnames(parametros_ma2) <- c("Level","Slope","Seasonal","Irregular","Sample Error")
+
+# Critérios de informação: AIC e BIC
+
+AIC_ma2 <- rbind(2*(ma2_ent$fit$value) + 2*5)
+colnames(AIC_ma2) <- "AIC"
+
+BIC_ma2 <- 2*(ma2_ent$fit$value) + 2*5*log(ma2_ent$T)
+
+# Matriz Hessiana
+
+all(eigen(ma2_ent$fit$hessian, only.values = TRUE)$values > 0) # false
+
+# Diagnosticando os resíduos
+
+lista_ma2 <- list(ma2_ent)
+testes_ma2 <- sapply(lista_ma2, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]], 5),
+                                                   round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]], 5),
+                                                   teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes_ma2 <- t(testes_ma2)
+row.names(testes_ma2) <- c("BSM_error")
+colnames(testes_ma2) <- c("Shapiro", "Box", "H")
+
+resultadosent_ma2 <- cbind(conver_ma2, parametros_ma2, testes_ma2, AIC_ma2, BIC_ma2)
+resultadosent_ma2
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ma2 <- window(ts.union(
+  ts(ma2_ent$ts.original, start = 2012, frequency = 4),
+  ts(ma2_ent$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ma2, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("Taxa de desocupação: design-based",
+                             "Sinal da Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig_ma2.cv <- window(ts.union(
+  ts((ma2_ent$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ma2_ent$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ma2.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV Taxa de desocupação: design-based",
+                             "Sinal CV Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (ma2)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE MA(1)
+
+figtend_ma2<-window(ts.union(ts(ma2_ent$ts.original, start = 2012, frequency = 4),ts(ma2_ent$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ma2<-window(ts.union(ts(ma2_ent$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ma2<-window(ts.union(ts(ma2_ent$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ma2<-window(ts.union(ts(ma2_ent$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ma2, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Taxa de desocupação: design-based",
+                            "Tendência da Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_ma2, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ma2, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ma2, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (MA2)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 ## GRÁFICO UNIFICADO:
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 fig_ent <- window(ts.union(
-  ts(ma1_ent$ts.original, start = 2012, frequency = 4),
+  ts(ma2_ent$ts.original, start = 2012, frequency = 4),
   ts(ar1_ent$ts.signal, start = 2012, frequency = 4),
-  ts(ma1_ent$ts.signal, start = 2012, frequency = 4) 
+  ts(ma1_ent$ts.signal, start = 2012, frequency = 4),
+  ts(ma2_ent$ts.signal, start = 2012, frequency = 4)
 ), start=c(2013,3))
-plot(fig_ent, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
+plot(fig_ent, plot.type = "single", col = c(1,4,2,3), ylab="", xlab="", lty = c(1,1,1,1), lwd=c(2))
 legend("bottom", legend = c("Taxa de desocupação: design-based",
                             "Sinal da Taxa de desocupação AR(1)",
-                            "Sinal da Taxa de desocupação MA(1)"),
-       lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
+                            "Sinal da Taxa de desocupação MA(1)",
+                            "Sinal da Taxa de desocupação MA(2)"),
+       lty = c(1,1,1,1), col = c(1,4,2,3), bty = 'n', lwd=c(2))
 mtext("Taxa de desocupação (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
 fig_ent.cv <- window(ts.union(
-  ts((ma1_ent$cv.original) * 100, start = 2012, frequency = 4),
+  ts((ma2_ent$cv.original) * 100, start = 2012, frequency = 4),
   ts(ar1_ent$cv.signal, start = 2012, frequency = 4),
-  ts(ma1_ent$cv.signal, start = 2012, frequency = 4)
+  ts(ma1_ent$cv.signal, start = 2012, frequency = 4),
+  ts(ma2_ent$cv.signal, start = 2012, frequency = 4)
 ), start=c(2013,3))
-plot(fig_ent.cv, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
+plot(fig_ent.cv, plot.type = "single", col = c(1,4,2,3), ylab="", xlab="", lty = c(1,1,1,1), lwd=c(2))
 legend("topleft", legend = c("CV Taxa de desocupação: design-based",
                              "Sinal CV Taxa de desocupação AR(1)",
-                             "Sinal CV Taxa de desocupação MA(1)"),
-       lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
+                             "Sinal CV Taxa de desocupação MA(1)",
+                             "Sinal CV Taxa de desocupação MA(2)"),
+       lty = c(1,1,1,1), col = c(1,4,2,3), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (AR e MA)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte (AR e MAs)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 # Salvando o .Rdata
 
@@ -687,6 +877,32 @@ dbsul<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_taxa_8reg/03_params_taxa
 y <- (sul$Taxa.de.desocupação)*100
 se_db <- (sul$sd_txd)*100
 cv_db <- se_db/y
+
+# Teste inicial com o pct UCM
+
+y_t<-ts(y, start = c(2012, 1), frequency = 4)
+ep_t<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_t<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+# Modelo com suavização
+
+cnosul_est<-ucm(y_t~0,data=y_t,level=TRUE, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+sultrend_est<-(cnosul_est$s.level)+(cnosul_est$s.slope)
+sultrend_est
+
+ts.plot(y_t, sultrend_est, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "03 - Sul de Minas",
+        ylab = "Taxa de desocupação (%)",xlab = "Tempo")
+legend("bottom", legend = c("Taxa de Desocupação", "Tendência Estimada da Taxa de Desocupação"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnosul_est$est.var.level # 1.16631 
+cnosul_est$est.var.slope #  0.001188409  
+cnosul_est$est.var.season #  0.000003653413
+cnosul_est$irr.var # 0.00006466746
+
+## Modelo DLM
 
 # Parâmetros iniciais:
 
@@ -959,7 +1175,140 @@ legend("bottomleft", legend = c("Erro amostral"),
        lty = c(1), col = c(4), bty = 'n', lwd = c(2))
 mtext("Taxa de desocupação", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("03 - Estrutural Sul de Minas", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("03 - Estrutural Sul de Minas MA1", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+
+#### MODELO ARMA11
+
+source("data/funcoes/15_estrutural_ARMA11.R")
+phi1_arma11 <- dbsul[["taxamod_arma11"]][["phi1_arma11_txsul"]]
+theta1_arma11 <- dbsul[["taxamod_arma11"]][["theta1_arma11_txsul"]]
+grid_arma11<-grid_error
+
+# Rodando o modelo
+
+source("data/funcoes/19_rodar_grid_arma11.R")
+start_time <- Sys.time()
+run_arma11sul <- rodar_grid_arma11(y, grid_arma11, f.estrutural_arma11)
+end_time <- Sys.time()
+end_time - start_time
+
+mod_arma11sul_ini <- run_arma11sul$resultados
+
+# Avaliação das iterações:
+ini_arma11_sul <- cbind(
+  round(exp(grid_arma11), 5),
+  do.call(rbind, lapply(1:nrow(grid_arma11), function(i) {
+    tryCatch({
+      params <- round(exp(mod_arma11sul_ini[[i]][["fit"]][["par"]]), 5)
+      convergence <- mod_arma11sul_ini[[i]][["fit"]][["convergence"]]
+      log_like <- mod_arma11sul_ini[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 7))
+  }))
+)
+
+colnames(ini_arma11_sul) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "level","slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
+
+## Seleção do modelo:
+
+arma11_sul <- mod_arma11sul_ini[[which(
+  ini_arma11_sul$log_like == min(ini_arma11_sul$log_like[ini_arma11_sul$convergence == 0], na.rm = TRUE) & 
+    ini_arma11_sul$convergence == 0
+)]]
+
+# Verificando a convergência
+
+conver_arma11 <- rbind(arma11_sul$fit$convergence)
+colnames(conver_arma11) <- c("convergence")
+
+# Parâmetros estimados:
+
+parametros_arma11 <- rbind(c(round(exp(arma11_sul$fit$par), 5)))
+row.names(parametros_arma11) <- c("BSM_error")
+colnames(parametros_arma11) <- c("Level","Slope","Seasonal","Irregular","Sample Error")
+
+# Critérios de informação: AIC e BIC
+
+AIC_arma11 <- rbind(2*(arma11_sul$fit$value) + 2*5)
+colnames(AIC_arma11) <- "AIC"
+
+BIC_arma11 <- 2*(arma11_sul$fit$value) + 2*5*log(arma11_sul$T)
+
+# Matriz Hessiana
+
+all(eigen(arma11_sul$fit$hessian, only.values = TRUE)$values > 0) # false
+
+# Diagnosticando os resíduos
+
+lista_arma11 <- list(arma11_sul)
+testes_arma11 <- sapply(lista_arma11, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]], 5),
+                                                   round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]], 5),
+                                                   teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes_arma11 <- t(testes_arma11)
+row.names(testes_arma11) <- c("BSM_error")
+colnames(testes_arma11) <- c("Shapiro", "Box", "H")  
+resultadossul_arma11 <- cbind(conver_arma11, parametros_arma11, testes_arma11, AIC_arma11, BIC_arma11)
+resultadossul_arma11
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_arma11 <- window(ts.union(
+  ts(arma11_sul$ts.original, start = 2012, frequency = 4),
+  ts(arma11_sul$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_arma11, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Taxa de desocupação: design-based",
+                            "Sinal da Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig_arma11.cv <- window(ts.union(
+  ts((arma11_sul$cv.original) * 100, start = 2012, frequency = 4),
+  ts(arma11_sul$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_arma11.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV Taxa de desocupação: design-based",
+                             "Sinal CV Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("03 - Estrututral Sul de Minas (ARMA(1,1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE ARMA(1)
+
+figtend_arma11<-window(ts.union(ts(arma11_sul$ts.original, start = 2012, frequency = 4),ts(arma11_sul$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_arma11<-window(ts.union(ts(arma11_sul$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_arma11<-window(ts.union(ts(arma11_sul$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_arma11<-window(ts.union(ts(arma11_sul$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_arma11, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Taxa de desocupação: design-based",
+                            "Tendência da Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("03 - Estrutural Sul de Minas - ARMA (1,1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 
 ## Gráfico conjunto:
@@ -968,27 +1317,31 @@ par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 fig_sul <- window(ts.union(
   ts(ma1_sul$ts.original, start = 2012, frequency = 4),
   ts(ar1_sul$ts.signal, start = 2012, frequency = 4),
-  ts(ma1_sul$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
-plot(fig_sul, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
+  ts(ma1_sul$ts.signal, start = 2012, frequency = 4),
+  ts(arma11_sul$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_sul, plot.type = "single", col = c(1,4,2,3), ylab="", xlab="", lty = c(1,1,1,1), lwd=c(2))
 legend("topleft", legend = c("Taxa de desocupação: design-based",
                              "Sinal da Taxa de desocupação AR(1)",
-                             "Sinal da Taxa de desocupação MA(1)"),
-       lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
+                             "Sinal da Taxa de desocupação MA(1)",
+                             "Sinal da Taxa de desocupação ARMA(1,1)"),
+       lty = c(1,1,1,1), col = c(1,4,2,3), bty = 'n', lwd=c(2), cex = 0.8)
 mtext("Taxa de desocupação (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
 fig_sul.cv <- window(ts.union(
   ts((ma1_sul$cv.original) * 100, start = 2012, frequency = 4),
   ts(ar1_sul$cv.signal, start = 2012, frequency = 4),
-  ts(ma1_sul$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
-plot(fig_sul.cv, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
+  ts(ma1_sul$cv.signal, start = 2012, frequency = 4),
+  ts(arma11_sul$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+plot(fig_sul.cv, plot.type = "single", col = c(1,4,2,3), ylab="", xlab="", lty = c(1,1,1,1), lwd=c(2))
 legend("topleft", legend = c("CV Taxa de desocupação: design-based",
                              "Sinal CV Taxa de desocupação AR(1)",
-                             "Sinal CV Taxa de desocupação MA(1)"),
-       lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
+                             "Sinal CV Taxa de desocupação MA(1)",
+                             "Sinal CV Taxa de desocupação ARMA(1,1)"),
+       lty = c(1,1,1,1), col = c(1,4,2,3), bty = 'n', lwd=c(2), cex = 0.8)
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("03 - Estrutural Sul de Minas (AR(1) e MA(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("03 - Estrutural Sul de Minas - Todos os Modelos", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 # Salvando o .Rdata
 
@@ -1011,6 +1364,32 @@ dbtrg<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_taxa_8reg/04_params_taxa
 y <- (trg$Taxa.de.desocupação)*100
 se_db <- (trg$sd_txd)*100
 cv_db <- se_db/y
+
+# Teste inicial com o pct UCM
+
+y_t<-ts(y, start = c(2012, 1), frequency = 4)
+ep_t<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_t<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+# Modelo com suavização
+
+cnotrg_est<-ucm(y_t~0,data=y_t,level=TRUE, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+trgtrend_est<-(cnotrg_est$s.level)+(cnotrg_est$s.slope)
+trgtrend_est
+
+ts.plot(y_t, trgtrend_est, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "04 - Triângulo Mineiro",
+        ylab = "Taxa de desocupação (%)",xlab = "Tempo")
+legend("bottom", legend = c("Taxa de Desocupação", "Tendência Estimada da Taxa de Desocupação"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnotrg_est$est.var.level # 0.4017413  
+cnotrg_est$est.var.slope #  0.002293232  
+cnotrg_est$est.var.season #  0.0000006965564 
+cnotrg_est$irr.var # 0.2628926
+
+## Modelo DLM
 
 # Parâmetros iniciais:
 
@@ -1340,6 +1719,32 @@ y <- (mat$Taxa.de.desocupação)*100
 se_db <- (mat$sd_txd)*100
 cv_db <- se_db/y
 
+# Teste inicial com o pct UCM
+
+y_t<-ts(y, start = c(2012, 1), frequency = 4)
+ep_t<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_t<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+# Modelo com suavização
+
+cnomat_est<-ucm(y_t~0,data=y_t,level=TRUE, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+mattrend_est<-(cnomat_est$s.level)+(cnomat_est$s.slope)
+mattrend_est
+
+ts.plot(y_t, mattrend_est, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "05 - Zona da Mata",
+        ylab = "Taxa de desocupação (%)",xlab = "Tempo")
+legend("bottom", legend = c("Taxa de Desocupação", "Tendência Estimada da Taxa de Desocupação"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnomat_est$est.var.level # 0.7966142   
+cnomat_est$est.var.slope #  0.00000198318   
+cnomat_est$est.var.season #  0.0000003206099  
+cnomat_est$irr.var # 0.1929313
+
+## Modelo DLM
+
 # Parâmetros iniciais:
 par_1<-seq(-3,6,3)
 par_2<-seq(-3,6,3)
@@ -1664,6 +2069,32 @@ y <- (nrt$Taxa.de.desocupação)*100
 se_db <- (nrt$sd_txd)*100
 cv_db <- se_db/y
 
+# Teste inicial com o pct UCM
+
+y_t<-ts(y, start = c(2012, 1), frequency = 4)
+ep_t<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_t<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+# Modelo com suavização
+
+cnonrt_est<-ucm(y_t~0,data=y_t,level=TRUE, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+nrttrend_est<-(cnonrt_est$s.level)+(cnonrt_est$s.slope)
+nrttrend_est
+
+ts.plot(y_t, nrttrend_est, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "06 - Norte de Minas",
+        ylab = "Taxa de desocupação (%)",xlab = "Tempo")
+legend("bottom", legend = c("Taxa de Desocupação", "Tendência Estimada da Taxa de Desocupação"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnonrt_est$est.var.level # 1.639895    
+cnonrt_est$est.var.slope #  0.005404604    
+cnonrt_est$est.var.season #  0.01763119   
+cnonrt_est$irr.var # 0.03082057
+
+## Modelo DLM
+
 # Parâmetros iniciais:
 
 par_1<-seq(-3,6,3)
@@ -1975,9 +2406,6 @@ save.image(file = "C:/FJP2425/Programacao/data/Rdatas/15_estruturaltaxadesocup_8
 ### VALE DO RIO DOCE ###########################################################
 rm(list = ls())
 
-# Parâmetros do modelo UCM (referência para o grid): # 28.41725 # 1.194057 # 87.2518
-# Modelos para Vale: AR(1);
-
 ## Funções e base de dados
 
 source("data/funcoes/01_funcoes_pseudo_erro.R")
@@ -1993,8 +2421,34 @@ y <- (vl$Taxa.de.desocupação)*100
 se_db <- (vl$sd_txd)*100
 cv_db <- se_db/y
 
+# Teste inicial com o pct UCM
+
+y_t<-ts(y, start = c(2012, 1), frequency = 4)
+ep_t<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_t<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+# Modelo com suavização
+
+cnoval_est<-ucm(y_t~0,data=y_t,level=TRUE, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+valtrend_est<-(cnoval_est$s.level)+(cnoval_est$s.slope)
+valtrend_est
+
+ts.plot(y_t, valtrend_est, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "07 - Vale Do Rio Doce",
+        ylab = "Taxa de desocupação (%)",xlab = "Tempo")
+legend("bottom", legend = c("Taxa de Desocupação", "Tendência Estimada da Taxa de Desocupação"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnoval_est$est.var.level # 1.863829     
+cnoval_est$est.var.slope #  0.005637569     
+cnoval_est$est.var.season #  0.00001240955   
+cnoval_est$irr.var # 0.0003189639
+
+## Modelo DLM
+
 # Parâmetros iniciais:
-par_1<-seq(-3,6,3)
+par_1<-seq(-3,6,3)  #seq(-1,3,1)
 par_2<-seq(-3,6,3)
 par_3<-seq(-3,6,3)
 par_4<-c(0)
@@ -2006,7 +2460,7 @@ grid_error<- expand.grid(par_1,par_2,par_3,par_4,par_5)
 
 source("data/funcoes/12_estrutural_AR1.R")
 phi1_ar1 <- dbvl[["taxamod_ar1"]][["phi1_ar1_txval"]]
-grid_ar1 <- grid_error[-c(172),]
+grid_ar1 <- grid_error #[-c(172),]
 
 # Rodando o modelo
 
@@ -2232,7 +2686,7 @@ mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("07 - Estrutural Vale do Rio Doce (MA1)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
-## GRÁFICO DE ANÁLISE AR(1)
+## GRÁFICO DE ANÁLISE MA(1)
 
 figtend_ma1<-window(ts.union(ts(ma1_val$ts.original, start = 2012, frequency = 4),ts(ma1_val$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
 figsaz_ma1<-window(ts.union(ts(ma1_val$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
@@ -2266,31 +2720,437 @@ mtext("Taxa de desocupação", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 mtext("07- Estrutural Vale do Rio Doce (MA(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
+
+#### MODELO ARMA(1,1):
+
+source("data/funcoes/15_estrutural_ARMA11.R")
+phi1_arma11 <- dbvl[["taxamod_arma11"]][["phi1_arma11_txval"]]
+theta1_arma11 <- dbvl[["taxamod_arma11"]][["theta1_arma11_txval"]]
+grid_arma11 <- grid_error[-c(172),]
+
+# Rodando o modelo
+
+source("data/funcoes/19_rodar_grid_arma11.R")
+start_time <- Sys.time()
+run_arma11val <- rodar_grid_arma11(y, grid_arma11, f.estrutural_arma11)
+end_time <- Sys.time()
+end_time - start_time
+
+mod_arma11val_ini <- run_arma11val$resultados
+
+# Avaliação das iterações:
+ini_arma11_val <- cbind(
+  round(exp(grid_arma11), 5),
+  do.call(rbind, lapply(1:nrow(grid_arma11), function(i) {
+    tryCatch({
+      params <- round(exp(mod_arma11val_ini[[i]][["fit"]][["par"]]), 5)
+      convergence <- mod_arma11val_ini[[i]][["fit"]][["convergence"]]
+      log_like <- mod_arma11val_ini[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 7))
+  }))
+)
+
+colnames(ini_arma11_val) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "level","slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
+
+## Seleção do modelo:
+
+arma11_val <- mod_arma11val_ini[[which(
+  ini_arma11_val$log_like == min(ini_arma11_val$log_like[ini_arma11_val$convergence == 0], na.rm = TRUE) & 
+    ini_arma11_val$convergence == 0
+)]]
+
+# Verificando a convergência
+
+conver_arma11 <- rbind(arma11_val$fit$convergence)
+colnames(conver_arma11) <- c("convergence")
+
+# Parâmetros estimados:
+
+parametros_arma11 <- rbind(c(round(exp(arma11_val$fit$par), 5)))
+row.names(parametros_arma11) <- c("BSM_error")
+colnames(parametros_arma11) <- c("Level","Slope","Seasonal","Irregular","Sample Error")
+
+# Critérios de informação: AIC e BIC
+
+AIC_arma11 <- rbind(2*(arma11_val$fit$value) + 2*5)
+colnames(AIC_arma11) <- "AIC"
+
+BIC_arma11 <- 2*(arma11_val$fit$value) + 2*5*log(arma11_val$T)
+
+# Matriz Hessiana
+
+all(eigen(arma11_val$fit$hessian, only.values = TRUE)$values > 0) # FALSE
+
+# Diagnosticando os resíduos
+
+lista_arma11 <- list(arma11_val)
+testes_arma11 <- sapply(lista_arma11, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]], 5),
+                                                   round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]], 5),
+                                                   teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes_arma11 <- t(testes_arma11)
+row.names(testes_arma11) <- c("BSM_error")
+colnames(testes_arma11) <- c("Shapiro", "Box", "H")
+
+resultadosval_arma11 <- cbind(conver_arma11, parametros_arma11, testes_arma11, AIC_arma11, BIC_arma11)
+resultadosval_arma11
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_arma11 <- window(ts.union(
+  ts(arma11_val$ts.original, start = 2012, frequency = 4),
+  ts(arma11_val$ts.signal, start = 2012, frequency = 4)), start = c(2014, 1))
+plot(fig_arma11, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Taxa de desocupação: design-based",
+                            "Sinal da Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig_arma11.cv <- window(ts.union(
+  ts((arma11_val$cv.original) * 100, start = 2012, frequency = 4),
+  ts(arma11_val$cv.signal, start = 2012, frequency = 4)), start = c(2014, 1))
+plot(fig_arma11.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV Taxa de desocupação: design-based",
+                             "Sinal CV Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("07 - Estrutural Vale do Rio Doce - ARMA(1,1) ", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE ARMA(1,1)
+
+figtend_arma11<-window(ts.union(ts(arma11_val$ts.original, start = 2012, frequency = 4),ts(arma11_val$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_arma11<-window(ts.union(ts(arma11_val$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_arma11<-window(ts.union(ts(arma11_val$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_arma11<-window(ts.union(ts(arma11_val$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_arma11, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Taxa de desocupação: design-based",
+                            "Tendência da Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_arma11, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("07- Estrutural Vale do Rio Doce (ARMA(1,1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+
+#### MODELO MA(2):
+
+source("data/funcoes/16_estrutural_MA2.R")
+theta1_ma2 <- dbvl[["taxamod_ma2"]][["theta1_ma2_txval"]]
+theta2_ma2 <- dbvl[["taxamod_ma2"]][["theta2_ma2_txval"]]
+grid_ma2 <- grid_error[-c(172),]
+
+# Rodando o modelo
+
+source("data/funcoes/20_rodar_grid_ma2.R")
+start_time <- Sys.time()
+run_ma2val <- rodar_grid_ma2(y, grid_ma2, f.estrutural_ma2)
+end_time <- Sys.time()
+end_time - start_time
+
+mod_ma2val_ini <- run_ma2val$resultados
+
+# Avaliação das iterações:
+ini_ma2_val <- cbind(
+  round(exp(grid_ma2), 5),
+  do.call(rbind, lapply(1:nrow(grid_ma2), function(i) {
+    tryCatch({
+      params <- round(exp(mod_ma2val_ini[[i]][["fit"]][["par"]]), 5)
+      convergence <- mod_ma2val_ini[[i]][["fit"]][["convergence"]]
+      log_like <- mod_ma2val_ini[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 7))
+  }))
+)
+
+colnames(ini_ma2_val) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                              "level","slope","seasonal","irregular", "sampl_error",
+                              "convergence","log_like")
+
+## Seleção do modelo:
+
+ma2_val <- mod_ma2val_ini[[which(
+  ini_ma2_val$log_like == min(ini_ma2_val$log_like[ini_ma2_val$convergence == 0], na.rm = TRUE) & 
+    ini_ma2_val$convergence == 0
+)]]
+
+# Verificando a convergência
+
+conver_ma2 <- rbind(ma2_val$fit$convergence)
+colnames(conver_ma2) <- c("convergence")
+
+# Parâmetros estimados:
+
+parametros_ma2 <- rbind(c(round(exp(ma2_val$fit$par), 5)))
+row.names(parametros_ma2) <- c("BSM_error")
+colnames(parametros_ma2) <- c("Level","Slope","Seasonal","Irregular","Sample Error")
+
+# Critérios de informação: AIC e BIC
+
+AIC_ma2 <- rbind(2*(ma2_val$fit$value) + 2*5)
+colnames(AIC_ma2) <- "AIC"
+
+BIC_ma2 <- 2*(ma2_val$fit$value) + 2*5*log(ma2_val$T)
+
+# Matriz Hessiana
+
+all(eigen(ma2_val$fit$hessian, only.values = TRUE)$values > 0) # FALSE
+
+# Diagnosticando os resíduos
+
+lista_ma2 <- list(ma2_val)
+testes_ma2 <- sapply(lista_ma2, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]], 5),
+                                                         round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]], 5),
+                                                         teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes_ma2 <- t(testes_ma2)
+row.names(testes_ma2) <- c("BSM_error")
+colnames(testes_ma2) <- c("Shapiro", "Box", "H")
+
+resultadosval_ma2 <- cbind(conver_ma2, parametros_ma2, testes_ma2, AIC_ma2, BIC_ma2)
+resultadosval_ma2
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_ma2 <- window(ts.union(
+  ts(ma2_val$ts.original, start = 2012, frequency = 4),
+  ts(ma2_val$ts.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ma2, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Taxa de desocupação: design-based",
+                            "Sinal da Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig_ma2.cv <- window(ts.union(
+  ts((ma2_val$cv.original) * 100, start = 2012, frequency = 4),
+  ts(ma2_val$cv.signal, start = 2012, frequency = 4)), start = c(2013, 3))
+plot(fig_ma2.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV Taxa de desocupação: design-based",
+                             "Sinal CV Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("07 - Estrutural Vale do Rio Doce - MA(2) ", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE MA(2)
+
+figtend_ma2<-window(ts.union(ts(ma2_val$ts.original, start = 2012, frequency = 4),ts(ma2_val$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_ma2<-window(ts.union(ts(ma2_val$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_ma2<-window(ts.union(ts(ma2_val$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_ma2<-window(ts.union(ts(ma2_val$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_ma2, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Taxa de desocupação: design-based",
+                            "Tendência da Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_ma2, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_ma2, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_ma2, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("07- Estrutural Vale do Rio Doce (MA(2))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+
+#### MODELO ARMA(1,2)
+
+source("data/funcoes/33_estrutural_ARMA12.R")
+phi1_arma12 <- dbvl[["taxamod_arma12"]][["phi1_arma12_txval"]]
+theta1_arma12 <- dbvl[["taxamod_arma12"]][["theta1_arma12_txval"]]
+theta2_arma12 <- dbvl[["taxamod_arma12"]][["theta2_arma12_txval"]]
+grid_arma12 <- grid_error[-c(172),]
+
+# Rodando o modelo
+
+source("data/funcoes/34_rodar_grid_arma12.R")
+start_time <- Sys.time()
+run_arma12val <- rodar_grid_arma12(y, grid_arma12, f.estrutural_arma12)
+end_time <- Sys.time()
+end_time - start_time
+
+mod_arma12val_ini <- run_arma12val$resultados
+
+# Avaliação das iterações:
+ini_arma12_val <- cbind(
+  round(exp(grid_arma12), 5),
+  do.call(rbind, lapply(1:nrow(grid_arma12), function(i) {
+    tryCatch({
+      params <- round(exp(mod_arma12val_ini[[i]][["fit"]][["par"]]), 5)
+      convergence <- mod_arma12val_ini[[i]][["fit"]][["convergence"]]
+      log_like <- mod_arma12val_ini[[i]][["fit"]][["value"]]
+      c(params, convergence, log_like)
+    }, error = function(e) rep(NA, 7))
+  }))
+)
+
+colnames(ini_arma12_val) <- c("level_ini","slope_ini","seasonal_ini","irregular_ini","sampl_error_ini",
+                           "level","slope","seasonal","irregular", "sampl_error",
+                           "convergence","log_like")
+
+## Seleção do modelo:
+
+arma12_val <- mod_arma12val_ini[[which(
+  ini_arma12_val$log_like == min(ini_arma12_val$log_like[ini_arma12_val$convergence == 0], na.rm = TRUE) & 
+    ini_arma12_val$convergence == 0
+)]]
+
+# Verificando a convergência
+
+conver_arma12 <- rbind(arma12_val$fit$convergence)
+colnames(conver_arma12) <- c("convergence")
+
+# Parâmetros estimados:
+
+parametros_arma12 <- rbind(c(round(exp(arma12_val$fit$par), 5)))
+row.names(parametros_arma12) <- c("BSM_error")
+colnames(parametros_arma12) <- c("Level","Slope","Seasonal","Irregular","Sample Error")
+
+# Critérios de informação: AIC e BIC
+
+AIC_arma12 <- rbind(2*(arma12_val$fit$value) + 2*5)
+colnames(AIC_arma12) <- "AIC"
+
+BIC_arma12 <- 2*(arma12_val$fit$value) + 2*5*log(arma12_val$T)
+
+# Matriz Hessiana
+
+all(eigen(arma12_val$fit$hessian, only.values = TRUE)$values > 0) # FALSE
+
+# Diagnosticando os resíduos
+
+lista_arma12 <- list(arma12_val)
+testes_arma12 <- sapply(lista_arma12, function(modelo) c(round(shapiro.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]])[["p.value"]], 5),
+                                                   round((Box.test(modelo[["res"]][modelo[["d"]]:modelo[["T"]]], lag = 24, type = "Ljung"))[["p.value"]], 5),
+                                                   teste_H(modelo[["res"]][modelo[["d"]]:modelo[["T"]]]))
+)
+testes_arma12 <- t(testes_arma12)
+row.names(testes_arma12) <- c("BSM_error")
+colnames(testes_arma12) <- c("Shapiro", "Box", "H")
+
+resultadosval_arma12 <- cbind(conver_arma12, parametros_arma12, testes_arma12, AIC_arma12, BIC_arma12)
+resultadosval_arma12
+
+par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+fig_arma12 <- window(ts.union(
+  ts(arma12_val$ts.original, start = 2012, frequency = 4),
+  ts(arma12_val$ts.signal, start = 2012, frequency = 4)), start = c(2014, 1))
+plot(fig_arma12, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Taxa de desocupação: design-based",
+                            "Sinal da Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+fig_arma12.cv <- window(ts.union(
+  ts((arma12_val$cv.original) * 100, start = 2012, frequency = 4),
+  ts(arma12_val$cv.signal, start = 2012, frequency = 4)), start = c(2014, 1))
+plot(fig_arma12.cv, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("topleft", legend = c("CV Taxa de desocupação: design-based",
+                             "Sinal CV Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("CV (%)", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("07 - Estrutural Vale do Rio Doce (ARMA (1,2))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+## GRÁFICO DE ANÁLISE ARMA(1,2)
+
+figtend_arma12<-window(ts.union(ts(arma12_val$ts.original, start = 2012, frequency = 4),ts(arma12_val$ts.trend, start = 2012, frequency = 4)), start = c(2013, 3))
+figsaz_arma12<-window(ts.union(ts(arma12_val$ts.seasonal, start = 2012, frequency = 4)), start = c(2013, 3))
+figirr_arma12<-window(ts.union(ts(arma12_val$ts.irregular, start = 2012, frequency = 4)), start = c(2013, 3))
+figsample_arma12<-window(ts.union(ts(arma12_val$ts.sampling_error, start = 2012, frequency = 4)), start = c(2013, 3))
+
+par(mfrow = c(2, 2), mar = c(5, 5, 1, 1), oma = c(0, 0, 2, 0), cex = 0.8)
+plot(figtend_arma12, plot.type = "single", col = c(1, 4), ylab = "", xlab = "", lty = c(1, 1), lwd = c(2))
+legend("bottom", legend = c("Taxa de desocupação: design-based",
+                            "Tendência da Taxa de desocupação: model-based"),
+       lty = c(1, 1), col = c(1, 4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsaz_arma12, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Sazonalidade"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figirr_arma12, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Termo irregular"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+
+plot(figsample_arma12, plot.type = "single", col = c(4), ylab = "", xlab = "", lty = c(1), lwd = c(2))
+legend("bottomleft", legend = c("Erro amostral"),
+       lty = c(1), col = c(4), bty = 'n', lwd = c(2))
+mtext("Taxa de desocupação", side = 2, line = 3)
+mtext("Ano", side = 1, line = 3)
+mtext("07- Estrutural Vale do Rio Doce (ARMA(1,2))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+
+### GRÁFICO COM TODOS OS MODELOS
+
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
 fig_val <- window(ts.union(
-  ts(ma1_val$ts.original, start = 2012, frequency = 4),
-  ts(ar1_val$ts.signal, start = 2012, frequency = 4),
-  ts(ma1_val$ts.signal, start = 2012, frequency = 4)), start=c(2013,3))
+  ts(ar1_val$ts.original, start = 2012, frequency = 4),
+  ts(arma11_val$ts.signal, start = 2012, frequency = 4),
+  ts(arma12_val$ts.signal, start = 2012, frequency = 4)), start=c(2014,1))
 plot(fig_val, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
 legend("bottom", legend = c("Desocupação: design-based",
-                            "Sinal da desocupação AR(1)",
-                            "Sinal da Desocupação MA(1)"),
+                            "Sinal da Desocupação ARMA(1,1)",
+                            "Sinal da Desocupação ARMA(1,2)"),
        lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
 mtext("Taxa de desocupação (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
 
 fig_val.cv <- window(ts.union(
   ts((ma1_val$cv.original) * 100, start = 2012, frequency = 4),
-  ts(ar1_val$cv.signal, start = 2012, frequency = 4),
-  ts(ma1_val$cv.signal, start = 2012, frequency = 4)), start=c(2013,3))
+  ts(arma11_val$cv.signal, start = 2012, frequency = 4),
+  ts(arma12_val$cv.signal, start = 2012, frequency = 4)), start=c(2014,1))
 plot(fig_val.cv, plot.type = "single", col = c(1,4,2), ylab="", xlab="", lty = c(1,1,1), lwd=c(2))
 legend("topleft", legend = c("CV Taxa de desocupação: design-based",
-                             "Sinal CV Taxa de desocupação AR(1)",
-                             "Sinal CV Taxa de desocupação MA(1)"),
+                             "Sinal CV Taxa de desocupação ARMA(1,1)",
+                             "Sinal CV Taxa de desocupação ARMA(1,2)"),
        lty = c(1,1,1), col = c(1,4,2), bty = 'n', lwd=c(2))
 mtext("CV (%)", side = 2, line = 3)
 mtext("Ano", side = 1, line = 3)
-mtext("07 - Estrutural Vale do Rio Doce (AR(1) e MA(1))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+mtext("07 - Estrutural Vale do Rio Doce (ARMA(1,1) e ARMA(1,2))", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
 
 # Salvando o .Rdata
 
@@ -2316,6 +3176,32 @@ dbcen<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_taxa_8reg/08_params_taxa
 y <- (cen$Taxa.de.desocupação)*100
 se_db <- (cen$sd_txd)*100
 cv_db <- se_db/y
+
+# Teste inicial com o pct UCM
+
+y_t<-ts(y, start = c(2012, 1), frequency = 4)
+ep_t<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_t<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+# Modelo com suavização
+
+cnocen_est<-ucm(y_t~0,data=y_t,level=TRUE, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+centrend_est<-(cnocen_est$s.level)+(cnocen_est$s.slope)
+centrend_est
+
+ts.plot(y_t, centrend_est, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "08 - Central",
+        ylab = "Taxa de desocupação (%)",xlab = "Tempo")
+legend("bottom", legend = c("Taxa de Desocupação", "Tendência Estimada da Taxa de Desocupação"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnocen_est$est.var.level # 1.355965      
+cnocen_est$est.var.slope #  0.000003500455      
+cnocen_est$est.var.season #  0.00000030729    
+cnocen_est$irr.var # 0.00009070092
+
+## Modelo DLM
 
 # Parâmetros iniciais:
 
@@ -2643,6 +3529,32 @@ dbmg<-readRDS("C:/FJP2425/Programacao/data/pseudoerros_taxa_8reg/09_params_taxa_
 y <- (mg$Taxa.de.desocupação)*100
 se_db <- (mg$sd_txd)*100
 cv_db <- se_db/y
+
+# Teste inicial com o pct UCM
+
+y_t<-ts(y, start = c(2012, 1), frequency = 4)
+ep_t<-ts(se_db, start = c(2012, 1), frequency = 4)
+cv_t<-ts(cv_db,start=c(2012,1),frequency = 4)
+
+# Modelo com suavização
+
+cnomg_est<-ucm(y_t~0,data=y_t,level=TRUE, slope = TRUE, season = TRUE, season.length = 4, cycle = FALSE, irregular = TRUE)
+
+mgtrend_est<-(cnomg_est$s.level)+(cnomg_est$s.slope)
+mgtrend_est
+
+ts.plot(y_t, mgtrend_est, col = c("black", "red"),lty = c(1, 2),lwd = 2, main = "09 - Minas Gerais",
+        ylab = "Taxa de desocupação (%)",xlab = "Tempo")
+legend("bottom", legend = c("Taxa de Desocupação", "Tendência Estimada da Taxa de Desocupação"), col = c("black", "red"), lty = c(1, 2), lwd = 2)
+
+# Resgatando as variâncias:
+
+cnomg_est$est.var.level # 0.07505758      
+cnomg_est$est.var.slope #  0.1381089       
+cnomg_est$est.var.season #  0.000004812888     
+cnomg_est$irr.var # 0.08210694
+
+## Modelo DLM
 
 # Parâmetros iniciais:
 

@@ -1,11 +1,11 @@
 ################################################################################
-##       SCRIPT PARA DIAGNÓSTICO DOS MODELOS UNI E MULT - OCUPADOS            ##
+##   SCRIPT PARA DIAGNÓSTICO DOS MODELOS UNI E MULT - Taxa de desocupação     ##
 ################################################################################
 
 ## Para visualizar os gráficos em segunda tela (se necessário):
 
-dev.new()
-dev.new()
+#dev.new()
+#dev.new()
 
 rm(list=ls())
 gc()
@@ -24,19 +24,23 @@ env8<-new.env()
 env9<-new.env()
 env10<-new.env()
 
-load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/01_mod_bh.Rdata", envir = env1)
-load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/02_mod_ent.Rdata", envir = env2)
-load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/03_mod_sul.Rdata", envir = env3)
-load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/04_mod_trg.Rdata", envir = env4)
-load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/05_mod_mat.Rdata", envir = env5)
-load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/06_mod_nrt.Rdata", envir = env6)
-load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/07_mod_val.Rdata", envir = env7)
-load("C:/FJP2425/Programacao/data/Rdatas/8_estruturalocup_8reg/08_mod_cen.Rdata", envir = env8)
+load("C:/FJP2425/Programacao/data/Rdatas/15_estruturaltaxadesocup_8reg/01_mod_txbh.Rdata", envir = env1)
+load("C:/FJP2425/Programacao/data/Rdatas/15_estruturaltaxadesocup_8reg/02_mod_txent.Rdata", envir = env2)
+load("C:/FJP2425/Programacao/data/Rdatas/15_estruturaltaxadesocup_8reg/03_mod_txsul.Rdata", envir = env3)
+load("C:/FJP2425/Programacao/data/Rdatas/15_estruturaltaxadesocup_8reg/04_mod_txtrg.Rdata", envir = env4)
+load("C:/FJP2425/Programacao/data/Rdatas/15_estruturaltaxadesocup_8reg/05_mod_txmat.Rdata", envir = env5)
+load("C:/FJP2425/Programacao/data/Rdatas/15_estruturaltaxadesocup_8reg/06_mod_txnrt.Rdata", envir = env6)
+load("C:/FJP2425/Programacao/data/Rdatas/15_estruturaltaxadesocup_8reg/07_mod_txval.Rdata", envir = env7)
+load("C:/FJP2425/Programacao/data/Rdatas/15_estruturaltaxadesocup_8reg/08_mod_txcen.Rdata", envir = env8)
 
 # Estimados
 
-#load("C:/FJP2425/Programacao/data/Rdatas/13_multivariado_semcorrelacao - ocup_8reg/estimados/01_mod_semcorr.Rdata", envir = env9)
-#load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/estimados/01_mod_comcorr.Rdata",envir = env10)
+# Mod sem corr
+load("C:/FJP2425/Programacao/data/Rdatas/17_multivariado_semcorr - taxadesoc_8reg/estimados/01_taxamod_semcorr.Rdata", envir = env9)
+
+# Mod com corr
+
+load("C:/FJP2425/Programacao/data/Rdatas/16_multivariado_comcorr - taxadesoc_8reg/estimados/01_taxamod_comcorr.Rdata",envir = env10)
 #load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/estimados/sensibilidade corr-05/01_mod_comcorr-05.Rdata",envir = env10)
 #load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/estimados/sensibilidade corr05/01_mod_comcorr05.Rdata",envir = env10)
 
@@ -209,45 +213,50 @@ df_vicio
 
 ### Minas Gerais  ##############################################################
 
-baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
-ocup_mg <- baseestr8reg$`09 - Minas Gerais`$Total.de.ocupados
-ocup_mg <- window(ts.union(ts(ocup_mg, start = 2012, frequency = 4)), start = c(2013,3))
-ocup_mg <- ocup_mg/1000
+## Código deixado para referência. Por serem taxas, não é possível fazer essa verificação pela soma.
+  ## Esse código foi utilizado para verificação dos modelos do total de ocupados e desocupados
+
+#baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
+#taxamg <- baseestr8reg$`09 - Minas Gerais`$Taxa.de.desocupação
+#taxamg <- window(ts.union(ts(taxamg, start = 2012, frequency = 4)), start = c(2013,3))
+#taxamg <- taxamg*100
 
 ## Sinal mg univariado
 
-sinalmg_uni <- 
-  env1$ar1_bh$ts.signal+
-  env2$ar1_ent$ts.signal+
-  env3$ar1_sul$ts.signal+
-  env4$ar1_trg$ts.signal+
-  env5$ar1_mat$ts.signal+
-  env6$ar1_nrt$ts.signal+
-  env7$ar1_val$ts.signal+
-  env8$ar1_cen$ts.signal
+#sinalmg_uni <- 
+#  env1$ma1_bh$ts.signal+
+#  env2$ma1_ent$ts.signal+
+#  env3$arma11_sul$ts.signal+
+#  env4$ma1_trg$ts.signal+
+#  env5$ma1_mat$ts.signal+
+#  env6$ma1_nrt$ts.signal+
+#  env7$arma11_val$ts.signal+
+#  env8$ma1_cen$ts.signal
 
-sinalmg_uni <- window(ts(sinalmg_uni, start = 2012, frequency = 4),start=c(2013,3))
+# sinalmg_uni <- window(ts(sinalmg_uni, start = 2012, frequency = 4),start=c(2013,3))
 
 ## Sinal mg multivariado com correlação
 
-sinalmg_mult <- 
-  mod_comcorr$ts.signal_1+
-  mod_comcorr$ts.signal_2+
-  mod_comcorr$ts.signal_3+
-  mod_comcorr$ts.signal_4+
-  mod_comcorr$ts.signal_5+
-  mod_comcorr$ts.signal_6+
-  mod_comcorr$ts.signal_7+
-  mod_comcorr$ts.signal_8
+#sinalmg_mult <- 
+#  mod_comcorr$ts.signal_1+
+#  mod_comcorr$ts.signal_2+
+#  mod_comcorr$ts.signal_3+
+#  mod_comcorr$ts.signal_4+
+#  mod_comcorr$ts.signal_5+
+#  mod_comcorr$ts.signal_6+
+#  mod_comcorr$ts.signal_7+
+# mod_comcorr$ts.signal_8
 
-sinalmg_mult <- window(ts(sinalmg_mult, start = 2012, frequency = 4),start=c(2013,3))
+# sinalmg_mult <- window(ts(sinalmg_mult, start = 2012, frequency = 4),start=c(2013,3))
 
 ## Gráfico
 
-plot(ocup_mg, type = "l", col = "black", lwd = 2,
-     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)", ylim=c(8500,12000))
-lines(sinalmg_uni, col = "blue", lty = 1, lwd = 2)
-lines(sinalmg_mult, col= "red", lty = 1, lwd = 2)
-legend("topleft", legend = c("Estimativa direta", "Sinal - Mod. Univariado","Sinal - Mod. Multivariado"),
+#plot(taxamg, type = "l", col = "black", lwd = 2,
+#     xlab = "Ano", ylab = "Total de ocupados (milhares de pessoas)", ylim=c(3,15))
+#lines(sinalmg_uni, col = "blue", lty = 1, lwd = 2)
+#lines(sinalmg_mult, col= "red", lty = 1, lwd = 2)
+#legend("topleft", legend = c("Estimativa direta", "Sinal - Mod. Univariado","Sinal - Mod. Multivariado"),
        col = c("black","blue","green"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+
+
 

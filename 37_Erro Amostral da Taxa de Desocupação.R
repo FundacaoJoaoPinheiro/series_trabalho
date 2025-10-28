@@ -1085,6 +1085,7 @@ View(clc_tx_val)
 
 rho1_tx_val <- clc_tx_val$fac[2]
 rho2_tx_val <- clc_tx_val$fac[3]
+rho3_tx_val <- clc_tx_val$fac[4]
 
 #AR(1)
 
@@ -1142,9 +1143,75 @@ theta1_arma11_txval <- arma11_theta1(rho1, phi1)
 
 par_arma11_txval <-data.frame(phi1_arma11_txval,theta1_arma11_txval)
 
+# ARMA (1,2)
+
+rho3<-rho3_tx_val
+
+rho_hat <- c(rho1 = rho1_tx_val, rho2 = rho2_tx_val, rho3 = rho3_tx_val)
+
+phi_init <- rho_hat["rho3"] / rho_hat["rho2"]
+
+theoretical_rhos <- function(phi, theta1, theta2) {
+  psi0 <- 1
+  psi1 <- theta1 + phi
+  psi2 <- theta2 + phi*theta1 + phi^2
+
+  sum_psi2_tail <- (psi2^2) * (phi^2) / (1 - phi^2)
+  gamma0_over_sigma2 <- psi0^2 + psi1^2 + psi2^2 + sum_psi2_tail
+  
+  sum_tail_g1 <- (psi2^2) * (phi^3) / (1 - phi^2)
+  gamma1_over_sigma2 <- psi0*psi1 + psi1*psi2 + sum_tail_g1
+  
+  sum_tail_g2 <- (psi2^2) * (phi^4) / (1 - phi^2)
+  psi3 <- phi * psi2
+  gamma2_over_sigma2 <- psi0*psi2 + psi1*psi3 + sum_tail_g2
+  
+  c(rho1 = gamma1_over_sigma2 / gamma0_over_sigma2,
+    rho2 = gamma2_over_sigma2 / gamma0_over_sigma2)
+}
+
+system_fun <- function(par, rho_hat) {
+  phi  <- par[1]
+  theta1 <- par[2]
+  theta2 <- par[3]
+  
+  # ACF teórica até lag 3
+  acf_theoretical <- ARMAacf(ar = phi, ma = c(theta1, theta2), lag.max = 3)[-1]
+  
+  # Diferença entre valores teóricos e empíricos
+  return(acf_theoretical - rho_hat)
+}
+
+# rhos empíricos (suponha que já calculou rho1, rho2, rho3)
+rho_hat <- c(rho1, rho2, rho3)
+
+# Chute inicial
+start_par <- c(phi_init, 0.1, 0.1)
+
+# Resolver sistema
+sol <- nleqslv(start_par, system_fun, rho_hat = rho_hat, method = "Broyden")
+sol$x
+
+if (sol$termcd == 1) {
+  phi_est    <- sol$x[1]
+  theta1_est <- sol$x[2]
+  theta2_est <- sol$x[3]
+  cat("Convergiu: phi =", phi_est, "theta1 =", theta1_est, "theta2 =", theta2_est, "\n")
+}
+
+phi1_arma12_txval <- sol$x[1]
+phi1_arma12_txval <- as.numeric(phi1_arma12_txval)
+theta1_arma12_txval <- sol$x[2]
+theta1_arma12_txval <- as.numeric(theta1_arma12_txval)
+theta2_arma12_txval <- sol$x[3]
+theta2_arma12_txval <- as.numeric(theta2_arma12_txval)
+
+par_arma12_txval <- data.frame(phi1_arma12_txval,theta1_arma12_txval,theta2_arma12_txval)
+
 params_txval <- list("dbval"=dbval,"calculos_taxa_val"=  clc_tx_val, 
                      "taxamod_ar1" = par_ar1_txval, "taxamod_ar2"=par_ar2_txval,
-                     "taxamod_ma1"=par_ma1_txval,"taxamod_ma2"=par_ma2_txval, "taxamod_arma11"=par_arma11_txval)
+                     "taxamod_ma1"=par_ma1_txval,"taxamod_ma2"=par_ma2_txval, "taxamod_arma11"=par_arma11_txval,
+                     "taxamod_arma12"=par_arma12_txval)
 
 saveRDS(params_txval,file = "C:/FJP2425/Programacao/data/pseudoerros_taxa_8reg/07_params_taxa_val.rds")
 
