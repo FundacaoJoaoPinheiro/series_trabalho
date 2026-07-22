@@ -1216,3 +1216,316 @@ View(diagmult)
 save.image(file = "C:/FJP2425/Programacao/data/Rdatas/16_multivariado_comcorr - taxadesoc_8reg/estimados/01_taxamod_comcorr.Rdata")
 
 #load("D:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/01_mod_comcorr_SULARMA11.Rdata")
+
+
+#### DADOS PARA ARTIGO #########################################################
+
+rm(list = ls())
+gc()
+
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
+baseal8reg<- readRDS("C:/FJP2425/Programacao/data/basealinhada_8reg.RDS")
+bh<-baseestr8reg$`01-Belo Horizonte`
+ent<-baseestr8reg$`02-Colar e Entorno metropolitano de BH`
+sul<-baseestr8reg$`03-Sul de Minas`
+trg<-baseestr8reg$`04-Triângulo Mineiro`
+mat<-baseestr8reg$`05-Mata de Minas Gerais`
+nrt<-baseestr8reg$`06-Norte de Minas`
+vl<-baseestr8reg$`07-Vale do Rio Doce`
+cen<-baseestr8reg$`08-Central`
+
+env1<-new.env()
+load("C:/FJP2425/Programacao/data/Rdatas/16_multivariado_comcorr - taxadesoc_8reg/estimados/01_taxamod_comcorr.Rdata", envir = env1)
+modmult<-env1$modelo_mult
+
+# BH
+
+est_direta_bh <- bh$Taxa.de.desocupação
+cv_direta_bh <- baseestr8reg$`01-Belo Horizonte`$CV.taxa
+se_dir_bh <- baseestr8reg$`01-Belo Horizonte`$sd_txd
+est_direta_bh <- est_direta_bh*100
+se_dir_bh <- se_dir_bh*100
+
+ICinf_direta_bh <- est_direta_bh-1.96*se_dir_bh
+ICsup_direta_bh <- est_direta_bh+1.96*se_dir_bh
+
+est_direta_bh <-  window(ts.union(ts(est_direta_bh, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_bh <-  window(ts.union(ts(cv_direta_bh, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_bh <- window(ts.union(ts(ICinf_direta_bh, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_bh <- window(ts.union(ts(ICsup_direta_bh, start = 2012, frequency = 4)), start = c(2014,1))
+
+sig_bh <- modmult$ts.signal_1
+cvsig_bh <- modmult$cv.signal_1
+sesig_bh <- modmult$se.signal_1
+sigICinf_bh <- sig_bh-1.96*sesig_bh
+sigICsup_bh <- sig_bh+1.96*sesig_bh
+
+sig_bh <-  window(ts.union(ts(sig_bh, start = 2012, frequency = 4)), start = c(2014,1))
+cvsig_bh <-  window(ts.union(ts(cvsig_bh, start = 2012, frequency = 4)), start = c(2014,1))
+sigICinf_bh <- window(ts.union(ts(sigICinf_bh, start = 2012, frequency = 4)), start = c(2014,1))
+sigICsup_bh <- window(ts.union(ts(sigICsup_bh, start = 2012, frequency = 4)), start = c(2014,1))
+
+est_direta_bh
+cv_direta_bh
+ICinf_direta_bh
+ICsup_direta_bh
+
+sig_bh
+cvsig_bh
+sigICinf_bh
+sigICsup_bh
+
+# ENT
+est_direta_ent <- ent$Taxa.de.desocupação
+cv_direta_ent <- baseestr8reg$`02-Colar e Entorno metropolitano de BH`$CV.taxa
+se_dir_ent <- baseestr8reg$`02-Colar e Entorno metropolitano de BH`$sd_txd
+est_direta_ent <- est_direta_ent*100
+se_dir_ent <- se_dir_ent*100
+
+ICinf_direta_ent <- est_direta_ent-1.96*se_dir_ent
+ICsup_direta_ent <- est_direta_ent+1.96*se_dir_ent
+
+est_direta_ent <-  window(ts.union(ts(est_direta_ent, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_ent <-  window(ts.union(ts(cv_direta_ent, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_ent <- window(ts.union(ts(ICinf_direta_ent, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_ent <- window(ts.union(ts(ICsup_direta_ent, start = 2012, frequency = 4)), start = c(2014,1))
+
+sig_ent <- modmult$ts.signal_2
+cvsig_ent <- modmult$cv.signal_2
+sesig_ent <- modmult$se.signal_2
+sigICinf_ent <- sig_ent-1.96*sesig_ent
+sigICsup_ent <- sig_ent+1.96*sesig_ent
+
+sig_ent <-  window(ts.union(ts(sig_ent, start = 2012, frequency = 4)), start = c(2014,1))
+cvsig_ent <-  window(ts.union(ts(cvsig_ent, start = 2012, frequency = 4)), start = c(2014,1))
+sigICinf_ent <- window(ts.union(ts(sigICinf_ent, start = 2012, frequency = 4)), start = c(2014,1))
+sigICsup_ent <- window(ts.union(ts(sigICsup_ent, start = 2012, frequency = 4)), start = c(2014,1))
+
+est_direta_ent
+cv_direta_ent
+ICinf_direta_ent
+ICsup_direta_ent
+
+sig_ent
+cvsig_ent
+sigICinf_ent
+sigICsup_ent
+
+# SUL
+est_direta_sul <- sul$Taxa.de.desocupação
+cv_direta_sul <- baseestr8reg$`03-Sul de Minas`$CV.taxa
+se_dir_sul <- baseestr8reg$`03-Sul de Minas`$sd_txd
+est_direta_sul <- est_direta_sul*100
+se_dir_sul <- se_dir_sul*100
+
+ICinf_direta_sul <- est_direta_sul-1.96*se_dir_sul
+ICsup_direta_sul <- est_direta_sul+1.96*se_dir_sul
+
+est_direta_sul <-  window(ts.union(ts(est_direta_sul, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_sul <-  window(ts.union(ts(cv_direta_sul, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_sul <- window(ts.union(ts(ICinf_direta_sul, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_sul <- window(ts.union(ts(ICsup_direta_sul, start = 2012, frequency = 4)), start = c(2014,1))
+
+sig_sul <- modmult$ts.signal_3
+cvsig_sul <- modmult$cv.signal_3
+sesig_sul <- modmult$se.signal_3
+sigICinf_sul <- sig_sul-1.96*sesig_sul
+sigICsup_sul <- sig_sul+1.96*sesig_sul
+
+sig_sul <-  window(ts.union(ts(sig_sul, start = 2012, frequency = 4)), start = c(2014,1))
+cvsig_sul <-  window(ts.union(ts(cvsig_sul, start = 2012, frequency = 4)), start = c(2014,1))
+sigICinf_sul <- window(ts.union(ts(sigICinf_sul, start = 2012, frequency = 4)), start = c(2014,1))
+sigICsup_sul <- window(ts.union(ts(sigICsup_sul, start = 2012, frequency = 4)), start = c(2014,1))
+
+est_direta_sul
+cv_direta_sul
+ICinf_direta_sul
+ICsup_direta_sul
+
+sig_sul
+cvsig_sul
+sigICinf_sul
+sigICsup_sul
+
+# TRG
+est_direta_trg <- trg$Taxa.de.desocupação
+cv_direta_trg <- baseestr8reg$`04-Triângulo Mineiro`$CV.taxa
+se_dir_trg <- baseestr8reg$`04-Triângulo Mineiro`$sd_txd
+est_direta_trg <- est_direta_trg*100
+se_dir_trg <- se_dir_trg*100
+
+ICinf_direta_trg <- est_direta_trg-1.96*se_dir_trg
+ICsup_direta_trg <- est_direta_trg+1.96*se_dir_trg
+
+est_direta_trg <-  window(ts.union(ts(est_direta_trg, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_trg <-  window(ts.union(ts(cv_direta_trg, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_trg <- window(ts.union(ts(ICinf_direta_trg, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_trg <- window(ts.union(ts(ICsup_direta_trg, start = 2012, frequency = 4)), start = c(2014,1))
+
+sig_trg <- modmult$ts.signal_4
+cvsig_trg <- modmult$cv.signal_4
+sesig_trg <- modmult$se.signal_4
+sigICinf_trg <- sig_trg-1.96*sesig_trg
+sigICsup_trg <- sig_trg+1.96*sesig_trg
+
+sig_trg <-  window(ts.union(ts(sig_trg, start = 2012, frequency = 4)), start = c(2014,1))
+cvsig_trg <-  window(ts.union(ts(cvsig_trg, start = 2012, frequency = 4)), start = c(2014,1))
+sigICinf_trg <- window(ts.union(ts(sigICinf_trg, start = 2012, frequency = 4)), start = c(2014,1))
+sigICsup_trg <- window(ts.union(ts(sigICsup_trg, start = 2012, frequency = 4)), start = c(2014,1))
+
+est_direta_trg
+cv_direta_trg
+ICinf_direta_trg
+ICsup_direta_trg
+
+sig_trg
+cvsig_trg
+sigICinf_trg
+sigICsup_trg
+
+# MAT
+est_direta_mat <- mat$Taxa.de.desocupação
+cv_direta_mat <- baseestr8reg$`05-Mata de Minas Gerais`$CV.taxa
+se_dir_mat <- baseestr8reg$`05-Mata de Minas Gerais`$sd_txd
+est_direta_mat <- est_direta_mat*100
+se_dir_mat <- se_dir_mat*100
+
+ICinf_direta_mat <- est_direta_mat-1.96*se_dir_mat
+ICsup_direta_mat <- est_direta_mat+1.96*se_dir_mat
+
+est_direta_mat <-  window(ts.union(ts(est_direta_mat, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_mat <-  window(ts.union(ts(cv_direta_mat, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_mat <- window(ts.union(ts(ICinf_direta_mat, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_mat <- window(ts.union(ts(ICsup_direta_mat, start = 2012, frequency = 4)), start = c(2014,1))
+
+sig_mat <- modmult$ts.signal_5
+cvsig_mat <- modmult$cv.signal_5
+sesig_mat <- modmult$se.signal_5
+sigICinf_mat <- sig_mat-1.96*sesig_mat
+sigICsup_mat <- sig_mat+1.96*sesig_mat
+
+sig_mat <-  window(ts.union(ts(sig_mat, start = 2012, frequency = 4)), start = c(2014,1))
+cvsig_mat <-  window(ts.union(ts(cvsig_mat, start = 2012, frequency = 4)), start = c(2014,1))
+sigICinf_mat <- window(ts.union(ts(sigICinf_mat, start = 2012, frequency = 4)), start = c(2014,1))
+sigICsup_mat <- window(ts.union(ts(sigICsup_mat, start = 2012, frequency = 4)), start = c(2014,1))
+
+est_direta_mat
+cv_direta_mat
+ICinf_direta_mat
+ICsup_direta_mat
+
+sig_mat
+cvsig_mat
+sigICinf_mat
+sigICsup_mat
+
+# NRT
+est_direta_nrt <- nrt$Taxa.de.desocupação
+cv_direta_nrt <- baseestr8reg$`06-Norte de Minas`$CV.taxa
+se_dir_nrt <- baseestr8reg$`06-Norte de Minas`$sd_txd
+est_direta_nrt <- est_direta_nrt*100
+se_dir_nrt <- se_dir_nrt*100
+
+ICinf_direta_nrt <- est_direta_nrt-1.96*se_dir_nrt
+ICsup_direta_nrt <- est_direta_nrt+1.96*se_dir_nrt
+
+est_direta_nrt <-  window(ts.union(ts(est_direta_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_nrt <-  window(ts.union(ts(cv_direta_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_nrt <- window(ts.union(ts(ICinf_direta_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_nrt <- window(ts.union(ts(ICsup_direta_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+
+sig_nrt <- modmult$ts.signal_6
+cvsig_nrt <- modmult$cv.signal_6
+sesig_nrt <- modmult$se.signal_6
+sigICinf_nrt <- sig_nrt-1.96*sesig_nrt
+sigICsup_nrt <- sig_nrt+1.96*sesig_nrt
+
+sig_nrt <-  window(ts.union(ts(sig_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+cvsig_nrt <-  window(ts.union(ts(cvsig_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+sigICinf_nrt <- window(ts.union(ts(sigICinf_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+sigICsup_nrt <- window(ts.union(ts(sigICsup_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+
+est_direta_nrt
+cv_direta_nrt
+ICinf_direta_nrt
+ICsup_direta_nrt
+
+sig_nrt
+cvsig_nrt
+sigICinf_nrt
+sigICsup_nrt
+
+# VAL
+est_direta_val <- vl$Taxa.de.desocupação
+cv_direta_val <- baseestr8reg$`07-Vale do Rio Doce`$CV.taxa
+se_dir_val <- baseestr8reg$`07-Vale do Rio Doce`$sd_txd
+est_direta_val <- est_direta_val*100
+se_dir_val <- se_dir_val*100
+
+ICinf_direta_val <- est_direta_val-1.96*se_dir_val
+ICsup_direta_val <- est_direta_val+1.96*se_dir_val
+
+est_direta_val <-  window(ts.union(ts(est_direta_val, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_val <-  window(ts.union(ts(cv_direta_val, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_val <- window(ts.union(ts(ICinf_direta_val, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_val <- window(ts.union(ts(ICsup_direta_val, start = 2012, frequency = 4)), start = c(2014,1))
+
+sig_val <- modmult$ts.signal_7
+cvsig_val <- modmult$cv.signal_7
+sesig_val <- modmult$se.signal_7
+sigICinf_val <- sig_val-1.96*sesig_val
+sigICsup_val <- sig_val+1.96*sesig_val
+
+sig_val <-  window(ts.union(ts(sig_val, start = 2012, frequency = 4)), start = c(2014,1))
+cvsig_val <-  window(ts.union(ts(cvsig_val, start = 2012, frequency = 4)), start = c(2014,1))
+sigICinf_val <- window(ts.union(ts(sigICinf_val, start = 2012, frequency = 4)), start = c(2014,1))
+sigICsup_val <- window(ts.union(ts(sigICsup_val, start = 2012, frequency = 4)), start = c(2014,1))
+
+est_direta_val
+cv_direta_val
+ICinf_direta_val
+ICsup_direta_val
+
+sig_val
+cvsig_val
+sigICinf_val
+sigICsup_val
+
+# CEN
+est_direta_cen <- cen$Taxa.de.desocupação
+cv_direta_cen <- baseestr8reg$`08-Central`$CV.taxa
+se_dir_cen <- baseestr8reg$`08-Central`$sd_txd
+est_direta_cen <- est_direta_cen*100
+se_dir_cen <- se_dir_cen*100
+
+ICinf_direta_cen <- est_direta_cen-1.96*se_dir_cen
+ICsup_direta_cen <- est_direta_cen+1.96*se_dir_cen
+
+est_direta_cen <-  window(ts.union(ts(est_direta_cen, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_cen <-  window(ts.union(ts(cv_direta_cen, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_cen <- window(ts.union(ts(ICinf_direta_cen, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_cen <- window(ts.union(ts(ICsup_direta_cen, start = 2012, frequency = 4)), start = c(2014,1))
+
+sig_cen <- modmult$ts.signal_8
+cvsig_cen <- modmult$cv.signal_8
+sesig_cen <- modmult$se.signal_8
+sigICinf_cen <- sig_cen-1.96*sesig_cen
+sigICsup_cen <- sig_cen+1.96*sesig_cen
+
+sig_cen <-  window(ts.union(ts(sig_cen, start = 2012, frequency = 4)), start = c(2014,1))
+cvsig_cen <-  window(ts.union(ts(cvsig_cen, start = 2012, frequency = 4)), start = c(2014,1))
+sigICinf_cen <- window(ts.union(ts(sigICinf_cen, start = 2012, frequency = 4)), start = c(2014,1))
+sigICsup_cen <- window(ts.union(ts(sigICsup_cen, start = 2012, frequency = 4)), start = c(2014,1))
+
+est_direta_cen
+cv_direta_cen
+ICinf_direta_cen
+ICsup_direta_cen
+
+sig_cen
+cvsig_cen
+sigICinf_cen
+sigICsup_cen
+
+
+
