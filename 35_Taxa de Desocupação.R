@@ -1402,3 +1402,545 @@ legend("topleft", legend = c("CV est. direta","CV da tendência da taxa de desoc
                              "CV da tendência da taxa de desocupação - multivariado"), 
        col = c("black","red","blue","purple"),lty = c(1,1,1,1),lwd = c(2,2,2,2),bty = "n", cex=0.8)
 mtext("08 - Central (comparativo out-of-model com model based)", side = 3, outer = TRUE, line = 0.5, font = 2, cex = 1.2)
+
+
+#### FIGURAS CONJUNTAS DA TAXA DE DESOCUPAÇÃO ##################################
+
+rm(list = ls())
+gc()
+
+#### BASE DE DADOS
+
+# BASE GERAL
+baseestr8reg <- readRDS("C:/FJP2425/Programacao/data/baseestr8reg.RDS")
+
+# DESOCUPAÇÃO - MOD MULT. (ESTIMADOS)
+
+env1<-new.env()
+load("C:/FJP2425/Programacao/data/Rdatas/12_multivariado_comcorr - desoc_8reg/estimados/01_mod_comcorr.Rdata", envir = env1)
+
+# OCUPAÇÃO - MOD MULT. (INICIAIS)
+
+env2<-new.env()
+load("C:/FJP2425/Programacao/data/Rdatas/14_multivariado_comcorrelacao - ocup_8reg/iniciais/01_mod_comcorr.Rdata", envir = env2)
+
+# TAXA DESOC DIRETA - MOD. MULT (ESTIMADOS)
+
+env26<-new.env()
+load("C:/FJP2425/Programacao/data/Rdatas/16_multivariado_comcorr - taxadesoc_8reg/estimados/01_taxamod_comcorr.Rdata", envir = env26)
+
+
+#### CALCULANDO A TAXA DE DESOCUPAÇÃO "INDIRETA"
+
+# BH
+est_direta_bh <- baseestr8reg$`01-Belo Horizonte`$Taxa.de.desocupação
+cv_direta_bh <- baseestr8reg$`01-Belo Horizonte`$CV.taxa
+se_dir_bh <- baseestr8reg$`01-Belo Horizonte`$sd_txd
+est_direta_bh <- est_direta_bh*100
+se_dir_bh <- se_dir_bh*100
+
+ICinf_direta_bh <- est_direta_bh-1.96*se_dir_bh
+ICsup_direta_bh <- est_direta_bh+1.96*se_dir_bh
+
+est_direta_bh <-  window(ts.union(ts(est_direta_bh, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_bh <-  window(ts.union(ts(cv_direta_bh, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_bh <- window(ts.union(ts(ICinf_direta_bh, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_bh <- window(ts.union(ts(ICsup_direta_bh, start = 2012, frequency = 4)), start = c(2014,1))
+
+trend_desoc_bh <- env1$modelo_mult$ts.trend_1
+trend_ocup_bh <- env2$modelo_mult$ts.trend_1
+var.trend_desoc_bh <- (env1$modelo_mult$se.trend_1)^2
+var.trend_ocup_bh <- (env2$modelo_mult$se.trend_1)^2
+T_bh <- trend_desoc_bh+trend_ocup_bh
+
+trend_tx_bh <- trend_desoc_bh/(trend_desoc_bh+trend_ocup_bh)
+var.trend_tx_bh <- ((1/(T_bh^2)*var.trend_desoc_bh)+((trend_desoc_bh^2/T_bh^4)*(var.trend_desoc_bh+var.trend_ocup_bh)))
+se.trend_tx_bh <- sqrt(var.trend_tx_bh)
+trend_tx_bh <- trend_tx_bh*100
+se.trend_tx_bh <- se.trend_tx_bh*100
+
+cv.trend_tx_bh <- se.trend_tx_bh/trend_tx_bh
+cv.trend_tx_bh <- cv.trend_tx_bh*100
+
+trend_ICinf_bh<-trend_tx_bh-1.96*se.trend_tx_bh
+trend_ICsup_bh<-trend_tx_bh+1.96*se.trend_tx_bh
+
+trend_tx_bh <- window(ts.union(ts(trend_tx_bh, start = 2012, frequency = 4)), start = c(2014,1))
+cv.trend_tx_bh <- window(ts.union(ts(cv.trend_tx_bh, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICinf_bh <- window(ts.union(ts(trend_ICinf_bh, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICsup_bh <- window(ts.union(ts(trend_ICsup_bh, start = 2012, frequency = 4)), start = c(2014,1))
+
+mult_trendtx_bh <- env26$modelo_mult$ts.trend_1
+cv_mult_trendtx_bh <- env26$modelo_mult$cv.trend_1
+mult_trendtx_bh <- window(ts.union(ts(mult_trendtx_bh, start = 2012, frequency = 4)), start = c(2014,1))
+cv_mult_trendtx_bh <- window(ts.union(ts(cv_mult_trendtx_bh, start = 2012, frequency = 4)), start = c(2014,1))
+
+# ENT
+est_direta_ent <- baseestr8reg$`02-Colar e Entorno metropolitano de BH`$Taxa.de.desocupação
+cv_direta_ent <- baseestr8reg$`02-Colar e Entorno metropolitano de BH`$CV.taxa
+se_dir_ent <- baseestr8reg$`02-Colar e Entorno metropolitano de BH`$sd_txd
+est_direta_ent <- est_direta_ent*100
+se_dir_ent <- se_dir_ent*100
+
+ICinf_direta_ent <- est_direta_ent-1.96*se_dir_ent
+ICsup_direta_ent <- est_direta_ent+1.96*se_dir_ent
+
+est_direta_ent <-  window(ts.union(ts(est_direta_ent, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_ent <-  window(ts.union(ts(cv_direta_ent, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_ent <- window(ts.union(ts(ICinf_direta_ent, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_ent <- window(ts.union(ts(ICsup_direta_ent, start = 2012, frequency = 4)), start = c(2014,1))
+
+trend_desoc_ent <- env1$modelo_mult$ts.trend_2
+trend_ocup_ent <- env2$modelo_mult$ts.trend_2
+var.trend_desoc_ent <- (env1$modelo_mult$se.trend_2)^2
+var.trend_ocup_ent <- (env2$modelo_mult$se.trend_2)^2
+T_ent <- trend_desoc_ent+trend_ocup_ent
+
+trend_tx_ent <- trend_desoc_ent/(trend_desoc_ent+trend_ocup_ent)
+var.trend_tx_ent <- ((1/(T_ent^2)*var.trend_desoc_ent)+((trend_desoc_ent^2/T_ent^4)*(var.trend_desoc_ent+var.trend_ocup_ent)))
+se.trend_tx_ent <- sqrt(var.trend_tx_ent)
+trend_tx_ent <- trend_tx_ent*100
+se.trend_tx_ent <- se.trend_tx_ent*100
+
+cv.trend_tx_ent <- se.trend_tx_ent/trend_tx_ent
+cv.trend_tx_ent <- cv.trend_tx_ent*100
+
+trend_ICinf_ent<-trend_tx_ent-1.96*se.trend_tx_ent
+trend_ICsup_ent<-trend_tx_ent+1.96*se.trend_tx_ent
+
+trend_tx_ent <- window(ts.union(ts(trend_tx_ent, start = 2012, frequency = 4)), start = c(2014,1))
+cv.trend_tx_ent <- window(ts.union(ts(cv.trend_tx_ent, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICinf_ent <- window(ts.union(ts(trend_ICinf_ent, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICsup_ent <- window(ts.union(ts(trend_ICsup_ent, start = 2012, frequency = 4)), start = c(2014,1))
+
+mult_trendtx_ent <- env26$modelo_mult$ts.trend_2
+cv_mult_trendtx_ent <- env26$modelo_mult$cv.trend_2
+mult_trendtx_ent <- window(ts.union(ts(mult_trendtx_ent, start = 2012, frequency = 4)), start = c(2014,1))
+cv_mult_trendtx_ent <- window(ts.union(ts(cv_mult_trendtx_ent, start = 2012, frequency = 4)), start = c(2014,1))
+
+# SUL
+est_direta_sul <- baseestr8reg$`03-Sul de Minas`$Taxa.de.desocupação
+cv_direta_sul <- baseestr8reg$`03-Sul de Minas`$CV.taxa
+se_dir_sul <- baseestr8reg$`03-Sul de Minas`$sd_txd
+est_direta_sul <- est_direta_sul*100
+se_dir_sul <- se_dir_sul*100
+
+ICinf_direta_sul <- est_direta_sul-1.96*se_dir_sul
+ICsup_direta_sul <- est_direta_sul+1.96*se_dir_sul
+
+est_direta_sul <-  window(ts.union(ts(est_direta_sul, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_sul <-  window(ts.union(ts(cv_direta_sul, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_sul <- window(ts.union(ts(ICinf_direta_sul, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_sul <- window(ts.union(ts(ICsup_direta_sul, start = 2012, frequency = 4)), start = c(2014,1))
+
+trend_desoc_sul <- env1$modelo_mult$ts.trend_3
+trend_ocup_sul <- env2$modelo_mult$ts.trend_3
+var.trend_desoc_sul <- (env1$modelo_mult$se.trend_3)^2
+var.trend_ocup_sul <- (env2$modelo_mult$se.trend_3)^2
+T_sul <- trend_desoc_sul+trend_ocup_sul
+
+trend_tx_sul <- trend_desoc_sul/(trend_desoc_sul+trend_ocup_sul)
+var.trend_tx_sul <- ((1/(T_sul^2)*var.trend_desoc_sul)+((trend_desoc_sul^2/T_sul^4)*(var.trend_desoc_sul+var.trend_ocup_sul)))
+se.trend_tx_sul <- sqrt(var.trend_tx_sul)
+trend_tx_sul <- trend_tx_sul*100
+se.trend_tx_sul <- se.trend_tx_sul*100
+
+cv.trend_tx_sul <- se.trend_tx_sul/trend_tx_sul
+cv.trend_tx_sul <- cv.trend_tx_sul*100
+
+trend_ICinf_sul<-trend_tx_sul-1.96*se.trend_tx_sul
+trend_ICsup_sul<-trend_tx_sul+1.96*se.trend_tx_sul
+
+trend_tx_sul <- window(ts.union(ts(trend_tx_sul, start = 2012, frequency = 4)), start = c(2014,1))
+cv.trend_tx_sul <- window(ts.union(ts(cv.trend_tx_sul, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICinf_sul <- window(ts.union(ts(trend_ICinf_sul, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICsup_sul <- window(ts.union(ts(trend_ICsup_sul, start = 2012, frequency = 4)), start = c(2014,1))
+
+mult_trendtx_sul <- env26$modelo_mult$ts.trend_3
+cv_mult_trendtx_sul <- env26$modelo_mult$cv.trend_3
+mult_trendtx_sul <- window(ts.union(ts(mult_trendtx_sul, start = 2012, frequency = 4)), start = c(2014,1))
+cv_mult_trendtx_sul <- window(ts.union(ts(cv_mult_trendtx_sul, start = 2012, frequency = 4)), start = c(2014,1))
+
+# TRG
+est_direta_trg <- baseestr8reg$`04-Triângulo Mineiro`$Taxa.de.desocupação
+cv_direta_trg <- baseestr8reg$`04-Triângulo Mineiro`$CV.taxa
+se_dir_trg <- baseestr8reg$`04-Triângulo Mineiro`$sd_txd
+est_direta_trg <- est_direta_trg*100
+se_dir_trg <- se_dir_trg*100
+
+ICinf_direta_trg <- est_direta_trg-1.96*se_dir_trg
+ICsup_direta_trg <- est_direta_trg+1.96*se_dir_trg
+
+est_direta_trg <-  window(ts.union(ts(est_direta_trg, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_trg <-  window(ts.union(ts(cv_direta_trg, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_trg <- window(ts.union(ts(ICinf_direta_trg, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_trg <- window(ts.union(ts(ICsup_direta_trg, start = 2012, frequency = 4)), start = c(2014,1))
+
+trend_desoc_trg <- env1$modelo_mult$ts.trend_4
+trend_ocup_trg <- env2$modelo_mult$ts.trend_4
+var.trend_desoc_trg <- (env1$modelo_mult$se.trend_4)^2
+var.trend_ocup_trg <- (env2$modelo_mult$se.trend_4)^2
+T_trg <- trend_desoc_trg+trend_ocup_trg
+
+trend_tx_trg <- trend_desoc_trg/(trend_desoc_trg+trend_ocup_trg)
+var.trend_tx_trg <- ((1/(T_trg^2)*var.trend_desoc_trg)+((trend_desoc_trg^2/T_trg^4)*(var.trend_desoc_trg+var.trend_ocup_trg)))
+se.trend_tx_trg <- sqrt(var.trend_tx_trg)
+trend_tx_trg <- trend_tx_trg*100
+se.trend_tx_trg <- se.trend_tx_trg*100
+
+cv.trend_tx_trg <- se.trend_tx_trg/trend_tx_trg
+cv.trend_tx_trg <- cv.trend_tx_trg*100
+
+trend_ICinf_trg<-trend_tx_trg-1.96*se.trend_tx_trg
+trend_ICsup_trg<-trend_tx_trg+1.96*se.trend_tx_trg
+
+trend_tx_trg <- window(ts.union(ts(trend_tx_trg, start = 2012, frequency = 4)), start = c(2014,1))
+cv.trend_tx_trg <- window(ts.union(ts(cv.trend_tx_trg, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICinf_trg <- window(ts.union(ts(trend_ICinf_trg, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICsup_trg <- window(ts.union(ts(trend_ICsup_trg, start = 2012, frequency = 4)), start = c(2014,1))
+
+mult_trendtx_trg <- env26$modelo_mult$ts.trend_4
+cv_mult_trendtx_trg <- env26$modelo_mult$cv.trend_4
+mult_trendtx_trg <- window(ts.union(ts(mult_trendtx_trg, start = 2012, frequency = 4)), start = c(2014,1))
+cv_mult_trendtx_trg <- window(ts.union(ts(cv_mult_trendtx_trg, start = 2012, frequency = 4)), start = c(2014,1))
+
+# MAT
+est_direta_mat <- baseestr8reg$`05-Mata de Minas Gerais`$Taxa.de.desocupação
+cv_direta_mat <- baseestr8reg$`05-Mata de Minas Gerais`$CV.taxa
+se_dir_mat <- baseestr8reg$`05-Mata de Minas Gerais`$sd_txd
+est_direta_mat <- est_direta_mat*100
+se_dir_mat <- se_dir_mat*100
+
+ICinf_direta_mat <- est_direta_mat-1.96*se_dir_mat
+ICsup_direta_mat <- est_direta_mat+1.96*se_dir_mat
+
+est_direta_mat <-  window(ts.union(ts(est_direta_mat, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_mat <-  window(ts.union(ts(cv_direta_mat, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_mat <- window(ts.union(ts(ICinf_direta_mat, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_mat <- window(ts.union(ts(ICsup_direta_mat, start = 2012, frequency = 4)), start = c(2014,1))
+
+trend_desoc_mat <- env1$modelo_mult$ts.trend_5
+trend_ocup_mat <- env2$modelo_mult$ts.trend_5
+var.trend_desoc_mat <- (env1$modelo_mult$se.trend_5)^2
+var.trend_ocup_mat <- (env2$modelo_mult$se.trend_5)^2
+T_mat <- trend_desoc_mat+trend_ocup_mat
+
+trend_tx_mat <- trend_desoc_mat/(trend_desoc_mat+trend_ocup_mat)
+var.trend_tx_mat <- ((1/(T_mat^2)*var.trend_desoc_mat)+((trend_desoc_mat^2/T_mat^4)*(var.trend_desoc_mat+var.trend_ocup_mat)))
+se.trend_tx_mat <- sqrt(var.trend_tx_mat)
+trend_tx_mat <- trend_tx_mat*100
+se.trend_tx_mat <- se.trend_tx_mat*100
+
+cv.trend_tx_mat <- se.trend_tx_mat/trend_tx_mat
+cv.trend_tx_mat <- cv.trend_tx_mat*100
+
+trend_ICinf_mat<-trend_tx_mat-1.96*se.trend_tx_mat
+trend_ICsup_mat<-trend_tx_mat+1.96*se.trend_tx_mat
+
+trend_tx_mat <- window(ts.union(ts(trend_tx_mat, start = 2012, frequency = 4)), start = c(2014,1))
+cv.trend_tx_mat <- window(ts.union(ts(cv.trend_tx_mat, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICinf_mat <- window(ts.union(ts(trend_ICinf_mat, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICsup_mat <- window(ts.union(ts(trend_ICsup_mat, start = 2012, frequency = 4)), start = c(2014,1))
+
+mult_trendtx_mat <- env26$modelo_mult$ts.trend_5
+cv_mult_trendtx_mat <- env26$modelo_mult$cv.trend_5
+mult_trendtx_mat <- window(ts.union(ts(mult_trendtx_mat, start = 2012, frequency = 4)), start = c(2014,1))
+cv_mult_trendtx_mat <- window(ts.union(ts(cv_mult_trendtx_mat, start = 2012, frequency = 4)), start = c(2014,1))
+
+# NRT
+est_direta_nrt <- baseestr8reg$`06-Norte de Minas`$Taxa.de.desocupação
+cv_direta_nrt <- baseestr8reg$`06-Norte de Minas`$CV.taxa
+se_dir_nrt <- baseestr8reg$`06-Norte de Minas`$sd_txd
+est_direta_nrt <- est_direta_nrt*100
+se_dir_nrt <- se_dir_nrt*100
+
+ICinf_direta_nrt <- est_direta_nrt-1.96*se_dir_nrt
+ICsup_direta_nrt <- est_direta_nrt+1.96*se_dir_nrt
+
+est_direta_nrt <-  window(ts.union(ts(est_direta_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_nrt <-  window(ts.union(ts(cv_direta_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_nrt <- window(ts.union(ts(ICinf_direta_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_nrt <- window(ts.union(ts(ICsup_direta_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+
+trend_desoc_nrt <- env1$modelo_mult$ts.trend_6
+trend_ocup_nrt <- env2$modelo_mult$ts.trend_6
+var.trend_desoc_nrt <- (env1$modelo_mult$se.trend_6)^2
+var.trend_ocup_nrt <- (env2$modelo_mult$se.trend_6)^2
+T_nrt <- trend_desoc_nrt+trend_ocup_nrt
+
+trend_tx_nrt <- trend_desoc_nrt/(trend_desoc_nrt+trend_ocup_nrt)
+var.trend_tx_nrt <- ((1/(T_nrt^2)*var.trend_desoc_nrt)+((trend_desoc_nrt^2/T_nrt^4)*(var.trend_desoc_nrt+var.trend_ocup_nrt)))
+se.trend_tx_nrt <- sqrt(var.trend_tx_nrt)
+trend_tx_nrt <- trend_tx_nrt*100
+se.trend_tx_nrt <- se.trend_tx_nrt*100
+
+cv.trend_tx_nrt <- se.trend_tx_nrt/trend_tx_nrt
+cv.trend_tx_nrt <- cv.trend_tx_nrt*100
+
+trend_ICinf_nrt<-trend_tx_nrt-1.96*se.trend_tx_nrt
+trend_ICsup_nrt<-trend_tx_nrt+1.96*se.trend_tx_nrt
+
+trend_tx_nrt <- window(ts.union(ts(trend_tx_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+cv.trend_tx_nrt <- window(ts.union(ts(cv.trend_tx_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICinf_nrt <- window(ts.union(ts(trend_ICinf_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICsup_nrt <- window(ts.union(ts(trend_ICsup_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+
+mult_trendtx_nrt <- env26$modelo_mult$ts.trend_6
+cv_mult_trendtx_nrt <- env26$modelo_mult$cv.trend_6
+mult_trendtx_nrt <- window(ts.union(ts(mult_trendtx_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+cv_mult_trendtx_nrt <- window(ts.union(ts(cv_mult_trendtx_nrt, start = 2012, frequency = 4)), start = c(2014,1))
+
+# VAL
+est_direta_val <- baseestr8reg$`07-Vale do Rio Doce`$Taxa.de.desocupação
+cv_direta_val <- baseestr8reg$`07-Vale do Rio Doce`$CV.taxa
+se_dir_val <- baseestr8reg$`07-Vale do Rio Doce`$sd_txd
+est_direta_val <- est_direta_val*100
+se_dir_val <- se_dir_val*100
+
+ICinf_direta_val <- est_direta_val-1.96*se_dir_val
+ICsup_direta_val <- est_direta_val+1.96*se_dir_val
+
+est_direta_val <-  window(ts.union(ts(est_direta_val, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_val <-  window(ts.union(ts(cv_direta_val, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_val <- window(ts.union(ts(ICinf_direta_val, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_val <- window(ts.union(ts(ICsup_direta_val, start = 2012, frequency = 4)), start = c(2014,1))
+
+trend_desoc_val <- env1$modelo_mult$ts.trend_7
+trend_ocup_val <- env2$modelo_mult$ts.trend_7
+var.trend_desoc_val <- (env1$modelo_mult$se.trend_7)^2
+var.trend_ocup_val <- (env2$modelo_mult$se.trend_7)^2
+T_val <- trend_desoc_val+trend_ocup_val
+
+trend_tx_val <- trend_desoc_val/(trend_desoc_val+trend_ocup_val)
+var.trend_tx_val <- ((1/(T_val^2)*var.trend_desoc_val)+((trend_desoc_val^2/T_val^4)*(var.trend_desoc_val+var.trend_ocup_val)))
+se.trend_tx_val <- sqrt(var.trend_tx_val)
+trend_tx_val <- trend_tx_val*100
+se.trend_tx_val <- se.trend_tx_val*100
+
+cv.trend_tx_val <- se.trend_tx_val/trend_tx_val
+cv.trend_tx_val <- cv.trend_tx_val*100
+
+trend_ICinf_val<-trend_tx_val-1.96*se.trend_tx_val
+trend_ICsup_val<-trend_tx_val+1.96*se.trend_tx_val
+
+trend_tx_val <- window(ts.union(ts(trend_tx_val, start = 2012, frequency = 4)), start = c(2014,1))
+cv.trend_tx_val <- window(ts.union(ts(cv.trend_tx_val, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICinf_val <- window(ts.union(ts(trend_ICinf_val, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICsup_val <- window(ts.union(ts(trend_ICsup_val, start = 2012, frequency = 4)), start = c(2014,1))
+
+mult_trendtx_val <- env26$modelo_mult$ts.trend_7
+cv_mult_trendtx_val <- env26$modelo_mult$cv.trend_7
+mult_trendtx_val <- window(ts.union(ts(mult_trendtx_val, start = 2012, frequency = 4)), start = c(2014,1))
+cv_mult_trendtx_val <- window(ts.union(ts(cv_mult_trendtx_val, start = 2012, frequency = 4)), start = c(2014,1))
+
+# CEN
+est_direta_cen <- baseestr8reg$`08-Central`$Taxa.de.desocupação
+cv_direta_cen <- baseestr8reg$`08-Central`$CV.taxa
+se_dir_cen <- baseestr8reg$`08-Central`$sd_txd
+est_direta_cen <- est_direta_cen*100
+se_dir_cen <- se_dir_cen*100
+
+ICinf_direta_cen <- est_direta_cen-1.96*se_dir_cen
+ICsup_direta_cen <- est_direta_cen+1.96*se_dir_cen
+
+est_direta_cen <-  window(ts.union(ts(est_direta_cen, start = 2012, frequency = 4)), start = c(2014,1))
+cv_direta_cen <-  window(ts.union(ts(cv_direta_cen, start = 2012, frequency = 4)), start = c(2014,1))
+ICinf_direta_cen <- window(ts.union(ts(ICinf_direta_cen, start = 2012, frequency = 4)), start = c(2014,1))
+ICsup_direta_cen <- window(ts.union(ts(ICsup_direta_cen, start = 2012, frequency = 4)), start = c(2014,1))
+
+trend_desoc_cen <- env1$modelo_mult$ts.trend_8
+trend_ocup_cen <- env2$modelo_mult$ts.trend_8
+var.trend_desoc_cen <- (env1$modelo_mult$se.trend_8)^2
+var.trend_ocup_cen <- (env2$modelo_mult$se.trend_8)^2
+T_cen <- trend_desoc_cen+trend_ocup_cen
+
+trend_tx_cen <- trend_desoc_cen/(trend_desoc_cen+trend_ocup_cen)
+var.trend_tx_cen <- ((1/(T_cen^2)*var.trend_desoc_cen)+((trend_desoc_cen^2/T_cen^4)*(var.trend_desoc_cen+var.trend_ocup_cen)))
+se.trend_tx_cen <- sqrt(var.trend_tx_cen)
+trend_tx_cen <- trend_tx_cen*100
+se.trend_tx_cen <- se.trend_tx_cen*100
+
+cv.trend_tx_cen <- se.trend_tx_cen/trend_tx_cen
+cv.trend_tx_cen <- cv.trend_tx_cen*100
+
+trend_ICinf_cen<-trend_tx_cen-1.96*se.trend_tx_cen
+trend_ICsup_cen<-trend_tx_cen+1.96*se.trend_tx_cen
+
+trend_tx_cen <- window(ts.union(ts(trend_tx_cen, start = 2012, frequency = 4)), start = c(2014,1))
+cv.trend_tx_cen <- window(ts.union(ts(cv.trend_tx_cen, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICinf_cen <- window(ts.union(ts(trend_ICinf_cen, start = 2012, frequency = 4)), start = c(2014,1))
+trend_ICsup_cen <- window(ts.union(ts(trend_ICsup_cen, start = 2012, frequency = 4)), start = c(2014,1))
+
+mult_trendtx_cen <- env26$modelo_mult$ts.trend_8
+cv_mult_trendtx_cen <- env26$modelo_mult$cv.trend_8
+mult_trendtx_cen <- window(ts.union(ts(mult_trendtx_cen, start = 2012, frequency = 4)), start = c(2014,1))
+cv_mult_trendtx_cen <- window(ts.union(ts(cv_mult_trendtx_cen, start = 2012, frequency = 4)), start = c(2014,1))
+
+
+### GRÁFICO PNG
+
+png("C:/FJP2425/Reuniões/Gráficos/21 - Gráficos para o artigo/Seção resultados/Figura_TaxaDesoc_1.png",
+    width = 1000, height = 1500, res = 100)
+par(mfrow = c(4, 2),mar = c(4.5, 4, 1.5, 1.5),oma = c(0, 0, 4, 0),cex = 0.8,cex.axis = 0.7,cex.lab = 0.8)
+
+plot(est_direta_bh, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Taxa da desocupação (%)", ylim=c(3,20))
+lines(trend_tx_bh, col = "red", lty = 1, lwd = 2)
+lines(mult_trendtx_bh, col = "blue", lty = 1, lwd = 2)
+lines(ICinf_direta_bh, col = "black", lty = 2)
+lines(ICsup_direta_bh, col = "black", lty = 2)
+legend("topleft", legend = c("Est. direta", "Tendência da taxa de desocupação: cálculo indireto",
+                             "Tendência da taxa de desocupação: est. MEB", "IC 95% da est. direta"), 
+       col = c("black","red","blue","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
+
+plot(cv_direta_bh, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(2,14))
+lines(cv.trend_tx_bh, col = "red",lwd=2, lty = 1)
+lines(cv_mult_trendtx_bh, col = "blue",lwd=2, lty = 1)
+legend("topleft", legend = c("CV est. direta","CV da tendência da taxa de desocupação: cálculo indireto",
+                             "CV da tendência da taxa de desocupação: est. MEB"), 
+       col = c("black","red","blue"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+mtext("01 - Belo Horizonte", side = 3, line = -1, adj = 0.5, cex = 0.9, font = 2,outer = TRUE, at = 0.5,padj = 0)
+
+plot(est_direta_ent, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Taxa da desocupação (%)", ylim=c(3,24))
+lines(trend_tx_ent, col = "red", lty = 1, lwd = 2)
+lines(mult_trendtx_ent, col = "blue", lty = 1, lwd = 2)
+lines(ICinf_direta_ent, col = "black", lty = 2)
+lines(ICsup_direta_ent, col = "black", lty = 2)
+legend("topleft", legend = c("Est. direta", "Tendência da taxa de desocupação: cálculo indireto",
+                             "Tendência da taxa de desocupação: est. MEB", "IC 95% da est. direta"), 
+       col = c("black","red","blue","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
+
+plot(cv_direta_ent, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(2,13))
+lines(cv.trend_tx_ent, col = "red",lwd=2, lty = 1)
+lines(cv_mult_trendtx_ent, col = "blue",lwd=2, lty = 1)
+legend("topleft", legend = c("CV est. direta","CV da tendência da taxa de desocupação: cálculo indireto",
+                             "CV da tendência da taxa de desocupação: est. MEB"), 
+       col = c("black","red","blue"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+mtext("02 - Colar e Entorno Metropolitano de Belo Horizonte", side = 3, line = -1, adj = 0.5, cex = 0.9, font = 2,outer = TRUE, at = 0.5, padj = 30)
+
+plot(est_direta_sul, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Taxa da desocupação (%)", ylim=c(1,18))
+lines(trend_tx_sul, col = "red", lty = 1, lwd = 2)
+lines(mult_trendtx_sul, col = "blue", lty = 1, lwd = 2)
+lines(ICinf_direta_sul, col = "black", lty = 2)
+lines(ICsup_direta_sul, col = "black", lty = 2)
+legend("topleft", legend = c("Est. direta", "Tendência da taxa de desocupação: cálculo indireto",
+                             "Tendência da taxa de desocupação: est. MEB", "IC 95% da est. direta"), 
+       col = c("black","red","blue","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
+
+plot(cv_direta_sul, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(3,19))
+lines(cv.trend_tx_sul, col = "red",lwd=2, lty = 1)
+lines(cv_mult_trendtx_sul, col = "blue",lwd=2, lty = 1)
+legend("topleft", legend = c("CV est. direta","CV da tendência da taxa de desocupação: cálculo indireto",
+                             "CV da tendência da taxa de desocupação: est. MEB"), 
+       col = c("black","red","blue"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+mtext("03 - Sul de Minas", side = 3, line = -1, adj = 0.5, cex = 0.9, font = 2,outer = TRUE, at = 0.5, padj = 60)
+
+plot(est_direta_trg, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Taxa da desocupação (%)", ylim=c(2,16))
+lines(trend_tx_trg, col = "red", lty = 1, lwd = 2)
+lines(mult_trendtx_trg, col = "blue", lty = 1, lwd = 2)
+lines(ICinf_direta_trg, col = "black", lty = 2)
+lines(ICsup_direta_trg, col = "black", lty = 2)
+legend("topleft", legend = c("Est. direta", "Tendência da taxa de desocupação: cálculo indireto",
+                             "Tendência da taxa de desocupação: est. MEB", "IC 95% da est. direta"), 
+       col = c("black","red","blue","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
+
+plot(cv_direta_trg, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(2,21))
+lines(cv.trend_tx_trg, col = "red",lwd=2, lty = 1)
+lines(cv_mult_trendtx_trg, col = "blue",lwd=2, lty = 1)
+legend("topleft", legend = c("CV est. direta","CV da tendência da taxa de desocupação: cálculo indireto",
+                             "CV da tendência da taxa de desocupação: est. MEB"), 
+       col = c("black","red","blue"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+mtext("04 - Triângulo Mineiro", side = 3, line = -1, adj = 0.5, cex = 0.9, font = 2,outer = TRUE, at = 0.5, padj = 90)
+
+dev.off()
+
+
+png("C:/FJP2425/Reuniões/Gráficos/21 - Gráficos para o artigo/Seção resultados/Figura_TaxaDesoc_2.png",
+    width = 1000, height = 1500, res = 100)
+par(mfrow = c(4, 2),mar = c(4.5, 4, 1.5, 1.5),oma = c(0, 0, 4, 0),cex = 0.8,cex.axis = 0.7,cex.lab = 0.8)
+
+plot(est_direta_mat, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Taxa da desocupação (%)", ylim=c(3,17))
+lines(trend_tx_mat, col = "red", lty = 1, lwd = 2)
+lines(mult_trendtx_mat, col = "blue", lty = 1, lwd = 2)
+lines(ICinf_direta_mat, col = "black", lty = 2)
+lines(ICsup_direta_mat, col = "black", lty = 2)
+legend("topleft", legend = c("Est. direta", "Tendência da taxa de desocupação: cálculo indireto",
+                             "Tendência da taxa de desocupação: est. MEB", "IC 95% da est. direta"), 
+       col = c("black","red","blue","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
+
+plot(cv_direta_mat, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(4,18))
+lines(cv.trend_tx_mat, col = "red",lwd=2, lty = 1)
+lines(cv_mult_trendtx_mat, col = "blue",lwd=2, lty = 1)
+legend("topleft", legend = c("CV est. direta","CV da tendência da taxa de desocupação: cálculo indireto",
+                             "CV da tendência da taxa de desocupação: est. MEB"), 
+       col = c("black","red","blue"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+mtext("05 - Zona da Mata", side = 3, line = -1, adj = 0.5, cex = 0.9, font = 2,outer = TRUE, at = 0.5,padj = 0)
+
+plot(est_direta_nrt, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Taxa da desocupação (%)", ylim=c(3,24))
+lines(trend_tx_nrt, col = "red", lty = 1, lwd = 2)
+lines(mult_trendtx_nrt, col = "blue", lty = 1, lwd = 2)
+lines(ICinf_direta_nrt, col = "black", lty = 2)
+lines(ICsup_direta_nrt, col = "black", lty = 2)
+legend("topleft", legend = c("Est. direta", "Tendência da taxa de desocupação: cálculo indireto",
+                             "Tendência da taxa de desocupação: est. MEB", "IC 95% da est. direta"), 
+       col = c("black","red","blue","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
+
+plot(cv_direta_nrt, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(2,21))
+lines(cv.trend_tx_nrt, col = "red",lwd=2, lty = 1)
+lines(cv_mult_trendtx_nrt, col = "blue",lwd=2, lty = 1)
+legend("topleft", legend = c("CV est. direta","CV da tendência da taxa de desocupação: cálculo indireto",
+                             "CV da tendência da taxa de desocupação: est. MEB"), 
+       col = c("black","red","blue"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+mtext("06 - Norte de Minas", side = 3, line = -1, adj = 0.5, cex = 0.9, font = 2,outer = TRUE, at = 0.5, padj = 30) 
+
+plot(est_direta_val, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Taxa da desocupação (%)", ylim=c(2,24))
+lines(trend_tx_val, col = "red", lty = 1, lwd = 2)
+lines(mult_trendtx_val, col = "blue", lty = 1, lwd = 2)
+lines(ICinf_direta_val, col = "black", lty = 2)
+lines(ICsup_direta_val, col = "black", lty = 2)
+legend("topleft", legend = c("Est. direta", "Tendência da taxa de desocupação: cálculo indireto",
+                             "Tendência da taxa de desocupação: est. MEB", "IC 95% da est. direta"), 
+       col = c("black","red","blue","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
+
+plot(cv_direta_val, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(1,19))
+lines(cv.trend_tx_val, col = "red",lwd=2, lty = 1)
+lines(cv_mult_trendtx_val, col = "blue",lwd=2, lty = 1)
+legend("topleft", legend = c("CV est. direta","CV da tendência da taxa de desocupação: cálculo indireto",
+                             "CV da tendência da taxa de desocupação: est. MEB"), 
+       col = c("black","red","blue"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+mtext("07 - Vale do Rio Doce", side = 3, line = -1, adj = 0.5, cex = 0.9, font = 2,outer = TRUE, at = 0.5, padj = 60)
+
+plot(est_direta_cen, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "Taxa da desocupação (%)", ylim=c(2,18))
+lines(trend_tx_cen, col = "red", lty = 1, lwd = 2)
+lines(mult_trendtx_cen, col = "blue", lty = 1, lwd = 2)
+lines(ICinf_direta_cen, col = "black", lty = 2)
+lines(ICsup_direta_cen, col = "black", lty = 2)
+legend("topleft", legend = c("Est. direta", "Tendência da taxa de desocupação: cálculo indireto",
+                             "Tendência da taxa de desocupação: est. MEB", "IC 95% da est. direta"), 
+       col = c("black","red","blue","black"),lty = c(1,1,1,2),lwd = c(2,2,2,1),bty = "n", cex=0.8)
+
+plot(cv_direta_cen, type = "l", col = "black", lwd = 2,
+     xlab = "Ano", ylab = "CV (%)",  ylim=c(4,21))
+lines(cv.trend_tx_cen, col = "red",lwd=2, lty = 1)
+lines(cv_mult_trendtx_cen, col = "blue",lwd=2, lty = 1)
+legend("topleft", legend = c("CV est. direta","CV da tendência da taxa de desocupação: cálculo indireto",
+                             "CV da tendência da taxa de desocupação: est. MEB"), 
+       col = c("black","red","blue"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+mtext("08 - Central", side = 3, line = -1, adj = 0.5, cex = 0.9, font = 2,outer = TRUE, at = 0.5, padj = 90)
+
+dev.off()
+
