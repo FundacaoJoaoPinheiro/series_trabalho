@@ -48,8 +48,15 @@ cv_multsinal_semcorr_bh <- env2$modelo_mult_sem_corr$cv.signal_1
 cv_multsinal_semcorr_bh <- window(ts.union(ts(cv_multsinal_semcorr_bh, start = 2012, frequency = 4)), start = c(2013,3))
 
 multsinal_bh <- env3$modelo_mult$ts.signal_1
-multsinal_bh <- window(ts.union(ts(multsinal_bh, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_bh <- env3$modelo_mult$se.signal_1
+ICinfsinal_bh <- multsinal_bh-1.96*sesinal_bh
+ICsupsinal_bh <- multsinal_bh+1.96*sesinal_bh
 cv_multsinal_bh <- env3$modelo_mult$cv.signal_1
+
+multsinal_bh <- window(ts.union(ts(multsinal_bh, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_bh <- window(ts.union(ts(sesinal_bh, start = 2012, frequency = 4)), start = c(2013,3))
+ICinfsinal_bh <- window(ts.union(ts(ICinfsinal_bh, start = 2012, frequency = 4)), start = c(2013,3))
+ICsupsinal_bh <- window(ts.union(ts(ICsupsinal_bh, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multsinal_bh <- window(ts.union(ts(cv_multsinal_bh, start = 2012, frequency = 4)), start = c(2013,3))
 
 esttrend_ar1bh <- env1$ar1_bh$ts.trend
@@ -63,8 +70,15 @@ cv_multtrend_semcorr_bh <- env2$modelo_mult_sem_corr$cv.trend_1
 cv_multtrend_semcorr_bh <- window(ts.union(ts(cv_multtrend_semcorr_bh, start = 2012, frequency = 4)), start = c(2013,3))
 
 multtrend_bh <- env3$modelo_mult$ts.trend_1
-multtrend_bh <- window(ts.union(ts(multtrend_bh, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_bh <- env3$modelo_mult$se.trend_1
+ICinftrend_bh <- multtrend_bh-1.96*setrend_bh
+ICsuptrend_bh <- multtrend_bh+1.96*setrend_bh
 cv_multtrend_bh <- env3$modelo_mult$cv.trend_1
+
+multtrend_bh <- window(ts.union(ts(multtrend_bh, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_bh <- window(ts.union(ts(setrend_bh, start = 2012, frequency = 4)), start = c(2013,3))
+ICinftrend_bh <- window(ts.union(ts(ICinftrend_bh, start = 2012, frequency = 4)), start = c(2013,3))
+ICsuptrend_bh <- window(ts.union(ts(ICsuptrend_bh, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multtrend_bh <- window(ts.union(ts(cv_multtrend_bh, start = 2012, frequency = 4)), start = c(2013,3))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
@@ -152,8 +166,15 @@ cv_multsinal_semcorr_ent <- env2$modelo_mult_sem_corr$cv.signal_2
 cv_multsinal_semcorr_ent <- window(ts.union(ts(cv_multsinal_semcorr_ent, start = 2012, frequency = 4)), start = c(2013,3))
 
 multsinal_ent <- env3$modelo_mult$ts.signal_2
-multsinal_ent <- window(ts.union(ts(multsinal_ent, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_ent <- env3$modelo_mult$se.signal_2
+ICinfsinal_ent <- multsinal_ent-1.96*sesinal_ent
+ICsupsinal_ent <- multsinal_ent+1.96*sesinal_ent
 cv_multsinal_ent <- env3$modelo_mult$cv.signal_2
+
+multsinal_ent <- window(ts.union(ts(multsinal_ent, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_ent <- window(ts.union(ts(sesinal_ent, start = 2012, frequency = 4)), start = c(2013,3))
+ICinfsinal_ent <- window(ts.union(ts(ICinfsinal_ent, start = 2012, frequency = 4)), start = c(2013,3))
+ICsupsinal_ent <- window(ts.union(ts(ICsupsinal_ent, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multsinal_ent <- window(ts.union(ts(cv_multsinal_ent, start = 2012, frequency = 4)), start = c(2013,3))
 
 esttrend_ar1ent <- env1$ar1_ent$ts.trend
@@ -167,8 +188,15 @@ cv_multtrend_semcorr_ent <- env2$modelo_mult_sem_corr$cv.trend_2
 cv_multtrend_semcorr_ent <- window(ts.union(ts(cv_multtrend_semcorr_ent, start = 2012, frequency = 4)), start = c(2013,3))
 
 multtrend_ent <- env3$modelo_mult$ts.trend_2
-multtrend_ent <- window(ts.union(ts(multtrend_ent, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_ent <- env3$modelo_mult$se.trend_2
+ICinftrend_ent <- multtrend_ent-1.96*setrend_ent
+ICsuptrend_ent <- multtrend_ent+1.96*setrend_ent
 cv_multtrend_ent <- env3$modelo_mult$cv.trend_2
+
+multtrend_ent <- window(ts.union(ts(multtrend_ent, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_ent <- window(ts.union(ts(setrend_ent, start = 2012, frequency = 4)), start = c(2013,3))
+ICinftrend_ent <- window(ts.union(ts(ICinftrend_ent, start = 2012, frequency = 4)), start = c(2013,3))
+ICsuptrend_ent <- window(ts.union(ts(ICsuptrend_ent, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multtrend_ent <- window(ts.union(ts(cv_multtrend_ent, start = 2012, frequency = 4)), start = c(2013,3))
 
 par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(4, 0, 2, 0), cex = 0.8)
@@ -254,8 +282,15 @@ cv_multsinal_semcorr_sul <- env2$modelo_mult_sem_corr$cv.signal_3
 cv_multsinal_semcorr_sul <- window(ts.union(ts(cv_multsinal_semcorr_sul, start = 2012, frequency = 4)), start = c(2013,3))
 
 multsinal_sul <- env3$modelo_mult$ts.signal_3
-multsinal_sul <- window(ts.union(ts(multsinal_sul, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_sul <- env3$modelo_mult$se.signal_3
+ICinfsinal_sul <- multsinal_sul-1.96*sesinal_sul
+ICsupsinal_sul <- multsinal_sul+1.96*sesinal_sul
 cv_multsinal_sul <- env3$modelo_mult$cv.signal_3
+
+multsinal_sul <- window(ts.union(ts(multsinal_sul, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_sul <- window(ts.union(ts(sesinal_sul, start = 2012, frequency = 4)), start = c(2013,3))
+ICinfsinal_sul <- window(ts.union(ts(ICinfsinal_sul, start = 2012, frequency = 4)), start = c(2013,3))
+ICsupsinal_sul <- window(ts.union(ts(ICsupsinal_sul, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multsinal_sul <- window(ts.union(ts(cv_multsinal_sul, start = 2012, frequency = 4)), start = c(2013,3))
 
 esttrend_ar1sul <- env1$ar1_sul$ts.trend
@@ -269,8 +304,15 @@ cv_multtrend_semcorr_sul <- env2$modelo_mult_sem_corr$cv.trend_3
 cv_multtrend_semcorr_sul <- window(ts.union(ts(cv_multtrend_semcorr_sul, start = 2012, frequency = 4)), start = c(2013,3))
 
 multtrend_sul <- env3$modelo_mult$ts.trend_3
-multtrend_sul <- window(ts.union(ts(multtrend_sul, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_sul <- env3$modelo_mult$se.trend_3
+ICinftrend_sul <- multtrend_sul-1.96*setrend_sul
+ICsuptrend_sul <- multtrend_sul+1.96*setrend_sul
 cv_multtrend_sul <- env3$modelo_mult$cv.trend_3
+
+multtrend_sul <- window(ts.union(ts(multtrend_sul, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_sul <- window(ts.union(ts(setrend_sul, start = 2012, frequency = 4)), start = c(2013,3))
+ICinftrend_sul <- window(ts.union(ts(ICinftrend_sul, start = 2012, frequency = 4)), start = c(2013,3))
+ICsuptrend_sul <- window(ts.union(ts(ICsuptrend_sul, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multtrend_sul <- window(ts.union(ts(cv_multtrend_sul, start = 2012, frequency = 4)), start = c(2013,3))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
@@ -356,8 +398,15 @@ cv_multsinal_semcorr_trg <- env2$modelo_mult_sem_corr$cv.signal_4
 cv_multsinal_semcorr_trg <- window(ts.union(ts(cv_multsinal_semcorr_trg, start = 2012, frequency = 4)), start = c(2013,3))
 
 multsinal_trg <- env3$modelo_mult$ts.signal_4
-multsinal_trg <- window(ts.union(ts(multsinal_trg, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_trg <- env3$modelo_mult$se.signal_4
+ICinfsinal_trg <- multsinal_trg-1.96*sesinal_trg
+ICsupsinal_trg <- multsinal_trg+1.96*sesinal_trg
 cv_multsinal_trg <- env3$modelo_mult$cv.signal_4
+
+multsinal_trg <- window(ts.union(ts(multsinal_trg, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_trg <- window(ts.union(ts(sesinal_trg, start = 2012, frequency = 4)), start = c(2013,3))
+ICinfsinal_trg <- window(ts.union(ts(ICinfsinal_trg, start = 2012, frequency = 4)), start = c(2013,3))
+ICsupsinal_trg <- window(ts.union(ts(ICsupsinal_trg, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multsinal_trg <- window(ts.union(ts(cv_multsinal_trg, start = 2012, frequency = 4)), start = c(2013,3))
 
 esttrend_ar1trg <- env1$ar1_trg$ts.trend
@@ -371,8 +420,15 @@ cv_multtrend_semcorr_trg <- env2$modelo_mult_sem_corr$cv.trend_4
 cv_multtrend_semcorr_trg <- window(ts.union(ts(cv_multtrend_semcorr_trg, start = 2012, frequency = 4)), start = c(2013,3))
 
 multtrend_trg <- env3$modelo_mult$ts.trend_4
-multtrend_trg <- window(ts.union(ts(multtrend_trg, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_trg <- env3$modelo_mult$se.trend_4
+ICinftrend_trg <- multtrend_trg-1.96*setrend_trg
+ICsuptrend_trg <- multtrend_trg+1.96*setrend_trg
 cv_multtrend_trg <- env3$modelo_mult$cv.trend_4
+
+multtrend_trg <- window(ts.union(ts(multtrend_trg, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_trg <- window(ts.union(ts(setrend_trg, start = 2012, frequency = 4)), start = c(2013,3))
+ICinftrend_trg <- window(ts.union(ts(ICinftrend_trg, start = 2012, frequency = 4)), start = c(2013,3))
+ICsuptrend_trg <- window(ts.union(ts(ICsuptrend_trg, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multtrend_trg <- window(ts.union(ts(cv_multtrend_trg, start = 2012, frequency = 4)), start = c(2013,3))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
@@ -458,8 +514,15 @@ cv_multsinal_semcorr_mat <- env2$modelo_mult_sem_corr$cv.signal_5
 cv_multsinal_semcorr_mat <- window(ts.union(ts(cv_multsinal_semcorr_mat, start = 2012, frequency = 4)), start = c(2013,3))
 
 multsinal_mat <- env3$modelo_mult$ts.signal_5
-multsinal_mat <- window(ts.union(ts(multsinal_mat, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_mat <- env3$modelo_mult$se.signal_5
+ICinfsinal_mat <- multsinal_mat-1.96*sesinal_mat
+ICsupsinal_mat <- multsinal_mat+1.96*sesinal_mat
 cv_multsinal_mat <- env3$modelo_mult$cv.signal_5
+
+multsinal_mat <- window(ts.union(ts(multsinal_mat, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_mat <- window(ts.union(ts(sesinal_mat, start = 2012, frequency = 4)), start = c(2013,3))
+ICinfsinal_mat <- window(ts.union(ts(ICinfsinal_mat, start = 2012, frequency = 4)), start = c(2013,3))
+ICsupsinal_mat <- window(ts.union(ts(ICsupsinal_mat, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multsinal_mat <- window(ts.union(ts(cv_multsinal_mat, start = 2012, frequency = 4)), start = c(2013,3))
 
 esttrend_ar1mat <- env1$ar1_mat$ts.trend
@@ -473,8 +536,15 @@ cv_multtrend_semcorr_mat <- env2$modelo_mult_sem_corr$cv.trend_5
 cv_multtrend_semcorr_mat <- window(ts.union(ts(cv_multtrend_semcorr_mat, start = 2012, frequency = 4)), start = c(2013,3))
 
 multtrend_mat <- env3$modelo_mult$ts.trend_5
-multtrend_mat <- window(ts.union(ts(multtrend_mat, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_mat <- env3$modelo_mult$se.trend_5
+ICinftrend_mat <- multtrend_mat-1.96*setrend_mat
+ICsuptrend_mat <- multtrend_mat+1.96*setrend_mat
 cv_multtrend_mat <- env3$modelo_mult$cv.trend_5
+
+multtrend_mat <- window(ts.union(ts(multtrend_mat, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_mat <- window(ts.union(ts(setrend_mat, start = 2012, frequency = 4)), start = c(2013,3))
+ICinftrend_mat <- window(ts.union(ts(ICinftrend_mat, start = 2012, frequency = 4)), start = c(2013,3))
+ICsuptrend_mat <- window(ts.union(ts(ICsuptrend_mat, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multtrend_mat <- window(ts.union(ts(cv_multtrend_mat, start = 2012, frequency = 4)), start = c(2013,3))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
@@ -560,8 +630,15 @@ cv_multsinal_semcorr_nrt <- env2$modelo_mult_sem_corr$cv.signal_6
 cv_multsinal_semcorr_nrt <- window(ts.union(ts(cv_multsinal_semcorr_nrt, start = 2012, frequency = 4)), start = c(2013,3))
 
 multsinal_nrt <- env3$modelo_mult$ts.signal_6
-multsinal_nrt <- window(ts.union(ts(multsinal_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_nrt <- env3$modelo_mult$se.signal_6
+ICinfsinal_nrt <- multsinal_nrt-1.96*sesinal_nrt
+ICsupsinal_nrt <- multsinal_nrt+1.96*sesinal_nrt
 cv_multsinal_nrt <- env3$modelo_mult$cv.signal_6
+
+multsinal_nrt <- window(ts.union(ts(multsinal_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_nrt <- window(ts.union(ts(sesinal_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+ICinfsinal_nrt <- window(ts.union(ts(ICinfsinal_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+ICsupsinal_nrt <- window(ts.union(ts(ICsupsinal_nrt, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multsinal_nrt <- window(ts.union(ts(cv_multsinal_nrt, start = 2012, frequency = 4)), start = c(2013,3))
 
 esttrend_ar1nrt <- env1$ar1_nrt$ts.trend
@@ -575,8 +652,15 @@ cv_multtrend_semcorr_nrt <- env2$modelo_mult_sem_corr$cv.trend_6
 cv_multtrend_semcorr_nrt <- window(ts.union(ts(cv_multtrend_semcorr_nrt, start = 2012, frequency = 4)), start = c(2013,3))
 
 multtrend_nrt <- env3$modelo_mult$ts.trend_6
-multtrend_nrt <- window(ts.union(ts(multtrend_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_nrt <- env3$modelo_mult$se.trend_6
+ICinftrend_nrt <- multtrend_nrt-1.96*setrend_nrt
+ICsuptrend_nrt <- multtrend_nrt+1.96*setrend_nrt
 cv_multtrend_nrt <- env3$modelo_mult$cv.trend_6
+
+multtrend_nrt <- window(ts.union(ts(multtrend_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_nrt <- window(ts.union(ts(setrend_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+ICinftrend_nrt <- window(ts.union(ts(ICinftrend_nrt, start = 2012, frequency = 4)), start = c(2013,3))
+ICsuptrend_nrt <- window(ts.union(ts(ICsuptrend_nrt, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multtrend_nrt <- window(ts.union(ts(cv_multtrend_nrt, start = 2012, frequency = 4)), start = c(2013,3))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
@@ -662,8 +746,15 @@ cv_multsinal_semcorr_val <- env2$modelo_mult_sem_corr$cv.signal_7
 cv_multsinal_semcorr_val <- window(ts.union(ts(cv_multsinal_semcorr_val, start = 2012, frequency = 4)), start = c(2013,3))
 
 multsinal_val <- env3$modelo_mult$ts.signal_7
-multsinal_val <- window(ts.union(ts(multsinal_val, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_val <- env3$modelo_mult$se.signal_7
+ICinfsinal_val <- multsinal_val-1.96*sesinal_val
+ICsupsinal_val <- multsinal_val+1.96*sesinal_val
 cv_multsinal_val <- env3$modelo_mult$cv.signal_7
+
+multsinal_val <- window(ts.union(ts(multsinal_val, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_val <- window(ts.union(ts(sesinal_val, start = 2012, frequency = 4)), start = c(2013,3))
+ICinfsinal_val <- window(ts.union(ts(ICinfsinal_val, start = 2012, frequency = 4)), start = c(2013,3))
+ICsupsinal_val <- window(ts.union(ts(ICsupsinal_val, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multsinal_val <- window(ts.union(ts(cv_multsinal_val, start = 2012, frequency = 4)), start = c(2013,3))
 
 esttrend_ar1val <- env1$ar1_val$ts.trend
@@ -677,8 +768,15 @@ cv_multtrend_semcorr_val <- env2$modelo_mult_sem_corr$cv.trend_7
 cv_multtrend_semcorr_val <- window(ts.union(ts(cv_multtrend_semcorr_val, start = 2012, frequency = 4)), start = c(2013,3))
 
 multtrend_val <- env3$modelo_mult$ts.trend_7
-multtrend_val <- window(ts.union(ts(multtrend_val, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_val <- env3$modelo_mult$se.trend_7
+ICinftrend_val <- multtrend_val-1.96*setrend_val
+ICsuptrend_val <- multtrend_val+1.96*setrend_val
 cv_multtrend_val <- env3$modelo_mult$cv.trend_7
+
+multtrend_val <- window(ts.union(ts(multtrend_val, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_val <- window(ts.union(ts(setrend_val, start = 2012, frequency = 4)), start = c(2013,3))
+ICinftrend_val <- window(ts.union(ts(ICinftrend_val, start = 2012, frequency = 4)), start = c(2013,3))
+ICsuptrend_val <- window(ts.union(ts(ICsuptrend_val, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multtrend_val <- window(ts.union(ts(cv_multtrend_val, start = 2012, frequency = 4)), start = c(2013,3))
 
 par(mfrow = c(1, 2), mar = c(5, 5, 1, 1), oma = c(4, 0, 2, 0), cex = 0.8)
@@ -766,8 +864,15 @@ cv_multsinal_semcorr_cen <- env2$modelo_mult_sem_corr$cv.signal_8
 cv_multsinal_semcorr_cen <- window(ts.union(ts(cv_multsinal_semcorr_cen, start = 2012, frequency = 4)), start = c(2013,3))
 
 multsinal_cen <- env3$modelo_mult$ts.signal_8
-multsinal_cen <- window(ts.union(ts(multsinal_cen, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_cen <- env3$modelo_mult$se.signal_8
+ICinfsinal_cen <- multsinal_cen-1.96*sesinal_cen
+ICsupsinal_cen <- multsinal_cen+1.96*sesinal_cen
 cv_multsinal_cen <- env3$modelo_mult$cv.signal_8
+
+multsinal_cen <- window(ts.union(ts(multsinal_cen, start = 2012, frequency = 4)), start = c(2013,3))
+sesinal_cen <- window(ts.union(ts(sesinal_cen, start = 2012, frequency = 4)), start = c(2013,3))
+ICinfsinal_cen <- window(ts.union(ts(ICinfsinal_cen, start = 2012, frequency = 4)), start = c(2013,3))
+ICsupsinal_cen <- window(ts.union(ts(ICsupsinal_cen, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multsinal_cen <- window(ts.union(ts(cv_multsinal_cen, start = 2012, frequency = 4)), start = c(2013,3))
 
 esttrend_ar1cen <- env1$ar1_cen$ts.trend
@@ -781,8 +886,15 @@ cv_multtrend_semcorr_cen <- env2$modelo_mult_sem_corr$cv.trend_8
 cv_multtrend_semcorr_cen <- window(ts.union(ts(cv_multtrend_semcorr_cen, start = 2012, frequency = 4)), start = c(2013,3))
 
 multtrend_cen <- env3$modelo_mult$ts.trend_8
-multtrend_cen <- window(ts.union(ts(multtrend_cen, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_cen <- env3$modelo_mult$se.trend_8
+ICinftrend_cen <- multtrend_cen-1.96*setrend_cen
+ICsuptrend_cen <- multtrend_cen+1.96*setrend_cen
 cv_multtrend_cen <- env3$modelo_mult$cv.trend_8
+
+multtrend_cen <- window(ts.union(ts(multtrend_cen, start = 2012, frequency = 4)), start = c(2013,3))
+setrend_cen <- window(ts.union(ts(setrend_cen, start = 2012, frequency = 4)), start = c(2013,3))
+ICinftrend_cen <- window(ts.union(ts(ICinftrend_cen, start = 2012, frequency = 4)), start = c(2013,3))
+ICsuptrend_cen <- window(ts.union(ts(ICsuptrend_cen, start = 2012, frequency = 4)), start = c(2013,3))
 cv_multtrend_cen <- window(ts.union(ts(cv_multtrend_cen, start = 2012, frequency = 4)), start = c(2013,3))
 
 par(mfrow=c(1,2), mar=c(5,5,1,1), oma=c(0,0,2,0), cex=0.8)
@@ -1052,7 +1164,7 @@ cv_multtrend_cen <- window(ts.union(ts(cv_multtrend_cen, start = 2012, frequency
 
 ## Gráficos
 
-png("Figura_Ocupacao_1.png", width = 1000, height = 1500, res = 100)
+png("C:/FJP2425/Reuniões/Gráficos/21 - Gráficos para o artigo/Seção resultados/Figura_Ocupacao_1.png", width = 1000, height = 1500, res = 100)
 
 par(mfrow = c(4, 2),mar = c(4.5, 4, 1.5, 1.5),oma = c(0, 0, 4, 0),cex = 0.8,cex.axis = 0.7,cex.lab = 0.8)
 plot(ocup_bh, type = "l", col = "black", lwd = 2, xlab = "Ano", ylab = "Ocupados (mil pessoas)", ylim=c(1000,1500),
@@ -1124,7 +1236,7 @@ mtext("04 - Triângulo Mineiro", side = 3, line = -1, adj = 0.5, cex = 0.9, font
 dev.off()
 
 
-png("Figura_Ocupacao_2.png", width = 1000, height = 1500, res = 100)
+png("C:/FJP2425/Reuniões/Gráficos/21 - Gráficos para o artigo/Seção resultados/Figura_Ocupacao_2.png", width = 1000, height = 1500, res = 100)
 
 par(mfrow = c(4, 2),mar = c(4.5, 4, 1.5, 1.5),oma = c(0, 0, 4, 0),cex = 0.8,cex.axis = 0.7,cex.lab = 0.8)
 plot(ocup_mat, type = "l", col = "black", lwd = 2, xlab = "Ano", ylab = "Ocupados (mil pessoas)", ylim=c(800,1400),
