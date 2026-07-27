@@ -249,5 +249,5 @@ plot(ocup_mg, type = "l", col = "black", lwd = 2,
 lines(sinalmg_uni, col = "blue", lty = 1, lwd = 2)
 lines(sinalmg_mult, col= "red", lty = 1, lwd = 2)
 legend("topleft", legend = c("Estimativa direta", "Sinal - Mod. Univariado","Sinal - Mod. Multivariado"),
-       col = c("black","blue","green"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
+       col = c("black","blue","red"),lty = c(1,1,1),lwd = c(2,2,2),bty = "n", cex=0.8)
 
