@@ -1,4 +1,16 @@
+# R
 .Rhistory
-.Rhistory
-.Rhistory
-.Rhistory
+.RData
+.Rdata
+.Ruserdata
+.Rproj.user/
+
+# Dados e saídas (não versionar bases pesadas)
+data/
+*.RDS
+*.rds
+*.Rdata
+
+# Sistema
+.DS_Store
+Thumbs.db

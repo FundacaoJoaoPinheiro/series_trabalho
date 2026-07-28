@@ -112,7 +112,7 @@ mg <- cbind(
 cvmg_o<-ts(mg$CV.ocupados,start= c(2012,1),frequency=4)
 
 mg_d<-ts(mg$Total.de.desocupados,start=c(2012,1),frequency = 4)
-cvmg_d<-ts(mg$CV.desocupadosstart=c(2012,1),frequency = 4)
+cvmg_d<-ts(mg$CV.desocupados,start=c(2012,1),frequency = 4)
 
 mg_txd<-ts(mg$Taxa.de.desocupação,start=c(2012,1),frequency = 4)
 cvmg_txd<-ts(mg$CV.taxa,start=c(2012,1),frequency = 4)
@@ -916,7 +916,7 @@ plot.ts(seriescvoc,plot.type = "single",main="Coeficiente de variação (%) para
 
 # Taxa de Desocupação:
 
-{seriescvtxd<-cbind(cvbh_txd,cventornobh_txd,cvcolarbh_txd,cvRIDE_txd,cvsulmg_txd,cvtrng_txd,cvzonamata_txd,cvnortemg_txd,cvriodoce_txd,cvcentral_d)
+{seriescvtxd<-cbind(cvbh_txd,cventornobh_txd,cvcolarbh_txd,cvRIDE_txd,cvsulmg_txd,cvtrng_txd,cvzonamata_txd,cvnortemg_txd,cvriodoce_txd,cvcentral_txd)
   colnames(seriescvtxd)<-c("BH", "Entorno BH", "Colar BH", "RIDE", "Sul", "Triângulo", "Mata", "Norte MG", "Rio doce", "Central" )
 }
 
