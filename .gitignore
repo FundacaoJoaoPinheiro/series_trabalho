@@ -14,3 +14,7 @@ data/
 # Sistema
 .DS_Store
 Thumbs.db
+.positai
+
+# Logs de execucao
+outputs/log_*.txt

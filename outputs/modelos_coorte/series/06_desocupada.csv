@@ -1,0 +1,2 @@
+"indicador","regiao","escolhido","comparavel","delta_aic_lambda","rho","amplitude_lambda_pct","cv_modelo","cv_design","ganho_cv_pct","dif_max_pct","starts_ok","spread_ll","ruido_medio_pct"
+"desocupada","06-Norte de Minas","nao",TRUE,-3.4,0.8382,NA,10.55,13.57,22.3,42.55,"5/8",1.1,29.5

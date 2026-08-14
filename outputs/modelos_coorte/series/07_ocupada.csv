@@ -1,0 +1,2 @@
+"indicador","regiao","escolhido","comparavel","delta_aic_lambda","rho","amplitude_lambda_pct","cv_modelo","cv_design","ganho_cv_pct","dif_max_pct","starts_ok","spread_ll","ruido_medio_pct"
+"ocupada","07-Vale do Rio Doce","fixo",TRUE,19.5,0.9889,6.83,4.47,11.34,60.6,25.18,"5/8",3.66,24.9
