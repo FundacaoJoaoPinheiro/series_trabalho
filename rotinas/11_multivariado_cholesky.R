@@ -213,7 +213,12 @@ cat("\n################ MATRIZ DE COVARIÂNCIA DAS INCLINAÇÕES ###############
 cat("sigma2_R por estrato:", paste(round(diag(Sigma_R), 4), collapse = "  "), "\n")
 cat("autovalores:", paste(round(ev, 5), collapse = "  "), "\n")
 cat("menor autovalor:", format(min(ev), scientific = TRUE), "\n")
-cat("positiva-definida?", all(ev > 0), "\n")
+## tolerancia relativa: autovalores da ordem de 1e-15 vezes o maior sao zero
+## numerico, nao negatividade. Sigma_R = L L' e PSD por construcao; o teste
+## `all(ev > 0)` sem tolerancia acusa falso negativo quando o posto e deficiente.
+tol <- 1e-8 * max(abs(ev))
+cat("positiva-semidefinida?", all(ev > -tol), "\n")
+cat("posto numerico:", sum(ev > tol), "de", P, "\n")
 cat("posto efetivo (autoval > 1% do maior):", sum(ev > 0.01 * max(ev)), "de", P, "\n\n")
 cat("Correlações estimadas:\n")
 print(round(Corr_R, 4))

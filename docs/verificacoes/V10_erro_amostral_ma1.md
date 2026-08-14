@@ -145,9 +145,42 @@ parâmetros livres — o mesmo número de graus de liberdade de antes (8 variân
 Também corrigido nesse script: `m0` tinha dimensão errada (`rep(0,7) %x% diag(8)` produz uma
 matriz 56×8, não um vetor de 56).
 
-**Padrão a esperar:** as correlações próximas de 1 entre os estratos com variância de inclinação
-positiva indicam poucas tendências comuns. A especificação natural não é 28 correlações livres,
-e sim posto reduzido / fatores comuns — agenda para o Artigo 2.
+### Resultado da reestimação
+
+Ambos os indicadores convergiram (segundo multi-start, `conv = 0`), com verossimilhanças
+praticamente iguais entre os dois pontos de partida — o ótimo está bem determinado.
+
+| | menor autovalor antes | menor autovalor depois | posto efetivo |
+|---|---:|---:|---:|
+| desocupados | −0,593 | **+1,05e−06** | 2 de 8 |
+| ocupados | −1,087 | **−1,14e−15** (zero de máquina) | 5 de 8 |
+
+**As células "não identificadas" eram artefato da parametrização.** Sob `tanh` livre, σ̂²_R ia a
+zero em alguns estratos (Central em desocupados; BH e Triângulo em ocupados), o que impedia
+identificar suas correlações. Com Cholesky nenhum σ̂²_R vai a zero: desocupados de 10,87 a 120,53;
+ocupados de 0,25 a 21,53.
+
+**Os achados regionais mudam de figura.** O que o artigo lia como "BH e Triângulo têm dinâmica
+distinta" era indeterminação numérica. O que aparece de fato:
+
+- **desocupados:** correlações acima de 0,96, exceto a **Zona da Mata** (0,37 a 0,70);
+- **ocupados:** bloco integrado **Norte–Vale–Central** (0,92–0,99), **Triângulo** intermediário
+  (0,58–0,71), e **BH, Colar, Sul e Zona da Mata** quase independentes entre si (< 0,14).
+
+**O multivariado compensa em um indicador e não no outro:**
+
+| | univariado | multivariado | posto efetivo |
+|---|---:|---:|---:|
+| desocupados | 31,3 % | **37,9 %** | 2 |
+| ocupados | 23,9 % | 23,8 % | 5 |
+
+O empréstimo de força rende onde há tendência comum a explorar, e não rende onde não há. Isso
+substitui a justificativa do artigo ("por consistência") por uma empírica.
+
+Ainda assim, com posto efetivo 2 (desocupados) as 28 correlações individuais permanecem mal
+determinadas mesmo sendo agora admissíveis. A especificação natural é **posto reduzido / fatores
+comuns** (Σ_R = ΛΛ' + D, com k = 1 ou 2), que troca 36 parâmetros por 16 ou 24 e reporta cargas
+fatoriais no lugar de uma matriz 8×8 quase toda perto de 1. Pendente.
 
 ---
 
