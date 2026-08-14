@@ -31,7 +31,11 @@ if (!dir.exists(file.path(RAIZ, "pseudoerros_8reg")) &&
 }
 stopifnot(dir.exists(file.path(RAIZ, "pseudoerros_8reg")))
 
-INDICADOR <- Sys.getenv("INDICADOR", "desocupados")   # "desocupados" | "ocupados"
+INDICADOR <- Sys.getenv("INDICADOR", "desocupados")   # "desocupados" | "ocupados" | "taxa"
+## A taxa e modelada em PONTOS PERCENTUAIS (x100). A escala nao afeta CV nem as
+## medidas relativas de desempenho, mas mantem os hiperparametros em ordem de
+## grandeza comparavel a dos totais (que estao em milhares).
+ESCALA_TAXA <- 100
 BURN      <- 8                                        # descarte de inicialização
 SAIDA     <- file.path(RAIZ, "outputs", "univariado_corrigido")
 dir.create(SAIDA, recursive = TRUE, showWarnings = FALSE)
@@ -45,12 +49,23 @@ PROC <- list(
   desocupados = c(bh="ma1", ent="ma1", sul="arma11", trg="ma1",
                   mat="ma1", nrt="ma1", val="ar1", cen="ma1"),
   ocupados    = c(bh="ar1", ent="ar1", sul="ar1", trg="ar1",
-                  mat="ar1", nrt="ar1", val="ar1", cen="ar1")
+                  mat="ar1", nrt="ar1", val="ar1", cen="ar1"),
+  ## taxa: mesma atribuicao do script 39 (documentada no Apendice A do artigo)
+  taxa        = c(bh="ma1", ent="ma1", sul="arma11", trg="ma1",
+                  mat="ma1", nrt="ma1", val="arma11", cen="ma1")
 )[[INDICADOR]]
 
-ARQ_PE <- c(bh="01_params_bh.rds",  ent="02_params_ent.rds", sul="03_params_sul.rds",
-            trg="04_params_trg.rds", mat="05_params_mat.rds", nrt="06_params_nrt.rds",
-            val="07_params_rio.rds", cen="08_params_cen.rds")
+ARQ_PE <- if (INDICADOR == "taxa") {
+  c(bh="01_params_taxa_bh.rds",  ent="02_params_taxa_ent.rds", sul="03_params_taxa_sul.rds",
+    trg="04_params_taxa_trg.rds", mat="05_params_taxa_mat.rds", nrt="06_params_taxa_nrt.rds",
+    val="07_params_taxa_val.rds", cen="08_params_taxa_cen.rds")
+} else {
+  c(bh="01_params_bh.rds",  ent="02_params_ent.rds", sul="03_params_sul.rds",
+    trg="04_params_trg.rds", mat="05_params_mat.rds", nrt="06_params_nrt.rds",
+    val="07_params_rio.rds", cen="08_params_cen.rds")
+}
+
+PASTA_PE <- if (INDICADOR == "taxa") "pseudoerros_taxa_8reg" else "pseudoerros_8reg"
 
 # sufixo usado nos nomes de coluna dos pseudo-erros
 SUF <- c(bh="bh", ent="ent", sul="sul", trg="trg",
@@ -80,7 +95,12 @@ INI <- list(
     mat = c( 624.4167, 0.0000, 0.0001,  0.0000, 0.1917),
     nrt = c( 891.6365, 2.1295, 0.0000,  0.0000, 0.4001),
     val = c( 163.8916, 0.0000, 0.0000, 72.4594, 0.1619),
-    cen = c(1961.4271, 0.0000, 0.0000,  0.0000, 0.0312))
+    cen = c(1961.4271, 0.0000, 0.0000,  0.0000, 0.0312)),
+  ## taxa em pontos percentuais: nao ha estimativas univariadas publicadas em
+  ## que ancorar, entao parte-se de valores genericos na escala da serie
+  ## (nivel ~7 pp, se ~0,6 pp). O multi-start cobre a imprecisao da partida.
+  taxa = matrix(rep(c(0.10, 0.005, 1e-6, 1e-6, 0.5), each = 8), nrow = 8,
+                dimnames = list(c("bh","ent","sul","trg","mat","nrt","val","cen"), NULL))
 )[[INDICADOR]]
 
 ################################################################################
@@ -94,21 +114,34 @@ pega_serie <- function(k) {
   d <- base[[ nomes_reg[k] ]]
   if (INDICADOR == "desocupados")
     list(y = d$Total.de.desocupados/1000, se = d$sd_d/1000)
-  else
+  else if (INDICADOR == "ocupados")
     list(y = d$Total.de.ocupados/1000,    se = d$sd_o/1000)
+  else
+    list(y = d[["Taxa.de.desocupação"]] * ESCALA_TAXA,
+         se = d[["sd_txd"]] * ESCALA_TAXA)
 }
 
 pega_arma <- function(cod) {
-  pe  <- readRDS(file.path(RAIZ, "pseudoerros_8reg", ARQ_PE[[cod]]))
-  s   <- SUF[[cod]]
-  ind <- if (INDICADOR == "desocupados") "d" else "o"
-  switch(PROC[[cod]],
-    ar1    = list(phi = pe$mod_ar1[[paste0("phi1_ar1_", ind, s)]],       theta = 0),
-    ma1    = list(phi = 0,
-                  theta = pe$mod_ma1[[paste0("theta1_ma1_", ind, s)]]),
-    arma11 = list(phi = pe$mod_arma11[[paste0("phi1_arma11_", ind, s)]],
-                  theta = pe$mod_arma11[[paste0("theta1_arma11_", ind, s)]])
-  )
+  pe <- readRDS(file.path(RAIZ, PASTA_PE, ARQ_PE[[cod]]))
+  if (INDICADOR == "taxa") {
+    ## os blocos da taxa usam prefixo `taxamod_` e um unico elemento por
+    ## parametro, na ordem phi, theta -- acesso posicional
+    switch(PROC[[cod]],
+      ar1    = list(phi = pe$taxamod_ar1[[1]],    theta = 0),
+      ma1    = list(phi = 0,                      theta = pe$taxamod_ma1[[1]]),
+      arma11 = list(phi = pe$taxamod_arma11[[1]], theta = pe$taxamod_arma11[[2]])
+    )
+  } else {
+    s   <- SUF[[cod]]
+    ind <- if (INDICADOR == "desocupados") "d" else "o"
+    switch(PROC[[cod]],
+      ar1    = list(phi = pe$mod_ar1[[paste0("phi1_ar1_", ind, s)]],       theta = 0),
+      ma1    = list(phi = 0,
+                    theta = pe$mod_ma1[[paste0("theta1_ma1_", ind, s)]]),
+      arma11 = list(phi = pe$mod_arma11[[paste0("phi1_arma11_", ind, s)]],
+                    theta = pe$mod_arma11[[paste0("theta1_arma11_", ind, s)]])
+    )
+  }
 }
 
 ################################################################################
