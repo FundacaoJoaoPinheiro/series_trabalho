@@ -1,0 +1,9 @@
+"estrato","processo","conv_legado","conv_corrigido","loglik_legado","loglik_corrigido","rrse_legado","rrse_corrigido","vicio_legado","vicio_corrigido","var_e_legado","var_e_corrigido"
+"01 - Belo Horizonte","ar1",0,0,-235.59,-235.59,-17.63,-17.63,-0.58,-0.58,1.821,1.821
+"02 - Colar e Entorno Metropolitano de BH","ar1",0,0,-253.82,-253.82,-11.73,-11.73,-0.31,-0.31,1.527,1.527
+"03 - Sul de Minas","ar1",0,0,-236.01,-236.01,49.46,49.46,-0.24,-0.24,0.28,0.28
+"04 - Triângulo Mineiro","ar1",0,0,-258.54,-258.54,33.54,33.54,-2.03,-2.03,0.595,0.595
+"05 - Zona da Mata","ar1",0,0,-245.29,-245.29,21.66,21.66,-0.93,-0.93,0.781,0.781
+"06 - Norte de Minas","ar1",0,0,-258.64,-258.64,6.38,6.38,-2.96,-2.96,1.656,1.656
+"07 - Vale do Rio Doce","ar1",0,0,-235.33,-235.33,40.05,40.05,-1.51,-1.51,0.447,0.447
+"08 - Central","ar1",0,0,-258.07,-258.07,69.36,69.36,-0.08,-0.08,0.054,0.054

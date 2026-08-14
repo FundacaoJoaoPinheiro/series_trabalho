@@ -151,7 +151,10 @@ mtext("01 - Belo Horizonte (AR1)", side = 3, outer = TRUE, line = 0.5, font = 2,
 
 source("data/funcoes/14_estrutural_MA1.R")
 
-theta1_ma1 <- dbbh[["mod_ar1"]][["phi1_ar1_dbh"]]
+## issue #1: usava mod_ar1/phi1_ar1 (coeficiente AR) para preencher o parametro
+## do MA(1). O efeito estava mascarado pela issue #20 — o termo MA era inerte, e
+## portanto o coeficiente nao era usado. Com a #20 corrigida, isto passa a importar.
+theta1_ma1 <- dbbh[["mod_ma1"]][["theta1_ma1_dbh"]]
 
 # Input dos parâmetros iniciais do modelo
 

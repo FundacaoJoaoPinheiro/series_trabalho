@@ -250,20 +250,35 @@ modelo_mult_sem_corr<- list("fn"=function(params){
   W[23,23] <- exp(params[23])
   W[24,24] <- exp(params[24])
   
-  W[41,41] <- exp(params[33])
-  W[42,42] <- exp(params[34])
-  W[43,43] <- exp(params[35])
-  W[44,44] <- exp(params[36])
-  W[45,45] <- exp(params[37])
-  W[46,46] <- exp(params[38])
-  W[47,47] <- exp(params[39])
-  W[48,48] <- exp(params[40])
+  ## --- Erro amostral: forma de Harvey (issue #20) --------------------------
+  ## O bloco (e_t, aux_t) precisa da MESMA inovacao nos dois estados:
+  ##   e_t = xi_t + theta*xi_{t-1}   =>   W[e,e] = W[aux,aux] = W[e,aux] = s2
+  ## ANTES: so W[41..48] eram preenchidos; as posicoes 49-56 (aux) ficavam com
+  ## variancia zero e a linha 49-56 de GG e nula, entao o estado auxiliar era
+  ## identicamente zero e o termo theta NUNCA entrava: o erro amostral colapsava
+  ## para ruido branco (acf(1) = 0 em vez de theta/(1+theta^2)).
+  ## ATENCAO: preencher so a diagonal W[49..56] NAO resolve — com choques
+  ## independentes a autocovariancia de defasagem 1 volta a ser zero. A
+  ## off-diagonal e a peca essencial. O bloco 2x2 resultante e singular
+  ## (posto 1), e isso esta correto: ha um unico choque.
+  theta_ea <- c(theta1_ma1_bh, theta1_ma1_ent, theta1_arma11_sul, theta1_ma1_trg,
+                theta1_ma1_mat, theta1_ma1_nrt, 0, theta1_ma1_cen)  # val e AR(1)
+  for (i in 1:8) {
+    s2 <- exp(params[32 + i])
+    W[40 + i, 40 + i] <- s2
+    if (theta_ea[i] != 0) {
+      W[48 + i, 48 + i] <- s2
+      W[40 + i, 48 + i] <- s2
+      W[48 + i, 40 + i] <- s2
+    }
+  }
 
   m$W <- W
   
-  m$m0<- rep(0,7)
-  m0 <- m$m0 %x% diag(8)
-  m$m0 <- m0
+  ## m0 tem de ser um VETOR de 56 (= nrow(GG)). `rep(0,7) %x% diag(8)` devolve
+  ## uma matriz 56x8. Sem efeito numerico (e tudo zero), mas a dimensao estava
+  ## errada. C0 abaixo esta certo: diag(7) %x% diag(8) da 56x56.
+  m$m0 <- rep(0, 56)
   
   m$C0<- diag(x=10^7,7)
   C0 <- m$C0 %x% diag(8)

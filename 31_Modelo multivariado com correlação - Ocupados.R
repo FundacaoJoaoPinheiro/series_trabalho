@@ -272,8 +272,10 @@ modelo_mult<- list("fn"=function(params){
   m$W <- W
   # Em relação ao modelo que comportava o MA(1), não foi necessário ajustar as dimensões dessas matrizes
   # Segui conforme o código de referência
-  m0 <- m$m0 %x% diag(8)
-  m$m0 <- m0
+  ## m0 tem de ser um VETOR de 48 (= nrow(GG)); `m$m0 %x% diag(8)` devolve uma
+  ## matriz 48x8. Sem efeito numérico (é tudo zero), mas a dimensão estava
+  ## errada. C0 abaixo está certo: diag(6) %x% diag(8) dá 48x48.
+  m$m0 <- rep(0, 48)
   
   C0 <- m$C0 %x% diag(8)
   m$C0 <- C0
