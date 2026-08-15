@@ -49,7 +49,27 @@ B_NIVEL <-  1: 8; B_INCL <-  9:16; B_SAZ1 <- 17:24
 B_SAZ2  <- 25:32; B_SAZ3 <- 33:40; B_EA   <- 41:48; B_AUX <- 49:56
 
 N_CHOL <- P * (P + 1) / 2          # 36
-IDX <- list(nivel = 1:8, saz = 9:16, irreg = 17:24, ea = 25:32, chol = 33:68)
+
+## RESTRITO=1 impoe Var(e~) = 1 por estrato (issue #17): a variancia da inovacao
+## do erro amostral deixa de ser estimada e passa a ser derivada da equacao de
+## Lyapunov, sigma2_i = 1 / P_i[1,1]. O modelo cai de 68 para 60 parametros.
+RESTRITO <- Sys.getenv("RESTRITO", "0") == "1"
+
+p11_unit <- function(phi, theta) {
+  if (theta == 0) return(1 / (1 - phi^2))
+  G <- matrix(c(phi, 0, theta, 0), 2, 2, byrow = TRUE)
+  v <- c(1, theta)
+  P <- try(matrix(solve(diag(4) - kronecker(G, G), as.vector(v %*% t(v))), 2, 2),
+           silent = TRUE)
+  if (inherits(P, "try-error")) return(NA_real_)
+  P[1, 1]
+}
+
+IDX <- if (RESTRITO) {
+  list(nivel = 1:8, saz = 9:16, irreg = 17:24, chol = 25:60)
+} else {
+  list(nivel = 1:8, saz = 9:16, irreg = 17:24, ea = 25:32, chol = 33:68)
+}
 
 ################################################################################
 ## Construtor
@@ -99,7 +119,7 @@ monta <- function(params) {
 
   ## --- erro amostral: forma de Harvey quando há termo MA --------------------
   for (i in 1:P) {
-    s2 <- exp(params[IDX$ea][i])
+    s2 <- if (RESTRITO) S2_FIXO[i] else exp(params[IDX$ea][i])
     W[B_EA[i], B_EA[i]] <- s2
     if (TEM_MA[i]) {
       W[B_AUX[i], B_AUX[i]] <- s2
@@ -135,11 +155,18 @@ objetivo <- function(p) {
 hp <- sapply(codigos, function(k) uni[[k]]$corrigido$hp)   # 5 x 8
 flr <- function(v) log(pmax(v, 1e-8))
 
-p0 <- numeric(68)
+S2_FIXO <- sapply(1:P, function(i) 1 / p11_unit(PHI[i], THE[i]))
+if (RESTRITO) {
+  stopifnot(all(is.finite(S2_FIXO) & S2_FIXO > 0))
+  cat("Var(e~) = 1 imposta; inovacoes derivadas:",
+      paste(round(S2_FIXO, 4), collapse = " "), "\n")
+}
+
+p0 <- numeric(if (RESTRITO) 60 else 68)
 p0[IDX$nivel] <- flr(hp[1, ])
 p0[IDX$saz]   <- flr(hp[3, ])
 p0[IDX$irreg] <- flr(hp[4, ])
-p0[IDX$ea]    <- flr(hp[5, ])
+if (!RESTRITO) p0[IDX$ea] <- flr(hp[5, ])
 
 ## Cholesky inicial: diagonal = sqrt(sigma2_R univariado) -> correlações nulas
 L0 <- diag(sqrt(pmax(hp[2, ], 1e-8)), P)
@@ -165,7 +192,8 @@ roda <- function(inicial, rotulo) {
   }
   t0 <- Sys.time()
   r <- try(optim(inicial, objetivo, method = "L-BFGS-B",
-                 control = list(maxit = 2000)), silent = TRUE)
+                 control = list(maxit = as.integer(Sys.getenv("MAXIT", "2000")))),
+           silent = TRUE)
   dt <- round(as.numeric(difftime(Sys.time(), t0, units = "mins")), 1)
   if (inherits(r, "try-error")) {
     cat("  falhou:", conditionMessage(attr(r, "condition")), "\n"); return(NULL)
@@ -175,8 +203,15 @@ roda <- function(inicial, rotulo) {
   r
 }
 
+## Nas rodadas de desocupados e ocupados, a partida "correlações nulas" gastou
+## 78 e 13 min e terminou com conv = 52 (terminação anormal), enquanto a partida
+## com off-diagonais em 30% da escala convergiu limpo (conv = 0) com a mesma
+## verossimilhança. PARTIDAS=2 roda so a segunda, que e a que rende.
+PARTIDAS <- as.integer(Sys.getenv("PARTIDAS", "12"))
+
 cands <- list()
-cands[[1]] <- roda(p0, "univariado corrigido, correlações nulas")
+if (PARTIDAS %/% 10 == 1)
+  cands[[length(cands)+1]] <- roda(p0, "univariado corrigido, correlações nulas")
 
 ## segundo start: mesma diagonal, off-diagonais = 30% da escala típica do slope
 escala <- median(sqrt(pmax(hp[2, ], 1e-8)))
@@ -189,7 +224,8 @@ p1 <- p0
   }
   p1[IDX$chol] <- pc
 }
-cands[[2]] <- roda(p1, "off-diagonais em 30% da escala")
+if (PARTIDAS %% 10 == 2)
+  cands[[length(cands)+1]] <- roda(p1, "off-diagonais em 30% da escala")
 
 cands <- Filter(Negate(is.null), cands)
 stopifnot(length(cands) > 0)

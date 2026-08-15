@@ -148,10 +148,33 @@ pega_arma <- function(cod) {
 ## Construtor do modelo
 ################################################################################
 
+## RESTRITO=1 impoe Var(e~) = 1 (issue #17). Como e_t = c_t * e~_t com c_t o
+## erro-padrao do desenho (Binder e Dick, 1989), Var(e~) = 1 e o que faz o
+## modelo respeitar a variancia amostral publicada. A variancia da inovacao
+## deixa de ser estimada e passa a ser derivada da equacao de Lyapunov
+## discreta P = G P G' + W: sigma2 = 1 / P[1,1] com inovacao unitaria.
+RESTRITO <- Sys.getenv("RESTRITO", "0") == "1"
+
+p11_unit <- function(proc, phi, theta) {
+  if (proc == "ar1") return(1 / (1 - phi^2))
+  ## MA(1) e ARMA(1,1): estado (e~_t, aux), v = (1, theta)
+  G <- matrix(c(phi, 0, theta, 0), 2, 2, byrow = TRUE)
+  v <- c(1, theta)
+  W <- v %*% t(v)
+  P <- try(matrix(solve(diag(4) - kronecker(G, G), as.vector(W)), 2, 2),
+           silent = TRUE)
+  if (inherits(P, "try-error")) return(NA_real_)
+  P[1, 1]
+}
+
 monta <- function(se, proc, phi, theta, corrigido) {
+  s2_fixo <- if (RESTRITO) {
+    p <- p11_unit(proc, phi, theta)
+    if (!is.finite(p) || p <= 0) NA_real_ else 1 / p
+  } else NA_real_
   function(params) {
     m <- dlmModPoly(2) + dlmModTrig(4) + dlmModReg(se, addInt = FALSE)
-    s2e <- exp(params[5])
+    s2e <- if (RESTRITO) s2_fixo else exp(params[5])
 
     if (proc == "ar1") {
       m$GG[6, 6] <- phi
@@ -204,15 +227,22 @@ var_implicita <- function(proc, phi, theta, s2e) {
 flr <- function(v) log(pmax(v, 1e-6))
 
 ajusta <- function(y, se, proc, phi, theta, corrigido, i0) {
+  if (RESTRITO && !is.finite(p11_unit(proc, phi, theta))) return(NULL)
   fn <- monta(se, proc, phi, theta, corrigido)
+  np <- if (RESTRITO) 4 else 5      # sob a restricao a inovacao nao e estimada
 
-  partidas <- list(flr(i0))
-  for (f in c(0.1, 10)) partidas <- c(partidas, list(flr(i0 * f)))
-  partidas <- c(partidas, list(rep(0, 5)), list(flr(c(1, 1, 1e-6, 1e-6, 0.5))))
+  partidas <- list(flr(i0)[1:np])
+  for (f in c(0.1, 10)) partidas <- c(partidas, list(flr(i0 * f)[1:np]))
+  partidas <- c(partidas, list(rep(0, np)),
+                list(flr(c(1, 1, 1e-6, 1e-6, 0.5))[1:np]))
 
   melhor <- NULL
   for (p0 in partidas) {
+    ## teto de tempo por ajuste: sem isso, combinacoes com raiz proxima do
+    ## circulo unitario travam o otimizador indefinidamente
+    setTimeLimit(elapsed = 90, transient = TRUE)
     r <- try(dlmMLE(y, p0, fn, control = list(maxit = 1e5)), silent = TRUE)
+    setTimeLimit()
     if (inherits(r, "try-error") || !is.finite(r$value)) next
     ok <- isTRUE(r$convergence == 0)
     cand <- list(fit = r, ok = ok, ll = -r$value)
@@ -238,8 +268,16 @@ ajusta <- function(y, se, proc, phi, theta, corrigido, i0) {
   sinal     <- est[, 1] + est[, 3] + est[, 5]
 
   hp <- exp(fit$par)
+  if (RESTRITO) {
+    ## a 5a posicao passa a guardar a inovacao DERIVADA, e Var(e~) e 1 por
+    ## construcao -- mantem o formato do objeto para o resto do pipeline
+    hp   <- c(hp, 1 / p11_unit(proc, phi, theta))
+    varE <- 1
+  } else {
+    varE <- var_implicita(proc, phi, theta, hp[5])
+  }
   list(convergencia = fit$convergence, conv_ok = melhor$ok, loglik = melhor$ll,
-       hp = hp, var_e = var_implicita(proc, phi, theta, hp[5]),
+       hp = hp, var_e = varE,
        trend = trend, sinal = sinal, se_trend = se_trend, se_sinal = se_sinal)
 }
 

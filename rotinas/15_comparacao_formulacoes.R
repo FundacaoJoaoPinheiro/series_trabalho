@@ -121,8 +121,21 @@ inverte_ma <- function(rho, q) {
     if (is.null(melhor) || r$value < melhor$value) melhor <- r
   }
   if (is.null(melhor) || melhor$value > 1e-4) return(NULL)
+  ## Converte para a representacao INVERTIVEL equivalente: toda raiz dentro do
+  ## circulo unitario e substituida pela reciproca, o que preserva a FAC. Sem
+  ## isso o otimizador cai ora numa raiz ora na outra (ambas com perda zero) e
+  ## candidatos validos apareciam marcados como nao invertiveis.
+  r <- polyroot(c(1, melhor$par)); dentro <- Mod(r) < 1
   th <- melhor$par
-  list(theta = th, invertivel = all(Mod(polyroot(c(1, th))) > 1.0001))
+  if (any(dentro)) {
+    r[dentro] <- 1 / r[dentro]
+    cf <- 1
+    for (ri in r) cf <- c(cf, 0) - c(0, cf) / ri
+    th <- Re(cf[-1])
+  }
+  ck <- tryCatch(ARMAacf(ma = th, lag.max = q)[-1], error = function(e) NULL)
+  if (is.null(ck) || sum((ck - alvo)^2) > 1e-4) return(NULL)
+  list(theta = th, invertivel = all(Mod(polyroot(c(1, th))) > 1 - 1e-8))
 }
 
 ## ---- montagem geral ARMA(p,q) ----------------------------------------------
