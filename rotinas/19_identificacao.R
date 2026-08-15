@@ -113,7 +113,10 @@ torna_invertivel <- function(th) {
 
 ## casamento de momentos generico: acha (phi, theta) cuja FAC teorica mais se
 ## aproxima da observada nos primeiros nlags
-casa_momentos <- function(rho, p, q, nlags = NULL, tent = 25) {
+## `tent` reduzido de 25 para 8: o casamento de momentos converge quase sempre
+## na primeira tentativa, e os reinicios dominavam o custo (a derivacao dos
+## candidatos roda 10x por estrato e nao aparecia no cronometro do ajuste).
+casa_momentos <- function(rho, p, q, nlags = NULL, tent = 8) {
   if (is.null(nlags)) nlags <- max(p + q + 2, 4)
   alvo <- rho[1:nlags]
   perda <- function(z) {
@@ -171,12 +174,15 @@ ajusta <- function(y, se, phi, theta, i0) {
     if (inherits(ll, "try-error") || !is.finite(ll)) return(1e10)
     ll
   }
+  ## Sem limites na caixa de busca: testado no caso que parecia travar
+  ## (BH-ocupados, AR(1)), o irrestrito converge em 0,7 s com conv = 0, enquanto
+  ## a versao limitada em [-15,15] devolve conv = 52 e verossimilhanca pior.
+  ## O que parecia travamento era buffer de saida do Rscript, nao falta de
+  ## progresso -- por isso o cronometro por candidato mais abaixo.
   melhor <- NULL
   for (p0 in list(i0, i0 + 1, i0 - 1, rep(0, 4))) {
-    setTimeLimit(elapsed = 30, transient = TRUE)
-    r <- try(optim(p0, obj, method = "L-BFGS-B", control = list(maxit = 400)),
+    r <- try(optim(p0, obj, method = "L-BFGS-B", control = list(maxit = 300)),
              silent = TRUE)
-    setTimeLimit()
     if (inherits(r, "try-error") || !is.finite(r$value) || r$value >= 1e9) next
     if (is.null(melhor) || r$value < melhor$value) melhor <- r
   }
@@ -214,6 +220,27 @@ ajusta <- function(y, se, phi, theta, i0) {
 ################################################################################
 ## Execução
 ################################################################################
+## PERSISTENCIA INCREMENTAL.
+## O stdout do Rscript redirecionado para arquivo e bufferizado, e
+## flush.console() nao tem efeito fora de sessao interativa -- por isso o log
+## parecia congelado enquanto o processo trabalhava. A partir daqui cada estrato
+## grava suas linhas no CSV assim que termina (conexao aberta e fechada a cada
+## escrita, o que forca a descarga), e um arquivo de progresso registra o avanco.
+ARQ_CSV  <- file.path(SAIDA, "identificacao.csv")
+ARQ_PROG <- file.path(SAIDA, "progresso.txt")
+if (file.exists(ARQ_CSV))  file.remove(ARQ_CSV)
+if (file.exists(ARQ_PROG)) file.remove(ARQ_PROG)
+
+anota <- function(txt) {
+  con <- file(ARQ_PROG, open = "a"); writeLines(txt, con); close(con)
+}
+grava <- function(df) {
+  novo <- !file.exists(ARQ_CSV)
+  con <- file(ARQ_CSV, open = "a")
+  write.table(df, con, sep = ",", row.names = FALSE, col.names = novo, qmethod = "double")
+  close(con)
+}
+
 linhas <- list()
 for (ind in c("desocupados", "ocupados", "taxa")) {
   cat("\n\n####################", toupper(ind), "####################\n")
@@ -224,24 +251,39 @@ for (ind in c("desocupados", "ocupados", "taxa")) {
     s <- serie(ind, i)
     i0 <- log(pmax(c(var(diff(s$y)), var(diff(diff(s$y)))/4, 1e-6, 1e-6), 1e-8))
     cat("\n--", REG[i], "--\n"); flush.console()
+    t_est <- Sys.time()
+    n0 <- length(linhas)
     cds <- candidatos(rho)
+    anota(sprintf("%-12s %-40s candidatos derivados: %2d (%.1fs)", ind,
+                  substr(REG[i], 1, 38), length(cds),
+                  as.numeric(difftime(Sys.time(), t_est, units = "secs"))))
     for (nm in names(cds)) {
       cd <- cds[[nm]]
+      t0 <- Sys.time()
       r  <- ajusta(s$y, s$se, cd$phi, cd$theta, i0)
-      if (is.null(r)) { cat(sprintf("  %-14s falhou/pulado\n", nm)); next }
+      dt <- round(as.numeric(difftime(Sys.time(), t0, units = "secs")), 1)
+      if (is.null(r)) { cat(sprintf("  %-14s falhou/pulado (%.1fs)\n", nm, dt))
+                        flush.console(); next }
       linhas[[length(linhas)+1]] <- data.frame(
         indicador = ind, estrato = REG[i], formulacao = nm, npar = r$npar,
         loglik = round(r$loglik,2), aicc = round(r$aicc,1), bic = round(r$bic,1),
         ljung = round(r$ljung,4), eqm1 = round(r$eqm1,3), rrse = round(r$rrse,2),
         stringsAsFactors = FALSE)
-      cat(sprintf("  %-14s k=%2d logLik=%9.2f AICc=%7.1f BIC=%7.1f LB=%.3f EQM=%8.2f RRSE=%6.2f%%\n",
-                  nm, r$npar, r$loglik, r$aicc, r$bic, r$ljung, r$eqm1, r$rrse))
+      cat(sprintf("  %-14s k=%2d logLik=%9.2f AICc=%7.1f BIC=%7.1f LB=%.3f EQM=%8.2f RRSE=%6.2f%% (%.1fs)\n",
+                  nm, r$npar, r$loglik, r$aicc, r$bic, r$ljung, r$eqm1, r$rrse, dt))
+      flush.console()   # sem efeito fora de sessao interativa; ver anota()/grava()
     }
+    ## grava o estrato assim que fecha -- progresso verificavel e resultado
+    ## parcial preservado se a execucao for interrompida
+    if (length(linhas) > n0) grava(do.call(rbind, linhas[(n0+1):length(linhas)]))
+    anota(sprintf("%-12s %-40s CONCLUIDO: %2d ajustes em %.1f min", ind,
+                  substr(REG[i], 1, 38), length(linhas) - n0,
+                  as.numeric(difftime(Sys.time(), t_est, units = "mins"))))
   }
 }
 
 tab <- do.call(rbind, linhas)
-write.csv(tab, file.path(SAIDA, "identificacao.csv"), row.names = FALSE)
+anota("FIM")
 
 ################################################################################
 cat("\n\n############ ESCOLHA POR CRITÉRIO ############\n")
