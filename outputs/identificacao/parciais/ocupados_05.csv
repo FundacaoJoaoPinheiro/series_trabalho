@@ -1,0 +1,10 @@
+"indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
+"ocupados","05-Mata de Minas Gerais","Ruído branco",4,-248.9,506.6,513.6,0,2693.071,38.38
+"ocupados","05-Mata de Minas Gerais","AR(1)",5,-239.64,490.6,499,0.5193,1615.852,15.48
+"ocupados","05-Mata de Minas Gerais","AR(2)",6,-245.14,504.1,514,0.2738,1712.841,13.16
+"ocupados","05-Mata de Minas Gerais","AR(3)",7,-251.36,519.3,530.4,0.0815,1771.45,10.57
+"ocupados","05-Mata de Minas Gerais","AR(4)",8,-256.82,533,545.2,0.0646,2147.293,10.9
+"ocupados","05-Mata de Minas Gerais","AR(5)",9,-263.88,550,563.3,0.0751,2515.388,-12.09
+"ocupados","05-Mata de Minas Gerais","AR(6)",10,-269.7,564.8,578.9,0.0301,1903.24,-70.54
+"ocupados","05-Mata de Minas Gerais","MA(6)",10,-274.97,575.3,589.5,0.0296,8876.354,-15.99
+"ocupados","05-Mata de Minas Gerais","MA(4) desenho",8,-260.19,539.7,552,0.1228,8536.682,12.9

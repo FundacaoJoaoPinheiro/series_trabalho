@@ -1,0 +1,15 @@
+"indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
+"desocupados","04-Triângulo Mineiro","Ruído branco",4,-190.8,390.5,397.4,0.3862,246.995,28.63
+"desocupados","04-Triângulo Mineiro","AR(1)",5,-194.63,400.6,409,0.4576,249.241,21.75
+"desocupados","04-Triângulo Mineiro","AR(2)",6,-198.62,411.1,420.9,0.5176,249.651,21.18
+"desocupados","04-Triângulo Mineiro","AR(3)",7,-205.8,428.1,439.3,0.5886,250.066,20.61
+"desocupados","04-Triângulo Mineiro","AR(4)",8,-209.45,438.2,450.5,0.7422,252.696,19.72
+"desocupados","04-Triângulo Mineiro","AR(5)",9,-214.19,450.7,463.9,0.7716,261.282,19.51
+"desocupados","04-Triângulo Mineiro","AR(6)",10,-222.52,470.4,484.5,0.8611,277.494,3.97
+"desocupados","04-Triângulo Mineiro","MA(1)",5,-196.56,404.4,412.9,0.4033,252.964,22.53
+"desocupados","04-Triângulo Mineiro","MA(2)",6,-202.92,419.7,429.5,0.4842,251.06,21.33
+"desocupados","04-Triângulo Mineiro","MA(3)",7,-208.22,433,444.1,0.6617,246.524,20.66
+"desocupados","04-Triângulo Mineiro","MA(4)",8,-214.71,448.8,461,0.7187,282.558,19.88
+"desocupados","04-Triângulo Mineiro","MA(5)",9,-221.18,464.7,477.9,0.846,291.599,-17.95
+"desocupados","04-Triângulo Mineiro","MA(6)",10,-227.6,480.6,494.7,0.6882,273.822,-120.14
+"desocupados","04-Triângulo Mineiro","MA(4) desenho",8,-215.86,451.1,463.3,0.0026,304.283,3.69

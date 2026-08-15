@@ -1,0 +1,10 @@
+"indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
+"ocupados","02-Colar e Entorno metropolitano de BH","Ruído branco",4,-252.45,513.8,520.7,0,3017.666,14.77
+"ocupados","02-Colar e Entorno metropolitano de BH","AR(1)",5,-248.25,507.8,516.3,0.0542,2160.519,4.56
+"ocupados","02-Colar e Entorno metropolitano de BH","AR(2)",6,-253.14,520.1,530,0.2845,2401.972,-0.04
+"ocupados","02-Colar e Entorno metropolitano de BH","AR(3)",7,-259.32,535.2,546.3,0.4573,2414.376,-6.21
+"ocupados","02-Colar e Entorno metropolitano de BH","AR(4)",8,-264.96,549.3,561.5,0.4871,3155.91,-10.63
+"ocupados","02-Colar e Entorno metropolitano de BH","AR(5)",9,-273.67,569.6,582.9,0.0447,3060.503,-69.19
+"ocupados","02-Colar e Entorno metropolitano de BH","AR(6)",10,-281.24,587.8,602,0.0721,3148.182,-119.53
+"ocupados","02-Colar e Entorno metropolitano de BH","MA(6)",10,-283.39,592.1,606.3,0.0962,19084.137,-45.22
+"ocupados","02-Colar e Entorno metropolitano de BH","MA(4) desenho",8,-281.2,581.8,594,0.771,31604.095,-6.08

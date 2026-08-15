@@ -1,0 +1,10 @@
+"indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
+"ocupados","03-Sul de Minas","Ruído branco",4,-245.21,499.3,506.2,0,1777.038,52.12
+"ocupados","03-Sul de Minas","AR(1)",5,-234.14,479.6,488,0.9471,1043.865,19.29
+"ocupados","03-Sul de Minas","AR(2)",6,-238.08,490,499.9,0.9673,1047.418,19.01
+"ocupados","03-Sul de Minas","AR(3)",7,-244.54,505.6,516.7,0.9615,1083.513,18.02
+"ocupados","03-Sul de Minas","AR(4)",8,-251.84,523,535.3,0.9169,1729.75,14.72
+"ocupados","03-Sul de Minas","AR(5)",9,-259.76,541.8,555.1,0.6938,2402.641,-6.48
+"ocupados","03-Sul de Minas","AR(6)",10,-265.8,557,571.1,0.3635,1506.741,-89.76
+"ocupados","03-Sul de Minas","ARMA(2,1)",7,-241.26,499.1,510.2,0.9551,1078.699,-86.85
+"ocupados","03-Sul de Minas","MA(4) desenho",8,-253.74,526.8,539.1,0.9309,12879.989,32.16

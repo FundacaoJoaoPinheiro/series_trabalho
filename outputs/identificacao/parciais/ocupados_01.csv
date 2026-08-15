@@ -1,0 +1,12 @@
+"indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
+"ocupados","01-Belo Horizonte","Ruído branco",4,-230.52,469.9,476.9,0.0566,1268.586,18.92
+"ocupados","01-Belo Horizonte","AR(1)",5,-229.75,470.8,479.2,0.1924,1010.016,4.09
+"ocupados","01-Belo Horizonte","AR(2)",6,-235.84,485.6,495.4,0.0848,1057.279,1.23
+"ocupados","01-Belo Horizonte","AR(3)",7,-241.29,499.1,510.2,0.076,1068.552,-10.64
+"ocupados","01-Belo Horizonte","AR(4)",8,-246.51,512.4,524.6,0.1418,1731.965,-32.3
+"ocupados","01-Belo Horizonte","AR(5)",9,-253.6,529.5,542.8,0.2019,1674.063,-46.55
+"ocupados","01-Belo Horizonte","AR(6)",10,-261.33,548,562.2,0.1452,2406.41,-154.45
+"ocupados","01-Belo Horizonte","MA(6)",10,-263.53,552.4,566.6,0.263,13282.805,-75.07
+"ocupados","01-Belo Horizonte","ARMA(2,1)",7,-235.72,488,499.1,0.1349,1040.152,-17.23
+"ocupados","01-Belo Horizonte","ARMA(1,2)",7,-237.54,491.6,502.7,0.116,1044.71,-9.19
+"ocupados","01-Belo Horizonte","MA(4) desenho",8,-251.3,521.9,534.2,0.0779,12687.903,-1.59
