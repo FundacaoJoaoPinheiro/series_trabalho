@@ -124,6 +124,18 @@ for (j in 1:P) for (i in j:P) {
 }
 p0[IDX$chol] <- pc0
 
+## PARTIDA QUENTE: retoma da solução já gravada. Serve quando a rodada anterior
+## terminou por limite de iterações (conv = 1) -- converge rápido porque já está
+## perto do ótimo, ao contrário da partida fria.
+if (Sys.getenv("QUENTE", "0") == "1") {
+  arq <- file.path(SAIDA, paste0("multivariado_", INDICADOR, ".rds"))
+  stopifnot(file.exists(arq))
+  ant <- readRDS(arq)
+  p0  <- ant$fit$par
+  cat("partida quente: logLik anterior =", round(-ant$fit$value, 3),
+      "| conv anterior =", ant$fit$convergence, "\n")
+}
+
 LIM <- 20
 p0  <- pmin(pmax(p0, -LIM+1), LIM-1)
 cat("otimizando...\n"); flush.console()
