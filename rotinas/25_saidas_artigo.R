@@ -24,8 +24,10 @@ RAIZ <- Sys.getenv("REPO_RAIZ", unset = getwd())
 if (!dir.exists(file.path(RAIZ, "pseudoerros_8reg")) &&
     dir.exists(file.path(dirname(RAIZ), "pseudoerros_8reg"))) RAIZ <- dirname(RAIZ)
 
-ARTIGO <- Sys.getenv("ARTIGO_DIR", unset = file.path(
-  dirname(dirname(RAIZ)), "Artigo Estratos Geográficos", "Versão atual"))
+## O manuscrito passou a ser versionado dentro do repositorio, em artigo/.
+## Essa e a copia CANONICA: e nela que este script grava as tabelas e figuras.
+## ARTIGO_DIR ainda permite apontar para outro lugar, se necessario.
+ARTIGO <- Sys.getenv("ARTIGO_DIR", unset = file.path(RAIZ, "artigo"))
 FIGS   <- file.path(RAIZ, "outputs", "figuras_final")
 dir.create(FIGS, recursive = TRUE, showWarnings = FALSE)
 

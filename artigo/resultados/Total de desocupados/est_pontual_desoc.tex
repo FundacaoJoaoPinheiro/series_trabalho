@@ -1,0 +1,25 @@
+\begin{table}[H]
+\centering
+\captionsetup{justification=centering}
+\caption{Resultados pontuais do modelo multivariado para o total de desocupados - 4\textordmasculine{} trimestre de 2024}
+\label{tab:pontual_desoc}
+
+\renewcommand{\arraystretch}{0.8}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}p{2.8cm}cccccc@{}}
+\toprule
+\textbf{Estrato Geográfico} & $\hat{y}$ & $CV(\hat{y})$ & IC 95\% & $\hat{\theta}$ & $CV(\hat{\theta})$ & IC 95\% \\
+\midrule
+01 - Belo Horizonte & 67,03 & 13,81\% & [48,89 ; 85,18] & 72,34 & 8,84\% & [59,81 ; 84,87] \\
+\raisebox{0em}{\parbox[t]{4.3cm}{02 - Entorno e Colar \\[-2pt] Metropolitano de BH}} & 104,59 & 10,29\% & [83,49 ; 125,69] & 100,09 & 8,48\% & [83,46 ; 116,73] \\
+03 - Sul de Minas & 38,33 & 16,65\% & [25,82 ; 50,84] & 39,90 & 11,88\% & [30,61 ; 49,18] \\
+04 - Triângulo Mineiro & 60,54 & 15,89\% & [41,69 ; 79,40] & 55,94 & 8,37\% & [46,77 ; 65,12] \\
+05 - Zona da Mata & 48,48 & 13,59\% & [35,57 ; 61,39] & 47,49 & 11,56\% & [36,73 ; 58,24] \\
+06 - Norte de Minas & 75,76 & 17,56\% & [49,69 ; 101,83] & 71,78 & 9,28\% & [58,73 ; 84,83] \\
+07 - Vale do Rio Doce & 42,51 & 14,42\% & [30,49 ; 54,53] & 41,62 & 12,33\% & [31,56 ; 51,67] \\
+08 - Central & 58,28 & 15,33\% & [40,77 ; 75,79] & 51,37 & 10,02\% & [41,29 ; 61,46] \\
+\bottomrule
+\end{tabular}%
+}
+\fonte{Elaboração própria, com base nos dados da PNAD Contínua. Nota: \(\hat{y}\) é a estimativa direta e \(\hat{\theta}\) o sinal estimado pelo modelo multivariado (tendência mais sazonalidade). Valores em milhares de pessoas.}
+\end{table}

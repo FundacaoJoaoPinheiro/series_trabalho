@@ -1,0 +1,23 @@
+\begin{table}[!htb]
+    \centering
+    \captionsetup{justification=centering}
+    \caption{Processo do erro amostral identificado por estrato geográfico e indicador}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{@{}lccc@{}}
+        \toprule
+        \textbf{Estrato geográfico} & \textbf{Total de desocupados} & \textbf{Total de ocupados} & \textbf{Taxa de desocupação} \\
+        \midrule
+        01 -- Belo Horizonte & AR(1) & AR(1) & AR(1) \\
+        02 -- Entorno e Colar Metropolitano de BH & MA(1) & AR(1) & MA(1) \\
+        03 -- Sul de Minas & AR(1) & AR(1) & AR(1) \\
+        04 -- Triângulo Mineiro & AR(1) & AR(1) & AR(1) \\
+        05 -- Zona da Mata & AR(1) & AR(1) & AR(1) \\
+        06 -- Norte de Minas & AR(1) & AR(1) & MA(1) \\
+        07 -- Vale do Rio Doce & AR(1) & AR(1) & AR(1) \\
+        08 -- Central & AR(3) & AR(1) & AR(3) \\
+        \bottomrule
+    \end{tabular}
+    }
+    \fonte{Elaboração própria, com base nos dados da PNAD Contínua. Nota: a identificação é individual por estrato e indicador. Entre os candidatos que não rejeitam a hipótese de brancura dos resíduos pelo teste de Ljung-Box a 5\%, seleciona-se o mais parcimonioso, com desempate pelo BIC.}
+    \label{tab:modelos_arma}
+\end{table}

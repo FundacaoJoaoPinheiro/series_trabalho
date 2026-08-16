@@ -1,0 +1,27 @@
+\begin{table}[H]
+\centering
+\captionsetup{justification=centering}
+\caption{Correlação estimada entre os distúrbios das inclinações - modelo multivariado - taxa de desocupação}
+\label{tab:matriz_correlacao_taxa}
+
+\renewcommand{\arraystretch}{0.8}
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}p{2.8cm}c*{8}{c}@{}}
+\toprule
+\textbf{Estrato Geográfico} & \(\hat{\sigma}_R^2\) & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \textbf{6} & \textbf{7} & \textbf{8} \\
+\midrule
+01 - Belo Horizonte & 0,2211 & 1 &  &  &  &  &  &  &  \\
+\raisebox{0em}{\parbox[t]{4.3cm}{02 - Entorno e Colar \\[-2pt] Metropolitano de BH}} & 0,3694 & 1,0000 & 1 &  &  &  &  &  &  \\
+03 - Sul de Minas & 0,1506 & 0,9878 & 0,9879 & 1 &  &  &  &  &  \\
+04 - Triângulo Mineiro & 0,0876 & 0,9970 & 0,9971 & 0,9966 & 1 &  &  &  &  \\
+05 - Zona da Mata & 0,0814 & 0,7292 & 0,7298 & 0,8249 & 0,7755 & 1 &  &  &  \\
+06 - Norte de Minas & 0,2484 & 0,9953 & 0,9954 & 0,9982 & 0,9997 & 0,7899 & 1 &  &  \\
+07 - Vale do Rio Doce & 0,3222 & 0,9828 & 0,9830 & 0,9995 & 0,9940 & 0,8390 & 0,9961 & 1 &  \\
+08 - Central & 0,1245 & 0,9969 & 0,9969 & 0,9791 & 0,9923 & 0,6932 & 0,9891 & 0,9738 & 1 \\
+\bottomrule
+\end{tabular}%
+}
+
+\fonte{Elaboração própria, com base nos dados da PNAD Contínua. Nota: a matriz de covariância dos distúrbios das inclinações é parametrizada por um fator de Cholesky (\(\Sigma_R = LL'\)), o que garante que a matriz estimada seja positiva semidefinida por construção. Autovalores estimados: 1,563; 0,041 e 6 valores inferiores a \(10^{-3}\). Posto numérico de 5 em 8; posto \textbf{efetivo} de 2, contando os autovalores que retêm ao menos 1\% do maior. As correlações devem, portanto, ser lidas em conjunto, como indicação de um número reduzido de tendências comuns, e não isoladamente.}
+\end{table}

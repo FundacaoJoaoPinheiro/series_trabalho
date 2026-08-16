@@ -17,17 +17,11 @@ param([int]$De = 2)
 
 $R    = "C:\Program Files\R\R-4.3.2\bin\Rscript.exe"
 $repo = Split-Path -Parent $PSScriptRoot
-# O diretorio do artigo e localizado por padrao, NAO por literal: o PowerShell
-# 5.1 le arquivos .ps1 sem BOM como ANSI, e literais acentuados ("Geograficos",
-# "Versao") chegam corrompidos, fazendo o passo 6 abortar com dir.exists FALSE.
-$proj = Split-Path -Parent (Split-Path -Parent $repo)
-$pastaArt = Get-ChildItem -LiteralPath $proj -Directory |
-            Where-Object { $_.Name -like "Artigo Estratos*" } | Select-Object -First 1
-if (-not $pastaArt) { throw "pasta do artigo nao encontrada em $proj" }
-$sub = Get-ChildItem -LiteralPath $pastaArt.FullName -Directory |
-       Where-Object { $_.Name -like "Vers*atual" } | Select-Object -First 1
-if (-not $sub) { throw "subpasta 'Versao atual' nao encontrada em $($pastaArt.FullName)" }
-$art = $sub.FullName
+# O manuscrito e versionado dentro do repositorio, em artigo/. Caminho sem
+# acentos de proposito: o PowerShell 5.1 le arquivos .ps1 sem BOM como ANSI, e
+# literais acentuados chegam corrompidos.
+$art = Join-Path $repo "artigo"
+if (-not (Test-Path -LiteralPath $art)) { throw "pasta do artigo nao encontrada: $art" }
 $env:REPO_RAIZ  = $repo
 $env:ARTIGO_DIR = $art
 
