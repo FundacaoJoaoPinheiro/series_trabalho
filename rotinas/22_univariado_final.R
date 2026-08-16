@@ -33,7 +33,14 @@ base  <- readRDS(file.path(RAIZ, "baseestr8reg.rds"))
 REG   <- names(base)[1:8]
 COD   <- c("bh","ent","sul","trg","mat","nrt","val","cen")
 
-le_coef <- function(s) if (is.na(s) || !nchar(s)) numeric(0) else as.numeric(strsplit(s, ";")[[1]])
+## `as.character` é necessário: quando a coluna de coeficientes fica toda vazia
+## (caso do theta, agora que só um estrato usa MA), o read.csv a tipa como lógica
+## e o strsplit falha.
+le_coef <- function(s) {
+  s <- as.character(s)
+  if (length(s) != 1 || is.na(s) || !nchar(s)) return(numeric(0))
+  as.numeric(strsplit(s, ";")[[1]])
+}
 
 serie <- function(ind, i) {
   d <- base[[ REG[i] ]]

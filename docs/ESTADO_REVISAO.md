@@ -15,10 +15,22 @@ depois `docs/verificacoes/V10_erro_amostral_ma1.md`.
 |---|---|---|
 | 1 | **Var(ẽ) = 1 imposta** | o modelo respeita a variância do desenho; a inovação é derivada, não estimada |
 | 2 | **Ruído branco excluído** dos candidatos | há autocorrelação nos pseudo-erros e a decisão foi modelá-la |
+| 2b | **MA(4) do desenho excluído** dos candidatos (16/08) | mesmo critério do ruído branco; ver justificativa abaixo |
 | 3 | **σ²_I estimado internamente**, irregular por diferença | ver ressalva abaixo |
 | 4 | **Especificação individual** por estrato × indicador | não uniformizar |
 | 5 | Critério: **Ljung-Box**, mais parcimonioso que passa; empate por BIC | |
 | 6 | Estimador da autocovariância dos pseudo-erros: **padrão** (média única, divisor T) | |
+
+### Justificativa da decisão 2b
+
+O MA(4) implicado pelo esquema de rotação 1-2(5) é uma **identidade do desenho**, não uma
+aproximação: a sobreposição (5−j)/5 dá θ = 1 em todas as defasagens, logo FAC teórica
+0,8 / 0,6 / 0,4 / 0,2. Essa estrutura branqueia bem os resíduos (passa no Ljung-Box em 20
+de 24) mas tem o **pior ajuste** do conjunto — posição média 8,5 de 12,5 no BIC e ganho
+médio de 2,5 %. Foi escolhida em **um único estrato** (taxa, Norte de Minas) e ali rendeu
+1,37 % no multivariado, contra 17,24 % do cálculo indireto, destoando de todos os demais.
+A sobreposição teórica é forte demais frente à observada — diagnóstico já registrado no
+passo 1. Excluída pelo mesmo critério aplicado ao ruído branco.
 
 ### Ressalva registrada sobre a decisão 3
 
@@ -43,20 +55,22 @@ fracamente identificado e, se possível, mostrar o perfil.
 | 1 — FAC/FACP | ✅ | `outputs/fac_pseudo_erros/` |
 | validação das montagens | ✅ 56 verificações, 0 falhas | `rotinas/18_valida_processos.R` |
 | 2 — identificação (301 ajustes) | ✅ | `rotinas/20_identificacao_paralela.R`, `outputs/identificacao/` |
-| 2b — especificação final | ✅ | `rotinas/21_especificacao_final.R` → `especificacao_final.csv` |
-| **3 — univariados** | ⬜ pendente | consumir `especificacao_final.csv` |
-| **4 — multivariado Cholesky** | ⬜ pendente | `rotinas/11_multivariado_cholesky.R` com `RESTRITO=1` |
-| **5 — taxa direta e indireta** | ⬜ pendente | `rotinas/13_taxa_indireta.R` |
-| **6 — tabelas, figuras, `.tex`** | ⬜ pendente | `rotinas/14_figuras.R` |
+| 2b — especificação final | ✅ reaberto 16/08 (exclusão do MA(4)) | `rotinas/21_especificacao_final.R` → `especificacao_final.csv` |
+| 3 — univariados | ✅ | `rotinas/22_univariado_final.R` → `outputs/univariado_final/` |
+| 4 — multivariado Cholesky | ✅ desocupados e ocupados · ⬜ taxa rodando | `rotinas/23_multivariado_final.R` |
+| **5 — taxa direta e indireta** | ⬜ pendente (depende do passo 4 da taxa) | `rotinas/24_taxa_final.R` |
+| **6 — tabelas, figuras, `.tex`** | ⬜ pendente | a escrever |
 
 ## A especificação final
 
-19 AR(1), 2 AR(3), 1 AR(2), 1 MA(1), 1 MA(4) do desenho. Ganho médio 12,4 %
-(desocupados 12,0 · ocupados 15,4 · taxa 9,8). Coeficientes em
+19 AR(1), 3 AR(3), 1 AR(2), 1 MA(1). Ganho médio univariado **12,79 %**
+(desocupados 12,0 · ocupados 15,4 · taxa 10,6). Coeficientes em
 `outputs/identificacao/especificacao_final.csv`.
 
-**Único estrato em que o Ljung-Box não passa:** Colar e Entorno na taxa (p = 0,014).
-Declarar como limitação.
+**Estratos em que o Ljung-Box não passa (2 de 24):** Colar e Entorno na taxa (p = 0,014) e
+Norte de Minas na taxa (p = 0,047, marginal). Declarar como limitação. O Norte passou a
+figurar aqui após a exclusão do MA(4): aquela formulação branqueava melhor os resíduos,
+mas ao custo de ganho negativo (−1,28 %), contra 4,66 % do AR(3) que a substituiu.
 
 Convergência das três abordagens, que sustenta a escolha no texto: Box-Jenkins pela
 FAC/FACP indica AR(1) compatível em 18 de 24 (inequívoco em 10); o Ljung-Box aceita AR(1)

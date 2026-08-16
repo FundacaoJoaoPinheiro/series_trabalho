@@ -42,8 +42,19 @@ tab <- read.csv(file.path(SAIDA, "identificacao.csv"),
 facs <- readRDS(file.path(RAIZ, "outputs", "fac_pseudo_erros", "fac_padrao.rds"))
 REGF <- names(readRDS(file.path(RAIZ, "dadosalin_txdesoc_8reg.rds")))[1:8]
 
-## ---- escolha por Ljung-Box, sem ruido branco -------------------------------
-t2 <- tab[tab$formulacao != "Ruído branco", ]
+## ---- escolha por Ljung-Box, com dois candidatos EXCLUIDOS ------------------
+## "Ruido branco": decisao dos autores -- ha autocorrelacao detectavel nos
+##   pseudo-erros e a decisao foi modela-la.
+## "MA(4) desenho": a soma movel imposta pelo esquema de rotacao branqueia bem
+##   os residuos (passa no Ljung-Box em 20 de 24) mas tem o pior ajuste --
+##   posicao media 8,5 de 12,5 no BIC e ganho medio de 2,5 %. Foi escolhida em um
+##   unico estrato (taxa, Norte de Minas) e ali rendeu 1,37 % no multivariado,
+##   contra 17,24 % do calculo indireto -- destoando de todos os demais. Como e o
+##   unico caso e o custo e alto, foi excluida do conjunto pelo mesmo criterio
+##   aplicado ao ruido branco. A sobreposicao teorica (0,8/0,6/0,4/0,2) e forte
+##   demais frente a observada, o que ja era o diagnostico registrado.
+EXCLUIDOS <- c("Ruído branco", "MA(4) desenho")
+t2 <- tab[!(tab$formulacao %in% EXCLUIDOS), ]
 esc <- do.call(rbind, lapply(split(t2, list(t2$indicador, t2$estrato), drop = TRUE),
   function(x) {
     ok <- x[!is.na(x$ljung) & x$ljung > 0.05, ]
