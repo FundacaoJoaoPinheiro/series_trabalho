@@ -48,7 +48,7 @@ INI  <- 40 + c(0, cumsum(R_I)[-P])      # posição inicial do bloco ARMA de cad
 NS   <- 40 + sum(R_I)
 N_CH <- P*(P+1)/2
 IDX  <- list(nivel = 1:8, saz = 9:16, irreg = 17:24, chol = 25:60)
-B_NIVEL <- 1:8; B_INCL <- 9:16; B_SAZ1 <- 17:24; B_SAZ3 <- 33:40
+B_NIVEL <- 1:8; B_INCL <- 9:16; B_SAZ1 <- 17:24; B_SAZ2 <- 25:32; B_SAZ3 <- 33:40
 
 cat("Indicador:", INDICADOR, "| estados:", NS, "| parâmetros: 60\n")
 cat("processos:", paste(COD, PRC, sep="="), "\n")
@@ -84,7 +84,9 @@ monta_mv <- function(pp) {
            JFF = JFF, X = SE)
   W <- matrix(0, NS, NS)
   W[cbind(B_NIVEL, B_NIVEL)] <- exp(pp[IDX$nivel])
-  W[cbind(B_SAZ1,  B_SAZ1)]  <- exp(pp[IDX$saz])
+  ## distúrbio sazonal nos TRÊS estados trigonométricos de cada estrato
+  ## (issue #8): cos H1 (17-24), sen H1 (25-32) e Nyquist H2 (33-40)
+  for (bl in list(B_SAZ1, B_SAZ2, B_SAZ3)) W[cbind(bl, bl)] <- exp(pp[IDX$saz])
 
   ## bloco 8x8 das inclinações por Cholesky
   L <- matrix(0, P, P); pc <- pp[IDX$chol]; k <- 1
@@ -144,7 +146,26 @@ fit <- optim(p0, objetivo, method = "L-BFGS-B",
              lower = rep(-LIM, 60), upper = rep(LIM, 60),
              control = list(maxit = MAXIT))
 cat("conv =", fit$convergence, "| logLik =", round(-fit$value, 3),
-    "|", round(as.numeric(difftime(Sys.time(), t0, units="mins")), 1), "min\n\n")
+    "|", round(as.numeric(difftime(Sys.time(), t0, units="mins")), 1), "min\n")
+
+## VERIFICACAO DO OTIMO (issue #2). A Hessiana de 60 parametros custaria alguns
+## milhares de avaliacoes da verossimilhanca; usa-se um teste de perturbacao,
+## que responde a mesma pergunta pratica: nenhuma perturbacao coordenada
+## pequena deve melhorar a funcao objetivo. Se alguma melhorar, o ponto nao e
+## um minimo local e a estimativa nao deve ser reportada sem ressalva.
+perturba <- function(par, h = 0.01) {
+  base <- objetivo(par); pior <- 0; melhora <- 0
+  for (j in seq_along(par)) for (s in c(-h, h)) {
+    p <- par; p[j] <- p[j] + s
+    v <- objetivo(p)
+    if (is.finite(v) && v < base - 1e-8) melhora <- melhora + 1 else pior <- pior + 1
+  }
+  c(melhora = melhora, total = melhora + pior)
+}
+pt <- perturba(fit$par)
+cat("teste de perturbacao: ", pt["melhora"], " de ", pt["total"],
+    " perturbacoes melhoram o objetivo", if (pt["melhora"] == 0) " (otimo local OK)"
+    else "  <<< ATENCAO: o ponto NAO e minimo local", "\n\n", sep = "")
 
 ################################################################################
 mod <- monta_mv(fit$par)
@@ -179,7 +200,7 @@ cat("\nganho médio:", round(mean(des$rrse), 2), "% | univariado:",
 
 saveRDS(list(fit = fit, mod = mod, Sigma_R = Sigma_R, Corr_R = Corr_R,
              autovalores = ev, desempenho = des, rotulos = ROT, processos = PRC,
-             INI = INI, R_I = R_I),
+             perturbacao = pt, INI = INI, R_I = R_I),
         file.path(SAIDA, paste0("multivariado_", INDICADOR, ".rds")))
 write.csv(des, file.path(SAIDA, paste0("desempenho_", INDICADOR, ".csv")),
           row.names = FALSE, fileEncoding = "UTF-8")

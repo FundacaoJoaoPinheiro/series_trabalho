@@ -40,7 +40,12 @@ monta <- function(se, phi, theta) {
     m$GG[6:ns, 6:ns] <- b$G
     W <- matrix(0, ns, ns)
     W[6:ns, 6:ns] <- s2 * (b$v %*% t(b$v))
-    W[1,1] <- exp(pp[1]); W[2,2] <- exp(pp[2]); W[3,3] <- exp(pp[3])
+    W[1,1] <- exp(pp[1]); W[2,2] <- exp(pp[2])
+    ## O distúrbio sazonal vai nos TRÊS estados trigonométricos, não só no
+    ## primeiro (issue #8): com s = 4, dlmModTrig gera o par (cos, sen) da
+    ## harmônica 1 mais o estado único da frequência de Nyquist. Aplicar a
+    ## variância só ao estado 3 quebraria a simetria do par harmônico.
+    W[3,3] <- W[4,4] <- W[5,5] <- exp(pp[3])
     d <- diag(W); diag(W)[d == 0] <- 1e-10
     m$W <- W; m$V <- exp(pp[4])
     m$m0 <- rep(0, ns); m$C0 <- diag(x = 1e6, ns)

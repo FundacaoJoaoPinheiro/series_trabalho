@@ -79,6 +79,22 @@ ajusta_final <- function(y, se, phi, theta) {
   }
   stopifnot(!is.null(melhor))
 
+  ## VERIFICACAO DO OTIMO (issue #2). Selecionar pelo minimo da funcao objetivo
+  ## nao garante que o ponto seja de fato um minimo local: o codigo de
+  ## convergencia do L-BFGS-B pode ser diferente de zero e a solucao pode estar
+  ## num ponto de sela ou num patamar. Aqui a Hessiana numerica e calculada
+  ## (sao apenas 4 parametros, o custo e desprezivel) e verifica-se se e
+  ## definida positiva. O resultado NAO altera a estimativa -- e reportado como
+  ## diagnostico, para que casos duvidosos sejam visiveis.
+  hess <- try(optimHess(melhor$par, obj), silent = TRUE)
+  if (inherits(hess, "try-error")) {
+    hess_pd <- NA; cond <- NA
+  } else {
+    ev <- eigen((hess + t(hess))/2, symmetric = TRUE, only.values = TRUE)$values
+    hess_pd <- all(ev > 0)
+    cond <- if (min(ev) > 0) max(ev)/min(ev) else Inf
+  }
+
   mod <- fn(melhor$par)
   flt <- dlmFilter(y, mod)
   mse <- dlmSvd2var(flt$U.C, flt$D.C)
@@ -99,7 +115,8 @@ ajusta_final <- function(y, se, phi, theta) {
   s2e <- 1 / P_est(b$G, b$v, 1)[1,1]
   hp <- c(exp(melhor$par), s2e)        # L, R, S, I, s2e
 
-  list(convergencia = melhor$convergence, loglik = -melhor$value, hp = hp,
+  list(convergencia = melhor$convergence, hess_pd = hess_pd, cond = cond,
+       loglik = -melhor$value, hp = hp,
        trend = trend, sinal = sinal, se_trend = se_tr, se_sinal = se_sin,
        irregular = irreg, erro_amostral = ea,
        shapiro = shapiro.test(rp)$p.value,
@@ -126,13 +143,15 @@ for (ind in c("desocupados", "ocupados", "taxa")) {
     out[[ COD[i] ]] <- list(rotulo = REG[i], processo = e$processo,
                             phi = phi, theta = theta, serie = s,
                             corrigido = r, rrse = rrse, vicio = vic)
-    cat(sprintf("%-40s %-14s conv=%d logLik=%9.2f RRSE=%6.2f%% vicio=%6.2f%% SW=%.3f LB=%.3f H=%.3f\n",
-                substr(REG[i],1,38), e$processo, r$convergencia, r$loglik,
-                rrse, vic, r$shapiro, r$ljung, r$H["p"]))
+    cat(sprintf("%-40s %-14s conv=%-3d hess=%-5s logLik=%9.2f RRSE=%6.2f%% vicio=%6.2f%% SW=%.3f LB=%.3f H=%.3f\n",
+                substr(REG[i],1,38), e$processo, r$convergencia,
+                ifelse(is.na(r$hess_pd), "?", ifelse(r$hess_pd, "PD", "NAO")),
+                r$loglik, rrse, vic, r$shapiro, r$ljung, r$H["p"]))
     resumo[[length(resumo)+1]] <- data.frame(
       indicador = ind, estrato = REG[i], processo = e$processo,
       sigma2_L = r$hp[1], sigma2_R = r$hp[2], sigma2_S = r$hp[3],
       sigma2_I = r$hp[4], sigma2_e = r$hp[5],
+      convergencia = r$convergencia, hessiana_pd = r$hess_pd, cond_hess = r$cond,
       loglik = r$loglik, rrse = rrse, vicio = vic,
       shapiro = r$shapiro, ljung = r$ljung, H_p = unname(r$H["p"]),
       dp_irregular = sd(r$irregular[ix]), stringsAsFactors = FALSE)
@@ -152,6 +171,12 @@ cat("\ndiagnósticos que rejeitam a 5%:\n")
 cat("  Shapiro-Wilk (normalidade):", sum(tab$shapiro <= 0.05), "de", nrow(tab), "\n")
 cat("  Ljung-Box (autocorrelação):", sum(tab$ljung   <= 0.05), "de", nrow(tab), "\n")
 cat("  teste H (heterocedasticidade):", sum(tab$H_p  <= 0.05), "de", nrow(tab), "\n")
+cat("\nverificacao do otimo (issue #2):\n")
+cat("  convergencia != 0:", sum(tab$convergencia != 0), "de", nrow(tab), "\n")
+cat("  Hessiana nao definida positiva:", sum(!tab$hessiana_pd %in% TRUE), "de", nrow(tab), "\n")
+if (any(!tab$hessiana_pd %in% TRUE))
+  print(tab[!tab$hessiana_pd %in% TRUE, c("indicador","estrato","convergencia","cond_hess")],
+        row.names = FALSE)
 cat("\nsigma2_I: casos > 0,01:", sum(tab$sigma2_I > 0.01), "de", nrow(tab), "\n")
 cat("desvio-padrão do irregular por diferença: média", round(mean(tab$dp_irregular), 4), "\n")
 cat("\nGravado em", SAIDA, "\n")
