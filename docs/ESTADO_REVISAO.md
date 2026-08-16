@@ -65,16 +65,20 @@ fracamente identificado e, se possível, mostrar o perfil.
 
 | indicador | ganho univariado | ganho multivariado | posto efetivo de Σ_R |
 |---|---:|---:|---:|
-| desocupados | 12,00 % | **32,56 %** | 2 |
-| ocupados | 15,78 % | 15,45 % | 6 |
-| taxa | 10,59 % | **33,59 %** | 2 |
+| desocupados | 12,00 % | **32,69 %** | 2 |
+| ocupados | 14,93 % | 14,63 % | 7 |
+| taxa | 10,75 % | **35,60 %** | 2 |
+
+Números após a correção do issue #8 (distúrbio sazonal nos três estados
+trigonométricos). Todos os ajustes verificados por teste de perturbação
+coordenada: **0 de 384** no univariado e **0 de 240** em cada multivariado.
 
 **Achado metodológico central:** o ganho da especificação multivariada não é automático —
 depende de a matriz de covariância dos distúrbios das inclinações ter posto reduzido.
 Onde há tendência comum forte (desocupados e taxa, posto 2), o multivariado praticamente
 triplica o ganho; onde não há (ocupados, posto 6), os dois modelos empatam.
 
-**A recomendação da taxa se inverteu.** Estimação direta 33,59 % contra 19,63 % do cálculo
+**A recomendação da taxa se inverteu.** Estimação direta 35,60 % contra 19,51 % do cálculo
 indireto, superando em **todos os 8 estratos**. A versão publicada recomendava a indireta,
 com o argumento de que a vantagem da direta vinha de uma matriz de covariância inadmissível
 — argumento que caiu com a parametrização de Cholesky.
@@ -83,10 +87,30 @@ com o argumento de que a vantagem da direta vinha de uma matriz de covariância 
 
 1. σ²_I fracamente identificado ⟹ irregular por diferença é nulo ⟹ série dessazonalizada
    coincide com a tendência. O artigo **não** apresenta série dessazonalizada como produto.
-2. Normalidade rejeitada em 7 de 8 estratos no total de ocupados (choque da Covid em 2020).
-3. Autocorrelação remanescente em 2 estratos da taxa (Colar 0,042 e Norte 0,032 no
-   multivariado).
+   O mesmo vale para σ²_S em 23 das 24 combinações; a exceção é taxa × Norte de Minas,
+   onde σ²_S é fortemente identificada (planura 26,9).
+2. Normalidade rejeitada em 5 de 8 estratos no total de ocupados (choque da Covid em 2020).
+3. Autocorrelação remanescente em 2 casos no multivariado: desocupados × Norte (0,001) e
+   ocupados × Colar (0,042). **Na taxa, nenhum estrato rejeita.**
 4. Viés de grupo de rotação não tratado — é o tema do segundo artigo.
+
+## Armadilhas registradas (não repetir)
+
+- **`optimHess` não serve para verificar o ótimo aqui.** Nas direções planas (σ²_S, σ²_I)
+  as diferenças finitas devolvem curvatura negativa espúria: 20 de 24 estratos apareciam
+  como "Hessiana não definida positiva". Verificado que caminhar ao longo do autovetor
+  negativo **aumenta** o objetivo nos dois sentidos. Usar teste de perturbação coordenada.
+- **Tolerância do teste de perturbação: 0,01, não 1e-8.** Com 1e-8 o teste nunca converge
+  (persegue ruído do `dlmLL`): numa rodada, um reinício custou 56 min para ganhar 0,113 de
+  log-verossimilhança e o contador de falhas ainda subiu, de 100 para 103.
+- **Reinício deve partir do ponto perturbado**, nunca do mesmo ponto: reiniciar o L-BFGS-B
+  de onde ele parou reproduz a mesma trajetória. Observado: quatro rodadas com logLik e
+  contagem idênticos.
+- **`ErrorActionPreference = "Stop"` + `2>&1 |` mata o driver PowerShell** silenciosamente,
+  porque avisos benignos do R em stderr viram `NativeCommandError`. Usar `Start-Process`
+  com redirecionamento em arquivo.
+- **Literais acentuados em `.ps1`**: o PowerShell 5.1 lê arquivos sem BOM como ANSI, e
+  "Geográficos"/"Versão atual" chegam corrompidos. Localizar diretórios por padrão.
 
 ## A especificação final
 

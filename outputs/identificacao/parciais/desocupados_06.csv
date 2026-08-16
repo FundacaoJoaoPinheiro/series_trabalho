@@ -1,15 +1,15 @@
 "indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
-"desocupados","06-Norte de Minas","Ruído branco",4,-205.27,419.4,426.4,0.0803,454.767,19.06
-"desocupados","06-Norte de Minas","AR(1)",5,-208.2,427.7,436.2,0.0848,429.302,9.13
-"desocupados","06-Norte de Minas","AR(2)",6,-211,435.9,445.7,0.1241,427.124,8.41
-"desocupados","06-Norte de Minas","AR(3)",7,-218.78,454.1,465.2,0.1205,462.33,6.66
-"desocupados","06-Norte de Minas","AR(4)",8,-223.45,466.2,478.5,0.1576,486.644,6.03
-"desocupados","06-Norte de Minas","AR(5)",9,-228.57,479.4,492.7,0.1075,496.481,2.78
-"desocupados","06-Norte de Minas","AR(6)",10,-234.05,493.5,507.6,0.1031,454.2,-16.07
-"desocupados","06-Norte de Minas","MA(1)",5,-213.11,437.5,446,0.0038,501.691,6.77
-"desocupados","06-Norte de Minas","MA(2)",6,-214.2,442.3,452.1,0.2616,403.061,9.9
-"desocupados","06-Norte de Minas","MA(3)",7,-222.14,460.8,471.9,0.0353,460.793,6.14
-"desocupados","06-Norte de Minas","MA(4)",8,-227.4,474.1,486.4,0.2495,641.129,7.1
-"desocupados","06-Norte de Minas","MA(5)",9,-234.38,491,504.3,0.1422,582.009,-37.59
-"desocupados","06-Norte de Minas","MA(6)",10,-239.39,504.1,518.3,0.2451,531.103,-143.34
-"desocupados","06-Norte de Minas","MA(4) desenho",8,-227.1,473.5,485.8,0.1583,631.454,0.14
+"desocupados","06-Norte de Minas","Ruído branco",4,-205.27,419.4,426.4,0.0797,454.817,19.07
+"desocupados","06-Norte de Minas","AR(1)",5,-208.2,427.7,436.2,0.0848,429.306,9.13
+"desocupados","06-Norte de Minas","AR(2)",6,-211,435.9,445.7,0.124,427.129,8.41
+"desocupados","06-Norte de Minas","AR(3)",7,-218.78,454.1,465.2,0.1207,462.312,6.65
+"desocupados","06-Norte de Minas","AR(4)",8,-223.45,466.2,478.5,0.1578,486.619,6.02
+"desocupados","06-Norte de Minas","AR(5)",9,-228.57,479.4,492.7,0.1077,496.642,2.76
+"desocupados","06-Norte de Minas","AR(6)",10,-234.05,493.5,507.6,0.1031,453.663,-16.07
+"desocupados","06-Norte de Minas","MA(1)",5,-213.11,437.5,446,0.0039,501.662,6.77
+"desocupados","06-Norte de Minas","MA(2)",6,-214.2,442.3,452.1,0.2613,403.071,9.89
+"desocupados","06-Norte de Minas","MA(3)",7,-222.14,460.8,471.9,0.0354,460.782,6.13
+"desocupados","06-Norte de Minas","MA(4)",8,-227.4,474.1,486.4,0.2492,641.483,7.1
+"desocupados","06-Norte de Minas","MA(5)",9,-234.38,491,504.3,0.1418,582.743,-37.6
+"desocupados","06-Norte de Minas","MA(6)",10,-239.39,504.1,518.3,0.2449,531.771,-143.33
+"desocupados","06-Norte de Minas","MA(4) desenho",8,-227.1,473.5,485.8,0.1581,631.541,0.14

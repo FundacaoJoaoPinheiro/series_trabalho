@@ -80,20 +80,37 @@ ajusta_final <- function(y, se, phi, theta) {
   stopifnot(!is.null(melhor))
 
   ## VERIFICACAO DO OTIMO (issue #2). Selecionar pelo minimo da funcao objetivo
-  ## nao garante que o ponto seja de fato um minimo local: o codigo de
-  ## convergencia do L-BFGS-B pode ser diferente de zero e a solucao pode estar
-  ## num ponto de sela ou num patamar. Aqui a Hessiana numerica e calculada
-  ## (sao apenas 4 parametros, o custo e desprezivel) e verifica-se se e
-  ## definida positiva. O resultado NAO altera a estimativa -- e reportado como
-  ## diagnostico, para que casos duvidosos sejam visiveis.
-  hess <- try(optimHess(melhor$par, obj), silent = TRUE)
-  if (inherits(hess, "try-error")) {
-    hess_pd <- NA; cond <- NA
-  } else {
-    ev <- eigen((hess + t(hess))/2, symmetric = TRUE, only.values = TRUE)$values
-    hess_pd <- all(ev > 0)
-    cond <- if (min(ev) > 0) max(ev)/min(ev) else Inf
+  ## nao garante que o ponto seja de fato um minimo local.
+  ##
+  ## A Hessiana numerica NAO serve para isso aqui, e a tentativa foi descartada
+  ## por evidencia: a verossimilhanca e quase plana em sigma2_S e sigma2_I
+  ## (multiplicar sigma2_I por 100 muda o objetivo em ~1e-6, contra o limiar de
+  ## 1,92 de um teste a 5%), e as diferencas finitas de optimHess devolvem
+  ## curvatura NEGATIVA espuria nessas direcoes -- 20 dos 24 estratos apareciam
+  ## como "nao definida positiva". Verificou-se caso a caso que caminhar ao
+  ## longo do autovetor associado ao autovalor negativo AUMENTA o objetivo nos
+  ## dois sentidos, ou seja, o ponto e minimo e o autovalor era ruido.
+  ##
+  ## Usa-se entao o teste de perturbacao coordenada, imune a esse problema:
+  ## nenhum deslocamento pequeno em nenhuma direcao pode reduzir o objetivo.
+  ## tol = 0,01 e passos de 0,01 e 0,1: ver a justificativa detalhada em
+  ## 23_multivariado_final.R. Limiar de 1e-8 fica abaixo do ruido numerico do
+  ## dlmLL e faz o teste nunca convergir; passo de 0,5 nao testa minimalidade
+  ## local.
+  perturba <- function(par, hs = c(0.01, 0.1), tol = 0.01) {
+    b <- obj(par); mel <- 0; n <- 0
+    for (j in seq_along(par)) for (s in c(-hs, hs)) {
+      p <- par; p[j] <- p[j] + s
+      v <- obj(p); n <- n + 1
+      if (is.finite(v) && v < b - tol) mel <- mel + 1
+    }
+    c(melhora = mel, total = n)
   }
+  pt <- perturba(melhor$par)
+  ## grau de planura das variancias fracamente identificadas: quanto o objetivo
+  ## muda ao multiplicar sigma2_S e sigma2_I por 100
+  plano_S <- obj(melhor$par + c(0,0,log(100),0)) - melhor$value
+  plano_I <- obj(melhor$par + c(0,0,0,log(100))) - melhor$value
 
   mod <- fn(melhor$par)
   flt <- dlmFilter(y, mod)
@@ -115,7 +132,8 @@ ajusta_final <- function(y, se, phi, theta) {
   s2e <- 1 / P_est(b$G, b$v, 1)[1,1]
   hp <- c(exp(melhor$par), s2e)        # L, R, S, I, s2e
 
-  list(convergencia = melhor$convergence, hess_pd = hess_pd, cond = cond,
+  list(convergencia = melhor$convergence, perturbacao = pt,
+       plano_S = plano_S, plano_I = plano_I,
        loglik = -melhor$value, hp = hp,
        trend = trend, sinal = sinal, se_trend = se_tr, se_sinal = se_sin,
        irregular = irreg, erro_amostral = ea,
@@ -143,15 +161,18 @@ for (ind in c("desocupados", "ocupados", "taxa")) {
     out[[ COD[i] ]] <- list(rotulo = REG[i], processo = e$processo,
                             phi = phi, theta = theta, serie = s,
                             corrigido = r, rrse = rrse, vicio = vic)
-    cat(sprintf("%-40s %-14s conv=%-3d hess=%-5s logLik=%9.2f RRSE=%6.2f%% vicio=%6.2f%% SW=%.3f LB=%.3f H=%.3f\n",
+    cat(sprintf("%-40s %-14s conv=%-3d pert=%d/%d logLik=%9.2f RRSE=%6.2f%% vicio=%6.2f%% SW=%.3f LB=%.3f H=%.3f\n",
                 substr(REG[i],1,38), e$processo, r$convergencia,
-                ifelse(is.na(r$hess_pd), "?", ifelse(r$hess_pd, "PD", "NAO")),
+                r$perturbacao["melhora"], r$perturbacao["total"],
                 r$loglik, rrse, vic, r$shapiro, r$ljung, r$H["p"]))
     resumo[[length(resumo)+1]] <- data.frame(
       indicador = ind, estrato = REG[i], processo = e$processo,
       sigma2_L = r$hp[1], sigma2_R = r$hp[2], sigma2_S = r$hp[3],
       sigma2_I = r$hp[4], sigma2_e = r$hp[5],
-      convergencia = r$convergencia, hessiana_pd = r$hess_pd, cond_hess = r$cond,
+      convergencia = r$convergencia,
+      pert_melhora = unname(r$perturbacao["melhora"]),
+      pert_total   = unname(r$perturbacao["total"]),
+      plano_S = r$plano_S, plano_I = r$plano_I,
       loglik = r$loglik, rrse = rrse, vicio = vic,
       shapiro = r$shapiro, ljung = r$ljung, H_p = unname(r$H["p"]),
       dp_irregular = sd(r$irregular[ix]), stringsAsFactors = FALSE)
@@ -172,11 +193,22 @@ cat("  Shapiro-Wilk (normalidade):", sum(tab$shapiro <= 0.05), "de", nrow(tab), 
 cat("  Ljung-Box (autocorrelação):", sum(tab$ljung   <= 0.05), "de", nrow(tab), "\n")
 cat("  teste H (heterocedasticidade):", sum(tab$H_p  <= 0.05), "de", nrow(tab), "\n")
 cat("\nverificacao do otimo (issue #2):\n")
-cat("  convergencia != 0:", sum(tab$convergencia != 0), "de", nrow(tab), "\n")
-cat("  Hessiana nao definida positiva:", sum(!tab$hessiana_pd %in% TRUE), "de", nrow(tab), "\n")
-if (any(!tab$hessiana_pd %in% TRUE))
-  print(tab[!tab$hessiana_pd %in% TRUE, c("indicador","estrato","convergencia","cond_hess")],
+cat("  convergencia != 0:", sum(tab$convergencia != 0), "de", nrow(tab),
+    "  (codigo 52 do L-BFGS-B: erro na busca linear; o ponto retornado\n",
+    "                             ainda e o melhor encontrado, ver teste abaixo)\n")
+cat("  perturbacoes que MELHORAM o objetivo:", sum(tab$pert_melhora), "de",
+    sum(tab$pert_total), "\n")
+if (any(tab$pert_melhora > 0)) {
+  cat("  ATENCAO -- estratos que nao sao minimo local:\n")
+  print(tab[tab$pert_melhora > 0, c("indicador","estrato","convergencia","pert_melhora")],
         row.names = FALSE)
+} else cat("  todos os ajustes sao minimos locais.\n")
+cat("\nplanura das variancias fracamente identificadas (variacao do objetivo ao\n",
+    "multiplicar a variancia por 100; limiar de um teste a 5% e 1,92):\n")
+cat("  sigma2_S: mediana", format(median(tab$plano_S), digits = 3),
+    "| maximo", format(max(tab$plano_S), digits = 3), "\n")
+cat("  sigma2_I: mediana", format(median(tab$plano_I), digits = 3),
+    "| maximo", format(max(tab$plano_I), digits = 3), "\n")
 cat("\nsigma2_I: casos > 0,01:", sum(tab$sigma2_I > 0.01), "de", nrow(tab), "\n")
 cat("desvio-padrão do irregular por diferença: média", round(mean(tab$dp_irregular), 4), "\n")
 cat("\nGravado em", SAIDA, "\n")

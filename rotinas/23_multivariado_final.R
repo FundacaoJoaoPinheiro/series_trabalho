@@ -149,23 +149,69 @@ cat("conv =", fit$convergence, "| logLik =", round(-fit$value, 3),
     "|", round(as.numeric(difftime(Sys.time(), t0, units="mins")), 1), "min\n")
 
 ## VERIFICACAO DO OTIMO (issue #2). A Hessiana de 60 parametros custaria alguns
-## milhares de avaliacoes da verossimilhanca; usa-se um teste de perturbacao,
-## que responde a mesma pergunta pratica: nenhuma perturbacao coordenada
-## pequena deve melhorar a funcao objetivo. Se alguma melhorar, o ponto nao e
-## um minimo local e a estimativa nao deve ser reportada sem ressalva.
-perturba <- function(par, h = 0.01) {
-  base <- objetivo(par); pior <- 0; melhora <- 0
-  for (j in seq_along(par)) for (s in c(-h, h)) {
+## milhares de avaliacoes da verossimilhanca -- e, como se verificou no
+## univariado, diferencas finitas devolvem curvatura espuria nas direcoes
+## planas. Usa-se um teste de perturbacao coordenada, que responde a pergunta
+## pratica: nenhuma perturbacao pequena pode melhorar a funcao objetivo.
+## Dois cuidados no criterio, ambos aprendidos por medicao:
+##
+## 1. TOLERANCIA. Contar como "melhora" qualquer reducao acima de 1e-8 e
+##    apertado demais para a precisao com que dlmLL avalia a verossimilhanca.
+##    Com esse limiar o teste nunca converge: numa rodada da taxa, um reinicio
+##    custou 56 min para ganhar 0,113 de log-verossimilhanca -- 17 vezes abaixo
+##    do limiar de 1,92 de um teste a 5% -- e o contador ainda SUBIU, de 100
+##    para 103. Usa-se tol = 0,01, conservador (190 vezes menor que 1,92) mas
+##    acima do ruido numerico.
+##
+## 2. PASSO. Deslocamentos de 0,5 nao testam minimalidade LOCAL; sondam uma
+##    vizinhanca larga e, em direcoes planas, quase sempre encontram algo
+##    ligeiramente menor. Ficam so 0,01 e 0,1.
+## Alem de contar, a funcao DEVOLVE o melhor ponto encontrado. Isso e essencial:
+## reiniciar o L-BFGS-B a partir do MESMO ponto reproduz a mesma trajetoria e nao
+## sai do lugar -- observado na pratica, com logLik e contagem identicas apos o
+## reinicio. O reinicio so avanca se partir do ponto perturbado que ja e melhor.
+perturba <- function(par, hs = c(0.01, 0.1), tol = 0.01) {
+  base <- objetivo(par); mel <- 0; n <- 0
+  melhor_v <- base; melhor_p <- NULL
+  for (j in seq_along(par)) for (s in c(-hs, hs)) {
     p <- par; p[j] <- p[j] + s
-    v <- objetivo(p)
-    if (is.finite(v) && v < base - 1e-8) melhora <- melhora + 1 else pior <- pior + 1
+    v <- objetivo(p); n <- n + 1
+    if (!is.finite(v)) next
+    if (v < base - tol) mel <- mel + 1
+    if (v < melhor_v) { melhor_v <- v; melhor_p <- p }
   }
-  c(melhora = melhora, total = melhora + pior)
+  list(melhora = mel, total = n, ganho = base - melhor_v, par = melhor_p)
 }
-pt <- perturba(fit$par)
-cat("teste de perturbacao: ", pt["melhora"], " de ", pt["total"],
-    " perturbacoes melhoram o objetivo", if (pt["melhora"] == 0) " (otimo local OK)"
-    else "  <<< ATENCAO: o ponto NAO e minimo local", "\n\n", sep = "")
+
+## Se o teste falhar, o ponto NAO e minimo local -- tipicamente porque o
+## L-BFGS-B abortou na busca linear (codigo 52). Reotimiza-se entao a partir do
+## proprio ponto, que costuma bastar. O limite de 3 reinicios evita loop.
+MAX_REINICIO <- 5
+for (tent in 0:MAX_REINICIO) {
+  pt <- perturba(fit$par)
+  if (pt$melhora == 0) {
+    cat("teste de perturbacao: 0 de ", pt$total,
+        " perturbacoes melhoram (otimo local OK)\n", sep = "")
+    break
+  }
+  if (tent == MAX_REINICIO || is.null(pt$par)) {
+    cat("teste de perturbacao: ", pt$melhora, " de ", pt$total,
+        " melhoram (ganho maximo ", format(pt$ganho, digits = 4),
+        ")  <<< ATENCAO: nao e minimo local apos ", tent, " reinicios\n", sep = "")
+    break
+  }
+  cat("teste de perturbacao: ", pt$melhora, " de ", pt$total,
+      " melhoram (ganho maximo ", format(pt$ganho, digits = 4),
+      ") -- reinicio ", tent + 1, " a partir do ponto perturbado\n", sep = "")
+  flush.console()
+  t1 <- Sys.time()
+  fit <- optim(pt$par, objetivo, method = "L-BFGS-B",
+               lower = rep(-LIM, 60), upper = rep(LIM, 60),
+               control = list(maxit = MAXIT))
+  cat("  conv =", fit$convergence, "| logLik =", round(-fit$value, 3),
+      "|", round(as.numeric(difftime(Sys.time(), t1, units = "mins")), 1), "min\n")
+}
+cat("\n")
 
 ################################################################################
 mod <- monta_mv(fit$par)
