@@ -57,9 +57,36 @@ fracamente identificado e, se possível, mostrar o perfil.
 | 2 — identificação (301 ajustes) | ✅ | `rotinas/20_identificacao_paralela.R`, `outputs/identificacao/` |
 | 2b — especificação final | ✅ reaberto 16/08 (exclusão do MA(4)) | `rotinas/21_especificacao_final.R` → `especificacao_final.csv` |
 | 3 — univariados | ✅ | `rotinas/22_univariado_final.R` → `outputs/univariado_final/` |
-| 4 — multivariado Cholesky | ✅ desocupados e ocupados · ⬜ taxa rodando | `rotinas/23_multivariado_final.R` |
-| **5 — taxa direta e indireta** | ⬜ pendente (depende do passo 4 da taxa) | `rotinas/24_taxa_final.R` |
-| **6 — tabelas, figuras, `.tex`** | ⬜ pendente | a escrever |
+| 4 — multivariado Cholesky | ✅ três indicadores | `rotinas/23_multivariado_final.R` |
+| 5 — taxa direta e indireta | ✅ | `rotinas/24_taxa_final.R` → `outputs/taxa_final/` |
+| 6 — tabelas, figuras, `.tex` | ✅ | `rotinas/25_saidas_artigo.R` |
+
+## Resultados finais
+
+| indicador | ganho univariado | ganho multivariado | posto efetivo de Σ_R |
+|---|---:|---:|---:|
+| desocupados | 12,00 % | **32,56 %** | 2 |
+| ocupados | 15,78 % | 15,45 % | 6 |
+| taxa | 10,59 % | **33,59 %** | 2 |
+
+**Achado metodológico central:** o ganho da especificação multivariada não é automático —
+depende de a matriz de covariância dos distúrbios das inclinações ter posto reduzido.
+Onde há tendência comum forte (desocupados e taxa, posto 2), o multivariado praticamente
+triplica o ganho; onde não há (ocupados, posto 6), os dois modelos empatam.
+
+**A recomendação da taxa se inverteu.** Estimação direta 33,59 % contra 19,63 % do cálculo
+indireto, superando em **todos os 8 estratos**. A versão publicada recomendava a indireta,
+com o argumento de que a vantagem da direta vinha de uma matriz de covariância inadmissível
+— argumento que caiu com a parametrização de Cholesky.
+
+## Limitações declaradas no texto
+
+1. σ²_I fracamente identificado ⟹ irregular por diferença é nulo ⟹ série dessazonalizada
+   coincide com a tendência. O artigo **não** apresenta série dessazonalizada como produto.
+2. Normalidade rejeitada em 7 de 8 estratos no total de ocupados (choque da Covid em 2020).
+3. Autocorrelação remanescente em 2 estratos da taxa (Colar 0,042 e Norte 0,032 no
+   multivariado).
+4. Viés de grupo de rotação não tratado — é o tema do segundo artigo.
 
 ## A especificação final
 
