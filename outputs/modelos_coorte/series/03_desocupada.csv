@@ -1,0 +1,2 @@
+"indicador","regiao","escolhido","comparavel","delta_aic_lambda","rho","amplitude_lambda_pct","cv_modelo","cv_design","ganho_cv_pct","dif_max_pct","starts_ok","spread_ll","ruido_medio_pct"
+"desocupada","03-Sul de Minas","nao",TRUE,-17.6,0.844,NA,12.65,15.04,15.9,49.81,"5/8",1.61,32.9

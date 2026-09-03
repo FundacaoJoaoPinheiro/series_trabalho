@@ -1,0 +1,30 @@
+\begin{table}[H]
+\centering
+\captionsetup{justification=centering}
+\caption{Medidas de desempenho dos modelos univariado e multivariado - taxa de desocupação}
+\label{tab:diffviciotaxa}
+{%
+\renewcommand{\arraystretch}{0.8}
+\scalebox{0.95}{%
+\begin{tabular}{lcccc}
+\toprule
+& \multicolumn{2}{c}{\textbf{\makecell{Diferença relativa média \\ do erro padrão (\%)}}} & \multicolumn{2}{c}{\textbf{Vício relativo (\%)}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+\multicolumn{1}{l}{\textbf{Estrato Geográfico}} & \textbf{Univariado} & \textbf{Multivariado} & \textbf{Univariado} & \textbf{Multivariado} \\
+\midrule
+01 - Belo Horizonte & 11,93 & 35,86 & -0,04 & -0,53 \\
+02 - Entorno e Colar Metropolitano de BH & 7,58 & 31,30 & 0,22 & 1,75 \\
+03 - Sul de Minas & 8,78 & 38,19 & -0,50 & -2,54 \\
+04 - Triângulo Mineiro & 20,70 & 48,82 & -0,14 & -1,75 \\
+05 - Zona da Mata & 17,39 & 23,33 & -0,47 & -0,31 \\
+06 - Norte de Minas & 3,88 & 39,83 & 0,05 & -0,65 \\
+07 - Vale do Rio Doce & 7,28 & 32,59 & -0,29 & -0,12 \\
+08 - Central & 8,46 & 34,91 & -0,80 & -3,37 \\
+\midrule
+\textbf{Média} & \textbf{10,75} & \textbf{35,60} & & \\
+\bottomrule
+\end{tabular}%
+}
+}
+\fonte{Elaboração própria, com base nos dados da PNAD Contínua. Nota: as oito primeiras observações de cada série foram descartadas do cálculo, em razão do período de estabilização do filtro de Kalman.}
+\end{table}

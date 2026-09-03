@@ -1,0 +1,2 @@
+"indicador","regiao","escolhido","comparavel","delta_aic_lambda","rho","amplitude_lambda_pct","cv_modelo","cv_design","ganho_cv_pct","dif_max_pct","starts_ok","spread_ll","ruido_medio_pct"
+"desocupada","02-Colar e Entorno Metropolitano de BH","fixo",TRUE,5.4,0.7955,8.7,8.86,11.54,23.2,36.18,"5/8",1.99,25.5

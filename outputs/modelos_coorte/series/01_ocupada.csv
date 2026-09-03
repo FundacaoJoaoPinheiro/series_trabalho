@@ -1,0 +1,2 @@
+"indicador","regiao","escolhido","comparavel","delta_aic_lambda","rho","amplitude_lambda_pct","cv_modelo","cv_design","ganho_cv_pct","dif_max_pct","starts_ok","spread_ll","ruido_medio_pct"
+"ocupada","01-Belo Horizonte","fixo",TRUE,7,0.9823,4.68,3.84,8.33,54,10.67,"3/8",2.49,18.6

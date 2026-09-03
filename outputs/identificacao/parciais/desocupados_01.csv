@@ -1,0 +1,15 @@
+"indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
+"desocupados","01-Belo Horizonte","Ruído branco",4,-192.34,393.5,400.5,0.5808,286.191,20.62
+"desocupados","01-Belo Horizonte","AR(1)",5,-195.79,402.9,411.3,0.652,281.151,11.87
+"desocupados","01-Belo Horizonte","AR(2)",6,-200.25,414.4,424.2,0.9062,265.996,9.96
+"desocupados","01-Belo Horizonte","AR(3)",7,-204.8,426.1,437.3,0.8837,268.301,9.7
+"desocupados","01-Belo Horizonte","AR(4)",8,-208.99,437.3,449.6,0.8476,253.738,9.8
+"desocupados","01-Belo Horizonte","AR(5)",9,-216.18,454.7,467.9,0.8158,253.567,8.63
+"desocupados","01-Belo Horizonte","AR(6)",10,-223.41,472.2,486.3,0.8791,253.706,-129.11
+"desocupados","01-Belo Horizonte","MA(1)",5,-198.49,408.3,416.7,0.3811,296.513,12.2
+"desocupados","01-Belo Horizonte","MA(2)",6,-202.46,418.8,428.6,0.8655,264.031,10.6
+"desocupados","01-Belo Horizonte","MA(3)",7,-209.04,434.6,445.7,0.9045,265.743,9.5
+"desocupados","01-Belo Horizonte","MA(4)",8,-213.92,447.2,459.5,0.8137,293.864,9.79
+"desocupados","01-Belo Horizonte","MA(5)",9,-219.47,461.2,474.5,0.8378,275.44,-42.58
+"desocupados","01-Belo Horizonte","MA(6)",10,-225.67,476.7,490.8,0.886,263.573,-189.62
+"desocupados","01-Belo Horizonte","MA(4) desenho",8,-216.55,452.4,464.7,0.064,317.839,-3.15

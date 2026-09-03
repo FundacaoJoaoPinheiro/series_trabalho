@@ -1,0 +1,9 @@
+"estrato","processo","sigma2_R","rrse","vicio"
+"01-Belo Horizonte","AR(1)",33.8915,29.03,0.37
+"02-Colar e Entorno metropolitano de BH","MA(1)",112.5743,26.42,1.29
+"03-Sul de Minas","AR(1)",19.8207,37.17,-3.16
+"04-Triângulo Mineiro","AR(1)",13.5033,50.11,-2.58
+"05-Mata de Minas Gerais","AR(1)",10.7285,20.48,-1.02
+"06-Norte de Minas","AR(1)",27.4822,35.7,-1.62
+"07-Vale do Rio Doce","AR(1)",30.7076,25.04,-3.69
+"08-Central","AR(3)",15.383,37.56,-3.48

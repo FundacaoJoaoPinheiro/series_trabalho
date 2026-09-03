@@ -1,0 +1,15 @@
+"indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
+"desocupados","03-Sul de Minas","Ruído branco",4,-198.49,405.8,412.8,0.0062,372.405,18.58
+"desocupados","03-Sul de Minas","AR(1)",5,-199.27,409.8,418.3,0.0609,310.026,11.71
+"desocupados","03-Sul de Minas","AR(2)",6,-201.69,417.3,427.1,0.094,323.563,10.84
+"desocupados","03-Sul de Minas","AR(3)",7,-208.41,433.4,444.5,0.062,324.769,10.91
+"desocupados","03-Sul de Minas","AR(4)",8,-215.78,450.9,463.2,0.0318,334.429,10.33
+"desocupados","03-Sul de Minas","AR(5)",9,-222.31,466.9,480.2,0.0631,408.979,-22.21
+"desocupados","03-Sul de Minas","AR(6)",10,-224.31,474,488.1,0.035,429.391,-33.37
+"desocupados","03-Sul de Minas","MA(1)",5,-199.86,411,419.5,0.0686,299.859,13.94
+"desocupados","03-Sul de Minas","MA(2)",6,-206.82,427.5,437.4,0.1182,330.873,11.15
+"desocupados","03-Sul de Minas","MA(3)",7,-212.77,442.1,453.2,0.0955,330.551,10.77
+"desocupados","03-Sul de Minas","MA(4)",8,-218.5,456.4,468.6,0.0244,354.898,10.58
+"desocupados","03-Sul de Minas","MA(5)",9,-224.76,471.8,485.1,0.0426,420.515,-25.61
+"desocupados","03-Sul de Minas","MA(6)",10,-229.77,484.9,499,0.028,335.945,-130.94
+"desocupados","03-Sul de Minas","MA(4) desenho",8,-218.05,455.5,467.7,0.0559,340.254,-0.57

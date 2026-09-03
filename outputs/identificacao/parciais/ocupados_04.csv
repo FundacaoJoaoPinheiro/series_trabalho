@@ -1,0 +1,14 @@
+"indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
+"ocupados","04-Triângulo Mineiro","Ruído branco",4,-264.52,537.9,544.8,0.0013,5259.782,44.88
+"ocupados","04-Triângulo Mineiro","AR(1)",5,-252.92,517.1,525.6,0.4546,2502.836,21.86
+"ocupados","04-Triângulo Mineiro","AR(2)",6,-252.62,519.1,528.9,0.3082,2377.57,31.03
+"ocupados","04-Triângulo Mineiro","AR(3)",7,-261.3,539.2,550.3,0.2945,2394.653,31.02
+"ocupados","04-Triângulo Mineiro","AR(4)",8,-267.87,555.1,567.3,0.3411,4132.857,29.04
+"ocupados","04-Triângulo Mineiro","AR(5)",9,-276.08,574.4,587.7,0.112,3873.398,2.89
+"ocupados","04-Triângulo Mineiro","AR(6)",10,-283.38,592.1,606.3,0.078,3241.728,-35.53
+"ocupados","04-Triângulo Mineiro","MA(6)",10,-286.75,598.9,613,0.1394,10285.24,7.47
+"ocupados","04-Triângulo Mineiro","ARMA(1,1)",6,-253.05,520,529.8,0.5882,2466.384,27.45
+"ocupados","04-Triângulo Mineiro","ARMA(2,1)",7,-258.76,534.1,545.2,0.4686,2640.687,28.01
+"ocupados","04-Triângulo Mineiro","ARMA(1,2)",7,-257.75,532.1,543.2,0.2909,2373.87,30.42
+"ocupados","04-Triângulo Mineiro","ARMA(2,2)",8,-260.67,540.7,552.9,0.3406,2722.21,28.06
+"ocupados","04-Triângulo Mineiro","MA(4) desenho",8,-280.07,579.5,591.7,0.0218,14546.136,11.08

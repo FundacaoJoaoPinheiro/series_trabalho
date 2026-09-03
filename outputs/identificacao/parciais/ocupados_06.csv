@@ -1,0 +1,10 @@
+"indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
+"ocupados","06-Norte de Minas","Ruído branco",4,-256.49,521.8,528.8,4e-04,3606.478,27.03
+"ocupados","06-Norte de Minas","AR(1)",5,-251.62,514.5,523,0.5348,2605.935,11.09
+"ocupados","06-Norte de Minas","AR(2)",6,-255.52,524.9,534.8,0.4344,2680.396,10.34
+"ocupados","06-Norte de Minas","AR(3)",7,-262.85,542.2,553.4,0.3509,3815.359,2.96
+"ocupados","06-Norte de Minas","AR(4)",8,-269.83,559,571.3,0.552,4075.849,-1.82
+"ocupados","06-Norte de Minas","AR(5)",9,-275.97,574.2,587.5,0.7356,3470.188,-36.95
+"ocupados","06-Norte de Minas","AR(6)",10,-283.71,592.8,606.9,0.4642,3486.343,-105.31
+"ocupados","06-Norte de Minas","MA(6)",10,-285.76,596.9,611,0.4417,16210.893,-30.25
+"ocupados","06-Norte de Minas","MA(4) desenho",8,-288.48,596.3,608.6,0.7206,25584.976,-5.19

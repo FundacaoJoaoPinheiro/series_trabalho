@@ -1,0 +1,15 @@
+"indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
+"taxa","04-Triângulo Mineiro","Ruído branco",4,-65.23,139.3,146.3,0.2509,1.206,27.03
+"taxa","04-Triângulo Mineiro","AR(1)",5,-69.27,149.8,158.3,0.244,1.198,20.7
+"taxa","04-Triângulo Mineiro","AR(2)",6,-73.48,160.8,170.7,0.239,1.211,20.58
+"taxa","04-Triângulo Mineiro","AR(3)",7,-80.92,178.4,189.5,0.2598,1.201,20.06
+"taxa","04-Triângulo Mineiro","AR(4)",8,-85.61,190.6,202.8,0.3292,1.218,18.76
+"taxa","04-Triângulo Mineiro","AR(5)",9,-89.49,201.3,214.5,0.3381,1.21,18.52
+"taxa","04-Triângulo Mineiro","AR(6)",10,-98.89,223.1,237.3,0.3951,1.278,-154.75
+"taxa","04-Triângulo Mineiro","MA(1)",5,-71.22,153.7,162.2,0.2152,1.211,21.34
+"taxa","04-Triângulo Mineiro","MA(2)",6,-77.51,168.9,178.7,0.2263,1.175,21.19
+"taxa","04-Triângulo Mineiro","MA(3)",7,-83.17,182.9,194,0.3029,1.178,20.46
+"taxa","04-Triângulo Mineiro","MA(4)",8,-89.59,198.5,210.8,0.3271,1.202,19.15
+"taxa","04-Triângulo Mineiro","MA(5)",9,-96.15,214.6,227.9,0.3903,1.251,-228.31
+"taxa","04-Triângulo Mineiro","MA(6)",10,-102.64,230.6,244.8,0.3797,1.274,-664.5
+"taxa","04-Triângulo Mineiro","MA(4) desenho",8,-90.1,199.6,211.8,0.0453,1.245,-4.88

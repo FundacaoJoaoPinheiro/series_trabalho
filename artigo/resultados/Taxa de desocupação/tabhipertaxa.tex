@@ -1,0 +1,38 @@
+\begin{table}[H]
+\centering
+\captionsetup{justification=centering}
+\caption{Hiperparâmetros estimados para a taxa de desocupação - modelos univariado e multivariado}
+\label{tab:hipertaxa}
+\scalebox{0.92}{
+\renewcommand{\arraystretch}{0.85}
+\begin{tabular}{llccccc}
+\toprule
+& & \multicolumn{5}{c}{\textbf{Modelo Univariado}} \\
+\cmidrule(lr){3-7}
+\textbf{Estrato geográfico} & \textbf{Processo} & \(\hat{\sigma}_L^2\) & \(\hat{\sigma}_R^2\) & \(\hat{\sigma}_S^2\) & \(\hat{\sigma}_I^2\) & \(\hat{\sigma}_{\tilde{e}}^2\) \\
+\midrule
+01 - Belo Horizonte & AR(1) & 0,0000 & 0,1028 & 0,0000 & 0,0000 & 0,9263 \\
+02 - Entorno e Colar Metropolitano de BH & MA(1) & 0,0000 & 0,3350 & 0,0000 & 0,0000 & 0,9485 \\
+03 - Sul de Minas & AR(1) & 0,5334 & 0,0051 & 0,0000 & 0,0000 & 0,8744 \\
+04 - Triângulo Mineiro & AR(1) & 0,0000 & 0,0431 & 0,0000 & 0,0000 & 0,9604 \\
+05 - Zona da Mata & AR(1) & 0,3514 & 0,0023 & 0,0000 & 0,0000 & 0,9584 \\
+06 - Norte de Minas & MA(1) & 0,1873 & 0,1890 & 0,0091 & 0,0000 & 0,8083 \\
+07 - Vale do Rio Doce & AR(1) & 1,0321 & 0,0100 & 0,0000 & 0,0000 & 0,8583 \\
+08 - Central & AR(3) & 0,0003 & 0,1653 & 0,0000 & 0,0000 & 0,8978 \\
+\midrule
+& & \multicolumn{5}{c}{\textbf{Modelo Multivariado}} \\
+\cmidrule(lr){3-7}
+\textbf{Estrato geográfico} & \textbf{Processo} & \(\hat{\sigma}_L^2\) & \(\hat{\sigma}_R^2\) & \(\hat{\sigma}_S^2\) & \(\hat{\sigma}_I^2\) & \(\hat{\sigma}_{\tilde{e}}^2\) \\
+\midrule
+01 - Belo Horizonte & AR(1) & 0,0000 & 0,2211 & 0,0000 & 0,0000 & 0,9263 \\
+02 - Entorno e Colar Metropolitano de BH & MA(1) & 0,0000 & 0,3694 & 0,0000 & 0,0000 & 0,9485 \\
+03 - Sul de Minas & AR(1) & 0,0004 & 0,1506 & 0,0000 & 0,0000 & 0,8744 \\
+04 - Triângulo Mineiro & AR(1) & 0,0000 & 0,0876 & 0,0000 & 0,0000 & 0,9604 \\
+05 - Zona da Mata & AR(1) & 0,0055 & 0,0814 & 0,0000 & 0,0000 & 0,9584 \\
+06 - Norte de Minas & MA(1) & 0,0017 & 0,2484 & 0,0099 & 0,0000 & 0,8083 \\
+07 - Vale do Rio Doce & AR(1) & 0,0016 & 0,3222 & 0,0000 & 0,0000 & 0,8583 \\
+08 - Central & AR(3) & 0,0003 & 0,1245 & 0,0000 & 0,0000 & 0,8978 \\
+\bottomrule
+\end{tabular}}
+\fonte{Elaboração própria, com base nos dados da PNAD Contínua. Nota: o processo do erro amostral é identificado individualmente por estrato (Seção \ref{sec:metodologia}). Impõe-se \(V(\tilde{e}_t)=1\), de modo que a estimativa direta preserva a variância do desenho; a variância da inovação \(\hat{\sigma}_{\tilde{e}}^2\) não é estimada, mas \textbf{derivada} dos coeficientes do processo pela equação de Lyapunov, e por isso coincide nos dois modelos. O componente irregular é fracamente identificado: o perfil de verossimilhança é quase plano em \(\sigma_I^2\), e suas estimativas devem ser lidas com cautela.}
+\end{table}

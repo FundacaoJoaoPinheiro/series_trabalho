@@ -1,0 +1,3577 @@
+Please provide reference information as follows:
+
+AUTHOR NAMES:
+ Either {John First and Michael Second} or {First, John and Second, Michael}
+ Composite surnames should be put between braces, e.g. {Johannes {von Erste} and Michel {da Silva}}
+%
+
+ARTICLE TITLE:
+ If there exists a permanent web link for accessing the article online (such as a DOI), the title can be made clickable in the final pdf file, as follows:
+ title = {
+ \href
+ {permalink}
+ {article title}
+ }
+ (see examples below)
+
+ To enforce upper (or lower-) case in article titles, put the desired word between braces, e.g.:
+ title = {Interest rates in {Brazil}}
+%
+
+WORKING PAPERS, ETC:
+ Always check if a working paper has been published in a peer-reviewed journal. If so, use the latter in the references.
+%
+
+
+@article{Engle1987,
+author = {Robert F. Engle and C. W. J. Granger},
+title = {
+\href
+{https://doi.org/10.2307/1913236}
+{Co-integration and error correction: {Representation}, estimation, and testing}
+},
+journal = {Econometrica},
+volume = {55},
+number = {2},
+year = {1987},
+pages = {251--276},
+}
+
+@article{Dahlquist2004,
+author = {Magnus Dahlquist and Göran Robertsson},
+title = {
+\href
+{https://doi.org/10.1016/S0378-4266(03)00036-0}
+{A note on foreigners' trading and price effects across firms}
+},
+journal = {Journal of Banking \& Finance},
+volume = {28},
+number = {3},
+year = {2004},
+pages = {615-632},
+}
+
+@article{Hendry2001,
+author = {David F Hendry},
+title = {
+\href
+{https://doi.org/10.1016/S0304-4076(00)00045-2}
+{Achievements and challenges in econometric methodology}
+},
+journal = {Journal of Econometrics},
+volume = {100},
+number = {1},
+year = {2001},
+pages = {7-10},
+}
+
+@book{Pesaran1998,
+author = {H.Hashem Pesaran and Yongcheol Shin},
+url = {https://doi.org/10.1016/S0165-1765(97)00214-0},
+title = {{Generalized impulse response analysis in linear multivariate models}},
+publisher = {Economics Letters},
+year = {1998},
+}
+
+techreport{Pesaran1998,
+author = {H.Hashem Pesaran and Yongcheol Shin},
+url = {https://doi.org/10.1016/S0165-1765(97)00214-0},
+title = {{Generalized impulse response analysis in linear multivariate models}},
+institution = {Economics Letters},
+year = {1998},
+}
+
+article{Pesaran1998,
+author = {H.Hashem Pesaran and Yongcheol Shin},
+url = {https://doi.org/10.1016/S0165-1765(97)00214-0},
+title = {{Generalized impulse response analysis in linear multivariate models}},
+journal = {Economics Letters},
+volume = {58},
+number = {1},
+year = {1998},
+pages = {17-29},
+}
+
+article{Pesaran1998,
+author = {H.Hashem Pesaran and Yongcheol Shin},
+title = {
+\href
+{https://doi.org/10.1016/S0165-1765(97)00214-0}
+{Generalized impulse response analysis in linear multivariate models}
+},
+journal = {Economics Letters},
+volume = {58},
+number = {1},
+year = {1998},
+pages = {17-29},
+}
+
+@book{pelagatti2016,
+  author    = {Pelagatti, M. M.},
+  title     = {Time Series Modelling with Unobserved Components},
+  edition   = {1},
+  location  = {Boca Raton},
+  publisher = {CRC Press},
+  year      = {2016},
+}
+
+@techreport{ibge2022nota,
+  author      = {{IBGE}},
+  title       = {Nota técnica 01/2022: Estimativas para estratos de municípios na PNAD Contínua},
+  institution = {{Instituto Brasileiro de Geografia e Estatística}},
+  year        = {2022},
+  address     = {Rio de Janeiro},
+  url         = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101933.pdf}
+}
+
+@book{ibgeregic2018,
+  author    = {{IBGE}},
+  title     = {Região de Influência das Cidades 2018},
+  publisher = {{Instituto Brasileiro de Geografia e Estatística}},
+  address   = {Rio de Janeiro},
+  year      = {2020},
+  url       = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101728.pdf}
+}
+
+@booklet{ibge2025pnad,
+  author       = {{IBGE}},
+  title        = {PNAD Contínua -- Pesquisa Nacional por Amostra de Domicílios Contínua},
+  year         = {2025},
+  howpublished = {\url{https://www.ibge.gov.br/estatisticas/sociais/trabalho/17270-pnad-continua.html}},
+  note         = {{Instituto Brasileiro de Geografia e Estatística. Acesso em: 2 set. 2025}}
+}
+
+@booklet{ibgecidades,
+  author       = {{IBGE}},
+  title        = {IBGE Cidades@: Minas Gerais},
+  year         = {2025},
+  howpublished = {\url{https://cidades.ibge.gov.br/brasil/mg/panorama}},
+  note         = {{Instituto Brasileiro de Geografia e Estatística. Acesso em: 19 nov. 2025}}
+}
+
+@techreport{pnadNT,
+  author      = {{IBGE}},
+  title       = {Pesquisa Nacional por Amostra de Domicílios Contínua: Notas técnicas -- versão 1.19},
+  institution = {{Instituto Brasileiro de Geografia e Estatística}},
+  year        = {2025},
+  address     = {Rio de Janeiro},
+  url         = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv102172_notas_tecnicas.pdf}
+}
+
+@manual{R-base,
+  title        = {R: A Language and Environment for Statistical Computing},
+  author       = {{R Core Team}},
+  organization = {R Foundation for Statistical Computing},
+  address      = {Vienna, Austria},
+  year         = {2025},
+  url          = {https://www.R-project.org/}
+}
+
+@article{dlm,
+  author  = {Petris, G.},
+  title   = {An R package for dynamic linear models},
+  journal = {Journal of Statistical Software},
+  year    = {2010},
+  volume  = {36},
+  number  = {12},
+  pages   = {1--16}
+}
+
+@article{goncalves2022,
+    author = {Gonçalves, C. and Hidalgo, L. and Silva, D. B. N. and van den Brakel, J.},
+    title = {Single-month 
+unemployment rate estimates for the Brazilian labour force survey using state-space models},
+    journal = {Journal of the Royal Statistical Society Series A: Statistics in Society},
+    volume = {185},
+    number = {4},
+    pages = {1707--1732},
+    year = {2022}
+}
+
+@online{tiller2006,
+  author       = {Tiller, Richard},
+  title        = {Model-Based Labor Force estimates for Sub-National Areas with large Survey Errors},
+  organization = {Bureau of Labor Statistics},
+  year         = {2006},
+  month        = {03},
+  pages        = {1-17},
+  url          = {https://www.bls.gov/osmr/research-papers/2006/pdf/st060010.pdf},
+  urldate      = {2025-07-06}
+}
+
+@article{shapiro_wilk_1965,
+  author    = {Shapiro, S. S. and Wilk, M. B.},
+  title     = {An analysis of variance test for normality (complete samples)},
+  journal   = {Biometrika},
+  year      = {1965},
+  volume    = {52},
+  number    = {3-4},
+  pages     = {591--611}
+}
+
+@article{ljung_box_1978,
+  author    = {Ljung, G. M. and Box, G. E. P.},
+  title     = {On a measure of lack of fit in time series models},
+  journal   = {Biometrika},
+  year      = {1978},
+  volume    = {65},
+  number    = {2},
+  pages     = {297--303}
+}
+
+@misc{pacotepnad,
+  author = {Braga, D. and Assunção, G. and Hidalgo, L. and Quintaes, V.},
+  title  = {PNADcIBGE: Downloading, Reading and Analyzing PNADC Microdata},
+  year   = {2025},
+  howpublished = {\url{https://cran.r-project.org/web/packages/PNADcIBGE/index.html}}
+}
+
+@misc{survey,
+  author = {Lumley, T. and Gao, P. and Schneider, B.},
+  title  = {Survey: Analysis of Complex Survey Samples},
+  year   = {2025},
+  howpublished = {\url{https://cran.r-project.org/web/packages/survey/index.html}}
+}
+
+@techreport{SIPDamostramestra2014,
+    author = {FREITAS, M. P. S. and ANTONACCI, G. A.},
+    title = {Sistema Integrado de Pesquisas Domiciliares: Amostra Mestra 2010 e Amostra PNAD Contínua},
+    institution = {Instituto Brasileiro de Geografia e Estatística -- IBGE},
+    year        = {2014},
+    address      = {Rio de Janeiro},
+    type         = {Textos para Discussão},
+    url          = {https://www.ibge.gov.br/arquivo/projetos/sipd/SIPD_amostra_mestra_2010_e_amostra_PNAD_cont.pdf},
+    note         = {Acesso em: 17 out. 2025},
+}
+
+@book{silva2021,
+  author    = {Silva, P. L. N. and Bianchini, Z. M. and Dias, A. J. R.},
+  title     = {Amostragem: teoria e prática usando R},
+  location  = {Rio De Janeiro},
+  publisher = {s.n.},
+  url = {https://amostragemcomr.github.io/livro/},
+  urldate = {2025-12-09},
+  year      = {2002},
+}
+
+@article{pfeffermann2006,
+  author    = {Pfeffermann, D. and Tiller, R.},
+  title     = {Small area estimation with state space models subject to benchmark constraints},
+  journal   = {Journal of the American Statistical Association},
+  year      = {2006},
+  volume    = {101},
+  pages     = {1387--1397}
+}
+
+@misc{eurostat_experimental,
+  author       = {{Eurostat}},
+  title        = {Experimental Statistics},
+  year         = {2025},
+  howpublished = {\url{https://ec.europa.eu/eurostat/web/experimental-statistics}},
+  note         = {Accessed: May 5, 2025}
+}
+
+@book{rao_molina_2015,
+  author    = {Rao, J. N. K. and Molina, Isabel},
+  title     = {Small Area Estimation},
+  edition   = {2},
+  year      = {2015},
+  publisher = {Wiley},
+  address   = {Hoboken}
+}
+
+@book{harvey1989,
+  author    = {Harvey, A. C.},
+  title     = {Forecasting, Structural Time Series Models and the Kalman Filter},
+  edition   = {1},
+  address   = {Cambridge},
+  publisher = {Cambridge University Press},
+  year      = {1989}
+}
+
+@article{elliott_zong2019,
+  author  = {Elliott, Graham and Zong, Xiaoguang},
+  title   = {Measuring unemployment dynamics using time series models for repeated surveys},
+  journal = {Journal of Econometrics},
+  year    = {2019}
+}
+
+@techreport{ons2019,
+  author      = {{Office for National Statistics}},
+  title       = {Uncertainty and bias in estimates from the Labour Force Survey},
+  institution = {Office for National Statistics},
+  year        = {2019},
+  address     = {United Kingdom}
+}
+
+% Encoding: UTF-8
+
+@article{ginsberg2009,
+ doi       = {10.1038/nature07634},
+ title     = {Detecting influenza epidemics using search engine query data},
+ author    = {Ginsberg, J. and Mohebbi, M. H. and Patel, R. S. and Brammer, L. and Smolinski, M. S. and Brilliant, L.},
+ journal   = {Nature},
+ year      = {2009},
+ volume    = {457},
+ number     = {7232},
+ pages     = {1012--1014},
+ url       = {http://doi.org/10.1038/nature07634}
+}
+
+@article{cook2011,
+ doi       = {10.1371/journal.pone.0023610},
+ title     = {Assessing {G}oogle Flu Trends Performance in the United States during the 2009 Influenza Virus A (H1N1) Pandemic},
+ author    = {Cook, S. and Conrad, C. and Fowlkes, A. L. and Mohebbi, M. H. and Cowling, B. J.},
+ journal   = {PLoS ONE},
+ year      = {2011},
+ volume    = {6},
+ number     = {8},
+ pages     = {e23610},
+ url       = {http://doi.org/10.1371/journal.pone.0023610}
+}
+
+@article{rivera2016,
+ doi       = {10.1016/j.tourman.2016.04.008},
+ title     = {A dynamic linear model to forecast hotel registrations in {P}uerto {R}ico using {G}oogle {T}rends data},
+ author    = {Rivera, R.},
+ journal   = {Tourism Management},
+ year      = {2016},
+ volume    = {57},
+ pages     = {12--20},
+ url       = {http://doi.org/10.1016/j.tourman.2016.04.008}
+}
+
+@article{althouse2011,
+    doi = {10.1371/journal.pntd.0001258},
+    author = {Althouse, B. M. AND Ng, Y. Y. AND Cummings, D. A. T.},
+    journal = {PLOS Neglected Tropical Diseases},
+    title = {Prediction of Dengue Incidence Using Search Query Surveillance},
+    year = {2011},
+    volume = {5},
+    url = {https://doi.org/10.1371/journal.pntd.0001258},
+    pages = {1-7},
+    number = {8}
+}
+
+@article{morsy2018,
+ doi       = {10.1017/S0950268818002078},
+ title     = {Prediction of Zika-confirmed cases in {B}razil and {C}olombia using {G}oogle {T}rends},
+ author    = {Morsy, S. and Dang, T.N. and Kamel, M.G. and Zayan, A.H. and Makram, O.M. and Elhady, M. and Hirayama, K. and Huy, N.T.},
+ journal   = {Epidemiology and Infection},
+ year      = {2018},
+ pages     = {1--3},
+ url       = {http://doi.org/10.1017/S0950268818002078}
+}
+
+@article{butler2013,
+ doi       = {10.1038/494155a},
+ title     = {When {G}oogle got flu wrong},
+ author    = {Butler, D.},
+ journal   = {Nature},
+ year      = {2013},
+ volume    = {494},
+ number     = {7436},
+ pages     = {155--156},
+ url       = {http://doi.org/10.1038/494155a}
+}
+
+@article{askitas2009,
+ title     = {Google Econometrics and Unemployment Forecasting},
+ author    = {Askitas, N. and Zimmermann, K. F.},
+ journal   = {Applied Economics Quarterly},
+ year      = {2009},
+ volume    = {55},
+ pages     = {107--120},
+ url       = {https://doi.org/10.3790/aeq.55.2.107}
+}
+
+@article{preis2013,
+ doi       = {10.1038/srep01684},
+ title     = {Quantifying Trading Behavior in Financial Markets Using {G}oogle {T}rends},
+ author    = {Preis, T. and Moat, H. S. and Stanley, H. E.},
+ journal   = {Scientific Reports},
+ year      = {2013},
+ volume    = {3},
+ url       = {http://doi.org/10.1038/srep01684}
+}
+
+@article{vosen2011,
+ doi       = {10.1002/for.1213},
+ title     = {Forecasting private consumption: survey-based indicators vs. {G}oogle {T}rends},
+ author    = {S. Vosen and T. Schmidt},
+ journal   = {Journal of Forecasting},
+ year      = {2011},
+ volume    = {30},
+ number     = {6},
+ pages     = {565--578},
+ url       = {http://doi.org/10.1002/for.1213}
+}
+
+@article{carrière-swallow2011,
+ doi       = {10.1002/for.1252},
+ title     = {Nowcasting with {G}oogle {T}rends in an Emerging Market},
+ author    = {Y. Carri\`ere-Swallow and F. Labb\'e},
+ journal   = {Journal of Forecasting},
+ year      = {2011},
+ volume    = {aop},
+ number     = {aop},
+ url       = {http://doi.org/10.1002/for.1252}
+}
+
+@article{woo2018,
+ doi       = {10.1002/for.2559},
+ title     = {Forecasting Private Consumption with {G}oogle {T}rends Data},
+ author    = { J. Woo and  A. L. Owen},
+ journal   = {Journal of Forecasting},
+ year      = {2018},
+ url       = {http://doi.org/10.1002/for.2559}
+}
+
+@article{yang2014,
+ doi       = {10.1177/0047287513500391},
+ title     = {Predicting Hotel Demand Using Destination Marketing Organization's Web Traffic Data},
+ author    = { Y. Yang and  B. Pan and  H. Song},
+ journal   = {Journal of Travel Research},
+ year      = {2014},
+ volume    = {53},
+ number     = {4},
+ pages     = {433--447},
+ url       = {http://doi.org/10.1177/0047287513500391}
+}
+
+@article{jun2017,
+ doi       = {10.1016/j.techfore.2017.11.009},
+ title     = {Ten years of research change using {G}oogle {T}rends: From the perspective of big data utilizations and applications},
+ author    = {S. Jun and H. S. Yoo and S. Choi},
+ journal   = {Technological Forecasting and Social Change},
+ year      = {2017},
+ pages     = {S0040162517315536},
+ url       = {http://doi.org/10.1016/j.techfore.2017.11.009}
+}
+
+@article{bulut2017,
+ doi       = {10.1002/for.2500},
+ title     = {Google {T}rends and the forecasting performance of exchange rate models},
+ author    = {Bulut, L.},
+ journal   = {Journal of Forecasting},
+ year      = {2017},
+ url       = {http://doi.org/10.1002/for.2500}
+}
+
+@article{ito2021,
+ doi       = {https://doi.org/10.1002/for.2762},
+ title     = {Application of {G}oogle {T}rends-based sentiment index in exchange rate prediction},
+ author    = {T. Ito and M. Masuda and A. Naito and F. Takeda},
+ journal   = {Journal of Forecasting},
+ year      = {2021},
+ url       = {https://doi.org/10.1002/for.2762}
+}
+
+@article{su2014,
+ doi       = {https://doi.org/10.3868/s060-003-014-0027-3},
+ title     = {Chinese Online Unemployment-Related Searches and Macroeconomic Indicators},
+ author    = {Z. Su},
+ journal   = {Frontiers of Economics in China},
+ year      = {2014},
+ url       = {https://doi.org/10.3868/s060-003-014-0027-3}
+}
+
+@article{chen2015,
+ doi       = {10.1111/coep.12074},
+ title     = {The 2007–2008 {U.S.} Recession: What Did The Real-Time {G}oogle {T}rends Data Tell The {U}nited {S}tates?},
+ author    = {Chen, T. and So, E. P. K. and Wu, L. and Yan, I. K. M.},
+ journal   = {Contemporary Economic Policy},
+ year      = {2015},
+ volume    = {33},
+ number     = {2},
+ pages     = {395--403},
+ url       = {http://doi.org/10.1111/coep.12074}
+}
+
+@article{salisu2020,
+ doi       = {10.1002/for.2722},
+ title     = {Stock-induced {G}oogle {T}rends and the predictability of sectoral stock returns},
+ author    = {A. A. Salisu and  A. E. Ogbonna and I. Adediran},
+ journal   = {Journal of Forecasting},
+ year      = {2020},
+ pages     = {1-19},
+ url       = {http://doi.org/10.1002/for.2722}
+}
+
+@article{choi2012,
+ doi       = {10.1111/j.1475-4932.2012.00809.x},
+ title     = {Predicting the Present with {G}oogle {T}rends},
+ author    = {H. Choi and H. Varian},
+ journal   = {Economic Record},
+ year      = {2012},
+ volume    = {88},
+ number     = {s1},
+ url       = {http://doi.org/10.1111/j.1475-4932.2012.00809.x}
+}
+
+@incollection{binder1988,
+title = {Sampling in time},
+series = {Handbook of Statistics},
+publisher = {Elsevier},
+volume = {6},
+pages = {187-211},
+year = {1988},
+booktitle = {Sampling},
+url = {https://www.sciencedirect.com/science/article/pii/S0169716188060109},
+author = {D. A. Binder and M. A. Hidiroglou},
+  editor = {P. R. Krishnaiah and C. R. Rao}
+}
+
+@article{binder1989,
+ title     = {Modelling and estimation for repeated surveys},
+ author    = {D. A. Binder and J. P. Dick},
+ journal   = {Survey Methodology},
+ publisher = {Statistics Canada},
+ year      = {1989},
+ volume    = {15},
+ number     = {1},
+ pages     = {29--45},
+ url       = {https://www150.statcan.gc.ca/n1/pub/12-001-x/1989001/article/14579-eng.pdf}
+}
+
+@article{silva2001,
+ title     = {Modelling compositional time series from repeated surveys},
+ author    = {Silva, D. B. N. and Smith, T. M. F.},
+ journal   = {Survey Methodology},
+ publisher = {Statistics Canada},
+ year      = {2001},
+ volume    = {27},
+ number     = {2},
+ pages     = {205--2015},
+ url       = {https://www150.statcan.gc.ca/n1/pub/12-001-x/2001002/article/6097-eng.pdf}
+}
+
+
+@article{brewer1963,
+ title     = {RATIO ESTIMATION AND FINITE POPULATIONS: SOME RESULTS DEDUCIBLE FROM THE ASSUMPTION OF AN UNDERLYING STOCHASTIC PROCESS},
+ author    = {K. R. W. Brewer},
+ publisher = {John Wiley and Sons},
+ journal   = {Australian \& New Zealand Journal of Statistics},
+ year      = {1963},
+ volume    = {5},
+ number     = {3},
+ pages     = {93--105},
+ url       = {http://doi.org/10.1111/j.1467-842x.1963.tb00288.x}
+}
+
+@article{brewer1973,
+ title     = {THE EFFECT OF SAMPLE STRUCTURE ON ANALYTICAL SURVEYS},
+ author    = {K. R. W. Brewer and R. W. Mellor},
+ publisher = {John Wiley and Sons},
+ journal   = {Australian \& New Zealand Journal of Statistics},
+ year      = {1973},
+ volume    = {15},
+ number     = {3},
+ pages     = {145--152},
+ url       = {http://doi.org/10.1111/j.1467-842x.1973.tb00195.x}
+}
+
+@article{brewer1999,
+ doi       = {10.1111/j.1751-5823.1999.tb00379.x},
+ title     = {Design-based or Prediction-based Inference? {S}tratified Random vs Stratified Balanced Sampling},
+ author    = {K. R. W. Brewer},
+ publisher = {John Wiley and Sons},
+ journal   = {International Statistical Review},
+ year      = {1999},
+ volume    = {67},
+ number     = {1},
+ pages     = {35--47},
+ url       = {http://doi.org/10.1111/j.1751-5823.1999.tb00379.x}
+}
+
+@techreport{brakel2008,
+address = {Voorburg/Heerlen},
+title   = {Model-based estimation for official statistics},
+author  = {van den Brakel, J.  and J. Bethlehem},
+institution = {Statistics Netherlands},
+series  = {Discussion Paper},
+type    = {Working paper},
+number  = {08002},
+year    = {2008},
+url={https://www.cbs.nl/-/media/imported/documents/2009/07/2009-15-x10-pub.pdf}
+}
+
+@techreport{bakker2011,
+address = {The Hague/Heerlen},
+title   = {Micro Integration},
+author  = {B. Bakker},
+institution = {Statistics Netherlands},
+series  = {Discussion Paper},
+type    = {Working paper},
+number  = {201108},
+year    = {2011},
+url={https://www.cbs.nl/en-gb/onze-diensten/methods/statistical-methods/throughput/throughput/micro-integration}
+}
+
+@article{waal2020,
+author = {de Waal, T. and van Delden, A. and Scholtus, S.},
+title = {Multi-source Statistics: Basic Situations and Methods},
+journal = {International Statistical Review},
+volume = {88},
+number = {1},
+pages = {203-228},
+doi = {https://doi.org/10.1111/insr.12352},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/insr.12352},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1111/insr.12352},
+year = {2020}
+}
+
+@techreport{brakel2012,
+address = {Maastricht: Océ Business Publishers},
+title   = {Models in official statistics},
+author  = {van den Brakel, J.},
+institution = {Maastricht: Océ Business Publishers},
+type    = {Working paper},
+year    = {2012},
+url={https://doi.org/10.26481/spe.20120427jb}
+}
+
+@article{bailar1975,
+ title     = {The Effects of Rotation Group Bias on Estimates from Panel Surveys},
+ author    = {B. A. Bailar},
+ publisher = {American Statistical Association},
+ journal   = {Journal of the American Statistical Association},
+ year      = {1975},
+ volume    = {70},
+ number     = {349},
+ pages     = {23--30},
+ url       = {http://doi.org/10.2307/2285370}
+}
+
+@book{rao2015,
+   title =     {Small Area Estimation},
+   author =    {J.N.K. Rao and I. Molina},
+   publisher = {Wiley},
+   year =      {2015},
+   series =    {Wiley Series in Survey Methodology},
+   edition =   {2},
+   volume =    {},
+}
+
+@article{brakel2020,
+ title     = {Measuring Discontinuities in Time Series Obtained with Repeated Sample Surveys},
+ author    = {van den Brakel, J.  and Zhang, X. (M.) and Tam, S.},
+ publisher = {John Wiley and Sons},
+ journal   = {International Statistical Review},
+ year      = {2020},
+ pages     = {insr.12347},
+ url       = {http://doi.org/10.1111/insr.12347}
+}
+
+@article{brakel2022,
+   author = {van den Brakel, J. and Souren, M. and Krieg, S.},
+title = {Estimating monthly Labour Force Figures during the {COVID-19} pandemic in the {N}etherlands},
+year = {2022},
+volume = {185},
+number = {4},
+pages     = {1560-1583},
+url = {http://doi.org/10.1111/rssa.12869},
+journal = {Journal of the Royal Statistical Society Series A (General)},
+publisher = {Wiley-Blackwell}
+}
+
+@article{pfeffermann2022,
+   author = {D. Pfeffermann},
+title = {Time series modelling of repeated survey data for estimation of finite population parameters},
+year = {2022},
+volume = {185},
+number = {4},
+pages     = {1757-1777},
+url = {https://doi.org/10.1111/rssa.12950},
+journal = {Journal of the Royal Statistical Society Series A (General)},
+publisher = {Wiley-Blackwell}
+}
+
+@article{lohr2017,
+ title     = {Combining Survey Data with Other Data Sources},
+ author    = {Lohr, S. L. and Raghunathan, T. E.},
+ publisher = {Institute of Mathematical Statistics},
+ journal   = {Statistical Science},
+ year      = {2017},
+ volume    = {32},
+ number     = {2},
+ pages     = {293--312},
+ url       = {http://doi.org/10.1214/16-STS584}
+}
+
+@article{yang2020,
+ title     = {Statistical data integration in survey sampling: a review},
+ author    = {Yang, S. and Kim, J. K.},
+ journal   = {Japanese Journal of Statistics and Data Science},
+ year      = {2020},
+ url       = {http://doi.org/10.1007/s42081-020-00093-w}
+}
+
+@article{rao2020,
+ title     = {On Making Valid Inferences by Integrating Data from Surveys and Other Sources},
+ author    = {Rao, J. N. K.},
+ publisher = {Springer-Verlag},
+ journal   = {Sankhya B},
+ year      = {2020},
+ url       = {http://doi.org/10.1007/s13571-020-00227-w}
+}
+@techreport{brakel2019,
+address = {},
+title   = {New data sources and inference methods for official statistics},
+author  = {van den Brakel, J.},
+institution = {CBS},
+series  = {Discussion Paper},
+type    = {Working paper},
+number  = {},
+year    = {2019},
+url={https://www.cbs.nl/en-gb/background/2019/27/new-data-sources-and-inference-methods-for-statistics}
+}
+
+@techreport{buelens2012,
+address = {The Hague/Heerlen},
+title   = {Shifting paradigms in official statistics: From design-based to model-based to algorithmic inference},
+author  = {Buelens, B. and Boonstra, H. J. and van den Brakel, J. and Daas, P.},
+institution = {Statistics Netherlands},
+series  = {Discussion Paper},
+type    = {Working paper},
+number  = {201218},
+year    = {2012},
+url={https://doi.org/10.1111/rssa.12700}
+}
+
+@techreport{buelens2016,
+title   = {Model based estimation at Statistics {N}etherlands},
+author  = {Buelens, B. and P.-P. Wolf and K. Zeelenberg},
+institution = {Statistics Netherlands},
+series  = {European Conference on Quality in Official Statistics},
+type    = {Working paper},
+number  = {},
+month = {31 May-3 June},
+year    = {2016},
+address = {Madrid},
+url={http://www.ine.es/q2016/docs/q2016Final00196.pdf}
+}
+
+@article{foreman1971,
+ title     = {The Efficient Use of Supplementary Information in Standard Sampling Procedures},
+ author    = {E. K. Foreman and K. R. W. Brewer},
+ publisher = {Blackwell Publishing},
+ journal   = {Journal of the Royal Statistical Society Series B (Methodological)},
+ year      = {1971},
+ volume    = {33},
+ number     = {3},
+ pages     = {391--400},
+ url       = {https://rss.onlinelibrary.wiley.com/doi/10.1111/j.2517-6161.1971.tb01525.x}
+}
+
+@article{hastie2005,
+ title     = {Regularization and Variable Selection via the Elastic Net},
+ author    = {Hastie, T. and Zou, H.},
+ journal   = {Journal of the Royal Statistical Society Series B (Methodological)},
+ year      = {2005},
+ volume    = {67},
+ number     = {2},
+ pages     = {301--230},
+}
+
+@article{godambe1955,
+ doi       = {10.1111/j.2517-6161.1955.tb00203.x},
+ title     = {A Unified Theory of Sampling from Finite Populations},
+ author    = {Godambe, V. P.},
+ publisher = {Blackwell Publishing},
+ journal   = {Journal of the Royal Statistical Society Series B (Methodological)},
+ year      = {1955},
+ volume    = {17},
+ number     = {2},
+ pages     = {269--278},
+ url       = {http://doi.org/10.1111/j.2517-6161.1955.tb00203.x}
+}
+
+@article{godambe1965,
+ doi       = {10.2307/1402030},
+ title     = {A Review of the Contributions Towards a Unified Theory of Sampling from Finite Populations},
+ author    = {Godambe, V. P.},
+ publisher = {International Statistical Institute (ISI)},
+ journal   = {Revue de l'Institut International de Statistique},
+ year      = {1965},
+ volume    = {33},
+ number     = {2},
+ pages     = {242},
+ url       = {http://doi.org/10.2307/1402030}
+}
+
+@article{gregoire1998,
+ doi       = {10.1139/x98-166},
+ title     = {Design-based and model-based inference in survey sampling: appreciating the difference},
+ author    = {Gregoire, T. G.},
+ publisher = {NRC Research Press},
+ journal   = {Canadian Journal of Forest Research},
+ year      = {1998},
+ volume    = {28},
+ number     = {10},
+ pages     = {1429--1447},
+ url       = {http://doi.org/10.1139/x98-166}
+}
+
+@article{hand2018,
+ doi       = {10.1111/rssa.12315},
+ title     = {Statistical challenges of administrative and transaction data},
+ author    = {Hand, David J.},
+ publisher = {Blackwell Publishing},
+ journal   = {Journal of the Royal Statistical Society Series A (General)},
+ year      = {2018},
+ url       = {http://doi.org/10.1111/rssa.12315}
+}
+
+@article{hansen1983,
+author = { M. H. Hansen and W. G. Madow and  B. J. Tepping},
+title = {An Evaluation of Model-Dependent and Probability-Sampling Inferences in Sample Surveys},
+journal = {Journal of the American Statistical Association},
+volume = {78},
+number = {384},
+pages = {776-793},
+year  = {1983},
+publisher = {Taylor \& Francis},
+doi = {10.1080/01621459.1983.10477018},
+URL = {https://www.tandfonline.com/doi/abs/10.1080/01621459.1983.10477018},
+eprint = {https://www.tandfonline.com/doi/pdf/10.1080/01621459.1983.10477018}
+}
+
+@article{horvitz1952,
+ doi       = {10.2307/2280784},
+ title     = {A Generalization of Sampling Without Replacement From a Finite Universe},
+ author    = {D. G. Horvitz and D. J. Thompson},
+ publisher = {American Statistical Association},
+ journal   = {Journal of the American Statistical Association},
+ year      = {1952},
+ volume    = {47},
+ number     = {260},
+ pages     = {663--685},
+ url       = {http://doi.org/10.2307/2280784}
+}
+
+@article{isaki1982,
+ doi       = {10.2307/2287773},
+ title     = {Survey Design Under the Regression Superpopulation Model},
+ author    = {C.T. Isaki and W. A. Fuller},
+ publisher = {American Statistical Association},
+ journal   = {Journal of the American Statistical Association},
+ year      = {1982},
+ volume    = {77},
+ number     = {377},
+ pages     = {89--96},
+ url       = {http://doi.org/10.2307/2287773}
+}
+
+@article{jannuzzi2019,
+ title     = {Estatísticas e Políticas Públicas orientadas por evidências no Brasil: o caso das Políticas de Desenvolvimento Social nos anos 2000},
+ author    = {P. M. Jannuzzi},
+ publisher = {IBGE},
+ journal   = {Revista Brasileira de Geografia},
+ year      = {2019},
+ volume    = {64},
+ number     = {1},
+ pages     = {37-54},
+ address = {Rio de Janeiro},
+ url       = {https://doi.org/10.21579/issn.2526-0375_2019_n1_37-54}
+}
+
+@article{pitta2004,
+ title     = {Estatísticas e Políticas Públicas orientadas por evidências no Brasil: o caso das Políticas de Desenvolvimento Social nos anos 2000},
+ author    = {Pitta, M. T. and Silva, D. B. N.},
+ publisher = {IBGE},
+ journal   = {Revista Brasileira de Estatística},
+ year      = {2004},
+ volume    = {65},
+ number     = {224},
+ pages     = {89--121},
+ address = {Rio de Janeiro},
+ url       = {https://biblioteca.ibge.gov.br/visualizacao/periodicos/111/rbe_2004_v65_n224.pdf}
+}
+
+@article{mourao2013,
+ title     = {Seguro-desemprego e formalidade no mercado de trabalho brasileiro},
+ author    = {A. N. M. Mour{\~a}o and
+M. E. Almeida and
+E. F. L. Amaral},
+ journal   = {Revista Brasileira de Estudos Populacionais},
+ year      = {2013},
+ volume    = {30},
+ number     = {1},
+ pages     = {251--270},
+ address = {Rio de Janeiro},
+ url       = {https://doi.org/10.1590/S0102-30982013000100012}
+}
+
+@article{pochmann2015,
+ title     = {Ajuste econômico e desemprego recente no {B}rasil metropolitano},
+ author    = {M. Pochmann},
+ journal   = {Estudos Avançados},
+ year      = {2015},
+ volume    = {29},
+ number     = {85},
+ pages     = {7--19},
+ address = {São Paulo},
+ url       = {https://doi.org/10.1590/S0103-40142015008500002}
+}
+
+@article{kalton1983,
+ doi       = {10.2307/1402747},
+ title     = {Models in the Practice of Survey Sampling},
+ author    = {G. Kalton},
+ publisher = {John Wiley and Sons},
+ journal   = {International Statistical Review},
+ year      = {1983},
+ volume    = {51},
+ number     = {2},
+ pages     = {175--188},
+ url       = {http://doi.org/10.2307/1402747}
+}
+
+@article{kalton2002,
+ title     = {Models in the Practice of Survey Sampling (Revisited)},
+ author    = {G. Kalton},
+ journal   = {Journal of Official Statistics},
+ year      = {2002},
+ volume    = {18},
+ number     = {2},
+ pages     = {129--154},
+ url       = {https://www.scb.se/contentassets/ca21efb41fee47d293bbee5bf7be7fb3/models-in-the-practice-of-survey-sampling-revisited.pdf}
+}
+
+@incollection{koch2006,
+  author = {Koch, G. G. and Gillings, D. B.}, 
+  title = {Inference, Design Based vs Model Based},
+  pages = {3462-3466},
+  series = {Encyclopedia of Statistical Sciences},
+  year = {2006},
+  publisher = {Wiley},
+  volume =    {5},
+  editor = {Samuel Kotz},
+  address = { }
+}
+
+@incollection{lepkowski2008,
+  author = {J. M. Lepkowski}, 
+  title = {Population},
+  pages = {590-591},
+  series = {Encyclopedia of survey research methods},
+  year = {2008},
+  publisher = {SAGE Publications},
+  volume =    {1 e 2},
+  editor = {P. J. Lavrakas},
+  address = { }
+}
+
+@book{lehtonen2004,
+   title =     {Practical Methods for Design and Analysis of Complex Surveys},
+   author =    {R. Lehtonen and E. Pahkinen},
+   publisher = {J. Wiley},
+   year =      {2004},
+   series =    {Statistics in practice},
+   edition =   {2nd ed},
+   volume =    {}
+}
+
+@book{casella2010,
+   title =     {Inferência Estatística},
+   author =    {Casella, G. and Berger, R.},
+   publisher = {Cengage Learning},
+   year =      {2010},
+   address ={ São Paulo}
+}
+
+@article{little2004,
+ doi       = {10.2307/27590409},
+ title     = {To Model or Not to Model? Competing Modes of Inference for Finite Population Sampling},
+ author    = {R. J. Little},
+ publisher = {American Statistical Association},
+ journal   = {Journal of the American Statistical Association},
+ year      = {2004},
+ volume    = {99},
+ number     = {466},
+ pages     = {546--556},
+ url       = {https://doi.org/10.1198/016214504000000467}
+}
+
+@book{lohr2019,
+   title =     {Sampling: design and analysis},
+   author =    {Lohr, S. L},
+   publisher = {Chapman \& Hall;CRC},
+   year =      {2019},
+   series =    {Chapman \& Hall/CRC texts in statistical science series},
+   edition =   {Second edition},
+   volume =    {},
+}
+
+@book{silva2021,
+   title =     {Amostragem: teoria e prática usando o R},
+   author =    {P. L. N. Silva and
+   Z. M. Bianchini and A. J. R. Dias},
+   publisher = {},
+   year =      {2021},
+   volume =    {},
+   url = {https://amostragemcomr.github.io/livro/}
+}
+
+@book{pessoa2018,
+   title =     {Análise de Dados Amostrais Complexos
+},
+   author =    {D. Pessoa and P. L. N. Silva},
+   publisher = {},
+   year =      {2018},
+   volume =    {},
+   url = {https://djalmapessoa.github.io/adac/index.html}
+}
+
+@book{bussab2010,
+   title =     {Estatística básica},
+   author =    {W. O. Bussab and P. A. Morettin},
+   publisher = {Editora Saraiva},
+   year =      {2010},
+   address = {São Paulo},
+   volume =    {},
+   edition = {6ed}
+}
+
+@article{pffeffermann2015,
+ doi       = {10.1093/jssam/smv035},
+ title     = {Methodological Issues and Challenges in the Production of Official Statistics},
+ author    = {Pfeffermann, D.},
+ journal   = {Journal of Survey Statistics and Methodology},
+ year      = {2015},
+ volume    = {3},
+ number     = {4},
+ pages     = {425--483},
+ url       = {http://doi.org/10.1093/jssam%2Fsmv035}
+}
+
+@article{royall1970,
+ doi       = {10.2307/2334846},
+ title     = {On Finite Population Sampling Theory Under Certain Linear Regression Models},
+ author    = {Richard M. Royall},
+ publisher = {Oxford University Press},
+ journal   = {Biometrika},
+ year      = {1970},
+ volume    = {57},
+ number     = {2},
+ pages     = {377--387},
+ url       = {http://doi.org/10.2307/2334846}
+}
+
+@article{sarndal1978,
+ doi       = {10.2307/4615682},
+ title     = {Design-Based and Model-Based Inference in Survey Sampling [with Discussion and Reply]},
+ author    = {C.-E. S{\"a}rndal and I. Thomsen and J. M. Hoem and D. V. Lindley and O. Barndorff-Nielsen and T. Dalenius},
+ publisher = {John Wiley and Sons},
+ journal   = {Scandinavian Journal of Statistics},
+ year      = {1978},
+ volume    = {5},
+ number     = {1},
+ pages     = {27--52},
+ url       = {https://www.jstor.org/stable/4615682}
+}
+
+@book{sarndal1992,
+   author= {S{\"a}rndal, C.-E. and Swensson, B. and Wretman, J.},
+   year = {1992},
+   title = {Model Assisted Survey Sampling},
+   publisher = {Springer}
+}
+
+@incollection{senra2005,
+  author = {Senra, N. C.}, 
+  title = {O Saber e o poder das estatísticas : uma história das relações dos estaticistas com os estados nacionais e com as ciências},
+  booktitle = {Estudos e análises: documentação e disseminação de informações},
+  volume ={1},
+  year = {2005},
+  publisher = {IBGE, Centro de Documentação e Disseminação de Informações},
+  editor = {},
+  url  = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv83121.pdf},
+  address = {Rio de Janeiro}
+}
+
+@techreport{amostramestra,
+  author = {Freitas, M. P. S. and Lila, M. L. and Azevedo, R. V. and Antonaci, G. A.},
+  title  = {{A}mostra {M}estra para o {S}istema {I}ntegrado de {P}esquisas {D}omiciliares},
+  institution = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = {2007},
+  number = {23},
+  series  = {Textos para Discuss\~{a}o},
+  address = {Rio de Janeiro},
+ url= {https://www.ibge.gov.br/arquivo/projetos/sipd/texto_discussao_23.pdf}
+ }
+
+@techreport{lila2007,
+  author = {Lila, M. L. and Freitas, M. P. S.},
+  title  = {Estimação de intervalos de confiança para estimadores de diferenças temporais na Pesquisa Mensal de Emprego},
+  institution = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = {2007},
+  number = {22},
+  series = {Textos para Discuss\~{a}o},
+  address = {Rio de Janeiro},
+ url= {https://biblioteca.ibge.gov.br/visualizacao/livros/liv35915.pdf}
+ }
+
+@incollection{bancocentral2016,
+  author = {{BANCO CENTRAL DO BRASIL}}, 
+  title = {Efeito das Mudanças das Regras do Seguro-desemprego},
+  pages = {110--112},
+  booktitle = {Boletim regional do Banco Central do Brasil},
+  year = {2016},
+  number ={10},
+  issue = {1},
+  publisher = {Banco Central do Brasil},
+  address = {Brasília},
+ url= {https://www.bcb.gov.br/content/publicacoes/boletimregional/201601/BOLREG201601-br201601P.pdf}}
+
+@incollection{bancocentral2020,
+  author = {{BANCO CENTRAL DO BRASIL}}, 
+  title = {Estimativa para dados “mensalizados” da {PNAD} {C}ontínua},
+  pages = {38--40},
+  booktitle = {Relatório de Inflação},
+  year = {2020},
+  number = {22},
+  publisher = {Banco Central do Brasil},
+  address = {Brasília},
+ url= {https://www.bcb.gov.br/content/ri/relatorioinflacao/202006/ri202006b2p.pdf}}
+}
+
+@techreport{freitas2014,
+  author = {Freitas, M. P. S. and Antonaci, G. A.},
+  title  = {Sistema {I}ntegrado de {P}esquisas {D}omiciliares Amostra Mestra 2010 e Amostra da {PNAD} Contínua},
+  institution = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = {2014},
+  number = {50},
+  series = {Textos para Discuss\~{a}o},
+  address = {Rio de Janeiro},
+ url= {https://www.ibge.gov.br/arquivo/projetos/sipd/SIPD_amostra_mestra_2010_e_amostra_PNAD_cont.pdf}
+ }
+
+@misc{fgv2020,
+  author = {{FUNDAÇÃO GETÚLIO VARGAS}}, 
+  title  = {Comunicado de Datação de Ciclos Mensais Brasileiros},
+  month ={jun.},
+  year = {2020},
+  url = {https://portalibre.fgv.br/sites/default/files/2020-06/comunicado-do-comite-de-datacao-de-ciclos-economicos-29_06_2020-1.pdf}
+}
+
+@techreport{ramos2003,
+  author = {C. A. Ramos },
+  title  = {Políticas de Geração de Emprego e Renda: justificativas teóricas, contexto histórico e experiência brasileira },
+  publisher = {Departamento de Economia, UnB},
+  year = {2003},
+  number = {277},
+  series = {Textos para Discuss\~{a}o},
+  address = {Brasília},
+ url= {https://elizabetenunes80.files.wordpress.com/2010/03/gera-emp-renda.pdf}
+ }
+ 
+@misc{mte2021,
+  author = {{MINISTÉRIO DO TRABALHO E PREVIDÊNCIA}}, 
+  title  = {Estatísticas do Seguro-Desemprego},
+  year = {2021},
+  url = {http://pdet.mte.gov.br/seguro-desemprego}
+}
+
+@misc{agencia,
+  author = {{Ag\^{e}ncia IBGE de Not\'{i}cias}}, 
+  title  = {{PNAD Cont\'{i}nua trimestral: desocupa\c{c}\~{a}o cresce em 11 UFs no 2º trimestre de 2020, com quedas no Par\'{a} e Amap\'{a}}},
+  month = {08},
+  year = {2020},
+  url = {https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/28699-pnad-continua-trimestral-desocupacao-cresce-em-11-ufs-no-2-trimestre-de-2020-com-quedas-no-para-e-amapa}}
+}
+
+@misc{ibge_pib,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {Sistema de Contas Nacionais: {B}rasil 2018},
+  year = {2020},
+  url = {https://biblioteca.ibge.gov.br/index.php/biblioteca-catalogo?view=detalhes&id=2101766}
+}
+
+@misc{ibge_ipca,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {Sistema Nacional de Índices de Preços ao Consumidor: {IPCA} e {INPC}},
+  year = {2021},
+  url = {https://biblioteca.ibge.gov.br/index.php/biblioteca-catalogo?view=detalhes&id=2101766}
+}
+
+@misc{ibge_paniel_pnadc,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {Painel {PNAD} {C}ontínua},
+  year = {2022},
+  url = {https://painel.ibge.gov.br/pnadc/}
+}
+
+@misc{ibge_pnadc_dados,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {{PNAD} Contínua - {P}esquisa {N}acional por {A}mostra de {D}omicílios {C}ontínua},
+  year = {2022},
+  url = {https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html?t=microdados}
+}
+
+@misc{ibge_pnadc_oquee,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {{PNAD} Contínua - {P}esquisa {N}acional por {A}mostra de {D}omicílios {C}ontínua: O que é},
+  year = {2022},
+  url = {https://www.ibge.gov.br/estatisticas/sociais/trabalho/9171-pesquisa-nacional-por-amostra-de-domicilios-continua-mensal.html?=&t=o-que-e}
+}
+
+@misc{ibge2015,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {Esclarecimentos sobre os resultados da {PNAD} {C}ontínua produzidos mensalmente},
+  year = {2015},
+  url = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101824.pdf}
+}
+@misc{ibge2020,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {Informações referentes à coleta do mês de abril de 2020},
+  year = {2020},
+  url = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101810.pdf}
+}
+
+@misc{ibge2020_pnadcovid,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {{PNAD COVID19} – Plano amostral e ponderação},
+  year = {2020},
+  url = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101726.pdf}
+}
+
+@misc{ibge2010_malha,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {Malha Municipal},
+  year = {2010},
+  url = {https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas.html?edicao=27421&t=acesso-ao-produto}
+}
+
+@misc{ibge2020_pareamento,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {Pareamento de Dados {PNAD COVID19}},
+  year = {2020},
+  url = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101725.pdf}
+}
+@misc{ibge2021_reponderacao,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {Sobre o processo de ponderação da {PNAD} {C}ontínua},
+  year = {2021},
+  url = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101803.pdf}
+}
+@misc{ibge2020_ago,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {Informações referentes à divulgação dos dados do 2º trimestre de 2020},
+  year = {2020},
+  url = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101808.pdf}
+}
+@misc{canada_lfs,
+  author = {{STATISTICS CANADA}}, 
+  title  = {Labour {F}orce {S}urvey},
+  year = {2021},
+url={https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&SDDS=3701}
+}
+
+@misc{australia_lfs,
+  author = {{AUSTRALIAN BUREAU OF STATISTICS}}, 
+  title  = {Labour Force, {A}ustralia methodology},
+  year = {2021},
+url={https://www.abs.gov.au/methodologies/labour-force-australia-methodology/may-2021}
+}
+
+@misc{google2022,
+  author = {Google}, 
+  title  = {Google {T}rends lessons},
+  year = {2022},
+url={https://newsinitiative.withgoogle.com/training/lessons?tool=Google%20Trends&image=trends}
+}
+
+@article{zou2005,
+author = {Zou, H. and Hastie, T.},
+title = {Regularization and variable selection via the elastic net},
+journal = {Journal of the Royal Statistical Society: Series B (Statistical Methodology)},
+volume = {67},
+number = {2},
+pages = {301-320},
+doi = {https://doi.org/10.1111/j.1467-9868.2005.00503.x},
+url = {https://rss.onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-9868.2005.00503.x},
+eprint = {https://rss.onlinelibrary.wiley.com/doi/pdf/10.1111/j.1467-9868.2005.00503.x},
+year = {2005}
+}
+
+@article{bell2013,
+ doi       = {10.1093/biomet/ass063},
+ title     = {Benchmarking small area estimators},
+ author    = {Bell, W. R. and Datta, G. S. and Ghosh, M.},
+ publisher = {Oxford University Press},
+ journal   = {Biometrika},
+ year      = {2013},
+ volume    = {100},
+ number     = {1},
+ pages     = {189--202},
+ url       = {http://doi.org/10.1093/biomet%2Fass063}
+}
+
+@article{bollineni-balabay2016,
+ doi       = {10.1111/rssa.12117},
+ title     = {Multivariate state space approach to variance reduction in series with level and variance breaks due to survey redesigns},
+ author    = {Bollineni-Balabay, O. and van den Brakel, J. and Palm, F.},
+ publisher = {Blackwell Publishing},
+ journal   = {Journal of the Royal Statistical Society Series A (General)},
+ year      = {2016},
+ volume    = {179},
+ number     = {2},
+ pages     = {377--402},
+ url       = {http://doi.org/10.1111/rssa.12117}
+}
+
+@book{dagum2006,
+   title =     {Benchmarking, Temporal Distribution, and Reconciliation Methods for Time Series},
+   author =    {E. B. Dagum and P. A. Cholette },
+   publisher = {Springer-Verlag New York},
+   year =      {2006},
+   series =    {Lecture Notes in Statistics 186},
+   edition =   {1},
+   volume =    {}
+}
+
+@misc{usbls2018,
+  author = {{U.S. BUREAU OF LABOR STATISTICS.}}, 
+  title  = {Handbook of methods: Local area unemployment statistics},
+  year = {2018},
+url={https://www.bls.gov/opub/hom/lau/pdf/lau.pdf}
+}
+
+@article{elliott2019,
+   author={Elliott, D. J.  and  Zong, P.},
+   title={Improving timeliness and accuracy of estimates from the {UK} labour force survey},
+   volume={3},
+   journal={Statistical Theory and Related Fields},
+   year={2019},
+   pages={186-198},
+   url = {https://doi.org/10.1080/24754269.2019.1676034}
+}
+
+@techreport{observ_bh,
+address = {Belo Horizonte},
+title   = {Relatório de acompanhamento dos objetivos de Desenvolvimento Sustentável: {B}elo {H}orizonte 2022},
+author = {{OBSERVATÓRIO DO MILÊNIO DE BELO HORIZONTE}},
+institution = {Prefeitura de Belo Horizonte},
+year    = {2022},
+url={https://prefeitura.pbh.gov.br/sites/default/files/estrutura-de-governo/planejamento/planejamento-e-orcamento/Relatorio_ODS_2022.pdf}
+}
+
+@techreport{global2016,
+address = {Belo Horizonte},
+title   = {Roadmap for localizing the {SDGs}: implementation and monitoring at subnational level},
+author = {{GLOBAL TASKFORCE OF LOCAL AND REGIONAL GOVERNMENTS}},
+institution = {Global Taskforce of Local and Regional Governments},
+year    = {2016},
+url={https://www.global-taskforce.org/sites/default/files/2017-06/bfe783_434174b8f26840149c1ed37d8febba6e.pdf}
+}
+
+
+@misc{unstats2022,
+  author = {{UNITED NATIONS STATISTICS DIVISION}}, 
+  title  = {Countries: {SDG} platform},
+  year = {2022},
+url={https://unstats.un.org/wiki/display/sdgGoodPractices/Countries%3A+SDG+platform}
+}
+
+@techreport{reino_unido_lfs,
+address = {London},
+title   = {Labour {F}orce {S}urvey: Background and methodology},
+author = {{OFFICE FOR NATIONAL STATISTICS}},
+institution = {Office for National Statistics},
+series  = {Labour Force Survey (LFS) user guides},
+type    = {Working paper},
+volume =    {1},
+year    = {2021},
+url={https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/methodologies/labourforcesurveyuserguidance}
+}
+
+@techreport{ons_experimental,
+address = {London},
+title   = {Experimental model-based single-month estimates for the {L}abour {F}orce {S}urvey: methods explained},
+author = {{OFFICE FOR NATIONAL STATISTICS}},
+institution = {Office for National Statistics},
+year    = {2019},
+url={https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/methodologies/experimentalmodelbasedsinglemonthestimatesforthelabourforcesurveymethodsexplained}
+}
+
+@misc{holanda_lfs,
+  author = {{STATISTICS NETHERLANDS}}, 
+  title  = {Labour {F}orce {S}urvey },
+  year = {2021},
+url={https://www.cbs.nl/en-gb/onze-diensten/methods/surveys/korte-onderzoeksbeschrijvingen/labour-force-survey--lfs--}
+}
+
+@article{bell,
+   author={Bell, W. R. and Hillmer, S. C.},
+   title={The Time Series Approach to Estimation of Periodic Survey},
+   journal={Survey Methodology},
+   volume={16},
+   year={1990},
+   pages={195-215},
+   url={https://www150.statcan.gc.ca/n1/en/pub/12-001-x/1990002/article/14535-eng.pdf?st=yYVJRWcX}
+}
+
+@article{binder,
+   author={Binder, R. and Dick, J.},
+   title={Modelling and estimation for repeated surveys},
+   journal={Survey Methodology},
+   volume={15},
+   year=1989,
+   pages={29-45},
+   url={https://www150.statcan.gc.ca/n1/pub/12-001-x/1989001/article/14579-eng.pdf}
+}
+
+@article{boonstra,
+   author={Boonstra, H. J. and van den Brakel, J.},
+   title={Estimation of level and change for unemployment using structural time series models},
+   journal={Survey Methodology},
+   volume={45},
+   year={2019},
+   pages={395-425},
+   url={https://www150.statcan.gc.ca/n1/pub/12-001-x/2019003/article/00005-eng.htm}
+}
+
+@article{brakel09,
+   author = {van den Brakel, J. and Krieg, S.},
+   title = {Estimation of the monthly unemployment rate through structural time series modelling in a rotating panel design},
+   journal = {Survey Methodology},
+   volume = {35},
+   year = {2009},
+   pages = {177–190},
+   url={https://www150.statcan.gc.ca/n1/pub/12-001-x/2009002/article/11040-eng.pdf}
+}
+
+@article{brakel15,
+   author = {van den Brakel, J. and Krieg, S.},
+   title = {Dealing with small sample sizes, rotation group bias and discontinuities in a rotating panel design},
+   journal = {Survey Methodology},
+   volume = {41},
+   year = {2015},
+   pages = {267-296},
+   url={https://www150.statcan.gc.ca/n1/pub/12-001-x/2015002/article/14231-eng.pdf}
+}
+
+@techreport{brakel21,
+   author = {van den Brakel, J. and Souren, M. and Krieg, S.},
+   title = {Estimating monthly Labour Force Figures during the {COVID-19} pandemic in the Netherlands},
+   year = {2021},
+   institution = {Statistics Netherlands},
+   series = {Discussion paper},
+   url = {https://www.cbs.nl/en-gb/background/2021/08/monthly-labour-force-figures-during-covid-19}}
+}
+
+
+@misc{caged,
+  author = {{MINIST\'{E}RIO DO TRABALHO}}, 
+  title = {{O que \'{e} {CAGED}?}},
+  year = {2020},
+  url = {http://pdet.mte.gov.br/o-que-e-caged}}
+}
+
+@techreport{cagedpnadc,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}},
+  title = {{Nota t\'{e}cnica - Diferen\c{c}as metodol\'{o}gicas entre o {C}adastro {G}eral de {E}mpregados e {D}esempregados ({C}aged) e a {P}esquisa {N}acional por {A}mostra de {D}omic\'{i}lios {C}ont\'{i}nua ({PNAD} {C}ont\'{i}nua)}},
+  institution = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = {2020},
+  address= {Rio de Janeiro},
+  url = {https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Nota_Tecnica/Nota_tecnica_diferencas_metodologicas_entre_o_CAGED_e_a_PNAD_continua.pdf}}
+}
+
+@article{datta,
+   author={Datta, G. S. and Lahiri, P. and Maiti, T. and Lu, K. L.},
+   title={Hierarchical {B}ayes estimation of unemployment rates for the states of the {U.S.}},
+   journal={Journal of the American Statistical Association},
+   volume={94},
+   year={1999},
+   pages={1074-1082},
+   url={https://doi.org/10.2307/2669921}
+}
+
+@misc{gtrendsR,
+    title = {gtrendsR: Perform and Display {G}oogle {T}rends Queries},
+    author = {P. Massicotte},
+    year = {2021},
+    url = {https://cran.r-project.org/web/packages/gtrendsR/index.html}
+}
+
+@misc{brasil1991,
+    title = {Lei nº 8.184, de 10 de maio de 1991},
+    author = {{BRASIL}},
+    year = {1991},
+    url = {https://www.planalto.gov.br/ccivil_03/leis/l8184.htm}
+}
+
+@book{durbin,
+   author= {Durbin, J. and Koopman, S. J.},
+   year = {2012},
+   title = {Time Series Analysis by State Space Methods},
+   publisher = {Oxford University Press},
+   address = {Oxford},
+   edition = {2}
+}
+
+@article{durbin1997,
+ doi       = {10.1111/j.1751-5823.1997.tb00366.x},
+ title     = {Benchmarking by State Space Models},
+ author    = {J. Durbin and B. Quenneville},
+ publisher = {John Wiley and Sons},
+ journal   = {International Statistical Review},
+ year      = {1997},
+ volume    = {65},
+ issue     = {1},
+ pages     = {23--48},
+ url       = {http://doi.org/10.1111/j.1751-5823.1997.tb00366.x}
+}
+
+
+@article{fay,
+   author={Fay, R. E. and Herriot, R. A.},
+   title={Estimates of income for small places: an application of {J}ames-{S}tein procedures to Census data},
+   journal={Journal of the American Statistical Association},
+   volume={74},
+   year={1979},
+   pages={269-277},
+   url={https://doi.org/10.2307/2286322}
+}
+
+@misc{gini,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title = {{Rendimento de todas as fontes 2019 - {PNAD} {C}ont\'{i}nua}},
+  howpublished = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = 2020,
+  url = {https://www.ibge.gov.br/estatisticas/multidominio/condicoes-de-vida-desigualdade-e-pobreza/17270-pnad-continua.html?edicao=27257&t=resultados}}
+}
+
+@book{wei2019,
+   title =     {Multivariate Time Series Analysis and Applications},
+   author =    {W. W. S. Wei},
+   publisher = {John Wiley \& Sons},
+   year =      {2019},
+   series =    {Wiley Series In Probability And Statistcs},
+   edition =   {},
+   volume =    {}
+}
+
+@book{hansen,
+   author= {Hansen, M. H. and Hurwitz, W. N. and Madow, W. G.},
+   year = {1953},
+   title = {{S}ample {S}urvey {M}ethods and {T}heory, vol. I, {M}ethods and {A}pplications},
+   publisher = {John Wiley and Sons},
+   address = {New York}
+}
+
+@book{harvey89,
+   author= {Harvey, A. C.},
+   year = {1989},
+   title = {Forecasting, Structural Time Series Models and the {K}alman Filter},
+   publisher = {Cambridge University Press},
+   address = {Cambridge}
+}
+
+@article{harvey2000,
+ title     = {Estimating the underlying change in unemployment in the {UK}},
+ author    = {A. Harvey and C. Chung},
+ publisher = {John Wiley and Sons},
+ journal   = {Journal of the Royal Statistical Society: Series A (Statistics in Society)},
+ year      = {2000},
+ volume    = {163},
+ number     = {3},
+ pages     = {303--309},
+ url       = {http://doi.org/10.1111/1467-985x.00171}
+}
+
+@techreport{ibgecv,
+  author      = {{IBGE}},
+  title       = {Conjunto mínimo de indicadores padrão de qualidade a ser aplicado no MERCOSUL},
+  institution = {{Instituto Brasileiro de Geografia e Estatística}},
+  year        = {2014},
+  number      = {52},
+  type        = {Textos para Discussão},
+  address     = {Rio de Janeiro},
+  url         = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv87506.pdf}
+}
+
+@techreport{choi2009a,
+  author = {H. Choi and H. Varian},
+  title  = {Predicting the present with {G}oogle {T}rends},
+  institution = {Google Inc.},
+  year = {2009},
+  month ={abr.},
+  url = {https://static.googleusercontent.com/media/www.google.com/pt-BR//googleblogs/pdfs/google_predicting_the_present.pdf},
+  address = {Califórnia}
+}
+
+@techreport{choi2009b,
+  author = {H. Choi and H. Varian},
+  title  = {Predicting initial claims for unemployment benefits},
+  institution = {Google Inc.},
+  year = {2009},
+  month ={jul.},
+  url = {https://static.googleusercontent.com/media/research.google.com/pt-BR//archive/papers/initialclaimsUS.pdf},
+  address = {Califórnia}
+}
+
+@article{lazer2014,
+ title     = {The Parable of {G}oogle Flu: Traps in Big Data Analysis},
+ author    = {Lazer, D. and Kennedy, R. and King, G. and Vespignani, A.},
+ publisher = {American Association for the Advancement of Science},
+ journal   = {Science},
+ year      = {2014},
+ volume    = {343},
+ number     = {6176},
+ pages     = {1203--1205},
+ url       = {http://doi.org/10.1126/science.1248506}
+}
+
+@techreport{ipea,
+  author = {Magalh{\~a}es, J. C. R. and Alves, P. J. H.},
+  title  = {A rela\c{c}\~{a}o entre o crescimento econ\^{o}mico e as desigualdades regionais no {B}rasil},
+  institution = {IPEA},
+  year = {2021},
+  number = {2621},
+  series = {Texto para Discuss\~{a}o},
+  url = {https://www.ipea.gov.br/portal/images/stories/PDFs/TDs/td_2621.pdf}}
+}
+
+@techreport{hecksher2020,
+  author = {M. Hecksher},
+  title  = {Valor impreciso por mês exato: microdados e indicadores mensais baseados na {PNAD} {C}ontínua},
+  institution = {IPEA},
+  year = {2020},
+  number = {62},
+  series = {Nota técnica},
+  address= {Rio de Janeiro},
+  url = {http://repositorio.ipea.gov.br/handle/11058/9859}
+}
+  
+@article{goncalves2022,
+author={Gon{\c{c}}alves, C. and Hidalgo, L. and Silva, D. B. N. and van den Brakel, J.},
+title = {Single-month unemployment rate estimates for the {B}razilian Labour Force Survey using state-space models},
+year = {2022},
+volume = {185},
+number = {4},
+pages     = {1707-1732},
+url = {http://doi.org/10.1111/rssa.12914},
+journal = {Journal of the Royal Statistical Society Series A (General)},
+publisher = {Wiley-Blackwell}
+}
+
+@inproceedings{janseen,
+   author={Janseen, T. and Forbes, S.},
+   year={2014},
+   title={The Use of Official Statistics in Evidence Based Policy Making in New Zealand},
+   booktitle={9th International Conference on Teaching Statistics – ICOTS9},
+    url = {https://icots.info/9/proceedings/pdfs/ICOTS9_5A1_FORBES.pdf}
+}
+
+@inproceedings{lui2011,
+   author={Lui, C. and Metaxas, P.T. and Mustafaraj, E.},
+   year={2011},
+   title={On the predictability of the US elections
+through search volume activity},
+   booktitle={Proceedings of the IADIS International
+Conference on e-Society},
+   address = {Avila, Spain},
+    url = {https://repository.wellesley.edu/object/ir153}}
+}
+
+@article{vichi2019,
+ doi       = {10.3233/SJI-190526},
+ title     = {Trusted smart statistics: The challenge of extracting usable aggregate information from new data sources},
+ author    = {Vichi, M. and Hand, D. J.},
+ journal   = {Statistical Journal of the IAOS},
+ year      = {2019},
+ volume    = {35},
+ number     = {4},
+ pages     = {605--613},
+ url       = {http://doi.org/10.3233/SJI-190526}
+}
+
+@article{liu2016,
+title = {Rethinking big data: A review on the data quality and usage issues},
+journal = {ISPRS Journal of Photogrammetry and Remote Sensing},
+volume = {115},
+pages = {134-142},
+year = {2016},
+note = {Theme issue 'State-of-the-art in photogrammetry, remote sensing and spatial information science'},
+issn = {0924-2716},
+doi = {https://doi.org/10.1016/j.isprsjprs.2015.11.006},
+url = {https://www.sciencedirect.com/science/article/pii/S0924271615002567},
+author = {J. Liu and J. Li and W. Li and J. Wu},
+}
+
+@article{teng2017,
+    doi = {10.1371/journal.pone.0165085},
+    author = {Teng, Y. AND Bi, D. AND Xie, G. AND Jin, Y. AND Huang, Y. AND Lin, B. AND An, X. AND Feng, D. AND Tong, Y.},
+    journal = {PLOS ONE},
+    title = {Dynamic Forecasting of Zika Epidemics Using Google Trends},
+    year = {2017},
+    month = {01},
+    volume = {12},
+    url = {https://doi.org/10.1371/journal.pone.0165085},
+    pages = {1-10},
+    number = {1}
+}
+
+@techreport{ons,
+  author = {{OFFICE FOR NATIONAL STATISTICS}},
+  title = {{Claimant count QMI}},
+  institution = {{O}ffice for {N}ational {S}tatistics},
+  year = {2017},
+  series = {Methodology},
+  url = {https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/methodologies/claimantcountqmi/pdf}}
+}
+
+@article{hassani2016,
+ doi       = {10.1142/S2335680416500204},
+ title     = {Forecasting energy data with a time lag into the future and Google trends},
+ author    = {Hassani, H. and Silva, E. S.},
+ journal   = {International Journal of Energy and Statistics},
+ year      = {2016},
+ volume    = {4},
+ number     = {4},
+ pages     = {1650020},
+ url       = {http://doi.org/10.1142/S2335680416500204}
+}
+
+@article{kristoufek2016,
+ doi       = {10.1140/epjds/s13688-016-0094-0},
+ title     = {Estimating suicide occurrence statistics using Google Trends},
+ author    = {Kristoufek, L. and Moat, H. S. and Preis, T.},
+ journal   = {EPJ Data Science},
+ year      = {2016},
+ volume    = {5},
+ number     = {1},
+ pages     = {32},
+ url       = {http://doi.org/10.1140/epjds%2Fs13688-016-0094-0}
+}
+
+@article{pfeffer90,
+   author = {Pfeffermann, D. and Burck, L.},
+   title = {Robust Small Area Estimation Combining Time Series and Cross-Sectional Data},
+   journal = {Survey Methodology},
+   volume = {16},
+   year = {1990},
+   pages = {217-237},
+   url={https://www150.statcan.gc.ca/n1/pub/12-001-x/1990002/article/14534-eng.pdf}
+}
+
+@article{pfeffer91,
+   author = {Pfeffermann, D.},
+   title = {Estimation and Seasonal Adjustment of Population Means Using Data from Repeated Surveys},
+   journal = {Journal of Business \& Economic Statistics},
+   volume = {9},
+   year = {1991},
+   pages = {163–175},
+   url = {https://www.tandfonline.com/doi/abs/10.1080/07350015.1991.10509840}
+}
+
+@article{pfeffer93,
+   author = {Pfeffermann, D. and Bleuer, S. R.},
+   title = {Robust Joint Modelling of Labour Force Series of Small Areas},
+   journal = {Survey Methodology},
+   volume = {19},
+   year = {1993},
+   pages = {149-164},
+   url={https://www150.statcan.gc.ca/n1/pub/12-001-x/1993002/article/14458-eng.pdf}
+}
+
+@article{pfeffer98,
+author = {Pfeffermann, D. and Feder, M. and Signorelli, D.},
+title = {Estimation of Autocorrelations of Survey Errors with Application to Trend Estimation in Small Areas},
+journal = {Journal of Business \& Economic Statistics},
+volume = {16},
+number = {3},
+year  = {1998},
+url={https://www.tandfonline.com/doi/abs/10.1080/07350015.1998.10524773},
+pages = {339-348}
+}
+
+@article{pfeffer06,
+   author = {Pfeffermann, D. and Tiller, R.},
+   title = {Small Area Estimation with State Space Models Subject to Benchmark Constraints},
+   journal = {Journal of the American Statistical Association},
+   volume = {101},
+   year = {2006},
+   pages = {1387-1397},
+   url={https://www.tandfonline.com/doi/abs/10.1198/016214506000000591}
+}
+
+@misc{pib,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title = {Sistema de contas regionais: Brasil 2018},
+  howpublished = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = 2020,
+  url = {https://www.ibge.gov.br/estatisticas/economicas/contas-nacionais/9054-contas-regionais-do-brasil.html?=&t=resultados}}
+}
+
+@misc{ibge_pib2020,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title = {Sistema de contas regionais: Brasil 2020},
+  howpublished = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = 2021,
+  url = {https://biblioteca.ibge.gov.br/index.php/biblioteca-catalogo?view=detalhes&id=2101975}}
+}
+
+@misc{ibge_pib2019,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title = {Sistema de contas regionais: Brasil 2019},
+  howpublished = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = 2020,
+  url = {https://biblioteca.ibge.gov.br/index.php/biblioteca-catalogo?view=detalhes&id=2101873}}
+}
+
+@misc{ibge_indicadores_sociais,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title = {Síntese de indicadores sociais: uma análise das condições de vida da população brasileira},
+  howpublished = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = 2020,
+  url = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101979.pdf}}
+}
+
+@misc{pnadc2tri19,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title = {{PNAD Cont\'{i}nua 2\textordmasculine trimestre 2020}},
+  howpublished = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = 2019,
+  month = 8,
+  url = {https://biblioteca.ibge.gov.br/visualizacao/periodicos/2421/pnact_2019_2tri.pdf}}
+}
+
+@misc{ilo2013,
+  author = {{INTERNATIONAL LABOUR ORGANIZATION}}, 
+  title = {Resolution concerning statistics of work, employment and labour underutilization},
+  howpublished = {International Labour Organization},
+  year = 2013,
+  url = {https://www.ilo.org/wcmsp5/groups/public/---dgreports/---stat/documents/normativeinstrument/wcms_230304.pdf}
+}
+
+@techreport{pnadcnotatecnica,
+  author = {{Instituto Brasileiro de Geografia e Estatística -- IBGE}},
+  title = {{Pesquisa Nacional por Amostra de Domic\'{i}lios Cont\'{i}nua – Notas t\'{e}cnicas – Vers\~{a}o 1.12}},
+  institution = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = {2022},
+  address= {Rio de Janeiro},
+  url = {https://biblioteca.ibge.gov.br/index.php/biblioteca-catalogo?view=detalhes&id=2101992}}
+}
+
+@techreport{ibge_estratos,
+  author      = {{IBGE}},
+  title       = {Pesquisa Nacional por Amostra de Domicílios Contínua -- Nota técnica 01/2022: Estimativas para estratos de municípios na PNAD Contínua},
+  institution = {{Instituto Brasileiro de Geografia e Estatística}},
+  year        = {2022},
+  address     = {Rio de Janeiro},
+  url         = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101933.pdf}
+}
+
+@misc{projpop,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title = {{Estimativas de popula\c{c}\~{a}o enviadas ao TCU}},
+  howpublished = {{I}nstituto {B}rasileiro de {G}eografia e {E}stat\'{i}stica},
+  year = 2020,
+  url = {https://www.ibge.gov.br/estatisticas/sociais/populacao/9103-estimativas-de-populacao.html?edicao=28674&t=resultados}}
+
+@misc{fjp_ped,
+  author = {{FUNDAÇÃO JOÃO PINHEIRO}}, 
+  title = {{Pesquisa de Emprego e Desemprego (PED)}},
+  howpublished = {Fundação João Pinheiro},
+  year = 2014,
+  url = {http://fjp.mg.gov.br/pesquisa-de-emprego-e-desemprego-ped-descontinuada/}
+}
+
+@misc{fjp_pad,
+  author = {{FUNDAÇÃO JOÃO PINHEIRO}}, 
+  title = {{Pesquisa por Amostra de Domicílios (PAD-MG)}},
+  howpublished = {Fundação João Pinheiro},
+  year = 2014,
+  url = {http://fjp.mg.gov.br/pesquisa-por-amostra-de-domicilios-pad-mg-descontinuada/}
+}
+  
+@manual{R,
+    title = {R: A Language and Environment for Statistical Computing},
+    author = {{R CORE TEAM}},
+    organization = {R Foundation for Statistical Computing},
+    address = {Vienna, Austria},
+    year = {2020},
+    url = {https://www.R-project.org/},
+}
+
+@book{silva2002,
+   author= {D. B. N. Silva and M. M. Cruz},
+   year = {2002},
+   title = {Séries temporais de pesquisas amostrais periódicas},
+   address={São Paulo},
+   publisher={Associação Brasileira de Estatística}
+}
+
+@article{scott74,
+   author={Scott, A. J. and Smith, T. M. F.},
+   title={Analysis of Repeated Surveys using Time Series Methods},
+   journal={Journal of the American Statistical Association},
+   volume={69},
+   year=1974,
+   pages={674-678},
+   url={https://www.jstor.org/stable/2286000}
+}
+
+@article{scott77,
+   author={Scott, A. J. and Smith, T. M. F. and Jones, R. G.},
+   title={The Application of Time Series Methods to the Analysis of Repeated Surveys},
+   journal={International Statistical Review},
+   volume={45},
+   year=1977,
+   pages={13-28},
+   url={https://www.jstor.org/stable/1403000}
+}
+
+@incollection{smith,
+  author = {Smith, T. M. F.}, 
+  title = {Principles and problems in the analysis of repeated surveys},
+  pages = {201-216},
+  booktitle = {Survey Sampling and Measurement},
+  year = {1978},
+  publisher = {Academic Press},
+  editor = {N. Krishnan Namboodini}
+}
+
+@incollection{ipea2016,
+  author = {{INSTITUTO DE PESQUISA ECONÔMICA APLICADA}}, 
+  title = {Trabalho e renda},
+  pages = {309-360},
+  booktitle = {Política Sociais:
+acompanhamento e análise},
+  year = {2016},
+  publisher = {IPEA},
+  address = {Brasília}
+}
+
+@article{tam,
+   author={Tam, S. M.},
+   title={Analysis of Repeated Surveys using a Dynamic Linear Model},
+   journal={International Statistical Review},
+   volume={55},
+   year={1987},
+   pages={63-73},
+   url={https://www.jstor.org/stable/1403271}
+}
+
+@article{tiller,
+   author={Tiller, R. B.},
+   title={Time Series Modelling of Sample Survey Data from the {U.S.} Current Population Survey},
+   journal={Journal of Official Statistics},
+   volume={8},
+   year={1992},
+   pages={149-166},
+   url={https://www.scb.se/contentassets/ca21efb41fee47d293bbee5bf7be7fb3/time-series-modeling-of-sample-survey-data-from-the-u.s.-current-population-survey.pdf}
+}
+
+@techreport{us_lfs,
+address = {Washington},
+title   = {Current Population Survey: Design and Methodology},
+author  = {{U.S. CENSUS BUREAU}},
+institution = {U.S. CENSUS BUREAU},
+series  = {Techinical Paper},
+number =    {77},
+year    = {2019},
+url={https://www2.census.gov/programs-surveys/cps/methodology/CPS-Tech-Paper-77.pdf}
+}
+
+@misc{us_arimax13,
+address = {Washington},
+title   = {X-13ARIMA-SEATS Seasonal Adjustment Program},
+author  = {{U.S. CENSUS BUREAU}},
+institution = {U.S. CENSUS BUREAU},
+year    = {2017},
+url={https://www.census.gov/data/software/x13as.html}
+}
+
+@techreport{unece,
+  author = {{UNITED NATIONS ECONOMIC COMMISSION FOR EUROPE}},
+  title = {Recommendations for Promoting, Measuring and Communicating the Value of Official Statistics},
+  institution = {UNECE},
+  year = {2018},
+  url ={https://unece.org/statistics/publications/recommendations-promoting-measuring-and-communicating-value-official}}
+
+@techreport{unsd2014,
+  author = {{UNITED NATIONS STATISTICS DIVISION}},
+  title = {Fundamental Principles of Official Statistic},
+  address = {New York},
+  year = {2014},
+  url ={http://unstats.un.org/unsd/dnss/gp/FP-New-E.pdf}
+}
+  
+@techreport{unsd2015,
+  author = {{UNITED NATIONS STATISTICS DIVISION}},
+  title = {United Nations Fundamental Principles of Official Statistics – Implementation Guidelines},
+  address = {New York},
+  year = {2015},
+  url ={https://unstats.un.org/unsd/dnss/gp/impguide.aspx}
+}  
+
+@article{pfeffermann2013,
+ title     = {New Important Developments in Small Area Estimation},
+ author    = {Pfeffermann, D.},
+ publisher = {Institute of Mathematical Statistics},
+ journal   = {Statistical Science},
+ year      = {2013},
+ volume    = {28},
+ number     = {1},
+ pages     = {40--68},
+ url       = {http://doi.org/10.1214/12-STS395}
+}
+
+@techreport{ons_long,
+  author = {{OFFICE FOR NATIONAL STATISTICS}},
+  title = {ONS Longitudinal Study},
+  address = {},
+  year = {2021},
+  url ={https://www.ons.gov.uk/aboutus/whatwedo/paidservices/longitudinalstudyls}
+} 
+  
+  @techreport{opcs_long,
+  author = {{OFFICE OF POPULATION CENSUSES AND SURVEYS}},
+  title = {Longitudinal Study 1971-1991: History, organisation and quality of data},
+  address = {London},
+  year = {1995},
+  series = {Series LS No. 7},
+  url ={https://webarchive.nationalarchives.gov.uk/20150115223432/http://www.ons.gov.uk/ons/guide-method/user-guidance/longitudinal-study/resources-and-definitions/history--organisation-and-quality-of-data/index.html}
+} 
+  
+@incollection{bellhouse1988,
+  author = {D. R. Bellhouse}, 
+  title = {A Brief History of Random Sampling Methods},
+  pages = {1-14},
+  series = {Handbook of Statistics},
+  year = {1988},
+  publisher = {Elsevier Science Publishers B.V.},
+  volume =    {6},
+  editor = {P. R. Krishnaiah and C. R. Rao},
+  address = { },
+  doi = {https://doi.org/10.1016/S0169-7161(88)06003-1},
+url = {https://www.sciencedirect.com/science/article/pii/S0169716188060031},
+}
+
+@incollection{rosseti2017,
+  author = {E. S. Rosseti and D. B. N. Silva}, 
+  title = {Modelos para séries temporais para pesquisas amostrais repetidas},
+  pages = {171-189},
+  series = {40 anos da unidade de métodos estatísticos do IBGE: alguns passos. Memória institucional},
+  year = {2017},
+  publisher = {IBGE},
+  volume =    {22},
+  editor = { S. Albieri and A. J. R. Dias},
+  address = {Rio de Janeiro},
+  url = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101284.pdf}
+}
+
+@incollection{brewer2009,
+  author = {K. Brewer and T. G. Gregoire}, 
+  title = {Introduction to Survey Sampling},
+  pages = {1--37},
+  series = {Handbook of Statistics},
+  year = {2009},
+  publisher = {Elsevier B.V.},
+  volume =    {29A},
+  editor = {D. Pferffermann and Rao, C.R.},
+  address = {Amsterdam}
+}
+
+@incollection{kalton2009,
+  author = {G. Kalton}, 
+  title = {Designs for Surveys over Time},
+  pages = {89--108},
+  series = {Handbook of Statistics},
+  year = {2009},
+  publisher = {Elsevier B.V.},
+  volume =    {29A},
+  editor = {D. Pferffermann and Rao, C.R.},
+  address = {Amsterdam}
+}
+
+@incollection{gambino2009,
+  author = {J. G. Gambino and P. L. N. Silva}, 
+  title = {Sampling and Estimation in Household Surveys},
+  pages = {407--440},
+  series = {Handbook of Statistics},
+  year = {2009},
+  publisher = {Elsevier B.V.},
+  volume =    {29A},
+  editor = {D. Pferffermann and Rao, C.R.},
+  address = {Amsterdam}
+}
+
+@techreport{chen2020,
+address = {Washington},
+title   = {National Health and Nutrition
+Examination Survey, 2015−2018: Sample design and estimation procedures},
+author  = {T.C. Chen and J. Clark and  M.K. Riddles and L.K. Mohadjer and T.H.I. Fakhouri},
+institution = {U.S. DEPARTMENT OF HEALTH AND HUMAN SERVICES},
+series  = {Vital and Health Statistics},
+volume =    {2},
+number  = {184},
+year    = {2020},
+url={https://www.cdc.gov/nchs/data/series/sr_02/sr02-184-508.pdf}
+}
+
+@incollection{binder2009,
+  author = {D. A. Binder and G. Roberts}, 
+  title = {Design- and Model-Based Inference for Model Parameters},
+  pages = {33--54},
+  series = {Handbook of Statistics},
+  year = {2009},
+  publisher = {Elsevier B.V.},
+  volume =    {29B},
+  editor = {D. Pferffermann and Rao, C.R.},
+  address = {Amsterdam}
+}
+
+@incollection{steel2009,
+  author = {D. Steel and C. McLaren}, 
+  title = {Design and Analysis of Surveys Repeated over Time},
+  pages = {289--313},
+  series = {Handbook of Statistics},
+  year = {2009},
+  publisher = {Elsevier B.V.},
+  volume =    {29B},
+  editor = {D. Pferffermann and Rao, C.R.},
+  address = {Amsterdam}
+}
+
+@article{smith1994,
+ title     = {Sample Surveys 1975-1990; An Age of Reconciliation?},
+ author    = {T. M. F. Smith},
+ publisher = {John Wiley and Sons},
+ journal   = {International Statistical Review},
+ year      = {1994},
+ volume    = {62},
+ number     = {1},
+ pages     = {5--19},
+ url       = {http://doi.org/10.2307/1403539}
+}
+
+@article{bellhouse2000,
+ title     = {Survey sampling theory over the twentieth century and its relation to computing technology},
+ author    = {D.R. Bellhouse},
+ journal   = {Survey Methodology},
+ publisher = {Statistics Canada},
+ year      = {2000},
+ volume    = {26},
+ number     = {1},
+ pages     = {11--20},
+ url       = {https://www150.statcan.gc.ca/n1/en/catalogue/12-001-X20000015174}
+}
+
+@article{rao2005,
+ title     = {Interplay Between Sample Survey Theory and Practice: An Appraisal},
+ author    = {J. N. K. Rao},
+ journal   = {Survey Methodology},
+ publisher = {Statistics Canada},
+ year      = {2005},
+ volume    = {31},
+ number     = {2},
+ pages     = {117--138},
+ url       = {https://www150.statcan.gc.ca/n1/pub/12-001-x/2005002/article/9040-eng.pdf}
+}  
+ 
+ @article{kalton1993,
+ title     = {Painel Surveys: adding the fourth dimension},
+ author    = {G. Kalton and C. F. Citro},
+ journal   = {Survey Methodology},
+ publisher = {Statistics Canada},
+ year      = {1993},
+ volume    = {19},
+ number     = {2},
+ pages     = {205--2015},
+ url       = {https://www150.statcan.gc.ca/n1/pub/12-001-x/1993002/article/14452-eng.pdf}
+}  
+
+@article{brewer2013,
+ title     = {Three controversies in the history of survey sampling},
+ author    = {K. Brewer},
+ journal   = {Survey Methodology},
+ publisher = {Statistics Canada},
+ year      = {2013},
+ volume    = {39},
+ number     = {2},
+ pages     = {249--262},
+ url       = {https://www150.statcan.gc.ca/n1/pub/12-001-x/2013002/article/11883-eng.pdf}
+}  
+
+
+
+@article{beaumont2020,
+ title     = {Are probability surveys bound to disappear for the production of official statistics?},
+ author    = {J.-F. Beaumont},
+ journal   = {Survey Methodology},
+ publisher = {Statistics Canada},
+ year      = {2020},
+ volume    = {46},
+ number     = {1},
+ pages     = {1--28},
+ url       = {https://www150.statcan.gc.ca/n1/en/catalogue/12-001-X202000100001}
+} 
+ 
+@article{kalton2019,
+ title     = {Developments in Survey Research over the Past 60 Years: A Personal Perspective},
+ author    = {Kalton, G.},
+ publisher = {John Wiley and Sons},
+ journal   = {International Statistical Review},
+ year      = {2019},
+ volume    = {87},
+ number     = {S1},
+ pages     = {10--30},
+ url       = {http://doi.org/10.1111/insr.12287}
+}
+@article{brakel2016,
+ title     = {Small area estimation with state space common factor models for rotating panels},
+ author    = {van den Brakel, J. and Krieg, S.},
+ publisher = {Blackwell Publishing},
+ journal   = {Journal of the Royal Statistical Society Series A (General)},
+ year      = {2016},
+ volume    = {179},
+ number     = {3},
+ pages     = {763--791},
+ url       = {http://doi.org/10.1111/rssa.12158}
+}
+
+@article{brakel2016_discont,
+ title     = {Small area estimation to quantify discontinuities in repeated sample surveys},
+ author    = {van den Brakel, J. and Buelens, B. and Boonstra, H. J.},
+ publisher = {Blackwell Publishing},
+ journal   = {Journal of the Royal Statistical Society Series A (General)},
+ year      = {2016},
+ volume    = {179},
+ number     = {1},
+ pages     = {229--250},
+ url       = {http://doi.org/10.1111/rssa.12110}
+}
+
+@article{krieg2012,
+ doi       = {10.1016/j.csda.2012.02.008},
+ title     = {Estimation of the monthly unemployment rate for six domains through structural time series modelling with cointegrated trends},
+ author    = {S. Krieg and van den Brakel, J.},
+ publisher = {Elsevier Science},
+ journal   = {Computational Statistics \& Data Analysis},
+ issn      = {0167-9473},
+ year      = {2012},
+ volume    = {56},
+ number     = {10},
+ url       = {http://doi.org/10.1016/j.csda.2012.02.008}
+}
+
+@article{rao1994,
+ title     = {Small-Area Estimation by Combining Time-Series and Cross-Sectional Data},
+ author    = {J. N. K. Rao and M. Yu},
+ publisher = {John Wiley and Sons},
+ journal   = {Canadian Journal of Statistics},
+ year      = {1994},
+ volume    = {22},
+ number     = {4},
+ pages     = {511--528},
+ url       = {http://doi.org/10.2307/3315407}
+}
+@article{lenhard2006,
+ title     = {Models and Statistical Inference: The Controversy between Fisher and Neyman–Pearson},
+ author    = {J. Lenhard},
+ publisher = {The University of Chicago Press},
+ journal   = {The British Journal for the Philosophy of Science},
+ year      = {2006},
+ url       = {https://www.jstor.org/stable/3541653}
+} 
+
+@book{tille2020,
+   title =     {Sampling and estimation from finite populations},
+   author =    {Y. Till\'e},
+   publisher = {Wiley},
+   year =      {2020},
+   series =    {Wiley series in probability and statistics applied},
+   edition =   {},
+   volume =    {},
+   address ={New Jersey}
+}
+
+
+@article{rao2017,
+ title     = {Sample survey theory and methods: Past, present, and future directions},
+ author    = {J. N. K. Rao and W. A. Fuller},
+ journal   = {Survey Methodology},
+ publisher = {Statistics Canada},
+ year      = {2017},
+ volume    = {43},
+ number     = {2},
+ pages     = {145--160},
+ url       = {https://www150.statcan.gc.ca/n1/pub/12-001-x/2017002/article/54888-eng.htm}
+} 
+
+@article{clark2020,
+ title     = {Model-assisted sample design is minimax for model-based prediction},
+ author    = {R. G. Clark},
+ journal   = {Survey Methodology},
+ publisher = {Statistics Canada},
+ year      = {2020},
+ volume    = {46},
+ number     = {1},
+ pages     = {77--91},
+ url       = {https://www150.statcan.gc.ca/n1/en/catalogue/12-001-X202000100003}
+} 
+
+@techreport{bethlehem2009,
+address = {The Hague/Heerlen},
+title   = {The rise of survey sampling},
+author  = {J. Bethlehem},
+institution = {Statistics Netherlands},
+series  = {Discussion Paper},
+type    = {Working paper},
+number  = {09015},
+year    = {2009},
+url={https://www.cbs.nl/-/media/imported/documents/2009/07/2009-15-x10-pub.pdf}
+}  
+
+@techreport{suhoy2009,
+address = {Jerusalem},
+title   = {Query Indices and a 2008 Downturn: Israeli Data},
+author  = {T. Suhoy},
+series  = {Bank of Israel Working Papers},
+type    = {Working paper},
+number  = {2009.06},
+year    = {2009},
+url={https://www.boi.org.il/en/Research/Pages/papers_dp0906e.aspx}
+}  
+
+@techreport{d'amuri2009,
+address = {Munich},
+title   = {Predicting unemployment in short samples with internet job search query data},
+author  = {F. D’Amuri},
+series  = {Munich Personal RePEc Archive - MPRA},
+type    = {Working paper},
+number  = {18403},
+year    = {2009},
+url={https://mpra.ub.uni-muenchen.de/18403/}
+}  
+
+@article{damuri2017,
+ doi       = {10.1016/j.ijforecast.2017.03.004},
+ title     = {The predictive power of Google searches in forecasting US unemployment},
+ author    = {D’Amuri, F. AND Marcucci, J.},
+ journal   = {International Journal of Forecasting},
+ year      = {2017},
+ volume    = {33},
+ number     = {4},
+ pages     = {801--816},
+ url       = {http://doi.org/10.1016/j.ijforecast.2017.03.004}
+}
+
+@article{fondeur2013,
+ doi       = {10.1016/j.econmod.2012.07.017},
+ title     = {Can Google data help predict French youth unemployment?},
+ author    = {Fondeur, Y. and Karam\'e, F.},
+ journal   = {Economic Modelling},
+ year      = {2013},
+ volume    = {30},
+ pages     = {117--125},
+ url       = {http://doi.org/10.1016/j.econmod.2012.07.017}
+}
+
+@article{guzman2011,
+ title     = {Internet Search Behavior as an Economic Forecasting Tool: The Case of Inflation Expectations},
+ author    = {Guzman, G.},
+ journal   = {The Journal of Economic and Social Measurement},
+ year      = {2011},
+ volume    = {36},
+ pages     = {},
+ url       = {https://ssrn.com/abstract=2004598}
+}
+
+@article{naccarato2018,
+ doi       = {10.1016/j.techfore.2017.11.022},
+ title     = {Combining official and Google Trends data to forecast the Italian youth unemployment rate},
+ author    = {Naccarato, A. and Falorsi, S. and Loriga, S. and Pierini, A.},
+ journal   = {Technological Forecasting and Social Change},
+ year      = {2018},
+ volume    = {130},
+ pages     = {114-122},
+ url       = {https://doi.org/10.1016/j.techfore.2017.11.022}
+}
+
+
+@article{shikida2012, 
+ title={Informações e Política Econômica: um teste para aperfeiçoamento de erros de previsão a partir da utilização do {G}OOGLE {T}RENDS}, 
+ volume={2},
+ url={https://www.revistas.usp.br/rgpp/article/view/97858},
+ DOI={10.11606/issn.2237-1095.v2i2p197-218}, 
+ number={2}, 
+ journal={Revista Gestão \& Políticas Públicas}, 
+ author={Shikida, C. D. and Byrro, R. M. and Salvato, M. A. and Araujo, Junior, A. F.}, 
+ year={2012}, 
+ month={dez.}, 
+ pages={197-218} 
+}
+
+@article{d'amuri2010,
+ doi       = {10.2139/ssrn.1594132},
+ title     = {'{G}oogle {I}t!' {F}orecasting the {US} Unemployment Rate with A {G}oogle Job Search Index},
+ author    = {D’Amuri, F. and Marcucci, J.},
+ journal   = {SSRN Electronic Journal},
+ year      = {2010},
+ url       = {http://doi.org/10.2139/ssrn.1594132}
+}
+
+@article{sterba2009,
+doi	= {10.1080/00273170903333574},
+title	= {Alternative Model-Based and Design-Based Frameworks for Inference From Samples to Populations: From Polarization to Integration},
+author	= {Sterba, S. K.},
+publisher	= {Lawrence Erlbaum Associates, Inc.},
+journal	= {Multivariate Behavioral Research},
+year	= {2009},
+volume	= {44},
+number	= {6},
+page	= {711--740},
+url =       {https://doi.org/10.1080%2F00273170903333574},
+}  
+@article{schiavoni2020,
+ title     = {A dynamic factor model approach to incorporate Big Data in state space models for official statistics},
+ author    = {Schiavoni, C. and Palm, F. and Smeekes, S. and van den Brakel, J.},
+ journal   = {Journal of the Royal Statistical Society: Series A (Statistics in Society)},
+ year      = {2020},
+ pages     = {rssa.12626},
+ url       = {http://doi.org/10.1111/rssa.12626}
+}
+
+@article{yi2020,
+author = {D. Yi and S. Ning and C. Chang and S. C. Kou},
+title = {Forecasting Unemployment Using Internet Search Data via {PRISM}},
+journal = {Journal of the American Statistical Association},
+volume = {116},
+number = {536},
+pages = {1662-1673},
+year  = {2021},
+doi = {10.1080/01621459.2021.1883436},
+URL = {https://doi.org/10.1080/01621459.2021.1883436}}
+}
+
+@article{maas2019,
+author = {Maas, B.},
+title = {Short-term forecasting of the US unemployment rate},
+journal = {Journal of Forecasting},
+volume = {39},
+number = {3},
+pages = {394-411},
+doi = {https://doi.org/10.1002/for.2630},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/for.2630},
+year = {2020}
+}
+
+@article{smeekes2021,
+title = {An automated approach towards sparse single-equation cointegration modelling},
+journal = {Journal of Econometrics},
+volume = {221},
+number = {1},
+pages = {247-276},
+year = {2021},
+doi = {https://doi.org/10.1016/j.jeconom.2020.07.021},
+url = {https://www.sciencedirect.com/science/article/pii/S0304407620302190},
+author = {S. Smeekes and E. Wijler},
+}
+
+@article{smith2016,
+author = {Smith, P.},
+title = {Google's {MIDAS} Touch: Predicting {UK} Unemployment with Internet Search Data},
+journal = {Journal of Forecasting},
+volume = {35},
+number = {3},
+pages = {263-284},
+keywords = {MIDAS, internet search, Google, nowcasting, macroeconomics},
+doi = {https://doi.org/10.1002/for.2391},
+url = {https://doi.org/10.1002/for.2391},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/for.2391},
+year = {2016}
+}
+
+
+@article{groves2011,
+ title     = {Three Eras of Survey Research},
+ author    = {Groves, R. M.},
+ publisher = {Oxford University Press},
+ journal   = {Public Opinion Quarterly},
+ year      = {2011},
+ volume    = {75},
+ number     = {5},
+ pages     = {861--871},
+ url       = {http://doi.org/10.1093/poq%2Fnfr057}
+}  
+ 
+@article{brick2011,
+ title     = {The Future of Survey Sampling},
+ author    = {Brick, J. M.},
+ publisher = {Oxford University Press},
+ journal   = {Public Opinion Quarterly},
+ year      = {2011},
+ volume    = {75},
+ number     = {5},
+ pages     = {872--888},
+ url       = {http://doi.org/10.1093/poq%2Fnfr045}
+} 
+
+@article{neyman1934,
+ author = {J. Neyman},
+ journal = {Journal of the Royal Statistical Society},
+ number = {4},
+ pages = {558--625},
+ publisher = {Wiley, Royal Statistical Society},
+ title = {On the Two Different Aspects of the Representative Method: The Method of Stratified Sampling and the Method of Purposive Selection},
+ volume = {97},
+ year = {1934},
+ url = {https://doi.org/10.2307/2342192}
+}  
+
+@article{fisher1922,
+ url = {https://doi.org/10.1098/rsta.1922.0009},
+ author = {R. A. Fisher},
+ journal = {Philosophical Transactions of the Royal Society of London, Series A},
+ number = {},
+ pages = {309--368},
+ publisher = {Royal Society},
+ title = {On the mathematical foundations of theoretical statistics},
+ volume = {222},
+ year = {1922}
+} 
+
+@book{fuller2009,
+   title =     {Sampling Statistics},
+   author =    {W. A. Fuller},
+   publisher = {Wiley},
+   year =      {2009},
+   series =    {Wiley Series in Survey Methodology},
+   edition =   {1},
+   volume =    {},
+   address= {New Jersey}
+}
+
+@book{morettin2018,
+   title =     {Análise de séries temporais: modelos lineares univariados},
+   author =    {P. A. Morettin and C. M. C. Toloi},
+   publisher = {Blucher},
+   year =      {2018},
+   edition =   {3},
+   volume =    {1},
+   address= {São Paulo}
+}
+
+@book{morettin2020,
+   title =     {Análise de séries temporais: modelos multivariados e não lineares},
+   author =    {P. A. Morettin and C. M. C. Toloi},
+   publisher = {Blucher},
+   year =      {2020},
+   edition =   {},
+   volume =    {2},
+   address= {São Paulo}
+}
+@book{cassel1977,
+   title =     { Foundations of inference in survey sampling},
+   author =    { Cassel, C. M. and S\"arndal, C. E. and Wretman, J. H},
+   publisher = {Wiley},
+   year =      {1977},
+   series =    {},
+   edition =   {},
+   volume =    {},
+   address= {New York}
+}
+
+@article{pfeffermann1993,
+ title     = {The Role of Sampling Weights When Modeling Survey Data},
+ author    = {Pfeffermann, D.},
+ publisher = {Wiley},
+ journal   = {International Statistical Review},
+ year      = {1993},
+ volume    = {61},
+ number     = {2},
+ pages     = {317--337},
+ url       = {http://doi.org/10.2307/1403631}
+}
+
+@article{pfeffermann1996,
+ title     = {The use of sampling weights for survey data analysis},
+ author    = {Pfeffermann, D.},
+ publisher = {Sage Publications},
+ journal   = {Statistical Methods in Medical Research},
+ year      = {1996},
+ volume    = {5},
+ number     = {3},
+ pages     = {239--261},
+ url       = {http://doi.org/10.1177/096228029600500303}
+}
+
+@article{miller2017,
+ title     = {Is There a Future for Surveys?},
+ author    = {Miller, P. V.},
+ publisher = {Oxford University Press},
+ journal   = {Public Opinion Quarterly},
+ year      = {2017},
+ volume    = {81},
+ number     = {S1},
+ pages     = {205--212},
+ url       = {http://doi.org/10.1093/poq%2Fnfx008}
+}
+@book{chambers2003,
+   title =     {Analysis of Survey Data},
+   author =    {R. L. Chambers and C. J. Skinner},
+   publisher = {Wiley},
+   year =      {2003},
+   series =    {Wiley Series in Survey Methodology},
+   edition =   {1},
+   volume =    {},
+   address = {Chichester}
+}
+
+@article{west2018,
+author = {B. T. West and J. W. Sakshaug and G. A. S. Aurelien},
+url = {https://doi.org/10.2478/jos-2018-0034},
+title = {Accounting for Complex Sampling in Survey Estimation: A Review of Current Software Tools},
+journal = {Journal of Official Statistics},
+number = {3},
+volume = {34},
+year = {2018},
+pages = {721--752}
+}
+@book{cochran1977,
+   title =     {Sampling Techniques, Third Edition},
+   author =    {W. G. Cochran},
+   publisher = {Wiley},
+   year =      {1977},
+   series =    {Wiley Series in Probability and Mathematical Statistics},
+   edition =   {3},
+   volume =    {},
+   address= {New York}
+}
+
+@article{buelens2018,
+ title     = {Comparing Inference Methods for Non-probability Samples},
+ author    = {Buelens, B. and Burger, J. and van den Brakel, J.},
+ publisher = {Wiley},
+ journal   = {International Statistical Review},
+ year      = {2018},
+ url       = {http://doi.org/10.1111/insr.12253}
+}
+
+@article{duncan1987,
+ title     = {Issues of Design and Analysis of Surveys across Time},
+ author    = {G. J. Duncan and G. Kalton},
+ publisher = {John Wiley and Sons},
+ journal   = {International Statistical Review},
+ year      = {1987},
+ volume    = {55},
+ number     = {1},
+ pages     = {97--117},
+ url       = {http://doi.org/10.2307/1403273}
+}
+
+@article{barreira2013,
+ doi       = {10.1007/s11066-013-9082-8},
+ title     = {Nowcasting unemployment rate and new car sales in south-western Europe with {G}oogle {T}rends},
+ author    = {Barreira, N. and Godinho, P. and Melo, P.},
+ journal   = {NETNOMICS: Economic Research and Electronic Networking},
+ year      = {2013},
+ volume    = {14},
+ number     = {3},
+ pages     = {129--165},
+ url       = {http://doi.org/10.1007/s11066-013-9082-8}
+}
+
+@article{borup2022,
+ doi       = {10.1080/07350015.2020.1791133},
+ title     = {In search of a job: Forecasting employment growth using {G}oogle {T}rends},
+ author    = {Borup, D. and Christian, E. and Schütte, M.},
+ journal   = {Journal of Business and Economic Statistics},
+ year      = {2022},
+ volume    = {40},
+ number     = {1},
+ pages     = {186-200},
+ url       = {http://doi.org/10.1080/07350015.2020.1791133}
+}
+
+@article{dilmaghani2019,
+ doi       = {10.1108/JES-11-2017-0346},
+ title     = {Workopolis or {T}he {P}irate {B}ay: what does {G}oogle {T}rends say about the unemployment rate?},
+ author    = {Dilmaghani, M.},
+ journal   = {Journal of Economic Studies},
+ year      = {2019},
+ volume    = {46},
+ number     = {2},
+ pages     = {422--445},
+ url       = {http://doi.org/10.1108/JES-11-2017-0346}
+}
+
+@article{simionescu2020,
+ doi       = {10.1016/j.techfore.2020.120026},
+ title     = {Improving unemployment rate forecasts at regional level in {R}omania using {G}oogle {T}rends},
+ author    = {Mihaela, S.},
+ journal   = {Technological Forecasting and Social Change},
+ year      = {2020},
+ volume    = {155},
+ pages     = {120026},
+ url       = {http://doi.org/10.1016/j.techfore.2020.120026}
+}
+
+@Thesis{silva1996,
+    author     =     {D. B. N. Silva},
+    title     =     {Modelling compositional time series from repeated surveys},
+    type = {Doutorado em Estatística},
+    school     =     {University of Southampton},
+    address     =     {Inglaterra},
+    year     =     {1996},
+    url = {https://eprints.soton.ac.uk/462965/}
+    }
+
+
+@Thesis{wijler2021,
+    author     =     {E. J. J. Wijler},
+    title     =     {High-Dimensional Time Series Analysis: Unit Roots, Cointegration and Forecasting},
+    type = {Doutorado},
+    year = "2021",
+url = {https://doi.org/10.26481/dis.20210114ew},
+publisher = {Datawyse / Universitaire Pers Maastricht},
+address = {Holanda},
+school = {Maastricht University}
+    }
+    
+    
+@mastersthesis{rosseti2013,
+    author     =     {E. S. Rosseti},
+    title     =     {Análise de séries temporais da pesquisa mensal de emprego com incorporação dos efeitos do plano amostral},
+    type = {Mestrado em Estudos Populacionais e Pesquisas Sociais},
+    school     =     {Escola Nacional de Ciências Estatísticas do Instituto Brasileiro de Geografia e Estatística},
+    address     =     {Rio de Janeiro},
+    year     =     {2013},
+    url = {https://ence.ibge.gov.br/images/ence/doc/mestrado/dissertacoes/2013/Resumo_Dissertacao_2013_Eduardo_Santiago_Rosseti.pdf}
+    }
+
+@mastersthesis{anvik2010,
+    author     =     {C. Anvik and K. Gjelstad},
+    title     =     {Just {G}oogle {I}t!: Forecasting Norwegian unemployment figures with web queries},
+    type = {M.Sc. in Business and Economics},
+    school     =     {BI Norwegian School of Management},
+    address     =     {Oslo},
+    year     =     {2010},
+    url = {https://biopen.bi.no/bi-xmlui/handle/11250/95460}
+    }
+
+@mastersthesis{alabrella2017,
+    author     =     {N. P. Alabrella},
+    title     =     {Uso de dados de busca na internet na estimação de indicadores econômicos},
+    type = {Mestrado Profissional em Economia},
+    school     =     {Insper},
+    address     =     {São Paulo},
+    year     =     {2017},
+    url = {https://repositorio.insper.edu.br/handle/11224/2284}
+    }
+
+@mastersthesis{pitta2003,
+    author     =     {M. T. Pitta},
+    title     =     {Uso de modelos de espaços de estados para estimação do efeito de vício de grupos de rotação na pesquisa mensal de emprego do {IBGE}},
+    school     =     {Escola Nacional de Ciências Estatísticas do Instituto Brasileiro de Geografia e Estatística},
+    address     =     {Rio de Janeiro},
+    year     =     {2003},
+    url = {https://ence.ibge.gov.br/images/ence/doc/mestrado/dissertacoes/2003/2003dissertacao_marcelo_trindade_pitta1-57.pdf}
+    }
+@mastersthesis{luna2012,
+    author     =     {Luna, Hernandez, A.},
+    title     =     {Estimação em pesquisas repetidas empregando o filtro {GLS}},
+    type = {Mestrado em Estatística},
+    school     =     {Universidade Estadual de Campinas},
+    address     =     {Campinas},
+    year     =     {2012},
+    url = {https://doi.org/10.47749/T/UNICAMP.2012.867796}
+    }
+
+@article{brunsdon1998,
+ title     = {The Time Series Analysis of Compositional Data},
+ author    = {Brunsdon, T. M. and Smith, T. M. F.},
+ journal   = {Survey Methodology},
+ year      = {1998},
+ volume    = {14},
+ issue     = {3},
+ pages     = {237-253},
+ url = {https://www.scb.se/contentassets/f6bcee6f397c4fd68db6452fc9643e68/the-time-series-analysis-of-compositional-data.pdf}
+}
+
+@article{macgibbon1989,
+ title     = {Small Area Estimates of Proportions via Empirical {B}ayes Techniques},
+ author    = {Mac{G}ibbon, B. and Tomberlin, T. J.  },
+ journal   = {Survey Methodology},
+ year      = {1989},
+ volume    = {15},
+ issue     = {2},
+ pages     = {237-252},
+ url = {https://www150.statcan.gc.ca/n1/pub/12-001-x/1989002/article/14565-eng.pdf}
+}
+
+
+
+@article{arima2017,
+ title     = {Multivariate {F}ay-{H}erriot {B}ayesian estimation of small area means under functional measurement error},
+ author    = {Arima, S. and Bell, W.R. and Datta, G.S. and Franco, C. and Liseo, B.},
+ publisher = {Blackwell Publishing},
+ journal   = {Journal of the Royal Statistical Society Series A (General)},
+ year      = {2017},
+ volume    = {180},
+ pages     = {1191--1209},
+ url = {https://doi.org/10.1111/rssa.12321}
+}
+
+@misc{agencia,
+  author = {{Ag\^{e}ncia IBGE de Not\'{i}cias}}, 
+  title  = {{{PNAD} {C}ont\'{i}nua trimestral: desocupa\c{c}\~{a}o cresce em 11 {UFs} no 2º trimestre de 2020, com quedas no {P}ar\'{a} e {A}map\'{a}}},
+  month = {08},
+  year = {2020},
+  url = {https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/28699-pnad-continua-trimestral-desocupacao-cresce-em-11-ufs-no-2-trimestre-de-2020-com-quedas-no-para-e-amapa}}
+}
+
+@article{boonstra2021,
+   author={Boonstra, H. J. and van den Brakel, J. and S. Das},
+   title={Multilevel time series modeling of mobility trends},
+   journal={Journal of the Royal Statistical Society: Series A (Statistics in Society)},
+   volume={184},
+   year={2021},
+   pages={985-1007}
+}
+
+@article{brakel_roels2010,
+ title     = {Intervention analysis with state-space models to estimate discontinuities due to a survey redesign},
+ author    = {van den Brakel, J. and Roels, J.},
+ publisher = {Institute of Mathematical Statistics},
+ journal   = {The Annals of Applied Statistics},
+ year      = {2010},
+ volume    = {4},
+ issue     = {2},
+ pages     = {1105--1138},
+ url       = {http://doi.org/10.1214/09-AOAS305}
+}
+
+@article{mariano2019,
+ title     = {Semiparametric empirical best prediction for small area estimation of unemployment indicators},
+ author    = {Marino, M. F. and M. G. Ranalli and N. Salvati and M. Alfo},
+ publisher = {Institute of Mathematical Statistics},
+ journal   = {The Annals of Applied Statistics},
+ year      = {2019},
+ volume    = {13},
+ issue     = {2},
+ pages     = {1166-1197},
+ url       = {http://doi.org/10.1214/09-AOAS305}
+}
+
+@article{molina2020,
+author = {Molina, I. and Strzalkowska-Kominiak, E.},
+title = {Estimation of proportions in small areas: application to the labour force using the {S}wiss {C}ensus {S}tructural {S}urvey},
+journal = {Journal of the Royal Statistical Society: Series A (Statistics in Society)},
+volume = {183},
+number = {1},
+pages = {281-310},
+url = {https://doi.org/10.1111/rssa.12498},
+year = {2020}
+}
+
+@article{you2003,
+   author = {Y. You and Rao,J. N. K. and J. Gambino},
+   title = {Model-Based Unemployment Rate Estimation for the {C}anadian {L}abour {F}orce {S}urvey: A Hierarchical {B}ayes Approach},
+    journal = {Survey Methodology},
+   volume = {29},
+   year = {2003},
+   pages = {25-32},
+   url = {https://www150.statcan.gc.ca/n1/en/catalogue/12-001-X20030016602}
+}
+
+@article{bertarelli2018,
+   author = {G. Bertarelli and M. Giovanna Ranalli and F. Bartolucci and M. D’Al\`o and F. Solari},
+   title = {Small area estimation for unemployment using latent Markov models},
+   journal = {Survey Methodology},
+   volume = {44},
+   year = {2018},
+   pages = {167-192},
+   url={https://www150.statcan.gc.ca/n1/pub/12-001-x/2018002/article/54956-eng.pdf}
+}
+
+@techreport{stat_can_2016,
+  author = {{STATISTICS CANADA}},
+  title = {Guide to the {L}abour {F}orce {S}urvey},
+  institution = {{S}tatistics {C}anada},
+  year = {2016},
+  number = {Catalogue no. 71-543-G},
+  url = {https://www150.statcan.gc.ca/n1/pub/71-543-g/71-543-g2016001-eng.pdf}
+}
+
+@article{malec1997,
+   author={Malec, D. and J. Sedransk and Moriarity, C. L.  and Leclere, F. B. },
+   title={Small Area Inference for Binary Variables in the {N}ational {H}ealth {I}nterview {S}urvey},
+   journal={Journal of the American Statistical Association},
+   volume={92},
+   year={1997},
+   pages={815--826},
+   url = {https://doi.org/10.2307/2965546}
+}
+
+@article{harvey00,
+   author={Harvey, A. C. and Chung, C. H.},
+   title={Estimating the underlying change in unemployment in the {UK}},
+   journal={Journal of the Royal Statistical Society Series A (General)},
+   volume={163},
+   year=2000,
+   pages={303–339},
+   url = {https://doi.org/10.1111/1467-985X.00171}
+}
+
+@article{rao,
+   author={Rao, J. N. K. and Yu, M.},
+   title={Small-area Estimation by Combining Time-Series and Cross-Sectional Data},
+   journal={The Canadian Journal of Statistics},
+   volume={22},
+   year={1994},
+   pages={511-528},
+   url = {https://doi.org/10.2307/3315407}
+}
+
+@article{bijlsma2020,
+   author={Bijlsma, I. and van den Brakel, J. and  Van der Velden, R. and J. Allen },
+   title={Estimating literacy levels at a detailed regional level: An application using {D}utch data},
+   journal={Journal of Official Statistics},
+   volume={36},
+   year={2020},
+   pages={251--274},
+   url={https://doi.org/10.2478/jos-2020-0014}
+}
+
+@article{hobza2016,
+   author={Hobza, T. and Morales, D.},
+   title={Empirical best prediction under unit-level logit mixed models},
+   journal={Journal of Official Statistics},
+   volume={32},
+   year={2016},
+   pages={661--692},
+   url = {https://doi.org/10.1515/jos-2016-0034}
+}
+
+@article{hobza2018,
+   author={Hobza, T. and Morales, D. and Santamaria, L.},
+   title={Small area estimation of poverty proportions under unit-level temporal binomial-logit mixed models},
+   journal={{TEST}},
+   volume={27},
+   year={2018},
+   pages={270--294},
+   url = {http://link.springer.com/10.1007/s11749-017-0545-3}
+}
+
+@incollection{casas-cordero2016,
+  author = {Casas-Cordero, C. and Encina, J. and Lahiri, P. }, 
+  title = {Poverty mapping for the {C}hilean comunas},
+  pages = {379–403},
+  booktitle = {Analysis of Poverty Data by Small Area Estimation},
+  year = {2016},
+  publisher = {Wiley},
+  series =    {Wiley Series in Survey Methodology},
+  edition =   {1},
+  editor = {M. Pratesi}
+}
+
+@article{molina2007,
+ title     = {Small Area Estimates of Labour Force Participation under a Multinomial Logit Mixed Model},
+ author    = {I. Molina and A. Saei and M. J. Lombardía},
+ publisher = {John Wiley and Sons},
+ journal   = {Journal of the Royal Statistical Society: Series A (Statistics in Society)},
+ year      = {2007},
+ volume    = {170},
+ issue     = {4},
+ pages     = {975--1000},
+ url       = {https://doi.org/10.1111/j.1467-985X.2007.00493.x}
+}
+
+@article{lopez-vizcaino2015,
+ title     = {Small area estimation of labour force indicators under a multinomial model with correlated time and area effects},
+ author    = {L\'opez-Vizcaíno, E. and Lombard\'ia, M. J. and Morales, D.},
+ publisher = {Blackwell Publishing},
+ journal   = {Journal of the Royal Statistical Society Series A (General)},
+ year      = {2015},
+ volume    = {178},
+ issue     = {3},
+ pages     = {535--565},
+ url       = {http://doi.org/10.1111/rssa.12085}
+}
+
+@techreport{ilo,
+  author = {{INTERNATIONAL LABOUR ORGANIZATION}},
+  title = {{19th {I}nternational {C}onference of {L}abour {S}tatisticians - {R}esolution I: {R}esolution concerning statistics of work, employment and labour underutilization}},
+  institution = {ILO},
+  year = {2013},
+  url = {https://www.ilo.org/wcmsp5/groups/public/---dgreports/---stat/documents/normativeinstrument/wcms_230304.pdf}}
+}
+
+@article{doz2011,
+ doi       = {10.1016/j.jeconom.2011.02.012},
+ title     = {A two-step estimator for large approximate dynamic factor models based on {K}alman filtering},
+ author    = {C. Doz and D. Giannone and L. Reichlin},
+ publisher = {Elsevier Science},
+ journal   = {Journal of Econometrics},
+ year      = {2011},
+ volume    = {164},
+ issue     = {1},
+ pages     = {188--205},
+ url       = {http://doi.org/10.1016/j.jeconom.2011.02.012}
+}
+
+@article{palm2011,
+ doi       = {10.1016/j.jeconom.2010.11.010},
+ title     = {Cross-sectional dependence robust block bootstrap panel unit root tests},
+ author    = {F. C. Palm and S. Smeekes and J. Urbain},
+ publisher = {Elsevier Science},
+ journal   = {Journal of Econometrics},
+ issn      = {0304-4076},
+ year      = {2011},
+ volume    = {163},
+ issue     = {1},
+ pages     = {85--104},
+ url       = {http://doi.org/10.1016/j.jeconom.2010.11.010}
+}
+
+@article{tibshirani1996,
+ doi       = {10.2307/2346178},
+ title     = {Regression Shrinkage and Selection via the {L}asso},
+ author    = {R. Tibshirani},
+ publisher = {Blackwell Publishing},
+ journal   = {Journal of the Royal Statistical Society Series B (Methodological)},
+ year      = {1996},
+ volume    = {58},
+ issue     = {1},
+ pages     = {267--288},
+ url       = {https://doi.org/10.1111/j.2517-6161.1996.tb02080.x}
+}
+
+@incollection{doz2020,
+  author = {C. Doz and P. Fuleky}, 
+  title = {Dynamic Factor Models},
+  pages = {27--64},
+  series =     {Macroeconomic Forecasting In The Era Of Big Data: Theory And Practice},
+   editor =    {P. Fuleky},
+   publisher = {Springer},
+   year =      {2020},
+   edition =   {},
+   volume =    {}
+}
+
+@incollection{stock2016,
+   title =     {Dynamic factor models, factor-augmented vector autoregressions, and structural vector autoregressions in macroeconomics},
+   author =    {J. H. Stock and M. W. Watson},
+   series =     {Handbook of Macroeconomics},
+   editor =    {J.B. Taylor and H. Uhlig},
+   publisher = {Elsevier},
+   year =      {2017},
+   edition =   {1},
+   volume =    {2A}
+}
+
+@article{giannone2008,
+ doi       = {10.1016/j.jmoneco.2008.05.010},
+ title     = {Nowcasting: The real-time informational content of macroeconomic data},
+ author    = {D. Giannone and L. Reichlin and D. Small},
+ publisher = {Elsevier Science},
+ journal   = {Journal of Monetary Economics},
+ year      = {2008},
+ volume    = {55},
+ issue     = {4},
+ pages     = {665--676},
+ url       = {http://doi.org/10.1016/j.jmoneco.2008.05.010}
+}
+
+@article{nowcasting,
+  author = {S. Valk and D. Mattos and P. Ferreira},
+  title = {{Nowcasting: An {R} Package for Predicting Economic Variables Using Dynamic Factor Models}},
+  year = {2019},
+  journal = {{The R Journal}},
+  doi = {10.32614/RJ-2019-020},
+  url = {https://doi.org/10.32614/RJ-2019-020},
+  pages = {230--244},
+  volume = {11},
+  number = {1}
+}
+
+@article{bai2003,
+ doi       = {10.1111/1468-0262.00392},
+ title     = {Inferential Theory for Factor Models of Large Dimensions},
+ author    = {J. Bai},
+ publisher = {John Wiley and Sons},
+ journal   = {Econometrica},
+ year      = {2003},
+ volume    = {71},
+ issue     = {1},
+ pages     = {135--171},
+ url       = {http://doi.org/10.1111/1468-0262.00392}
+}
+
+@article{zamprogno2020,
+ doi       = {10.1080/00949655.2020.1764556},
+ title     = {Principal component analysis with autocorrelated data},
+ author    = {Zamprogno, B. and Reisen, V. A. and Bondon, P. and Aranda Cotta, H. H. and Reis, Jr, N. C.},
+ publisher = {Taylor and Francis Group},
+ journal   = {Journal of Statistical Computation and Simulation},
+ year      = {2020},
+ pages     = {1--19},
+ url       = {http://doi.org/10.1080/00949655.2020.1764556}
+}
+
+@techreport{barigozzi2017,
+  author = {Barigozzi, M. and M. Luciani}, 
+  title = {Common Factors, Trends, and Cycles in Large Datasets},
+  series = {Finance and Economics Discussion Series},
+  year = {2017},
+  publisher = {Board
+of Governors of the Federal Reserve System},
+  number =    {2017-111},
+  address = {Washington},
+  url = {https://doi.org/10.17016/FEDS.2017.111}
+}
+
+@incollection{hoerl2006,
+  author = {Hoerl, A. and Kennard, R.}, 
+  title = {Ridge regression},
+  pages = {7273-7280},
+  series = {Encyclopedia of Statistical Sciences},
+  year = {2006},
+  publisher = {Wiley},
+  volume =    {11},
+  editor = {Samuel Kotz},
+  address = { }
+}
+
+@article{bai2008,
+ doi       = {10.1016/j.jeconom.2008.08.010},
+ title     = {Forecasting economic time series using targeted predictors},
+ author    = {J. Bai and S. Ng},
+ publisher = {Elsevier Science},
+ journal   = {Journal of Econometrics},
+ year      = {2008},
+ volume    = {146},
+ issue     = {2},
+ pages     = {304--317},
+ url       = {http://doi.org/10.1016/j.jeconom.2008.08.010}
+}
+
+@misc{ibge2020_pareamento,
+  author = {{INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA}}, 
+  title  = {Pareamento de Dados PNAD COVID19},
+  year = {2020},
+  url = {https://biblioteca.ibge.gov.br/visualizacao/livros/liv101725.pdf}
+}
+
+@article{forecast,
+    title = {Automatic time series forecasting: the forecast package
+      for {R}},
+    author = {R. J. Hyndman and Y. Khandakar},
+    journal = {Journal of Statistical Software},
+    volume = {26},
+    number = {3},
+    pages = {1--22},
+    year = {2008},
+    url = {http://doi.org/10.18637/jss.v027.i03},
+  }
+
+@book{urca,
+    title = {Analysis of Integrated and Cointegrated Time Series with {R}},
+    author = {B. Pfaff},
+    publisher = {Springer},
+    edition = {Second},
+    address = {New York},
+    year = {2008},
+    note = {ISBN 0-387-27960-1},
+    url = {https://www.pfaffikus.de},
+  }
+
+@article{seas,
+    title = {Seasonal statistics: the 'seas' package for {R}},
+    author = {Michael W. Toews and Paul H. Whitfield and Diana M.
+      Allen},
+    journal = {Computers \& Geosciences},
+    year = {2007},
+    volume = {33},
+    pages = {1895},
+    number = {7},
+    url = {http://doi.org/10.1016/j.cageo.2006.11.011},
+  }
+
+@article{aghabozorgi2015,
+ doi       = {10.1016/j.is.2015.04.007},
+ title     = {Time-series clustering – A decade review},
+ author    = {Aghabozorgi, S. and Shirkhorshidi, A. S. and Wah, T. Y.},
+ publisher = {Elsevier Science},
+ journal   = {Information Systems},
+ year      = {2015},
+ volume    = {53},
+ pages     = {16--38},
+ url       = {http://doi.org/10.1016/j.is.2015.04.007}
+}
+
+@article{sakoe1978,
+ doi       = {10.1109/tassp.1978.1163055},
+ title     = {Dynamic programming algorithm optimization for spoken word recognition},
+ author    = {Sakoe, H. and Chiba, S.},
+ publisher = {IEEE},
+ journal   = {IEEE Transactions on Acoustics Speech and Signal Processing},
+ year      = {1978},
+ volume    = {26},
+ issue     = {1},
+ pages     = {0--49},
+ url       = {http://doi.org/10.1109/tassp.1978.1163055}
+}
+
+@book{mingoti2005,
+  title={An{\'a}lise de dados atrav{\'e}s de m{\'e}todos de estat{\'\i}stica multivariada: uma abordagem aplicada},
+  author={Mingoti, S. A.},
+  year={2005},
+  publisher={Editora UFMG}
+}
+
+@inproceedings{berndt1994,
+author = {Berndt, D.J. and Clifford, J.},
+title = {Using Dynamic Time Warping to Find Patterns in Time Series},
+year = {1994},
+publisher = {AAAI Press},
+booktitle = {Proceedings of the 3rd International Conference on Knowledge Discovery and Data Mining},
+pages = {359–370},
+numpages = {12},
+location = {Seattle, WA},
+series = {AAAIWS'94},
+url={https://dl.acm.org/doi/10.5555/3000850.3000887}
+}
+
+ @manual{dtwclust,
+    title = {dtwclust: Time Series Clustering Along with Optimizations for the Dynamic Time Warping Distance},
+    author = {A. Sard\'a-Espinosa},
+    year = {2022},
+    note = {R package version 5.5.10},
+    url = {https://CRAN.R-project.org/package=dtwclust},
+  }
+ 
+ @book{tsay2013,
+   title =     {Multivariate Time Series Analysis: With R and Financial Applications},
+   author =    {R. S. Tsay},
+   publisher = {Wiley},
+   year =      {2013},
+   series =    {},
+   edition =   {1},
+   volume =    {}
+}
+
+ @misc{bootUR,
+  doi = {10.48550/ARXIV.2007.12249},
+  url = {https://arxiv.org/abs/2007.12249},
+  author = {Smeekes, S. and Wilms, I.},
+  title = {bootUR: An R Package for Bootstrap Unit Root Tests},
+  publisher = {arXiv},
+  year = {2020}
+}
+ 
+ @book{rabiner1993,
+   title =     {Fundamentals of speech recognition},
+   author =    {L. Rabiner and B.-H. Juang},
+   publisher = {PH},
+   year =      {1993},
+   series =    {},
+   edition =   {PH},
+   volume =    {},
+}
+ 
+ @article{dtwclust2,
+    title = {Time-Series Clustering in R Using the dtwclust Package},
+    author = {A. Sard\'a-Espinosa},
+    year = {2019},
+    journal = {The R Journal},
+    url = {http://doi.org/10.32614/RJ-2019-023},
+  }
+
+  @article{giorgino2009,
+    title = {Computing and Visualizing Dynamic Time Warping Alignments
+      in {R}: The {dtw} Package},
+    author = {T. Giorgino},
+    journal = {Journal of Statistical Software},
+    year = {2009},
+    volume = {31},
+    number = {7},
+    pages = {1--24},
+    url = {https://doi.org/10.18637/jss.v031.i07},
+  }
+
+@book{morettin2022,
+  title={Estatística e Ciência de dados},
+  author={P. A. Morettin and J. M. Singer},
+  year={2022},
+  address ={Rio de Janeiro},
+  publisher={LTC}
+}
+
+@inproceedings{sakoe1971,
+  title={Dynamic-programming approach to continuous speech recognition},
+  author={Sakoe, H. and Chiba, S.},
+  booktitle={Proc. the International Congress of Acoustics},
+  address = {Budapest},
+  volume ={3},
+  pages ={65--69},
+  year={1971}
+}
+
+@book{hamilton1994,
+   author= {Hamilton, J. D.},
+   year = {1994},
+   title = {Time Series Analysis},
+   publisher = {Princeton University Press},
+   address = {Princeton, New Jersey}
+}
+
+@book{golden2020,
+   title =     {Statistical Machine Learning: A Unified Framework},
+   author =    {R. Golden},
+   publisher = {Chapman and Hall/CRC},
+   year =      {2020},
+   series =    {Chapman \& Hall/CRC Texts in Statistical Science},
+   edition =   {1},
+   volume =    {},
+}
+
+  @article{glmnet,
+    title = {Regularization Paths for Generalized Linear Models via Coordinate Descent},
+    author = {J. Friedman and T. Hastie and R. Tibshirani},
+    journal = {Journal of Statistical Software},
+    year = {2010},
+    volume = {33},
+    number = {1},
+    pages = {1--22},
+    url = {https://www.jstatsoft.org/v33/i01/},
+    doi = {10.18637/jss.v033.i01},
+  }
+
+@article{simionescu2021,
+title = {Can unemployment forecasts based on Google Trends help government design better policies? An investigation based on {S}pain and {P}ortugal},
+journal = {Journal of Policy Modeling},
+volume = {44},
+number = {1},
+pages = {1-21},
+year = {2022},
+doi = {https://doi.org/10.1016/j.jpolmod.2021.09.011},
+url = {https://www.sciencedirect.com/science/article/pii/S0161893821001101},
+author = {M. Simionescu and J. Cifuentes-Faura}
+}
+
+@article{pfeffermann1993,
+ title     = {The Role of Sampling Weights When Modeling Survey Data},
+ author    = {Pfeffermann, D.},
+ publisher = {Wiley},
+ journal   = {International Statistical Review},
+ year      = {1993},
+ volume    = {61},
+ issue     = {2},
+ pages     = {317--337},
+ url       = {http://doi.org/10.2307/1403631}
+}
+
+@article{pfeffermann1996,
+ title     = {The use of sampling weights for survey data analysis},
+ author    = {Pfeffermann, D.},
+ publisher = {Sage Publications},
+ journal   = {Statistical Methods in Medical Research},
+ year      = {1996},
+ volume    = {5},
+ issue     = {3},
+ pages     = {239--261},
+ url       = {http://doi.org/10.1177/096228029600500303}
+}
+
+@misc{oecd_quality,
+  author = {{OECD}}, 
+  title  = {Quality Framework and Guidelines for OECD Statistical Activities},
+  year = {2011},
+  url = {https://www.oecd.org/sdd/qualityframeworkforoecdstatisticalactivities.htm}
+}
+
+@booklet{ibge_experimental,
+  author       = {{IBGE}},
+  title        = {Estatísticas Experimentais},
+  year         = {2022},
+  howpublished = {\url{https://www.ibge.gov.br/estatisticas/investigacoes-experimentais/estatisticas-experimentais.html}},
+  note         = {{Instituto Brasileiro de Geografia e Estatística}}
+}
+
+@article{tzavidis2018,
+ doi       = {10.1111/rssa.12364},
+ title     = {From start to finish: a framework for the production of small area official statistics},
+ author    = {Tzavidis, N. and Zhang, L. and Luna, A. and Schmid, T. and Rojas-Perilla, N.},
+ publisher = {Blackwell Publishing},
+ journal   = {Journal of the Royal Statistical Society Series A (General)},
+ year      = {2018},
+ volume    = {181},
+ issue     = {4},
+ pages     = {927--979},
+ url       = {http://doi.org/10.1111/rssa.12364}
+}
+
+@inproceedings{brown2001,
+author = {G. Brown and R. Chambers and P. Heady and D. Heasman},
+title = {Evaluation of small area estimation methods - an application to unemployment estimates from the {UK} {LFS}},
+year = {2001},
+publisher = {Statistics Canada},
+booktitle = {Proceedings of Statistics Canada Symposium 2001. Achieving Data Quality in a Statistical Agency: A Methodological Perspective},
+pages = {1–10},
+numpages = {10},
+location = {Hull, Quebec},
+series = {Statistics Canada International Symposium Series: Proceedings},
+url={https://www150.statcan.gc.ca/n1/pub/11-522-x/2001001/session6/6247-eng.pdf}
+}
+
+@techreport{banbura2010,
+address = {Frankfurt am Main, Germany},
+title   = {Nowcasting},
+author  = {Banbura, M. and Giannone, D. and Reichlin, L.},
+institution = {European Central Bank},
+series  = {ECB Working Paper},
+type    = {ECB Working Paper},
+number  = {1275},
+year    = {2010},
+url={http://dx.doi.org/10.2139/ssrn.1717887}
+}
+
+@article{bernanke2005,
+ doi       = {10.1162/0033553053327452},
+ title     = {Measuring the Effects of Monetary Policy: A Factor-Augmented Vector Autoregressive ({FAVAR}) Approach},
+ author    = {Bernanke, B. S. and Boivin, J. and Eliasz, P.},
+ publisher = {MIT Press},
+ journal   = {Quarterly Journal of Economics},
+ year      = {2005},
+ volume    = {120},
+ issue     = {1},
+ pages     = {387--422},
+ url       = {http://doi.org/10.1162/0033553053327452}
+}
+
+@article{reisen2017,
+ doi       = {10.1007/s00184-016-0594-8},
+ title     = {Robust Dickey–Fuller tests based on ranks for time series with additive outliers},
+ author    = {Reisen, V. A. and Lévy-Leduc, C. and Bourguignon, M. and Boistard, H.},
+ publisher = {Springer},
+ journal   = {Metrika},
+ year      = {2017},
+ volume    = {80},
+ issue     = {1},
+ pages     = {115--131},
+ url       = {http://doi.org/10.1007/s00184-016-0594-8}
+}
+
+@article{santos2010,
+ doi       = {10.1111/j.1751-5823.2010.00114.x},
+ title     = {Comparison of Classical and Bayesian Approaches for Intervention Analysis},
+ author    = {T. R. Santos and G. C. Franco and D. Gamerman},
+ publisher = {John Wiley and Sons},
+ journal   = {International Statistical Review},
+ year      = {2010},
+ volume    = {78},
+ issue     = {2},
+ pages     = {218--239},
+ url       = {http://doi.org/10.1111/j.1751-5823.2010.00114.x}
+}
+
+@phdthesis{goncalves2023tese,
+  author  = {Gon{\c{c}}alves, Caio C{\'e}sar Soares},
+  title   = {Produ{\c{c}}{\~a}o de indicadores do mercado de trabalho com modelos de s{\'e}ries temporais de pesquisas repetidas},
+  school  = {Escola Nacional de Ci{\^e}ncias Estat{\'i}sticas, Instituto Brasileiro de Geografia e Estat{\'i}stica},
+  address = {Rio de Janeiro},
+  year    = {2023}
+}
+
+@article{boonstra2019,
+  author  = {Boonstra, Harm Jan and van den Brakel, Jan},
+  title   = {Estimation of level and change for unemployment using structural time series models},
+  journal = {Survey Methodology},
+  year    = {2019},
+  volume  = {45},
+  number  = {3},
+  pages   = {395--425}
+}
+
+@article{marques2024,
+  author  = {Marques, Denise Helena Fran{\c c}a and Damasceno, Marcos and Souza, N{\'i}cia Raies Moreira de},
+  title   = {Uma proposta de constru{\c c}{\~a}o da taxa de desocupa{\c c}{\~a}o de Minas Gerais nas primeiras d{\'e}cadas do s{\'e}culo XXI a partir de pesquisas domiciliares},
+  journal = {Revista Brasileira de Economia},
+  volume  = {78},
+  number  = {3},
+  year    = {2024},
+  url     = {https://periodicos.fgv.br/rbe/article/view/88560}
+}
+
+
+@article{ferrari2015,
+  author  = {Ferrari, Tatiana Kolodin and Brasil, Gutemberg Hespanha},
+  title   = {Comportamento do desemprego regional no Brasil: uma aplica{\c c}{\~a}o de teste de converg{\^e}ncia em painel},
+  journal = {Nova Economia},
+  volume  = {25},
+  number  = {3},
+  pages   = {673--688},
+  year    = {2015},
+  doi     = {10.1590/0103-6351/2408},
+  url     = {https://www.scielo.br/j/neco/a/NDzNqTPM8qGHgxBLkd7p5NC/}
+}
+
+@article{borges2024,
+  author  = {Borges, Carolina Guinesi Mattos and Torres, Juan Pablo Gama and Antigo, Mariangela Furlan},
+  title   = {Exploring the stigma effect of unemployment on the Brazilian labour market: evidence from a theoretical job search model},
+  journal = {Revista Brasileira de Economia},
+  volume  = {78},
+  number  = {4},
+  year    = {2024},
+  url     = {https://periodicos.fgv.br/rbe/article/view/91527}
+}
+
+@article{guinesi2026,
+  author  = {Guinesi, Carolina Guinesi Mattos and Antigo, Mariangela Furlan and Torres, Juan Pablo Gama},
+  title   = {Progresso estagnado? Evid{\^e}ncias sobre o desemprego no Brasil, 2012--2021},
+  journal = {Nova Economia},
+  volume  = {36},
+  number  = {1},
+  pages   = {1--38},
+  year    = {2026},
+  url     = {https://revistas.face.ufmg.br/index.php/novaeconomia/article/view/8070}
+}
+
+@techreport{freitasantonaci2010,
+  author      = {Freitas, M. P. S. and Antonaci, G. A.},
+  title       = {Sistema Integrado de Pesquisas Domiciliares: Amostra Mestra 2010 e Amostra da PNAD Contínua},
+  institution = {Instituto Brasileiro de Geografia e Estatística},
+  year        = {2010},
+  type        = {Texto para Discussão},
+  number      = {50},
+  address     = {Rio de Janeiro},
+  url         = {https://www.ibge.gov.br/arquivo/projetos/sipd/SIPD_amostra_mestra_2010_e_amostra_PNAD_cont.pdf}
+}
+
+@article{scott1974,
+  author  = {Scott, A. J. and Smith, T. M. F.},
+  title   = {Analysis of Repeated Surveys Using Time Series Methods},
+  journal = {Journal of the American Statistical Association},
+  year    = {1974},
+  volume  = {69},
+  number  = {347},
+  pages   = {674--678}
+}
+
+@article{scott1977,
+  author  = {Scott, A. J. and Smith, T. M. F. and Jones, R. G.},
+  title   = {The Application of Time Series Methods to the Analysis of Repeated Surveys},
+  journal = {International Statistical Review},
+  year    = {1977},
+  volume  = {45},
+  number  = {1},
+  pages   = {13--28}
+}
+
+@book{durbinkoop2012,
+  author    = {Durbin, J. and Koopman, S. J.},
+  title     = {Time Series Analysis by State Space Methods},
+  edition   = {2},
+  address   = {Oxford},
+  publisher = {Oxford University Press},
+  year      = {2012}
+}

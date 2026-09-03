@@ -1,0 +1,2 @@
+"indicador","regiao","escolhido","comparavel","delta_aic_lambda","rho","amplitude_lambda_pct","cv_modelo","cv_design","ganho_cv_pct","dif_max_pct","starts_ok","spread_ll","ruido_medio_pct"
+"ocupada","05-Mata de Minas Gerais","fixo",TRUE,2.9,0.986,4.81,3.59,9.98,64,21.52,"5/8",1.13,22

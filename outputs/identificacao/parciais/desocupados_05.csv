@@ -1,0 +1,15 @@
+"indicador","estrato","formulacao","npar","loglik","aicc","bic","ljung","eqm1","rrse"
+"desocupados","05-Mata de Minas Gerais","Ruído branco",4,-189.14,387.1,394.1,0.2937,229.173,23.63
+"desocupados","05-Mata de Minas Gerais","AR(1)",5,-191.16,393.6,402.1,0.2381,207.546,16.86
+"desocupados","05-Mata de Minas Gerais","AR(2)",6,-193.79,401.5,411.3,0.2427,212.224,17.06
+"desocupados","05-Mata de Minas Gerais","AR(3)",7,-199.56,415.7,426.8,0.2726,215.707,16.09
+"desocupados","05-Mata de Minas Gerais","AR(4)",8,-207.76,434.9,447.1,0.3607,227.95,14.94
+"desocupados","05-Mata de Minas Gerais","AR(5)",9,-214.66,451.6,464.9,0.4208,215.117,-48.32
+"desocupados","05-Mata de Minas Gerais","AR(6)",10,-221.83,469,483.2,0.5166,241.006,-191.86
+"desocupados","05-Mata de Minas Gerais","MA(1)",5,-193.3,397.9,406.4,0.4794,213.568,16.48
+"desocupados","05-Mata de Minas Gerais","MA(2)",6,-198.51,410.9,420.7,0.2756,217.463,16.98
+"desocupados","05-Mata de Minas Gerais","MA(3)",7,-204.7,425.9,437,0.2816,215.336,16.34
+"desocupados","05-Mata de Minas Gerais","MA(4)",8,-211.07,441.5,453.7,0.4018,249.278,15.35
+"desocupados","05-Mata de Minas Gerais","MA(5)",9,-216.46,455.2,468.5,0.371,200.321,-43.53
+"desocupados","05-Mata de Minas Gerais","MA(6)",10,-223.3,472,486.1,0.4126,224.927,-173.36
+"desocupados","05-Mata de Minas Gerais","MA(4) desenho",8,-208.47,436.3,448.6,0.7115,226.233,4.65
