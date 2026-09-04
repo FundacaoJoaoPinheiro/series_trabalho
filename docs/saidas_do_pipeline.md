@@ -12,14 +12,21 @@ velho engana mais do que um repositório sem o texto.
 
 `rotinas/25_saidas_artigo.R` grava em dois lugares:
 
-| Saída | Destino | Versionado |
-|---|---|---|
-| 21 tabelas `.tex` | `artigo/resultados/` | não |
-| 6 figuras `Figura_*.png` | `artigo/resultados/` e `outputs/figuras_final/` | só em `outputs/` |
+| Saída | Destino |
+|---|---|
+| 21 tabelas `.tex` | `artigo/resultados/` |
+| 6 figuras `Figura_*.png` | `artigo/resultados/` e `outputs/figuras_final/` |
 
-A pasta `artigo/` é ignorada pelo git: ela existe na máquina de quem roda o
-pipeline, como área de montagem para subir ao Overleaf, e não no repositório.
-O destino pode ser mudado pela variável de ambiente `ARTIGO_DIR`.
+**Nada disso é versionado.** `artigo/` e `outputs/` são ignoradas pelo git:
+existem na máquina de quem roda o pipeline e não no repositório. O repositório
+guarda o código; o resultado se obtém executando-o. O destino das tabelas pode
+ser mudado pela variável de ambiente `ARTIGO_DIR`.
+
+Uma consequência a conhecer: `outputs/identificacao/especificacao_final.csv`
+— o processo ARMA escolhido para cada combinação de estrato e indicador — é
+**lido** por `rotinas/22_univariado_final.R`. Ele não vem no clone, então não
+há como rodar a estimação final sem antes rodar a identificação. O mesmo já
+valia para os `.rds` intermediários, que nunca foram versionados.
 
 `rotinas/03_organizacao_cv.R` grava as figuras e tabelas de coeficiente de
 variação em `outputs/cv/`. O trimestre final é configurável por `TRI_FINAL`

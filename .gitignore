@@ -16,8 +16,9 @@ data/
 Thumbs.db
 .positai
 
-# Logs de execucao
-outputs/log_*.txt
+# Saidas do pipeline: sao reproduziveis rodando o codigo.
+# O repositorio versiona codigo, nao resultado.
+outputs/
 
 # Arquivos do artigo: o manuscrito vive no Overleaf, nao aqui.
 # artigo/ e area de montagem local para subir tabelas e figuras.
