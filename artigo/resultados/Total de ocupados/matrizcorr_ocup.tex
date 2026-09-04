@@ -6,13 +6,13 @@
 
 \renewcommand{\arraystretch}{0.8}
 
-\resizebox{\textwidth}{!}{%
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{@{}p{2.8cm}c*{8}{c}@{}}
 \toprule
 \textbf{Estrato Geográfico} & \(\hat{\sigma}_R^2\) & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \textbf{6} & \textbf{7} & \textbf{8} \\
 \midrule
 01 - Belo Horizonte & 0,8061 & 1 &  &  &  &  &  &  &  \\
-\raisebox{0em}{\parbox[t]{4.3cm}{02 - Entorno e Colar \\[-2pt] Metropolitano de BH}} & 7,0885 & 0,2058 & 1 &  &  &  &  &  &  \\
+\raisebox{0em}{\parbox[t]{2.8cm}{02 - Entorno e Colar \\[-2pt] Metropolitano de BH}} & 7,0885 & 0,2058 & 1 &  &  &  &  &  &  \\
 03 - Sul de Minas & 5,0512 & 0,2438 & 0,2887 & 1 &  &  &  &  &  \\
 04 - Triângulo Mineiro & 8,7550 & 0,1852 & 0,2193 & 0,2641 & 1 &  &  &  &  \\
 05 - Zona da Mata & 11,6196 & 0,1607 & 0,1904 & 0,2293 & 0,2415 & 1 &  &  &  \\
@@ -23,5 +23,5 @@
 \end{tabular}%
 }
 
-\fonte{Elaboração própria, com base nos dados da PNAD Contínua. Nota: a matriz de covariância dos distúrbios das inclinações é parametrizada por um fator de Cholesky (\(\Sigma_R = LL'\)), o que garante que a matriz estimada seja positiva semidefinida por construção. Autovalores estimados: 19,795; 7,915; 6,116; 4,066; 2,485; 1,281; 0,710 e 1 valor inferior a \(10^{-3}\). Posto numérico de 8 em 8; posto \textbf{efetivo} de 7, contando os autovalores que retêm ao menos 1\% do maior. As correlações devem, portanto, ser lidas em conjunto, como indicação de um número reduzido de tendências comuns, e não isoladamente.}
+\fonte{Elaboração própria, com base nos dados da PNAD Contínua. Nota: autovalores estimados de \(\Sigma_R\): 19,795; 7,915; 6,116; 4,066; 2,485; 1,281; 0,710 e 1 valor inferior a \(10^{-3}\). Posto numérico de 8 em 8; posto \textbf{efetivo} de 7, contando os autovalores que retêm ao menos 1\% do maior. As correlações devem, portanto, ser lidas em conjunto, e não isoladamente.}
 \end{table}

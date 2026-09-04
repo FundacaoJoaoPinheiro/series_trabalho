@@ -18,3 +18,6 @@ Thumbs.db
 
 # Logs de execucao
 outputs/log_*.txt
+
+# Manuscrito: a fonte de verdade e o Overleaf, nao o repositorio
+artigo/econbr-sample.tex

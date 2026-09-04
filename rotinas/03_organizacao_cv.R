@@ -19,7 +19,7 @@ suppressMessages({ library(dplyr); library(writexl) })
 source("rotinas/00_tema_graficos.R")
 
 ## ============================ CONFIGURAÇÃO ====================================
-TRI_FINAL <- "2025_02"
+TRI_FINAL <- Sys.getenv("TRI_FINAL", unset = "2025_02")  # artigo: TRI_FINAL=2024_04
 dir_data  <- "data"
 dir_tab   <- "outputs/cv/tabelas"
 dir_fig   <- "outputs/cv/figuras"
@@ -62,9 +62,10 @@ produz_cv <- function(base, nomes, mg_nome, esq_suf, esq_label) {
   cols <- c(desocupados="CV.desocupados", ocupados="CV.ocupados", taxa="CV.taxa")
   tits <- c(desocupados="total de desocupados", ocupados="total de ocupados", taxa="taxa de desocupação")
   for (k in names(cols)) {
+    ## sem titulo/subtitulo/fonte dentro da imagem: o LaTeX ja traz \caption{} e \fonte{}
     g <- grafico_linha(long_cv(cols[[k]]),
-           titulo = paste0("Coeficiente de variação — ", tits[[k]], " — ", esq_label),
-           subtitulo = SUB, ylab = "Coeficiente de variação (%)", hlines = c(15, 30))
+           titulo = NULL, subtitulo = NULL, fonte = NULL,
+           ylab = "Coeficiente de variação (%)", hlines = c(15, 30))
     ggsave(file.path(dir_fig, paste0("cv_", k, "_", esq_suf, ".png")), g, width = 10, height = 5.6, dpi = 135, bg = "white")
   }
   ## tabela de CV médio (janelas calculadas do tamanho da série)

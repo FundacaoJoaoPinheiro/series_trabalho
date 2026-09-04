@@ -52,7 +52,7 @@ ROT <- c("01 - Belo Horizonte",
          "03 - Sul de Minas", "04 - Triângulo Mineiro", "05 - Zona da Mata",
          "06 - Norte de Minas", "07 - Vale do Rio Doce", "08 - Central")
 ROT_BOX <- ROT
-ROT_BOX[2] <- paste0("\\raisebox{0em}{\\parbox[t]{4.3cm}{02 - Entorno e Colar ",
+ROT_BOX[2] <- paste0("\\raisebox{0em}{\\parbox[t]{2.8cm}{02 - Entorno e Colar ",
                      "\\\\[-2pt] Metropolitano de BH}}")
 
 ################################################################################
@@ -161,13 +161,10 @@ tab_hiper <- function(d, ind) {
     "\\bottomrule", "\\end{tabular}}",
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
            "Nota: o processo do erro amostral é identificado individualmente por ",
-           "estrato (Seção \\ref{sec:metodologia}). Impõe-se \\(V(\\tilde{e}_t)=1\\), ",
-           "de modo que a estimativa direta preserva a variância do desenho; a ",
-           "variância da inovação \\(\\hat{\\sigma}_{\\tilde{e}}^2\\) não é estimada, ",
-           "mas \\textbf{derivada} dos coeficientes do processo pela equação de ",
-           "Lyapunov, e por isso coincide nos dois modelos. O componente irregular ",
-           "é fracamente identificado: o perfil de verossimilhança é quase plano em ",
-           "\\(\\sigma_I^2\\), e suas estimativas devem ser lidas com cautela.}"),
+           "estrato (Seção \\ref{sec:metodologia}), e ",
+           "\\(\\hat{\\sigma}_{\\tilde{e}}^2\\) é derivada dos coeficientes do ",
+           "processo, por isso coincidindo nos dois modelos. Sobre ",
+           "\\(\\sigma_I^2\\), ver a ressalva de identificação no texto.}"),
     "\\end{table}")
 }
 
@@ -222,24 +219,22 @@ tab_corr <- function(d, ind) {
             ROT_IND[ind]),
     sprintf("\\label{tab:matriz_correlacao_%s}", SUFIXO[ind]), "",
     "\\renewcommand{\\arraystretch}{0.8}", "",
-    "\\resizebox{\\textwidth}{!}{%",
+    "\\resizebox{\\linewidth}{!}{%",
     "\\begin{tabular}{@{}p{2.8cm}c*{8}{c}@{}}", "\\toprule",
     paste0("\\textbf{Estrato Geográfico} & \\(\\hat{\\sigma}_R^2\\) & ",
            paste(sprintf("\\textbf{%d}", 1:P), collapse = " & "), " \\\\"),
     "\\midrule", linhas, "\\bottomrule", "\\end{tabular}%", "}", "",
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
-           "Nota: a matriz de covariância dos distúrbios das inclinações é ",
-           "parametrizada por um fator de Cholesky (\\(\\Sigma_R = LL'\\)), o que ",
-           "garante que a matriz estimada seja positiva semidefinida por construção. ",
-           sprintf("Autovalores estimados: %s%s. ", ev_txt,
+           "Nota: ",
+           sprintf("autovalores estimados de \\(\\Sigma_R\\): %s%s. ", ev_txt,
                    if (n_peq == 0) "" else sprintf(" e %s inferior%s a \\(10^{-3}\\)",
                      if (n_peq == 1) "1 valor" else paste(n_peq, "valores"),
                      if (n_peq == 1) "" else "es")),
            sprintf(paste0("Posto numérico de %d em %d; posto \\textbf{efetivo} de %d, ",
                           "contando os autovalores que retêm ao menos 1\\%% do maior. "),
                    posto, P, efet),
-           "As correlações devem, portanto, ser lidas em conjunto, como indicação de ",
-           "um número reduzido de tendências comuns, e não isoladamente.}"),
+           "As correlações devem, portanto, ser lidas em conjunto, e não ",
+           "isoladamente.}"),
     "\\end{table}")
 }
 
@@ -294,7 +289,7 @@ tab_pontual <- function(d, ind) {
                    "- 4\\textordmasculine{} trimestre de 2024}"), ART[ind], ROT_IND[ind]),
     sprintf("\\label{tab:pontual_%s}", SUFIXO[ind]), "",
     "\\renewcommand{\\arraystretch}{0.8}",
-    "\\resizebox{\\textwidth}{!}{%",
+    "\\resizebox{\\linewidth}{!}{%",
     "\\begin{tabular}{@{}p{2.8cm}cccccc@{}}", "\\toprule",
     paste0("\\textbf{Estrato Geográfico} & $\\hat{y}$ & $CV(\\hat{y})$ & IC 95\\% & ",
            "$\\hat{\\theta}$ & $CV(\\hat{\\theta})$ & IC 95\\% \\\\"),
@@ -344,9 +339,8 @@ tab_comp_taxa <- function() {
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
            "Nota: o cálculo indireto obtém a taxa a partir das tendências estimadas ",
            "do total de desocupados e do total de ocupados, com variância por ",
-           "linearização de Taylor sob a hipótese \\(\\mathrm{Cov}(\\hat{D}_L,T_L)=0\\); ",
-           "o termo omitido é positivo na prática, de modo que a variância assim ",
-           "obtida tende a ser uma sobre-estimativa. As oito primeiras observações ",
+           "linearização de Taylor sob a hipótese \\(\\mathrm{Cov}(\\hat{D}_L,T_L)=0\\), ",
+           "discutida no texto. As oito primeiras observações ",
            "foram descartadas do cálculo.}"),
     "\\end{table}")
 }
@@ -377,7 +371,7 @@ tab_arma <- function() {
     "    \\end{tabular}", "    }",
     paste0("    \\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
            "Nota: a identificação é individual por estrato e indicador. Entre os ",
-           "candidatos que não rejeitam a hipótese de brancura dos resíduos pelo ",
+           "candidatos cujos resíduos não apresentam autocorrelação significativa pelo ",
            "teste de Ljung-Box a 5\\%, seleciona-se o mais parcimonioso, com ",
            "desempate pelo BIC.}"),
     "    \\label{tab:modelos_arma}", "\\end{table}")
@@ -386,40 +380,68 @@ tab_arma <- function() {
 ################################################################################
 ## FIGURAS
 ################################################################################
-INICIO <- list(desocupados = c(2014, 1), ocupados = c(2013, 4), taxa = c(2014, 1))
+INICIO <- list(desocupados = c(2014, 1), ocupados = c(2014, 1), taxa = c(2014, 1))  # BURN = 8 para os tres
 ROTULO_Y <- list(desocupados = "Desocupados (mil pessoas)",
                  ocupados    = "Ocupados (mil pessoas)",
                  taxa        = "Taxa de desocupação (%)")
 
-painel <- function(f, i, ini, rot_y, titulo) {
+suppressMessages(library(patchwork))
+source(file.path(RAIZ, "rotinas", "00_tema_graficos.R"))
+
+## Cores semanticas, na paleta do artigo:
+##   estimativa direta = cinza | univariado (ou indireta) = azul | multivariado = vermelho
+COR_SERIE <- c("grey30", PAL_ARTIGO[1], PAL_ARTIGO[3])
+ROT_IC    <- "IC 95% da estimativa direta"
+
+painel <- function(f, i, ini, rot_y) {
   ts_ <- function(v) window(ts(v, start = c(2012, 1), frequency = 4), start = ini)
-  y  <- ts_(f$Y[, i]);      se <- ts_(f$SE[, i])
-  tu <- ts_(f$tr_a[, i]);   su <- ts_(f$se_a[, i])
-  tm <- ts_(f$tr_b[, i]);   sm <- ts_(f$se_b[, i])
-  li <- y - 1.96 * se; ls <- y + 1.96 * se
+  y  <- ts_(f$Y[, i]);    se <- ts_(f$SE[, i])
+  tu <- ts_(f$tr_a[, i]); su <- ts_(f$se_a[, i])
+  tm <- ts_(f$tr_b[, i]); sm <- ts_(f$se_b[, i])
+  dt <- periodo_para_data(sprintf("%d_0%d", floor(as.numeric(time(y))), cycle(y)))
 
-  plot(y, type = "l", lwd = 2, col = "black", ylim = range(c(li, ls, tu, tm), na.rm = TRUE),
-       xlab = "Ano", ylab = rot_y, col.lab = "blue4", cex.lab = 0.9)
-  mtext(titulo, side = 3, line = 0.9, cex = 0.82, font = 2, adj = 1.18)
-  lines(li, lty = 2); lines(ls, lty = 2)
-  lines(tu, col = "blue", lwd = 2); lines(tm, col = "red", lwd = 2)
-  legend("topleft", bty = "n", cex = 0.62, lwd = c(2, 2, 2, 1),
-         col = c("black", "blue", "red", "black"), lty = c(1, 1, 1, 2),
-         legend = c("Estimativa direta", f$leg[1], f$leg[2], "IC 95% - estimativa direta"))
+  lv <- c("Estimativa direta", f$leg[1], f$leg[2])
+  linha_df <- function(a, b, c) {
+    d <- rbind(data.frame(data = dt, valor = as.numeric(a), serie = lv[1]),
+               data.frame(data = dt, valor = as.numeric(b), serie = lv[2]),
+               data.frame(data = dt, valor = as.numeric(c), serie = lv[3]))
+    d$serie <- factor(d$serie, levels = lv); d
+  }
+  d_niv <- linha_df(y, tu, tm)
+  d_cv  <- linha_df(100 * se / y, 100 * su / tu, 100 * sm / tm)
+  ic    <- data.frame(data = dt,
+                      li = as.numeric(y - 1.96 * se),
+                      ls = as.numeric(y + 1.96 * se))
 
-  cv <- 100*se/y; cvu <- 100*su/tu; cvm <- 100*sm/tm
-  plot(cv, type = "l", lwd = 2, col = "black", ylim = range(c(cv, cvu, cvm), na.rm = TRUE),
-       xlab = "Ano", ylab = "CV (%)", col.lab = "blue4", cex.lab = 0.9)
-  lines(cvu, col = "blue", lwd = 2); lines(cvm, col = "red", lwd = 2)
-  legend("topleft", bty = "n", cex = 0.62, lwd = 2, col = c("black", "blue", "red"),
-         legend = c("CV Estimativa direta", paste("CV", f$leg[1]), paste("CV", f$leg[2])))
+  esqueleto <- function(d, ylab) {
+    ggplot(d, aes(data, valor, color = serie)) +
+      scale_color_manual(values = setNames(COR_SERIE, lv)) +
+      scale_x_date(breaks = seq(as.Date("2014-01-01"), as.Date("2026-01-01"), by = "2 years"),
+                   date_labels = "%Y", date_minor_breaks = "1 year",
+                   expand = expansion(mult = c(.01, .02))) +
+      scale_y_continuous(labels = label_number(big.mark = ".", decimal.mark = ",")) +
+      labs(x = NULL, y = ylab) +
+      tema_artigo(11) +
+      theme(plot.title   = element_text(face = "bold", size = 11.5),
+            plot.margin  = margin(6, 10, 4, 8),
+            legend.margin = margin(0, 0, 0, 0))
+  }
+  p_niv <- esqueleto(d_niv, rot_y) +
+    geom_ribbon(data = ic, inherit.aes = FALSE,
+                aes(data, ymin = li, ymax = ls, fill = ROT_IC), alpha = .16) +
+    scale_fill_manual(values = setNames("grey45", ROT_IC)) +
+    geom_line(linewidth = .65)
+  p_cv <- esqueleto(d_cv, "Coeficiente de variação (%)") + geom_line(linewidth = .65)
+  list(niv = p_niv, cv = p_cv)
 }
 
 figura <- function(f, regs, arq, ini, rot_y, rot) {
-  png(arq, width = 1000, height = 1480, res = 100)
-  op <- par(mfrow = c(4, 2), mar = c(4.2, 4.4, 2.6, 1.2), oma = c(0, 0, 0, 0))
-  for (i in regs) painel(f, i, ini, rot_y, rot[i])
-  par(op); dev.off()
+  ps <- lapply(regs, function(i) painel(f, i, ini, rot_y))
+  linhas <- lapply(seq_along(regs), function(k)
+    (ps[[k]]$niv + labs(title = rot[regs[k]])) | (ps[[k]]$cv + labs(title = " ")))
+  g <- Reduce(`/`, linhas) + plot_layout(guides = "collect") &
+       theme(legend.position = "bottom")
+  ggsave(arq, g, width = 10, height = 12.6, dpi = 120, bg = "white")
 }
 
 ################################################################################

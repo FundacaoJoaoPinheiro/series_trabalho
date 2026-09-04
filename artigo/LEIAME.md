@@ -1,15 +1,21 @@
-# Manuscrito — versão canônica
+# Insumos e saídas do manuscrito
 
-Esta pasta é a **fonte única de verdade** do manuscrito submetido à Revista
-Brasileira de Economia. Foi trazida para dentro do repositório em 16/08/2026,
-para que texto, tabelas, figuras e código fiquem versionados juntos.
+Esta pasta reúne o que o pipeline gera para o artigo e os arquivos que o
+manuscrito consome. **O texto em si não fica aqui.**
 
-> **Atenção:** existe uma cópia antiga em
-> `PROJETO_Estatísticas de mercade de trabalho\Artigo Estratos Geográficos\Versão atual`.
-> Ela está **obsoleta** a partir desta data. Editar lá não tem efeito nenhum:
-> o `rotinas/25_saidas_artigo.R` grava aqui, e é daqui que sai o PDF.
+## Onde está o texto
 
-## O que é gerado e o que é escrito à mão
+O manuscrito é escrito e revisado no **Overleaf**, projeto
+`697bbbf567ec83d3bfcd67f0`, com controle de alterações ativo. É lá que está a
+versão corrente, e é de lá que sai o PDF.
+
+O `econbr-sample.tex` deixou de ser versionado aqui em 04/09/2026. A razão é
+simples: uma cópia dentro do repositório envelhece em relação ao Overleaf sem
+avisar, e um repositório com tabelas novas e texto velho engana mais do que um
+repositório sem o texto. O arquivo continua ignorado pelo `.gitignore`, então
+uma cópia local de trabalho não polui o `git status`.
+
+## O que é gerado pelo pipeline
 
 **Não editar à mão** — sobrescrito a cada execução de `rotinas/25_saidas_artigo.R`:
 
@@ -19,13 +25,25 @@ para que texto, tabelas, figuras e código fiquem versionados juntos.
 - `resultados/modelos_arma.tex`
 - as 6 figuras `resultados/<indicador>/Figura_*.png`
 
-**Escrito à mão:**
+Ao subir uma tabela ou figura para o Overleaf, subir sempre a versão desta
+pasta — nunca editar o `.tex` de tabela lá dentro, porque a próxima execução do
+pipeline reescreve o arquivo daqui e as duas versões divergem em silêncio.
 
-- `econbr-sample.tex` — o texto do artigo
-- `bibliography.bib`
-- `Figs estratos/`, `Figs Metodologia/` — figuras que não vêm do pipeline
+## O que é escrito à mão
+
+- `bibliography.bib` — atenção: também é editado no Overleaf, e portanto está
+  sujeito ao mesmo risco de divergência que motivou a saída do `.tex`.
+- `Figs estratos/`, `Figs Metodologia/` — figuras que não vêm do pipeline.
+  A `Amostra efetiva de domicílios - editado.png` é a Figura 3, ainda no
+  formato anterior à padronização de setembro; refazê-la exige os microdados
+  da PNAD Contínua, que ficam num disco externo (`E:/Dados/PNADC`), pelo script
+  `rotinas/01_amostra_efetiva.R`.
 
 `econbr.cls` e `econbr.bst` são os arquivos de estilo da revista; não mexer.
+
+O `econbr-sample.pdf` desta pasta é de junho de 2026 e **não reflete** as
+revisões de agosto e setembro. Vale a mesma ressalva do `.tex`: o PDF corrente
+é o do Overleaf.
 
 ## Como reproduzir os números
 
@@ -42,15 +60,3 @@ específico, use `-De N` (por exemplo, `-De 6` só regera as saídas).
 
 O estado da revisão, com as decisões metodológicas fechadas e as armadilhas já
 mapeadas, está em `docs/ESTADO_REVISAO.md`.
-
-## Compilação
-
-Não há LaTeX instalado na máquina em que a revisão foi feita, portanto **o PDF
-desta versão ainda não foi compilado**. Antes de submeter ou apresentar, rodar:
-
-```
-pdflatex econbr-sample && bibtex econbr-sample && pdflatex econbr-sample && pdflatex econbr-sample
-```
-
-O `econbr-sample.pdf` presente na pasta é de junho de 2026 e **não reflete** as
-revisões atuais.
