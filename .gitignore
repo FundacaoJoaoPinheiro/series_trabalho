@@ -19,5 +19,6 @@ Thumbs.db
 # Logs de execucao
 outputs/log_*.txt
 
-# Manuscrito: a fonte de verdade e o Overleaf, nao o repositorio
-artigo/econbr-sample.tex
+# Arquivos do artigo: o manuscrito vive no Overleaf, nao aqui.
+# artigo/ e area de montagem local para subir tabelas e figuras.
+artigo/
