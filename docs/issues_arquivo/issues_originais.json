@@ -1,0 +1,412 @@
+﻿[
+    {
+        "body":  "﻿No `funcoes/14_estrutural_MA1.R` (e igualmente no `15_estrutural_ARMA11.R`, e nos multivariados `25/27/30/31/39`), o erro amostral MA(1) é montado com um 7º estado auxiliar:\n\n```r\nm$GG[6,6] \u003c- 0\nm$GG[6,7] \u003c- theta1_ma1\nm$GG[7,6] \u003c- 0\nm$GG[7,7] \u003c- 0\n\nW[6,6] \u003c- exp(params[5])\nW[7,7] \u003c- 0            # \u003c-- aqui\n```\n\nCom `W[7,7] = 0` **e** a linha 7 de `GG` inteiramente nula, o estado 7 é identicamente zero para todo `t` (partindo de `m0 = 0`). Logo `alpha_6,t = theta * alpha_7,t-1 + w_6,t = w_6,t`: **o termo MA nunca entra**. O erro amostral colapsa para ruído branco.\n\n### Verificação numérica\n\nSimulando a recursão de estados exatamente como no código (theta = 0,3531, BH-desocupados):\n\n| estrutura | var(e_t) | acf(1) de e_t |\n|---|---|---|\n| atual (`W[7,7]=0`) | 1,003 | **-0,003** |\n| corrigida (`w6 = w7 = xi_t`) | 1,127 | **0,318** |\n| teórico MA(1) | 1+theta² = 1,125 | theta/(1+theta²) = **0,314** |\n\nOu seja, a autocorrelação identificada pelos pseudo-erros (0,314 para BH) simplesmente não é imposta ao modelo.\n\n### Correção sugerida\n\nForma de Harvey: a mesma inovação alimenta os dois estados, `e_t = xi_t + theta*xi_{t-1}`.\n\n```r\ns2 \u003c- exp(params[5])\nW[6,6] \u003c- s2; W[7,7] \u003c- s2; W[6,7] \u003c- s2; W[7,6] \u003c- s2\n```\n\n### Alcance\n\n- **Desocupados:** atinge 6 dos 8 estratos (todos os MA(1): BH, Colar/Entorno, Triângulo, Zona da Mata, Norte, Central) e a parte MA do ARMA(1,1) do Sul de Minas. Só o Vale do Rio Doce (AR(1)) está correto — o `12_estrutural_AR1.R` não usa estado auxiliar e está certo.\n- **Ocupados:** os 8 estratos são AR(1), portanto não afetados.\n\n### Impacto medido (BH, desocupados, univariado)\n\n| | logLik | sigma2_L | sigma2_R | sigma2_e | dif. relativa média do erro-padrão |\n|---|---|---|---|---|---|\n| atual | -202,54 | 21,84 | 19,97 | 0,534 | **36,1 %** |\n| corrigido | -203,97 | 99,32 | 5,28 | 0,473 | **28,5 %** |\n\n(o \"atual\" reproduz a Tabela de hiperparâmetros do artigo: 21,94 / 20,40 / 0,543, e o ganho publicado de 36,99%)\n\nTratar o erro amostral positivamente autocorrelacionado como ruído branco torna o filtro mais agressivo na suavização, o que **superestima o ganho de precisão**. A correção reduz o ganho em ~8 p.p. neste estrato.\n\n### Consequência\n\nCorrigir exige reestimar os univariados e multivariados de desocupados e a taxa, e regerar tabelas e figuras correspondentes.\r\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAAB03xipQ",
+                           "name":  "bug",
+                           "description":  "Erro de logica/execucao",
+                           "color":  "d73a4a"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kAQ",
+                           "name":  "metodologia",
+                           "description":  "Questao metodologica/estatistica",
+                           "color":  "1d76db"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kfg",
+                           "name":  "prioridade-alta",
+                           "description":  "Pode afetar resultados/impede execucao",
+                           "color":  "b60205"
+                       }
+                   ],
+        "number":  20,
+        "state":  "OPEN",
+        "title":  "Erro amostral MA(1)/ARMA(1,1) está inerte: W[7,7]=0 zera o termo MA"
+    },
+    {
+        "body":  "Issue-guarda-chuva agrupando itens de **baixa severidade** (não afetam número do artigo nem impedem execução) levantados na revisão de código. Podem ser tratados aos poucos, idealmente após a submissão.\n\n### 1. Duplicação massiva por copy-paste (refatoração)\nCada estrato é uma cópia de ~100–250 linhas; arquivos de 2.000–3.900 linhas; pares quase idênticos `2≈12`, `3≈13`, `5≈14`. É a **causa-raiz** de vários bugs já reportados (#1, #5, #9). Extrair o bloco por estrato em uma função `ajusta_estrato(regiao, familia, …)` iterada sobre a lista de regiões eliminaria a classe inteira desses erros.\n\n- [ ] Refatorar o loop por estrato em função única.\n\n### 2. README desatualizado\nDiz \"2012 ao 4º trimestre de **2023**\" e \"**dez** estratos\", mas o artigo final usa **2012–2024** (52 obs) e **8 regiões** de análise.\n\n- [ ] Atualizar `README.md` (período e nº de regiões).\n\n### 3. Código morto / exploratório\n- `View()` e `dev.new()` em código de produção (quebram execução em batch/`source()`).\n- Blocos \"TESTE\" deixados no meio do pipeline (`5_`, `14_`, `36_`).\n- Objetos calculados e nunca usados (`ocMG_k`, `desMG_k`, `env9`, `iniciais`).\n- Literais numéricos com zero à esquerda (`012012`) — frágil; usar strings.\n- Bibliotecas carregadas sem uso (`survey`, `srvyr`, `tictoc`; `dplyr`/`tidyr` já vêm no `tidyverse`).\n\n- [ ] Remover código morto e libs não usadas.\n\n### 4. Nomenclatura\nAs colunas `sd_o`/`sd_d`/`sd_txd` guardam **erros-padrão**, não desvios-padrão — o nome confunde.\n\n- [ ] Renomear `sd_*` → `se_*`.\n\n---\n_Ver `REVISAO_CODIGO.md` (§6, §2.5, §5.2)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kLg",
+                           "name":  "reprodutibilidade",
+                           "description":  "Impede rodar/replicar o projeto",
+                           "color":  "0e8a16"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtlRQkA",
+                           "name":  "prioridade-baixa",
+                           "description":  "Higiene/manutencao; pode esperar",
+                           "color":  "c5def5"
+                       }
+                   ],
+        "number":  19,
+        "state":  "OPEN",
+        "title":  "Higiene: duplicação/refatoração, README desatualizado, código morto, nomes sd_*"
+    },
+    {
+        "body":  "Achado da revisão da pasta `funcoes/`.\n\nEm `funcoes/01_funcoes_pseudo_erro.R`, a autocovariância dos pseudo-erros usada (`Pcov2`) é:\n\n```r\nPcov[i+1] = sum((v[1:(T-i)] - mean(v[1:(T-i)])) * (v[(1+i):T] - mean(v[(1+i):T]))) / (T-i)\n```\n\nDois detalhes não preservam a positividade da matriz de covariância do erro amostral (`P0e`, montada em `P0e()`):\n\n1. **Divisor `(T−i)`** (estimador \"não enviesado\") em vez de `T`. Só o estimador com `1/T` garante uma sequência de autocovariâncias positiva-semidefinida. (Há a variante `Pcov` no mesmo arquivo, que divide por `T`, mas não é a chamada.)\n2. **Médias por sub-amostra a cada lag** (`mean(v[1:(T-i)])` e `mean(v[(1+i):T])`) em vez de uma única média global — também quebra a estrutura Toeplitz PSD.\n\nConsequência: em algum estrato/variável, `P0e` pode não ser positiva-definida, afetando a inicialização do filtro de Kalman.\n\n### Correção sugerida\nUsar o estimador padrão (divisor `T`, média global única):\n```r\nPcov[i+1] = sum((v[1:(T-i)] - mean(v)) * (v[(1+i):T] - mean(v))) / T\n```\n\n**Nota menor (mesmo arquivo):** `teste \u003c- function(facp, n = 72){...}` tem `n = 72` fixo como default, mas a série tem 52 trimestres — confirmar que os chamadores sempre passam o `n` correto (senão o p-valor do teste da FACP sai com o `n` errado).\n\n---\n_Ver `REVISAO_CODIGO.md` (revisão do motor, §funcoes)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kAQ",
+                           "name":  "metodologia",
+                           "description":  "Questao metodologica/estatistica",
+                           "color":  "1d76db"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7ktQ",
+                           "name":  "prioridade-media",
+                           "description":  "Corrigir antes da submissao",
+                           "color":  "fbca04"
+                       }
+                   ],
+        "number":  18,
+        "state":  "OPEN",
+        "title":  "Pcov2: autocovariância dos pseudo-erros não garante matriz positiva-definida"
+    },
+    {
+        "body":  "Achado da revisão da pasta `funcoes/` (enviada após a rodada inicial).\n\nNo modelo de erro amostral (`funcoes/12_estrutural_AR1.R` e análogos `03_`, `14_`, `15_`), o erro amostral entra como regressão sobre o **desvio-padrão amostral conhecido** `se_db`, com coeficiente AR(1):\n\n```r\nm \u003c- dlmModPoly(2) + dlmModTrig(4) + dlmModReg(se_db, addInt = FALSE)\nm$GG[6,6] \u003c- phi1_ar1          # AR(1) no estado do erro amostral\nW[6,6]    \u003c- exp(params[5])    # \u003c-- variancia de inovacao ESTIMADA livre\n```\n\nInterpretação: `e_t = se_db_t · a_t`, com `a_t` AR(1). Para que `e_t` tenha variância igual à variância amostral **conhecida** `se_db_t²`, o processo `a_t` precisa ter variância estacionária **1**, o que impõe `W[6,6] = 1 − φ²`. Como `W[6,6]` é estimado livremente, o `se_db` conhecido entra só **até um fator de escala** estimado pelo modelo.\n\nNão é necessariamente um erro — é uma escolha (o artigo trata o erro amostral como hiperparâmetro e reporta valores \"entre 0 e 1\", próximos do teórico). Mas convém decidir:\n\n- **ou** amarrar à variância estacionária unitária (honra o `se_db` conhecido, remove 1 parâmetro por série):\n  ```r\n  # em vez de W[6,6] \u003c- exp(params[5])\n  W[6,6] \u003c- 1 - phi1_ar1^2\n  ```\n- **ou** manter livre e **justificar no texto** que o erro amostral entra a menos de uma escala estimada.\n\n---\n_Ver `REVISAO_CODIGO.md` (revisão do motor, §funcoes)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kAQ",
+                           "name":  "metodologia",
+                           "description":  "Questao metodologica/estatistica",
+                           "color":  "1d76db"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7ktQ",
+                           "name":  "prioridade-media",
+                           "description":  "Corrigir antes da submissao",
+                           "color":  "fbca04"
+                       }
+                   ],
+        "number":  17,
+        "state":  "OPEN",
+        "title":  "Erro amostral: variância de inovação estimada livre (não amarrada a 1-φ²)"
+    },
+    {
+        "body":  "**Dois arquivos com problemas de execução/manutenção:**\n\n1. `10_Rotina para gráficos.R:493-496` sobrescreve `[[\"Estimativa Direta\"]][[\"Desocupacao\"]]` com `ma1_bh$ts.signal` (objeto não definido no script) e **regrava o mesmo `.rds`**: é **não-idempotente** (corrompe a fonte a cada execução) e rotula um **sinal de modelo como \"Estimativa Direta\"** (design-based), o que é conceitualmente incorreto.\n2. `4_Estudo dlm.R` usa `txbh`/`params`/`modelo` inexistentes (L244, L311-329) e uma chamada `dlmMLE(... fn=..., build=...)` inválida — é caderno de estudo quebrado; não deveria estar no repositório de submissão.\n\n### Correção sugerida\n- `10_`: não regravar o arquivo-fonte; se precisar guardar o sinal do modelo, salvar em objeto/arquivo **separado** e nunca rotulá-lo como \"Estimativa Direta\".\n- `4_`: mover para uma pasta `sandbox/` (fora do pipeline) ou remover do repositório de submissão.\n\n---\n_Ver `REVISAO_CODIGO.md` (§3 B8/B14, §6)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAAB03xipQ",
+                           "name":  "bug",
+                           "description":  "Erro de logica/execucao",
+                           "color":  "d73a4a"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kLg",
+                           "name":  "reprodutibilidade",
+                           "description":  "Impede rodar/replicar o projeto",
+                           "color":  "0e8a16"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7ktQ",
+                           "name":  "prioridade-media",
+                           "description":  "Corrigir antes da submissao",
+                           "color":  "fbca04"
+                       }
+                   ],
+        "number":  15,
+        "state":  "OPEN",
+        "title":  "10_ corrompe seu próprio RDS; 4_Estudo dlm.R é scratch quebrado"
+    },
+    {
+        "body":  "O início do descarte de burn-in do filtro de Kalman varia para a mesma série entre scripts:\n\n- **Desocupados:** `c(2013,4)` em `18/28/29/33` mas `c(2013,3)` em `26`.\n- **Taxa:** `c(2013,3)` em `41` mas `c(2014,1)` em `35`.\n\nComo RRSE, viés e figuras são calculados sobre a janela pós-burn-in, valores diferentes fazem os scripts compararem **períodos distintos**.\n\n### Correção sugerida\nDefinir a janela de burn-in **uma vez** (por série) e reutilizar em todos os scripts, ex.:\n```r\n# 00_setup.R\ninicio_desoc \u003c- c(2014,1)   # janela usada nas figuras do artigo\ninicio_ocup  \u003c- c(2013,4)\ninicio_taxa  \u003c- c(2014,1)\n```\ne substituir os `window(..., start = ...)` locais por essas constantes. Alinhar com a janela efetivamente reportada no manuscrito.\n\n---\n_Ver `REVISAO_CODIGO.md` (§4.8)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kAQ",
+                           "name":  "metodologia",
+                           "description":  "Questao metodologica/estatistica",
+                           "color":  "1d76db"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7ktQ",
+                           "name":  "prioridade-media",
+                           "description":  "Corrigir antes da submissao",
+                           "color":  "fbca04"
+                       }
+                   ],
+        "number":  14,
+        "state":  "OPEN",
+        "title":  "Janela de burn-in inconsistente entre scripts"
+    },
+    {
+        "body":  "`BIC \u003c- 2*fit$value + 2*5*log(T)` com `value = -logLik` ⇒ penalidade com **k=10** (o dobro), enquanto o AIC (`2*value + 2*5`) usa **k=5**. Além disso `k=5` é fixo e desacoplado do nº real de parâmetros (smooth sem erro = 3; com erro = 4; estrutural = 5), o que enviesa comparações dentro do mesmo script.\n\n### Correção sugerida\n```r\nk   \u003c- length(fit$par)          # nº efetivo de hiperparâmetros do modelo\nAIC \u003c- 2*fit$value + 2*k\nBIC \u003c- 2*fit$value + k*log(T)   # penalidade correta (era 2*5*log(T))\n```\n\n---\n_Ver `REVISAO_CODIGO.md` (§4.2)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kAQ",
+                           "name":  "metodologia",
+                           "description":  "Questao metodologica/estatistica",
+                           "color":  "1d76db"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7ktQ",
+                           "name":  "prioridade-media",
+                           "description":  "Corrigir antes da submissao",
+                           "color":  "fbca04"
+                       }
+                   ],
+        "number":  13,
+        "state":  "OPEN",
+        "title":  "AIC/BIC: penalidade do BIC dobrada e k fixo desacoplado do modelo"
+    },
+    {
+        "body":  "Os valores iniciais (warm-start) variam sem padrão entre os scripts com/sem correlação:\n\n- `27_…R:333` — `iniciais` + `rep(1,28)`  (tanh(1)≈0,76)\n- `31_…R:298` — `iniciais` + `rep(-0.5,28)`\n- `39_…R:333` — `estimados` + `rep(0,28)`\n- `40_…R:290` — `iniciais`\n\nAlém de deixar código morto (`iniciais` vs `estimados`), isso prejudica o warm-start e a **comparabilidade** entre modelos com/sem correlação e entre Desoc/Ocup/Taxa.\n\n### Correção sugerida\nPadronizar **todos** para o warm-start estimado do univariado + correlações iniciais em zero:\n```r\nmodelo_mult$initial \u003c- c(estimados, rep(0, 28))\n```\nE remover o objeto não usado (`iniciais`).\n\n---\n_Ver `REVISAO_CODIGO.md` (§4.6)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kAQ",
+                           "name":  "metodologia",
+                           "description":  "Questao metodologica/estatistica",
+                           "color":  "1d76db"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7ktQ",
+                           "name":  "prioridade-media",
+                           "description":  "Corrigir antes da submissao",
+                           "color":  "fbca04"
+                       }
+                   ],
+        "number":  12,
+        "state":  "OPEN",
+        "title":  "Warm-start inconsistente entre os scripts multivariados"
+    },
+    {
+        "body":  "Em `27/31/39_…R`, cada covariância entre inclinações é preenchida par a par:\n\n```r\nW[i,j] \u003c- tanh(rho_ij) * sqrt(W[i,i] * W[j,j])\n```\n\nIsso limita só as correlações **par a par**. A matriz 8×8 das inclinações pode ter autovalor negativo (não ser positiva-definida) mesmo com todas as correlações par-a-par válidas → `dlmFilter` pode falhar ou produzir MSE inválido.\n\n### Correção sugerida\nParametrizar o bloco 8×8 das inclinações por um **fator de Cholesky** — garante PD por construção. Esboço:\n\n```r\n# n = 8 estratos; par_chol = n*(n+1)/2 parametros livres da triangular inferior L\nL \u003c- matrix(0, n, n)\nL[lower.tri(L, diag = TRUE)] \u003c- par_chol\nSigma_R \u003c- L %*% t(L)                 # sempre positiva-(semi)definida\n# usar Sigma_R como o bloco de covariancia das inclinacoes em W\n```\n\nAssim o otimizador percorre `par_chol` livremente sem restrição de PD, em vez de `tanh(rho)` par a par.\n\n---\n_Ver `REVISAO_CODIGO.md` (§4.5)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kAQ",
+                           "name":  "metodologia",
+                           "description":  "Questao metodologica/estatistica",
+                           "color":  "1d76db"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7ktQ",
+                           "name":  "prioridade-media",
+                           "description":  "Corrigir antes da submissao",
+                           "color":  "fbca04"
+                       }
+                   ],
+        "number":  11,
+        "state":  "OPEN",
+        "title":  "Multivariado: correlação não garante matriz positiva-definida (usar Cholesky)"
+    },
+    {
+        "body":  "Em `6_`, `15_`, `37_Erro Amostral…R` (módulo de pseudo-erros):\n\n1. **Tratamento incoerente de zeros:** a média usa `replace(.==0, NA)`, mas o pseudo-erro `pseudoK = valor_K - media` é calculado sobre a coluna **sem** o replace; onde `valor_K==0`, gera pseudo-erro `-media` (outlier espúrio) na autocovariância.\n2. **MA(1) sem guarda de invertibilidade:** `theta1 = (1-sqrt(1-4*rho1^2))/(2*rho1)` → `NaN` se `|rho1|\u003e0.5`.\n3. **Sem checagem de convergência** em `nleqslv`/`uniroot` — já forçou **comentar o ARMA(1,1)** em CEN e MG no `37_…R`, deixando a lista de modelos heterogênea entre estratos.\n4. **Bug de find/replace:** `37_…R:1445` `clc_tx_mg$pmgor` deveria ser `$pvalor` (corrompido por `val→mg`); idem `intermg` (L1523). Código a jusante que leia `$pvalor` do estrato MG falha silenciosamente.\n5. Convenção de sinal MA inconsistente entre MA(1) e MA(2).\n\n### Correção sugerida\n```r\n# (2) guarda de invertibilidade do MA(1)\ntheta1 \u003c- if (abs(rho1) \u003c= 0.5) (1 - sqrt(1 - 4*rho1^2)) / (2*rho1) else NA_real_\n\n# (3) checagem de convergencia\nsol \u003c- tryCatch(nleqslv(x0, sistema_eq), error = function(e) NULL)\nif (is.null(sol) || sol$termcd != 1) { theta \u003c- NA; warning(\"nao convergiu\") }\n\n# (4) typo\nclc_tx_mg$pvalor \u003c- teste(...)     # era $pmgor\n```\nPara (1), decidir se `0` é ausente (então também `NA` no pseudo-erro) ou válido (então não remover da média) e aplicar o mesmo critério nos dois cálculos. Para (5), padronizar a convenção de sinal MA em todos os modelos.\n\n---\n_Ver `REVISAO_CODIGO.md` (§3 B9/B11/B12, §4.9)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAAB03xipQ",
+                           "name":  "bug",
+                           "description":  "Erro de logica/execucao",
+                           "color":  "d73a4a"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kAQ",
+                           "name":  "metodologia",
+                           "description":  "Questao metodologica/estatistica",
+                           "color":  "1d76db"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7ktQ",
+                           "name":  "prioridade-media",
+                           "description":  "Corrigir antes da submissao",
+                           "color":  "fbca04"
+                       }
+                   ],
+        "number":  10,
+        "state":  "OPEN",
+        "title":  "Módulo de erro amostral: robustez (zeros, invertibilidade, convergência) e typo pmgor"
+    },
+    {
+        "body":  "**Cadeia de arquivos do ramo de 8 regiões quebrada.**\n\n1. `12_Base PNADC 8reg.R:108` grava em `data/estimativas/resultados_…RDS` (mesmos nomes do `2_…R`), **sobrescrevendo** a base de 10 regiões; mas `13_…R:15` lê de `data/pnad8reg/`, pasta **nunca populada**.\n2. `13_…R:736,750,787` referenciam objetos que só existem no esquema de 10 regiões (`cvcolarbh_o`, `cvRIDE_o`, `colarbh`, `RIDE`) → a seção de CV agregado/gráficos aborta.\n\n### Correção sugerida\n```r\n# ATUAL (12_…R:108)\nsaveRDS(estimativas, paste0(\"D:/FJP2425/Programacao/data/estimativas/resultados_0\", mesano, \".RDS\"))\n# CORRIGIDO — pasta propria das 8 regioes (a mesma que o 13_ le)\nsaveRDS(estimativas, paste0(dir_dados, \"/pnad8reg/resultados_0\", mesano, \".RDS\"))\n```\nNo `13_`, remover das linhas de `cbind`/`list` os objetos de 10 regiões e usar só os 8 existentes (`bh, entornobh, sulmg, trng, zonamata, nortemg, riodoce, central`).\n\n---\n_Ver `REVISAO_CODIGO.md` (§3, B4/B5)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAAB03xipQ",
+                           "name":  "bug",
+                           "description":  "Erro de logica/execucao",
+                           "color":  "d73a4a"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7ktQ",
+                           "name":  "prioridade-media",
+                           "description":  "Corrigir antes da submissao",
+                           "color":  "fbca04"
+                       }
+                   ],
+        "number":  9,
+        "state":  "OPEN",
+        "title":  "Cadeia de arquivos 8reg quebrada (12 -\u003e 13) e objetos inexistentes no 13"
+    },
+    {
+        "body":  "Nos 6 scripts multivariados (`25/27/30/31/39/40`), `W` é zerado e depois só o bloco sazonal 17–24 (cos, harmônico 1) recebe variância; os blocos 25–32 (sin, H1) e 33–40 (Nyquist, H2) ficam com variância **zero** → esses estados sazonais evoluem deterministicamente, quebrando a simetria do harmônico. Os próprios comentários no código (\"Por que esse salto?\") indicam dúvida do autor.\n\n### Correção sugerida\nSe a sazonalidade estocástica for intencional, replicar a mesma variância sazonal (parâmetro `params[16+i]`) aos três estados trig de cada região `i = 1..8`:\n```r\nfor (i in 1:8) {\n  W[24 + i, 24 + i] \u003c- exp(params[16 + i])   # sin, harmônico 1\n  W[32 + i, 32 + i] \u003c- exp(params[16 + i])   # Nyquist (H2)\n}\n```\nSe, ao contrário, a sazonalidade for **determinística** por escolha, então zerar também o bloco 17–24 e documentar. **Conferir contra o modelo univariado de referência** (em `data/funcoes/`) para decidir qual dos dois.\n\n---\n_Ver `REVISAO_CODIGO.md` (§4.4). [VERIFICAR — depende do univariado ausente]_\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kAQ",
+                           "name":  "metodologia",
+                           "description":  "Questao metodologica/estatistica",
+                           "color":  "1d76db"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kfg",
+                           "name":  "prioridade-alta",
+                           "description":  "Pode afetar resultados/impede execucao",
+                           "color":  "b60205"
+                       }
+                   ],
+        "number":  8,
+        "state":  "OPEN",
+        "title":  "Multivariado: disturbância sazonal aplicada a só 1 dos 3 estados trigonométricos"
+    },
+    {
+        "body":  "~1.130 caminhos absolutos (`C:/FJP2425/Programacao`, `D:/FJP2425/Programacao`) + `setwd(\"C:/FJP2425/Programacao\")` em `3_…R:8`. A divisão de drives (duas máquinas de desenvolvimento) é incoerente até dentro de um mesmo arquivo:\n\n- `16/17/19/20_…R`: bloco de BH lê de `C:/`, demais estratos de `D:/`.\n- `15_…R`: lê de `C:/`, grava (`saveRDS`) em `D:/`.\n- `38_…R` usa `C:/`, resto do bloco univariado usa `D:/`; `24/26/29_…R` misturam; `35_…R:1782/1865` grava `png()` em `C:/FJP2425/Reuniões/…`.\n\nResultado: nada roda fora da máquina original.\n\n### Correção sugerida\nCriar um `00_setup.R` no topo do pipeline com uma raiz única e caminhos relativos:\n```r\n# 00_setup.R\nlibrary(here)                     # ou: dir_proj \u003c- \".\"  (com o .Rproj na raiz)\ndir_dados   \u003c- here::here(\"data\")\ndir_funcoes \u003c- here::here(\"data\", \"funcoes\")\ndir_figs    \u003c- here::here(\"outputs\", \"figuras\")\ninvisible(lapply(list.files(dir_funcoes, \"\\\\.R$\", full.names = TRUE), source))\n```\nE, nos scripts, trocar `readRDS(\"C:/FJP2425/Programacao/data/...\")` por `readRDS(file.path(dir_dados, \"...\"))`, etc. Padronizar também a extensão (`.RDS` vs `.rds`).\n\n---\n_Ver `REVISAO_CODIGO.md` (§2.2)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kLg",
+                           "name":  "reprodutibilidade",
+                           "description":  "Impede rodar/replicar o projeto",
+                           "color":  "0e8a16"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kfg",
+                           "name":  "prioridade-alta",
+                           "description":  "Pode afetar resultados/impede execucao",
+                           "color":  "b60205"
+                       }
+                   ],
+        "number":  7,
+        "state":  "OPEN",
+        "title":  "Reprodutibilidade: caminhos absolutos e mistura C:/ vs D:/"
+    },
+    {
+        "body":  "Os scripts fazem `source()` de ~34 arquivos em `data/funcoes/` (ex.: `01_funcoes_pseudo_erro.R`, `05_teste_H.R`, `12_estrutural_AR1.R`, `17_rodar_grid_ar1.R`, `31_calculo_rrse.R`, `32_calculo_vicio.R`, `30_teste_razvero.R`), mas **a pasta não está no repositório**.\n\nConsequências:\n- O projeto **não roda** para terceiros (revisão cega / replicação).\n- A lógica estatística central **não é revisável**: cálculo da autocovariância dos pseudo-erros e da estatística de teste (`Pcov2`, `facp_acf`, `teste`), montagem das matrizes de estado e injeção do erro amostral em `V`/`W` (`12_estrutural_AR1.R`, `14_estrutural_MA1.R`, …), teste H (`05_teste_H.R`), RRSE, viés e razão de verossimilhança.\n\n### Correção sugerida\nVersionar a pasta `data/funcoes/` (só os `.R` de função; os dados/`.RDS` podem ficar de fora, ver issue de caminhos). É o pré-requisito nº 1 para qualquer replicação/revisão cega.\n\n---\n_Ver `REVISAO_CODIGO.md` (§2.1)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kLg",
+                           "name":  "reprodutibilidade",
+                           "description":  "Impede rodar/replicar o projeto",
+                           "color":  "0e8a16"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kfg",
+                           "name":  "prioridade-alta",
+                           "description":  "Pode afetar resultados/impede execucao",
+                           "color":  "b60205"
+                       }
+                   ],
+        "number":  6,
+        "state":  "OPEN",
+        "title":  "Reprodutibilidade: pasta data/funcoes/ não está versionada"
+    },
+    {
+        "body":  "Vários painéis têm rótulos de eixo/legenda copiados do bloco errado. Como essas figuras vão ao manuscrito, precisam ser conferidas e **regeradas** (o `.png` já gerado não muda ao corrigir só o script):\n\n- **Painéis de CV** com `ylab = \"Total de desocupados (milhares de pessoas)\"` em vez de `\"CV (%)\"`: `18_…R` (L65,141,219,296,373,449,636,712,788), `21_`, `24_`, `26_` (L81), `28_`, `32_`, `35_`.\n- **Figuras de ocupados/taxa** com eixo \"Total de desocupados\": `19_…R` (L135,320,503…), `20_`, `22_`.\n- **`13_…R`** `mtext` com a numeração do esquema de **10 regiões** (ex.: \"5 - Sul\" para a região 3; \"4 - Norte\" para a região 6) → legendas trocadas.\n- **`34_…R:250-252`** legenda com cor trocada (`sinalmg_mult` plotado em vermelho, legenda diz \"green\").\n\n### Correção sugerida\nTrocar cada `ylab` de painel de CV para `\"CV (%)\"`, cada `ylab` de figura de ocupados/taxa para o indicador correto, e ajustar os números/cores das legendas. **Algumas já foram corrigidas** no branch de revisão (`3_…R:919` `cvcentral_d→cvcentral_txd`; `34_…R:252` `green→red`); as demais dependem de olhar figura a figura na regeração. **Ação:** conferir cada figura que foi para o manuscrito e regerar.\n\n---\n_Ver `REVISAO_CODIGO.md` (§5.3)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAAB03xipQ",
+                           "name":  "bug",
+                           "description":  "Erro de logica/execucao",
+                           "color":  "d73a4a"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kUg",
+                           "name":  "figuras",
+                           "description":  "Rotulos/legendas/figuras do artigo",
+                           "color":  "5319e7"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kfg",
+                           "name":  "prioridade-alta",
+                           "description":  "Pode afetar resultados/impede execucao",
+                           "color":  "b60205"
+                       }
+                   ],
+        "number":  5,
+        "state":  "OPEN",
+        "title":  "Rótulos de eixo/legenda trocados em figuras (CV, ocupados, taxa)"
+    },
+    {
+        "body":  "Em `35_Taxa de Desocupação.R`:\n- `env1` (desocupados, L18) carrega o modelo **`estimados`**;\n- `env2` (ocupados, L23) carrega de **`iniciais/01_mod_comcorr.Rdata`** — valores **iniciais**, não otimizados.\n\nA taxa combina um numerador estimado com um denominador **não estimado**. Além disso, o comentário (L9) diz que os dados de ocupados vêm do modelo **univariado**, mas o código carrega o **multivariado**.\n\n### Correção sugerida\nApontar `env2` (ocupados) para o mesmo diretório `estimados/` usado em `env1` (desocupados), em vez de `iniciais/`:\n```r\n# ATUAL (35_…R:23, aprox.)\nload(\".../iniciais/01_mod_comcorr.Rdata\",  envir = env2)\n# CORRIGIDO — mesma origem \"estimados\" do numerador\nload(\".../estimados/01_mod_comcorr.Rdata\", envir = env2)\n```\nE corrigir o comentário da L9 (é multivariado, não univariado). Confirmar o nome/local exato do `.Rdata` estimado de ocupados. Recomputar a taxa indireta.\n\n---\n_Ver `REVISAO_CODIGO.md` (§3, B7)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAAB03xipQ",
+                           "name":  "bug",
+                           "description":  "Erro de logica/execucao",
+                           "color":  "d73a4a"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kfg",
+                           "name":  "prioridade-alta",
+                           "description":  "Pode afetar resultados/impede execucao",
+                           "color":  "b60205"
+                       }
+                   ],
+        "number":  4,
+        "state":  "OPEN",
+        "title":  "Taxa: denominador (ocupados) carregado do modelo não estimado"
+    },
+    {
+        "body":  "O cálculo indireto da variância da taxa (`35_Taxa de Desocupação.R:76`, replicado em L124/248/295/… para as 8 regiões, no sinal e na tendência) está assim (bloco BH; `sig_desoc`=D, `sig_ocup`=O, `S`=D+O=força de trabalho, `var_desoc`=V(D), `var_ocup`=V(O)):\n\n```r\n# ATUAL (35_…R:76)\nvar_txdesoc_bh \u003c- ((1/(S_bh^2)*var_desoc_bh) + ((sig_desoc_bh^2/S_bh^4)*(var_desoc_bh + var_ocup_bh)))\n```\n\nIsso corresponde à Eq. `var_taxafinal` do artigo, obtida do delta method em `(D, T)` **assumindo `Cov(D, T) = 0`**. Mas como **T = D + O**, tem-se `Cov(D,T) = V(D) + Cov(D,O) ≠ 0` — descartar esse termo **não é inócuo**. A forma atual usa, para o coeficiente de `V(D)`, `(T² + D²)/T⁴` em vez do correto `O²/T⁴`; para uma taxa de ~7% isso **superestima ~15–20% a contribuição de V(D)** (o termo dominante), inflando o CV da taxa indireta.\n\n### Correção sugerida\n\nAplicando o delta method diretamente em `r = D/(D+O)` (com `∂r/∂D = O/T²`, `∂r/∂O = −D/T²`), a variância correta é:\n\n\u003e **V(r̂) = [ Ô² · V(D̂) + D̂² · V(Ô) ] / T⁴**,  com T = D̂ + Ô\n\nNo código (bloco BH; replicar nos 8 estratos e nas linhas de tendência):\n\n```r\n# CORRIGIDO\nvar_txdesoc_bh \u003c- (sig_ocup_bh^2 * var_desoc_bh + sig_desoc_bh^2 * var_ocup_bh) / S_bh^4\n```\n\nE no artigo, substituir a Eq. `var_taxafinal` por:\n\n```\nV(r̂_L) = ( Ô_L² · V(D̂_L) + D̂_L² · V(Ô_L) ) / T_L⁴,   T_L = D̂_L + Ô_L\n```\n\n**Ação:** trocar a fórmula (código + Eq. do artigo) e recomputar o CV da taxa **indireta** em todos os estratos.\n\n**Observação (`Cov(D,O)`):** o próprio `35_…R` (L92-96, L140-144) roda `cor.test` entre os sinais de D e O e encontra correlação; se `Cov(D̂,Ô)≠0`, a fórmula completa ganha o termo `− 2·(Ô·D̂/T⁴)·Cov(D̂,Ô)`. Vale justificar a hipótese `Cov(D,O)=0` ou estimar a covariância entre os sinais suavizados.\n\n---\n_Ver `REVISAO_CODIGO.md` (§3 B6, §4.3). Código e artigo são consistentes entre si — a correção vale para ambos._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kAQ",
+                           "name":  "metodologia",
+                           "description":  "Questao metodologica/estatistica",
+                           "color":  "1d76db"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kfg",
+                           "name":  "prioridade-alta",
+                           "description":  "Pode afetar resultados/impede execucao",
+                           "color":  "b60205"
+                       }
+                   ],
+        "number":  3,
+        "state":  "OPEN",
+        "title":  "Variância da taxa (delta method) descarta a covariância numerador-denominador"
+    },
+    {
+        "body":  "Nos scripts com grid (`8, 9, 11, 16, 17, 19, 20, 23, 38`), o melhor modelo é escolhido só pelo mínimo da função objetivo:\n\n```r\nmodelo \u003c- modelos[[which(b$log_like == min(b$log_like, na.rm = TRUE))]]\n```\n\nProblemas:\n1. A coluna `convergence` é montada em `b` mas **nunca usada** — modelos que não convergiram entram na seleção.\n2. Não há checagem de Hessiana positiva-definida. Comentários `# false` no próprio código (ex.: `8_…R:20-21` \"Hessian false -\u003e BH, ENT, COL, mata\"; L142/309/475) confirmam que modelos escolhidos têm Hessiana não-PD → não são máximos válidos e os erros-padrão dos hiperparâmetros ficam indefinidos.\n3. `== min(...)` pode retornar `integer(0)` (tudo NA) ou vetor \u003e1 (empate) → `[[ ]]` quebra.\n\n### Correção sugerida\n```r\n# ATUAL\nmodelo \u003c- modelos[[which(b$log_like == min(b$log_like, na.rm = TRUE))]]\n\n# CORRIGIDO — só entre os que convergiram e têm Hessiana positiva-definida\nok \u003c- b$convergence == 0 \u0026 sapply(modelos, function(m)\n        !is.null(m$hessian) \u0026\u0026 all(eigen(m$hessian, only.values = TRUE)$values \u003e 0))\nstopifnot(any(ok))                      # falha explícita se nenhum candidato válido\ni  \u003c- which(ok)[ which.min(b$log_like[ok]) ]\nmodelo \u003c- modelos[[i]]\n```\n(Adaptar ao objeto exato que guarda a Hessiana — depende das funções em `data/funcoes/`.) Reavaliar quais estratos/modelos do artigo foram escolhidos sob Hessiana não-PD.\n\n---\n_Ver `REVISAO_CODIGO.md` (§3 B2, §4.1)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAAB03xipQ",
+                           "name":  "bug",
+                           "description":  "Erro de logica/execucao",
+                           "color":  "d73a4a"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kAQ",
+                           "name":  "metodologia",
+                           "description":  "Questao metodologica/estatistica",
+                           "color":  "1d76db"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kfg",
+                           "name":  "prioridade-alta",
+                           "description":  "Pode afetar resultados/impede execucao",
+                           "color":  "b60205"
+                       }
+                   ],
+        "number":  2,
+        "state":  "OPEN",
+        "title":  "Seleção de modelo ignora convergência e Hessiana"
+    },
+    {
+        "body":  "No `11_Modelo Estrutural Univariado - Desocupados.R:154` (bloco de Belo Horizonte, modelo MA(1)):\n\n```r\ntheta1_ma1 \u003c- dbbh[[\"mod_ar1\"]][[\"phi1_ar1_dbh\"]]\n```\n\nO `theta1_ma1` (parâmetro do MA(1)) está sendo preenchido com o **coeficiente AR(1)** (`mod_ar1`/`phi1_ar1`). Os outros 7 estratos usam a forma correta, ex.:\n\n```r\ntheta1_ma1 \u003c- dbent[[\"mod_ma1\"]][[\"theta1_ma1_dent\"]]\n```\n\nComo a Tabela de processos ARMA do artigo lista **BH-desocupados = MA(1)**, a estimativa de BH pode ter sido produzida com o parâmetro de erro amostral errado.\n\n### Correção sugerida\n```r\n# ATUAL (11_…R:154)\ntheta1_ma1 \u003c- dbbh[[\"mod_ar1\"]][[\"phi1_ar1_dbh\"]]\n# CORRIGIDO\ntheta1_ma1 \u003c- dbbh[[\"mod_ma1\"]][[\"theta1_ma1_dbh\"]]\n```\nDepois, **re-executar** o modelo de BH-desocupados e tudo que dele depende (multivariado, taxa, figuras/tabelas).\n\n---\n_Aberta no contexto da revisão de código do artigo (RBE). Ver `REVISAO_CODIGO.md` (§3, B1)._\n",
+        "labels":  [
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAAB03xipQ",
+                           "name":  "bug",
+                           "description":  "Erro de logica/execucao",
+                           "color":  "d73a4a"
+                       },
+                       {
+                           "id":  "LA_kwDONZVqkc8AAAACtk7kfg",
+                           "name":  "prioridade-alta",
+                           "description":  "Pode afetar resultados/impede execucao",
+                           "color":  "b60205"
+                       }
+                   ],
+        "number":  1,
+        "state":  "OPEN",
+        "title":  "BH: modelo MA(1) recebe o coeficiente AR(1)"
+    }
+]
