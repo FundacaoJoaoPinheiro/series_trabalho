@@ -136,35 +136,41 @@ carrega <- function(ind) {
 ## TABELA 1 — hiperparâmetros
 ################################################################################
 tab_hiper <- function(d, ind) {
-  lin <- function(rot, v, proc)
-    sprintf("%s & %s & %s & %s & %s & %s & %s \\\\", rot, proc,
-            fmt(v[1]), fmt(v[2]), fmt(v[3]), fmt(v[4]), fmt(v[5]))
+  lin <- function(rot, proc, xi, vu, vm)
+    sprintf("%s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s \\\\",
+            rot, proc, fmt(xi),
+            fmt(vu[1]), fmt(vu[2]), fmt(vu[3]), fmt(vu[4]),
+            fmt(vm[1]), fmt(vm[2]), fmt(vm[3]), fmt(vm[4]))
   cab <- paste0("\\textbf{Estrato geográfico} & \\textbf{Processo} & ",
+                "\\(\\hat{\\sigma}_{\\xi}^2\\) & ",
                 "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & ",
                 "\\(\\hat{\\sigma}_S^2\\) & \\(\\hat{\\sigma}_I^2\\) & ",
-                "\\(\\hat{\\sigma}_{\\tilde{e}}^2\\) \\\\")
+                "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & ",
+                "\\(\\hat{\\sigma}_S^2\\) & \\(\\hat{\\sigma}_I^2\\) \\\\")
   c("\\begin{table}[H]", "\\centering",
     "\\captionsetup{justification=centering}",
     sprintf("\\caption{Hiperparâmetros estimados para %s %s - modelos univariado e multivariado}",
             ART[ind], ROT_IND[ind]),
     sprintf("\\label{tab:hiper%s}", SUFIXO[ind]),
-    "\\scalebox{0.92}{", "\\renewcommand{\\arraystretch}{0.85}",
-    "\\begin{tabular}{llccccc}", "\\toprule",
-    "& & \\multicolumn{5}{c}{\\textbf{Modelo Univariado}} \\\\",
-    "\\cmidrule(lr){3-7}", cab, "\\midrule",
-    sapply(1:P, function(i) lin(ROT[i], d$hp_uni[, i], d$proc[i])),
-    "\\midrule",
-    "& & \\multicolumn{5}{c}{\\textbf{Modelo Multivariado}} \\\\",
-    "\\cmidrule(lr){3-7}", cab, "\\midrule",
+    "\\resizebox{\\textwidth}{!}{", "\\renewcommand{\\arraystretch}{0.85}",
+    "\\begin{tabular}{llccccccccc}", "\\toprule",
+    paste0("& & & \\multicolumn{4}{c}{\\textbf{Modelo Univariado}} & ",
+           "\\multicolumn{4}{c}{\\textbf{Modelo Multivariado}} \\\\"),
+    "\\cmidrule(lr){4-7} \\cmidrule(lr){8-11}", cab, "\\midrule",
     sapply(1:P, function(i)
-      lin(ROT[i], c(d$hp_mv[, i], d$hp_uni[5, i]), d$proc[i])),
+      lin(ROT[i], d$proc[i], d$hp_uni[5, i], d$hp_uni[, i], d$hp_mv[, i])),
     "\\bottomrule", "\\end{tabular}}",
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
            "Nota: o processo do erro amostral é identificado individualmente por ",
-           "estrato (Seção \\ref{sec:metodologia}), e ",
-           "\\(\\hat{\\sigma}_{\\tilde{e}}^2\\) é derivada dos coeficientes do ",
-           "processo, por isso coincidindo nos dois modelos. Sobre ",
-           "\\(\\sigma_I^2\\), ver a ressalva de identificação no texto.}"),
+           "estrato (Seção \\ref{sec:metodologia}) e não depende do modelo, ",
+           "razão pela qual as colunas \\textbf{Processo} e ",
+           "\\(\\hat{\\sigma}_{\\xi}^2\\) são comuns aos dois. Impõe-se ",
+           "\\(V(\\tilde{e}_t)=1\\), de modo que a variância do desenho amostral ",
+           "é preservada; \\(\\hat{\\sigma}_{\\xi}^2\\) é a variância da inovação ",
+           "de \\(\\tilde{e}_t\\), que não é estimada, mas derivada dos ",
+           "coeficientes do processo pela equação de Lyapunov -- é o único valor ",
+           "compatível com \\(V(\\tilde{e}_t)=1\\). Sobre \\(\\sigma_I^2\\), ver a ",
+           "ressalva de identificação no texto.}"),
     "\\end{table}")
 }
 
@@ -309,32 +315,26 @@ tab_comp_taxa <- function() {
   tt <- readRDS(file.path(RAIZ, "outputs", "taxa_final", "taxa_final.rds"))
   t2 <- tt$desempenho
   linhas <- sapply(1:P, function(i)
-    sprintf("%s & %s & %s & %s & %s & %s \\\\", ROT[i],
+    sprintf("%s & %s & %s & %s \\\\", ROT[i],
             fmt(t2$cv_direta[i], 2), fmt(t2$cv_indireta[i], 2),
-            fmt(t2$cv_direta_mod[i], 2),
-            fmt(t2$ganho_indireta[i], 2), fmt(t2$ganho_direta[i], 2)))
+            fmt(t2$cv_direta_mod[i], 2)))
   c("\\begin{table}[H]", "\\centering",
     "\\captionsetup{justification=centering}",
     paste0("\\caption{Comparação entre as duas estratégias para a taxa de desocupação ",
            "- cálculo indireto e estimação direta pelo modelo multivariado}"),
     "\\label{tab:comptaxa}",
     "{%", "\\renewcommand{\\arraystretch}{0.8}", "\\scalebox{0.9}{%",
-    "\\begin{tabular}{lccccc}", "\\toprule",
-    paste0("& \\multicolumn{3}{c}{\\textbf{Coeficiente de variação médio (\\%)}} & ",
-           "\\multicolumn{2}{c}{\\textbf{\\makecell{Diferença relativa média \\\\ ",
-           "do erro padrão (\\%)}}} \\\\"),
-    "\\cmidrule(lr){2-4} \\cmidrule(lr){5-6}",
+    "\\begin{tabular}{lccc}", "\\toprule",
+    "& \\multicolumn{3}{c}{\\textbf{Coeficiente de variação médio (\\%)}} \\\\",
+    "\\cmidrule(lr){2-4}",
     paste0("\\multicolumn{1}{l}{\\textbf{Estrato Geográfico}} & ",
            "\\textbf{\\makecell{Estimativa \\\\ direta}} & ",
            "\\textbf{\\makecell{Cálculo \\\\ indireto}} & ",
-           "\\textbf{\\makecell{Modelo \\\\ direto}} & ",
-           "\\textbf{\\makecell{Cálculo \\\\ indireto}} & ",
            "\\textbf{\\makecell{Modelo \\\\ direto}} \\\\"),
     "\\midrule", linhas, "\\midrule",
-    sprintf("\\textbf{Média} & \\textbf{%s} & \\textbf{%s} & \\textbf{%s} & \\textbf{%s} & \\textbf{%s} \\\\",
+    sprintf("\\textbf{Média} & \\textbf{%s} & \\textbf{%s} & \\textbf{%s} \\\\",
             fmt(mean(t2$cv_direta), 2), fmt(mean(t2$cv_indireta), 2),
-            fmt(mean(t2$cv_direta_mod), 2),
-            fmt(mean(t2$ganho_indireta), 2), fmt(mean(t2$ganho_direta), 2)),
+            fmt(mean(t2$cv_direta_mod), 2)),
     "\\bottomrule", "\\end{tabular}%", "}", "}",
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
            "Nota: o cálculo indireto obtém a taxa a partir das tendências estimadas ",
