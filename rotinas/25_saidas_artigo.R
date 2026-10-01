@@ -388,38 +388,50 @@ ROTULO_Y <- list(desocupados = "Desocupados (mil pessoas)",
 suppressMessages(library(patchwork))
 source(file.path(RAIZ, "rotinas", "00_tema_graficos.R"))
 
-## Cores semanticas, na paleta do artigo:
-##   estimativa direta = cinza | univariado (ou indireta) = azul | multivariado = vermelho
-COR_SERIE <- c("grey30", PAL_ARTIGO[1], PAL_ARTIGO[3])
+## Cores semanticas, na paleta do artigo (uma por posicao de f$mod):
+##   estimativa direta = cinza | univariado = azul | multivariado = vermelho |
+##   calculo indireto (so na taxa) = laranja
+COR_SERIE <- c("grey30", PAL_ARTIGO[1], PAL_ARTIGO[3], PAL_ARTIGO[2])
 ROT_IC    <- "IC 95% da estimativa direta"
 
-painel <- function(f, i, ini, rot_y) {
+## Escala comum do painel de CV, por indicador: de 0 ao maior CV da estimativa
+## direta em 2014Q1-2024Q4 (20,8 / 13,2 / 19,3), arredondado para cima. Vale
+## para todos os estratos e para as duas versões (junho e revisada), de modo que
+## os painéis sejam comparáveis entre si.
+CV_MAX <- c(desocupados = 22, ocupados = 14, taxa = 20)
+
+## f$Y, f$SE: estimativa direta e EP do desenho (52 x 8)
+## f$mod: lista de series de modelo, cada uma list(tr = 52x8, se = 52x8)
+## f$leg: rotulo de cada serie de f$mod, na mesma ordem
+painel <- function(f, i, ini, rot_y, cv_max = NA) {
   ts_ <- function(v) window(ts(v, start = c(2012, 1), frequency = 4), start = ini)
   y  <- ts_(f$Y[, i]);    se <- ts_(f$SE[, i])
-  tu <- ts_(f$tr_a[, i]); su <- ts_(f$se_a[, i])
-  tm <- ts_(f$tr_b[, i]); sm <- ts_(f$se_b[, i])
   dt <- periodo_para_data(sprintf("%d_0%d", floor(as.numeric(time(y))), cycle(y)))
 
-  lv <- c("Estimativa direta", f$leg[1], f$leg[2])
-  linha_df <- function(a, b, c) {
-    d <- rbind(data.frame(data = dt, valor = as.numeric(a), serie = lv[1]),
-               data.frame(data = dt, valor = as.numeric(b), serie = lv[2]),
-               data.frame(data = dt, valor = as.numeric(c), serie = lv[3]))
+  lv <- c("Estimativa direta", f$leg)
+  stopifnot(length(f$mod) == length(f$leg), length(lv) <= length(COR_SERIE))
+  empilha <- function(series) {
+    d <- do.call(rbind, lapply(seq_along(series), function(k)
+      data.frame(data = dt, valor = as.numeric(series[[k]]), serie = lv[k])))
     d$serie <- factor(d$serie, levels = lv); d
   }
-  d_niv <- linha_df(y, tu, tm)
-  d_cv  <- linha_df(100 * se / y, 100 * su / tu, 100 * sm / tm)
+  tr <- lapply(f$mod, function(m) ts_(m$tr[, i]))
+  sd <- lapply(f$mod, function(m) ts_(m$se[, i]))
+  d_niv <- empilha(c(list(y), tr))
+  d_cv  <- empilha(c(list(100 * se / y), Map(function(s, t) 100 * s / t, sd, tr)))
   ic    <- data.frame(data = dt,
                       li = as.numeric(y - 1.96 * se),
                       ls = as.numeric(y + 1.96 * se))
 
-  esqueleto <- function(d, ylab) {
+  esqueleto <- function(d, ylab, lim = NULL) {
     ggplot(d, aes(data, valor, color = serie)) +
-      scale_color_manual(values = setNames(COR_SERIE, lv)) +
+      scale_color_manual(values = setNames(COR_SERIE[seq_along(lv)], lv)) +
       scale_x_date(breaks = seq(as.Date("2014-01-01"), as.Date("2026-01-01"), by = "2 years"),
                    date_labels = "%Y", date_minor_breaks = "1 year",
                    expand = expansion(mult = c(.01, .02))) +
-      scale_y_continuous(labels = label_number(big.mark = ".", decimal.mark = ",")) +
+      scale_y_continuous(labels = label_number(big.mark = ".", decimal.mark = ","),
+                         limits = lim,
+                         expand = if (is.null(lim)) waiver() else expansion(mult = c(0, .02))) +
       labs(x = NULL, y = ylab) +
       tema_artigo(11) +
       theme(plot.title   = element_text(face = "bold", size = 11.5),
@@ -431,17 +443,50 @@ painel <- function(f, i, ini, rot_y) {
                 aes(data, ymin = li, ymax = ls, fill = ROT_IC), alpha = .16) +
     scale_fill_manual(values = setNames("grey45", ROT_IC)) +
     geom_line(linewidth = .65)
-  p_cv <- esqueleto(d_cv, "Coeficiente de variação (%)") + geom_line(linewidth = .65)
+  if (!is.na(cv_max) && max(d_cv$valor, na.rm = TRUE) > cv_max)
+    warning(sprintf("CV acima de CV_MAX (%.1f > %.0f) no estrato %d: a linha será cortada",
+                    max(d_cv$valor, na.rm = TRUE), cv_max, i))
+  p_cv <- esqueleto(d_cv, "Coeficiente de variação (%)",
+                    lim = if (is.na(cv_max)) NULL else c(0, cv_max)) + geom_line(linewidth = .65)
   list(niv = p_niv, cv = p_cv)
 }
 
-figura <- function(f, regs, arq, ini, rot_y, rot) {
-  ps <- lapply(regs, function(i) painel(f, i, ini, rot_y))
+figura <- function(f, regs, arq, ini, rot_y, rot, cv_max = NA) {
+  ps <- lapply(regs, function(i) painel(f, i, ini, rot_y, cv_max))
   linhas <- lapply(seq_along(regs), function(k)
     (ps[[k]]$niv + labs(title = rot[regs[k]])) | (ps[[k]]$cv + labs(title = " ")))
   g <- Reduce(`/`, linhas) + plot_layout(guides = "collect") &
        theme(legend.position = "bottom")
-  ggsave(arq, g, width = 10, height = 12.6, dpi = 120, bg = "white")
+  ## 3,15 pol por estrato (4 estratos = 12,6, a altura da figura do artigo) mais a legenda
+  ggsave(arq, g, width = 10, height = 3.15 * length(regs) + 0.4 * (length(regs) == 1),
+         dpi = 120, bg = "white")
+}
+
+## ANTES x DEPOIS de um estrato numa figura só (duas linhas: nível | CV), com
+## fontes maiores, para projeção. fa/fd são os objetos f das duas versões.
+figura_comparacao <- function(fa, fd, i, arq, ini, rot_y, rot, cv_max = NA,
+                              rotulos = c("ANTES · junho", "DEPOIS · revisado")) {
+  pa <- painel(fa, i, ini, rot_y, cv_max); pd <- painel(fd, i, ini, rot_y, cv_max)
+  la <- (pa$niv + labs(title = paste0(rotulos[1], " — ", rot[i]))) | (pa$cv + labs(title = " "))
+  ld <- (pd$niv + labs(title = paste0(rotulos[2], " — ", rot[i]))) | (pd$cv + labs(title = " "))
+  g <- (la / ld) + plot_layout(guides = "collect") &
+       theme(legend.position = "bottom",
+             text = element_text(size = 12.5), axis.text = element_text(size = 11.5),
+             axis.title = element_text(size = 12.5), legend.text = element_text(size = 12),
+             legend.key.width = unit(14, "pt"), legend.spacing.x = unit(4, "pt"),
+             plot.title = element_text(size = 13.5, face = "bold"))
+  ggsave(arq, g, width = 10, height = 5.4, dpi = 150, bg = "white")
+}
+
+## uma figura por estrato (nível | CV numa linha), escala comum e livre, em <dir>/por_estrato/
+figuras_por_estrato <- function(f, dir, ind, cv_max) {
+  d <- file.path(dir, "por_estrato"); dir.create(d, showWarnings = FALSE)
+  for (i in 1:8) {
+    arq <- file.path(d, sprintf("Figura_%s_estrato_%02d.png", NOMEFIG[ind], i))
+    figura(f, i, arq, INICIO[[ind]], ROTULO_Y[[ind]], ROT, cv_max)
+    figura(f, i, sub("\\.png$", "_semescala.png", arq), INICIO[[ind]], ROTULO_Y[[ind]], ROT, NA)
+  }
+  cat("  gravadas: 16 figuras por estrato em", d, "\n")
 }
 
 ################################################################################
@@ -461,24 +506,31 @@ for (ind in c("desocupados", "ocupados", "taxa")) {
   grava(tab_desemp(d, ind),  ind, paste0("diffvicio", SUFIXO[ind], ".tex"))
   grava(tab_pontual(d, ind), ind, paste0("est_pontual_", SUFIXO[ind], ".tex"))
 
-  ## figuras: azul = univariado (ou cálculo indireto, na taxa), vermelho = multivariado
-  f <- list(Y = d$Y, SE = d$SE, tr_b = d$tr_mv, se_b = d$se_mv,
-            tr_a = d$tr_uni, se_a = d$se_uni,
+  ## figuras: azul = univariado, vermelho = multivariado; na taxa entra ainda o
+  ## cálculo indireto, em laranja (quarta série)
+  f <- list(Y = d$Y, SE = d$SE,
+            mod = list(list(tr = d$tr_uni, se = d$se_uni),
+                       list(tr = d$tr_mv,  se = d$se_mv)),
             leg = c("Tendência - Mod. univariado", "Tendência - Mod. multivariado"))
   if (ind == "taxa") {
     tt <- readRDS(file.path(RAIZ, "outputs", "taxa_final", "taxa_final.rds"))
-    f$tr_a <- tt$taxa_indireta * 100
-    f$se_a <- tt$se_indireta   * 100
-    f$leg  <- c("Taxa calculada indiretamente", "Tendência - Mod. multivariado")
+    f$mod[[3]] <- list(tr = tt$taxa_indireta * 100, se = tt$se_indireta * 100)
+    f$leg      <- c(f$leg, "Taxa calculada indiretamente")
   }
   for (k in 1:2) {
     regs <- if (k == 1) 1:4 else 5:8
     arq  <- paste0("Figura_", NOMEFIG[ind], "_", k, ".png")
-    figura(f, regs, file.path(FIGS, arq), INICIO[[ind]], ROTULO_Y[[ind]], ROT)
+    figura(f, regs, file.path(FIGS, arq), INICIO[[ind]], ROTULO_Y[[ind]], ROT, CV_MAX[ind])
     file.copy(file.path(FIGS, arq),
               file.path(ARTIGO, "resultados", PASTA[ind], arq), overwrite = TRUE)
     cat("  gravado:", file.path(PASTA[ind], arq), "\n")
+    ## a mesma figura com o eixo de CV livre em cada estrato (só para consulta;
+    ## a do artigo é a de escala comum)
+    figura(f, regs, file.path(FIGS, sub("\\.png$", "_semescala.png", arq)),
+           INICIO[[ind]], ROTULO_Y[[ind]], ROT, cv_max = NA)
   }
+  figuras_por_estrato(f, FIGS, ind, CV_MAX[ind])
+  saveRDS(f, file.path(FIGS, paste0("series_figuras_", ind, ".rds")))   # p/ a comparação antes x depois (rotina 26)
 
   sintese[[ind]] <- c(uni = mean(d$rrse_uni), mv = mean(d$m$desempenho$rrse),
                       lb_uni = sum(d$diag_uni["lb", ] <= 0.05),
