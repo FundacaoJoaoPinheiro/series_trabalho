@@ -59,28 +59,37 @@ teste_H <- function(r) {
   c(H = H, p = p)
 }
 
-ajusta_final <- function(y, se, phi, theta) {
-  fn <- monta(se, phi, theta)          # impõe Var(ẽ) = 1
+ajusta_final <- function(y, se, phi, theta, smooth) {
+  ## Var(ẽ) = 1 sempre; sazonalidade deterministica sempre (sigma2_S e estimado
+  ## em zero em todos os estratos, com verossimilhanca identica -- ver
+  ## outputs/teste_especificacoes.csv); a tendencia e escolhida por BIC.
+  fn <- monta(se, phi, theta, smooth = smooth, sazdet = TRUE)
   if (is.null(fn)) stop("montagem inválida")
+  nomes <- attr(fn, "nomes"); np <- length(nomes)
   obj <- function(pp) {
     ll <- try(dlmLL(y, fn(pp)), silent = TRUE)
     if (inherits(ll, "try-error") || !is.finite(ll)) return(1e10)
     ll
   }
-  i0 <- log(pmax(c(var(diff(y)), var(diff(diff(y)))/4, 1e-6, 1e-6), 1e-8))
+  i0 <- log(pmax(c(if (!smooth) var(diff(y)), var(diff(diff(y)))/4, 1e-6), 1e-8))
   LIM <- 20
   ## MULTI-START. As quatro primeiras partidas deslocam o vetor inteiro, o que
   ## mantem a razao sigma2_L / sigma2_R e deixa o otimizador preso na bacia em
   ## que comecou. Nivel e inclinacao sao quase permutaveis nesta verossimilhanca
   ## (passeio aleatorio no nivel e no declive explicam a mesma serie), entao as
   ## duas ultimas invertem explicitamente essa razao. Tudo deterministico.
-  inv1 <- i0; inv1[1] <- i0[1] - 6; inv1[2] <- i0[2] + 3
-  inv2 <- i0; inv2[1] <- i0[1] + 3; inv2[2] <- i0[2] - 6
+  if (!smooth) {
+    inv1 <- i0; inv1[1] <- i0[1] - 6; inv1[2] <- i0[2] + 3
+    inv2 <- i0; inv2[1] <- i0[1] + 3; inv2[2] <- i0[2] - 6
+  } else {                      # sem nivel livre, varia-se a escala da inclinacao
+    inv1 <- i0; inv1[1] <- i0[1] + 3
+    inv2 <- i0; inv2[1] <- i0[1] - 6
+  }
   melhor <- NULL
   for (p0 in list(i0, i0 + 1, i0 - 1, i0 - 3, inv1, inv2)) {
     p0 <- pmin(pmax(p0, -LIM + 1), LIM - 1)
-    r <- try(optim(p0, obj, method = "L-BFGS-B", lower = rep(-LIM, 4),
-                   upper = rep(LIM, 4), control = list(maxit = 300)), silent = TRUE)
+    r <- try(optim(p0, obj, method = "L-BFGS-B", lower = rep(-LIM, np),
+                   upper = rep(LIM, np), control = list(maxit = 300)), silent = TRUE)
     if (inherits(r, "try-error") || !is.finite(r$value) || r$value >= 1e9) next
     if (is.null(melhor) || r$value < melhor$value) melhor <- r
   }
@@ -116,8 +125,9 @@ ajusta_final <- function(y, se, phi, theta) {
   pt <- perturba(melhor$par)
   ## grau de planura das variancias fracamente identificadas: quanto o objetivo
   ## muda ao multiplicar sigma2_S e sigma2_I por 100
-  plano_S <- obj(melhor$par + c(0,0,log(100),0)) - melhor$value
-  plano_I <- obj(melhor$par + c(0,0,0,log(100))) - melhor$value
+  dI <- numeric(np); dI[match("I", nomes)] <- log(100)
+  plano_I <- obj(melhor$par + dI) - melhor$value
+  plano_S <- NA_real_                 # sazonalidade deterministica: sem parametro
 
   mod <- fn(melhor$par)
   flt <- dlmFilter(y, mod)
@@ -137,9 +147,13 @@ ajusta_final <- function(y, se, phi, theta) {
   rp <- as.numeric(residuals(flt, type = "standardized", sd = FALSE))[-(1:BURN)]
   b  <- blocos(phi, theta)
   s2e <- 1 / P_est(b$G, b$v, 1)[1,1]
-  hp <- c(exp(melhor$par), s2e)        # L, R, S, I, s2e
+  v  <- setNames(exp(melhor$par), nomes)
+  hp <- c(if (smooth) 0 else unname(v["L"]), unname(v["R"]), 0,
+          unname(v["I"]), s2e)         # L, R, S, I, s2e (0 = fixo na especificacao)
 
   list(convergencia = melhor$convergence, perturbacao = pt,
+       smooth = smooth, npar = np,
+       bic = np * log(length(y)) + 2 * melhor$value,
        plano_S = plano_S, plano_I = plano_I,
        loglik = -melhor$value, hp = hp,
        trend = trend, sinal = sinal, se_trend = se_tr, se_sinal = se_sin,
@@ -159,21 +173,27 @@ for (ind in c("desocupados", "ocupados", "taxa")) {
     stopifnot(nrow(e) == 1)
     s   <- serie(ind, i)
     phi <- le_coef(e$phi); theta <- le_coef(e$theta)
-    r   <- ajusta_final(s$y, s$se, phi, theta)
+    ## tendencia por estrato: local linear x suave, decidida pelo BIC
+    cand <- lapply(c(FALSE, TRUE), function(sm) ajusta_final(s$y, s$se, phi, theta, sm))
+    r    <- cand[[which.min(sapply(cand, function(z) z$bic))]]
 
     ix   <- (BURN+1):length(s$y)
     rrse <- mean((s$se[ix] - r$se_trend[ix]) / s$se[ix]) * 100
     vic  <- sum(r$sinal[ix] - s$y[ix]) / sum(s$y[ix]) * 100
 
-    out[[ COD[i] ]] <- list(rotulo = REG[i], processo = e$processo,
+    out[[ COD[i] ]] <- list(rotulo = REG[i], processo = e$processo, smooth = r$smooth,
                             phi = phi, theta = theta, serie = s,
                             corrigido = r, rrse = rrse, vicio = vic)
-    cat(sprintf("%-40s %-14s conv=%-3d pert=%d/%d logLik=%9.2f RRSE=%6.2f%% vicio=%6.2f%% SW=%.3f LB=%.3f H=%.3f\n",
-                substr(REG[i],1,38), e$processo, r$convergencia,
+    cat(sprintf("%-34s %-8s %-12s BIC %8.2f/%8.2f conv=%-3d pert=%d/%d logLik=%9.2f RRSE=%6.2f%% vicio=%6.2f%% SW=%.3f LB=%.3f H=%.3f\n",
+                substr(REG[i],1,32), e$processo,
+                if (r$smooth) "suave" else "local linear",
+                cand[[1]]$bic, cand[[2]]$bic, r$convergencia,
                 r$perturbacao["melhora"], r$perturbacao["total"],
                 r$loglik, rrse, vic, r$shapiro, r$ljung, r$H["p"]))
     resumo[[length(resumo)+1]] <- data.frame(
       indicador = ind, estrato = REG[i], processo = e$processo,
+      tendencia = if (r$smooth) "suave" else "local linear",
+      bic_local_linear = cand[[1]]$bic, bic_suave = cand[[2]]$bic,
       sigma2_L = r$hp[1], sigma2_R = r$hp[2], sigma2_S = r$hp[3],
       sigma2_I = r$hp[4], sigma2_e = r$hp[5],
       convergencia = r$convergencia,

@@ -146,26 +146,24 @@ carrega <- function(ind) {
 ################################################################################
 tab_hiper <- function(d, ind) {
   lin <- function(rot, proc, cf, vu, vm)
-    sprintf("%s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s \\\\",
+    sprintf("%s & %s & %s & %s & %s & %s & %s & %s & %s \\\\",
             rot, proc, cf,
-            fmt(vu[1]), fmt(vu[2]), fmt(vu[3]), fmt(vu[4]),
-            fmt(vm[1]), fmt(vm[2]), fmt(vm[3]), fmt(vm[4]))
+            fmt(vu[1]), fmt(vu[2]), fmt(vu[4]),
+            fmt(vm[1]), fmt(vm[2]), fmt(vm[4]))
   cab <- paste0("\\textbf{Estrato geográfico} & \\textbf{Processo} & ",
                 "\\textbf{Coeficientes} & ",
-                "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & ",
-                "\\(\\hat{\\sigma}_S^2\\) & \\(\\hat{\\sigma}_I^2\\) & ",
-                "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & ",
-                "\\(\\hat{\\sigma}_S^2\\) & \\(\\hat{\\sigma}_I^2\\) \\\\")
+                "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & \\(\\hat{\\sigma}_I^2\\) & ",
+                "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & \\(\\hat{\\sigma}_I^2\\) \\\\")
   c("\\begin{table}[H]", "\\centering",
     "\\captionsetup{justification=centering}",
     sprintf("\\caption{Hiperparâmetros estimados para %s %s - modelos univariado e multivariado}",
             ART[ind], ROT_IND[ind]),
     sprintf("\\label{tab:hiper%s}", SUFIXO[ind]),
     "\\resizebox{\\textwidth}{!}{", "\\renewcommand{\\arraystretch}{0.85}",
-    "\\begin{tabular}{llccccccccc}", "\\toprule",
-    paste0("& & & \\multicolumn{4}{c}{\\textbf{Modelo Univariado}} & ",
-           "\\multicolumn{4}{c}{\\textbf{Modelo Multivariado}} \\\\"),
-    "\\cmidrule(lr){4-7} \\cmidrule(lr){8-11}", cab, "\\midrule",
+    "\\begin{tabular}{llccccccc}", "\\toprule",
+    paste0("& & & \\multicolumn{3}{c}{\\textbf{Modelo Univariado}} & ",
+           "\\multicolumn{3}{c}{\\textbf{Modelo Multivariado}} \\\\"),
+    "\\cmidrule(lr){4-6} \\cmidrule(lr){7-9}", cab, "\\midrule",
     sapply(1:P, function(i)
       lin(ROT[i], d$proc[i], d$coef[i], d$hp_uni[, i], d$hp_mv[, i])),
     "\\bottomrule", "\\end{tabular}}",
@@ -175,6 +173,9 @@ tab_hiper <- function(d, ind) {
            "razão pela qual as colunas \\textbf{Processo} e ",
            "\\textbf{Coeficientes} são comuns aos dois. Os coeficientes são ",
            "autorregressivos nos processos AR e de médias móveis nos MA. ",
+           "A sazonalidade é determinística em todos os estratos, e ",
+           "\\(\\hat{\\sigma}_L^2 = 0\\) indica tendência suave --- ",
+           "a escolha entre as duas formas é feita por estrato, pelo BIC. ",
            "Impõe-se \\(V(\\tilde{e}_t)=1\\), de modo que a variância do desenho ",
            "amostral é preservada: dada essa condição, a variância da inovação de ",
            "\\(\\tilde{e}_t\\) não é um parâmetro livre, e sim o único valor ",

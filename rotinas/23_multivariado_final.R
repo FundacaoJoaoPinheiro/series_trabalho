@@ -14,7 +14,10 @@
 ##  25–32  trig sin H1   33–40  trig H2         41+    blocos ARMA por estrato,
 ##                                                     concatenados, r_i = max(p_i, q_i+1)
 ##
-## PARÂMETROS (60): 8 nível + 8 sazonal + 8 irregular + 36 Cholesky.
+## PARÂMETROS: (estratos com nível livre) + 8 irregular + 36 Cholesky.
+## A sazonalidade é determinística em todos os estratos e a tendência é suave
+## naqueles em que o BIC do univariado a escolheu — as duas decisões vêm do
+## passo 3, em outputs/univariado_final/resumo_univariado_final.csv.
 ## A variância da inovação do erro amostral NÃO é estimada — vem da restrição.
 ################################################################################
 
@@ -49,10 +52,16 @@ PM  <- lapply(seq_len(P), function(i) P_est(BL[[i]]$G, BL[[i]]$v, S2[i]))
 INI  <- 40 + c(0, cumsum(R_I)[-P])      # posição inicial do bloco ARMA de cada estrato
 NS   <- 40 + sum(R_I)
 N_CH <- P*(P+1)/2
-IDX  <- list(nivel = 1:8, saz = 9:16, irreg = 17:24, chol = 25:60)
+## tendência suave por estrato, herdada do passo 3
+SMOOTH <- sapply(COD, function(k) isTRUE(uni[[k]]$smooth))
+LIV    <- which(!SMOOTH)            # estratos que mantêm o nível livre
+N_LIV  <- length(LIV)
+NPAR   <- N_LIV + P + N_CH
+IDX  <- list(nivel = seq_len(N_LIV), irreg = N_LIV + seq_len(P),
+             chol = N_LIV + P + seq_len(N_CH))
 B_NIVEL <- 1:8; B_INCL <- 9:16; B_SAZ1 <- 17:24; B_SAZ2 <- 25:32; B_SAZ3 <- 33:40
 
-cat("Indicador:", INDICADOR, "| estados:", NS, "| parâmetros: 60\n")
+cat("Indicador:", INDICADOR, "| estados:", NS, "| parâmetros:", NPAR, "| nível livre em", N_LIV, "de", P, "estratos:", paste(COD[LIV], collapse = " "), "\n")
 cat("processos:", paste(COD, PRC, sep="="), "\n")
 cat("r_i:", R_I, "| inovações derivadas:", round(S2, 4), "\n\n")
 
@@ -85,10 +94,10 @@ monta_mv <- function(pp) {
            W = diag(1e-10, NS), m0 = rep(0, NS), C0 = diag(1e6, NS),
            JFF = JFF, X = SE)
   W <- matrix(0, NS, NS)
-  W[cbind(B_NIVEL, B_NIVEL)] <- exp(pp[IDX$nivel])
-  ## distúrbio sazonal nos TRÊS estados trigonométricos de cada estrato
-  ## (issue #8): cos H1 (17-24), sen H1 (25-32) e Nyquist H2 (33-40)
-  for (bl in list(B_SAZ1, B_SAZ2, B_SAZ3)) W[cbind(bl, bl)] <- exp(pp[IDX$saz])
+  ## nível: distúrbio só nos estratos cuja tendência não é suave
+  if (N_LIV) W[cbind(B_NIVEL[LIV], B_NIVEL[LIV])] <- exp(pp[IDX$nivel])
+  ## sazonalidade determinística: sem distúrbio nos três estados
+  ## trigonométricos (cos H1, sen H1, Nyquist H2) de nenhum estrato
 
   ## bloco 8x8 das inclinações por Cholesky
   L <- matrix(0, P, P); pc <- pp[IDX$chol]; k <- 1
@@ -126,9 +135,8 @@ objetivo <- function(pp) {
 ################################################################################
 hp  <- sapply(COD, function(k) uni[[k]]$corrigido$hp)   # 5 x 8
 flr <- function(v) log(pmax(v, 1e-8))
-p0 <- numeric(60)
-p0[IDX$nivel] <- flr(hp[1, ])
-p0[IDX$saz]   <- flr(hp[3, ])
+p0 <- numeric(NPAR)
+if (N_LIV) p0[IDX$nivel] <- flr(hp[1, LIV])
 p0[IDX$irreg] <- flr(hp[4, ])
 esc <- median(sqrt(pmax(hp[2, ], 1e-8)))
 pc0 <- numeric(N_CH); k <- 1
@@ -152,10 +160,11 @@ if (Sys.getenv("QUENTE", "0") == "1") {
 
 LIM <- 20
 p0  <- pmin(pmax(p0, -LIM+1), LIM-1)
+stopifnot(length(p0) == NPAR)
 cat("otimizando...\n"); flush.console()
 t0 <- Sys.time()
 fit <- optim(p0, objetivo, method = "L-BFGS-B",
-             lower = rep(-LIM, 60), upper = rep(LIM, 60),
+             lower = rep(-LIM, NPAR), upper = rep(LIM, NPAR),
              control = list(maxit = MAXIT))
 cat("conv =", fit$convergence, "| logLik =", round(-fit$value, 3),
     "|", round(as.numeric(difftime(Sys.time(), t0, units="mins")), 1), "min\n")
@@ -218,7 +227,7 @@ for (tent in 0:MAX_REINICIO) {
   flush.console()
   t1 <- Sys.time()
   fit <- optim(pt$par, objetivo, method = "L-BFGS-B",
-               lower = rep(-LIM, 60), upper = rep(LIM, 60),
+               lower = rep(-LIM, NPAR), upper = rep(LIM, NPAR),
                control = list(maxit = MAXIT))
   cat("  conv =", fit$convergence, "| logLik =", round(-fit$value, 3),
       "|", round(as.numeric(difftime(Sys.time(), t1, units = "mins")), 1), "min\n")
@@ -257,6 +266,7 @@ cat("\nganho médio:", round(mean(des$rrse), 2), "% | univariado:",
     round(mean(sapply(COD, function(k) uni[[k]]$rrse)), 2), "%\n")
 
 saveRDS(list(fit = fit, mod = mod, Sigma_R = Sigma_R, Corr_R = Corr_R,
+             smooth = SMOOTH, npar = NPAR,
              autovalores = ev, desempenho = des, rotulos = ROT, processos = PRC,
              perturbacao = pt, INI = INI, R_I = R_I),
         file.path(SAIDA, paste0("multivariado_", INDICADOR, ".rds")))
