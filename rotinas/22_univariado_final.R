@@ -175,7 +175,10 @@ for (ind in c("desocupados", "ocupados", "taxa")) {
     phi <- le_coef(e$phi); theta <- le_coef(e$theta)
     ## tendencia por estrato: local linear x suave, decidida pelo BIC
     cand <- lapply(c(FALSE, TRUE), function(sm) ajusta_final(s$y, s$se, phi, theta, sm))
-    r    <- cand[[which.min(sapply(cand, function(z) z$bic))]]
+    ## TENDENCIA=suave impoe a forma suave a todos os estratos, para a
+    ## verificacao de robustez da escolha por BIC; vazio = escolha por estrato
+    r    <- if (Sys.getenv("TENDENCIA", "") == "suave") cand[[2]]
+            else cand[[which.min(sapply(cand, function(z) z$bic))]]
 
     ix   <- (BURN+1):length(s$y)
     rrse <- mean((s$se[ix] - r$se_trend[ix]) / s$se[ix]) * 100
