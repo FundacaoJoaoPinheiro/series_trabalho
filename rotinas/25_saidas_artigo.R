@@ -62,6 +62,14 @@ fmt <- function(x, d = 4) {
   s <- formatC(x, format = "f", digits = d, big.mark = "")
   gsub("\\.", ",", s)
 }
+## coeficientes do processo ARMA identificado (AR primeiro, MA depois), na
+## ordem em que entram no processo: e o que a condicao V(e~)=1 toma como dado
+coef_proc <- function(x) {
+  v <- c(x$phi, x$theta)
+  if (is.null(v) || !length(v)) return("--")
+  ## sinal de menos tipografico, nao hifen (a celula e composta em modo texto)
+  paste(sub("^-", "\\\\(-\\\\)", fmt(v, 3)), collapse = "; ")
+}
 ## p-valor com estrelas: * 10%, ** 5%, *** 1%
 pstar <- function(p) {
   e <- ifelse(p <= 0.01, "***", ifelse(p <= 0.05, "**", ifelse(p <= 0.10, "*", "")))
@@ -124,6 +132,7 @@ carrega <- function(ind) {
        sin_uni = sapply(cod, function(k) uni[[k]]$corrigido$sinal),
        hp_uni = sapply(cod, function(k) uni[[k]]$corrigido$hp),
        proc = sapply(cod, function(k) uni[[k]]$processo),
+       coef = sapply(cod, function(k) coef_proc(uni[[k]])),
        diag_uni = sapply(cod, function(k) c(
          sw = uni[[k]]$corrigido$shapiro,
          lb = uni[[k]]$corrigido$ljung,
@@ -136,13 +145,13 @@ carrega <- function(ind) {
 ## TABELA 1 — hiperparâmetros
 ################################################################################
 tab_hiper <- function(d, ind) {
-  lin <- function(rot, proc, xi, vu, vm)
+  lin <- function(rot, proc, cf, vu, vm)
     sprintf("%s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s \\\\",
-            rot, proc, fmt(xi),
+            rot, proc, cf,
             fmt(vu[1]), fmt(vu[2]), fmt(vu[3]), fmt(vu[4]),
             fmt(vm[1]), fmt(vm[2]), fmt(vm[3]), fmt(vm[4]))
   cab <- paste0("\\textbf{Estrato geográfico} & \\textbf{Processo} & ",
-                "\\(\\hat{\\sigma}_{\\xi}^2\\) & ",
+                "\\textbf{Coeficientes} & ",
                 "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & ",
                 "\\(\\hat{\\sigma}_S^2\\) & \\(\\hat{\\sigma}_I^2\\) & ",
                 "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & ",
@@ -158,18 +167,20 @@ tab_hiper <- function(d, ind) {
            "\\multicolumn{4}{c}{\\textbf{Modelo Multivariado}} \\\\"),
     "\\cmidrule(lr){4-7} \\cmidrule(lr){8-11}", cab, "\\midrule",
     sapply(1:P, function(i)
-      lin(ROT[i], d$proc[i], d$hp_uni[5, i], d$hp_uni[, i], d$hp_mv[, i])),
+      lin(ROT[i], d$proc[i], d$coef[i], d$hp_uni[, i], d$hp_mv[, i])),
     "\\bottomrule", "\\end{tabular}}",
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
            "Nota: o processo do erro amostral é identificado individualmente por ",
            "estrato (Seção \\ref{sec:metodologia}) e não depende do modelo, ",
            "razão pela qual as colunas \\textbf{Processo} e ",
-           "\\(\\hat{\\sigma}_{\\xi}^2\\) são comuns aos dois. Impõe-se ",
-           "\\(V(\\tilde{e}_t)=1\\), de modo que a variância do desenho amostral ",
-           "é preservada; \\(\\hat{\\sigma}_{\\xi}^2\\) é a variância da inovação ",
-           "de \\(\\tilde{e}_t\\), que não é estimada, mas derivada dos ",
-           "coeficientes do processo pela equação de Lyapunov -- é o único valor ",
-           "compatível com \\(V(\\tilde{e}_t)=1\\). Sobre \\(\\sigma_I^2\\), ver a ",
+           "\\textbf{Coeficientes} são comuns aos dois. Os coeficientes são ",
+           "autorregressivos nos processos AR e de médias móveis nos MA. ",
+           "Impõe-se \\(V(\\tilde{e}_t)=1\\), de modo que a variância do desenho ",
+           "amostral é preservada: dada essa condição, a variância da inovação de ",
+           "\\(\\tilde{e}_t\\) não é um parâmetro livre, e sim o único valor ",
+           "compatível com ela -- \\(1-\\hat{\\phi}^2\\) no AR(1), ",
+           "\\(1/(1+\\hat{\\theta}^2)\\) no MA(1) e, no caso geral, a ",
+           "solução da equação de Lyapunov. Sobre \\(\\sigma_I^2\\), ver a ",
            "ressalva de identificação no texto.}"),
     "\\end{table}")
 }
