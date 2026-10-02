@@ -70,6 +70,17 @@ coef_proc <- function(x) {
   ## sinal de menos tipografico, nao hifen (a celula e composta em modo texto)
   paste(sub("^-", "\\\\(-\\\\)", fmt(v, 3)), collapse = "; ")
 }
+## variancias da tabela de hiperparametros. Imprimir 0,0000 para tudo que e
+## pequeno confunde duas coisas diferentes: o parametro FIXADO em zero pela
+## especificacao (tendencia suave, sazonalidade deterministica -- o piso 1e-10
+## do dlm) e a estimativa positiva porem desprezivel (o irregular, que fica na
+## casa de 1e-6 e nao e identificavel). A tabela passa a distinguir as duas.
+fmt_hp <- function(x) {
+  if (!is.finite(x)) return("--")
+  if (x <= 1e-9) return("0")
+  if (x < 1e-5)  return("\\(<10^{-5}\\)")
+  fmt(x)
+}
 ## p-valor com estrelas: * 10%, ** 5%, *** 1%
 pstar <- function(p) {
   e <- ifelse(p <= 0.01, "***", ifelse(p <= 0.05, "**", ifelse(p <= 0.10, "*", "")))
@@ -148,8 +159,8 @@ tab_hiper <- function(d, ind) {
   lin <- function(rot, proc, cf, vu, vm)
     sprintf("%s & %s & %s & %s & %s & %s & %s & %s & %s \\\\",
             rot, proc, cf,
-            fmt(vu[1]), fmt(vu[2]), fmt(vu[4]),
-            fmt(vm[1]), fmt(vm[2]), fmt(vm[4]))
+            fmt_hp(vu[1]), fmt_hp(vu[2]), fmt_hp(vu[4]),
+            fmt_hp(vm[1]), fmt_hp(vm[2]), fmt_hp(vm[4]))
   cab <- paste0("\\textbf{Estrato geográfico} & \\textbf{Processo} & ",
                 "\\textbf{Coeficientes} & ",
                 "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & \\(\\hat{\\sigma}_I^2\\) & ",
@@ -175,6 +186,9 @@ tab_hiper <- function(d, ind) {
            "autorregressivos nos processos AR e de médias móveis nos MA. ",
            "A sazonalidade é determinística em todos os estratos, e ",
            "\\(\\hat{\\sigma}_L^2 = 0\\) indica tendência suave --- ",
+           "o parâmetro é fixado em zero, não estimado. A notação ",
+           "\\(<10^{-5}\\) distingue desse caso a estimativa positiva, porém ",
+           "desprezível, do componente irregular. ",
            "a escolha entre as duas formas é feita por estrato, pelo BIC. ",
            "Impõe-se \\(V(\\tilde{e}_t)=1\\), de modo que a variância do desenho ",
            "amostral é preservada: dada essa condição, a variância da inovação de ",
