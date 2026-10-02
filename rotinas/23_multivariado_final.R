@@ -43,6 +43,8 @@ PRC <- sapply(COD, function(k) uni[[k]]$processo)
 BL  <- lapply(COD, function(k) blocos(uni[[k]]$phi, uni[[k]]$theta))
 R_I <- sapply(BL, function(b) b$r)
 S2  <- sapply(BL, function(b) 1 / P_est(b$G, b$v, 1)[1,1])   # Var(ẽ)=1
+## covariancia estacionaria de cada bloco ARMA, para a condicao inicial
+PM  <- lapply(seq_len(P), function(i) P_est(BL[[i]]$G, BL[[i]]$v, S2[i]))
 
 INI  <- 40 + c(0, cumsum(R_I)[-P])      # posição inicial do bloco ARMA de cada estrato
 NS   <- 40 + sum(R_I)
@@ -100,6 +102,16 @@ monta_mv <- function(pp) {
   }
   d <- diag(W); diag(W)[d == 0] <- 1e-10
   m$W <- W
+
+  ## C0: difuso nos 40 estados estruturais (nao estacionarios) e, em cada bloco
+  ## ARMA, a covariancia estacionaria implicada por Var(e~)=1. Com 1e6 nos oito
+  ## blocos o filtro comeca contradizendo a restricao, e paga por isso.
+  C0 <- diag(1e6, NS)
+  for (i in 1:P) {
+    ix <- (INI[i]+1):(INI[i]+R_I[i])
+    C0[ix, ix] <- PM[[i]]
+  }
+  m$C0 <- C0
   m
 }
 

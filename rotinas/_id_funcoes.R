@@ -29,6 +29,9 @@ monta <- function(se, phi, theta) {
   p11 <- try(P_est(b$G, b$v, 1)[1,1], silent = TRUE)
   if (inherits(p11, "try-error") || !is.finite(p11) || p11 <= 0) return(NULL)
   s2 <- 1 / p11
+  ## covariancia estacionaria do bloco ARMA, da mesma equacao de Lyapunov que
+  ## fixa a inovacao; por construcao Pm[1,1] = 1, que e a condicao V(e~) = 1
+  Pm <- P_est(b$G, b$v, s2)
   ns <- 5 + b$r
   function(pp) {
     m <- dlmModPoly(2) + dlmModTrig(4) + dlmModReg(se, addInt = FALSE)
@@ -48,7 +51,12 @@ monta <- function(se, phi, theta) {
     W[3,3] <- W[4,4] <- W[5,5] <- exp(pp[3])
     d <- diag(W); diag(W)[d == 0] <- 1e-10
     m$W <- W; m$V <- exp(pp[4])
-    m$m0 <- rep(0, ns); m$C0 <- diag(x = 1e6, ns)
+    ## C0 difuso (1e6) apenas nos estados NAO estacionarios -- nivel, inclinacao
+    ## e os tres trigonometricos. O estado do erro amostral e estacionario e tem
+    ## variancia 1 por imposicao: inicializa-lo com 1e6 contradiz o proprio W e
+    ## custa verossimilhanca nos primeiros trimestres.
+    C0 <- matrix(0, ns, ns); diag(C0)[1:5] <- 1e6; C0[6:ns, 6:ns] <- Pm
+    m$m0 <- rep(0, ns); m$C0 <- C0
     m
   }
 }

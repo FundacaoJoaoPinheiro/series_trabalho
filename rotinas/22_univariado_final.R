@@ -69,8 +69,15 @@ ajusta_final <- function(y, se, phi, theta) {
   }
   i0 <- log(pmax(c(var(diff(y)), var(diff(diff(y)))/4, 1e-6, 1e-6), 1e-8))
   LIM <- 20
+  ## MULTI-START. As quatro primeiras partidas deslocam o vetor inteiro, o que
+  ## mantem a razao sigma2_L / sigma2_R e deixa o otimizador preso na bacia em
+  ## que comecou. Nivel e inclinacao sao quase permutaveis nesta verossimilhanca
+  ## (passeio aleatorio no nivel e no declive explicam a mesma serie), entao as
+  ## duas ultimas invertem explicitamente essa razao. Tudo deterministico.
+  inv1 <- i0; inv1[1] <- i0[1] - 6; inv1[2] <- i0[2] + 3
+  inv2 <- i0; inv2[1] <- i0[1] + 3; inv2[2] <- i0[2] - 6
   melhor <- NULL
-  for (p0 in list(i0, i0 + 1, i0 - 1, i0 - 3)) {
+  for (p0 in list(i0, i0 + 1, i0 - 1, i0 - 3, inv1, inv2)) {
     p0 <- pmin(pmax(p0, -LIM + 1), LIM - 1)
     r <- try(optim(p0, obj, method = "L-BFGS-B", lower = rep(-LIM, 4),
                    upper = rep(LIM, 4), control = list(maxit = 300)), silent = TRUE)
