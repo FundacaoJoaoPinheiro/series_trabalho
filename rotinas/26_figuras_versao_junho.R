@@ -138,8 +138,12 @@ monta_f <- function(ind) {
     TL <- D$tr + O$tr
     r  <- D$tr / TL
     vr <- (1 / TL^2) * D$se^2 + (D$tr^2 / TL^4) * (D$se^2 + O$se^2)
-    f$mod[[3]] <- list(tr = 100 * r, se = 100 * sqrt(vr))
-    f$leg      <- c(f$leg, "Taxa calculada indiretamente")
+    ## o univariado NAO entra na figura da taxa (reuniao de 22/09/2026, Denise
+    ## Britz) -- mesma composicao de series do 25_, para que o antes x depois
+    ## compare as mesmas curvas
+    f$mod <- list(list(tr = M$tr, se = M$se),
+                  list(tr = 100 * r, se = 100 * sqrt(vr)))
+    f$leg <- c("Tendência - Mod. multivariado", "Taxa calculada indiretamente")
   }
   f
 }
@@ -159,7 +163,12 @@ for (ind in INDS) {
   rrse <- function(se_m) colMeans((f$SE[ix, ] - se_m[ix, ]) / f$SE[ix, ]) * 100
   g <- data.frame(indicador = ind, estrato = ROT)
   for (k in seq_along(f$mod)) g[[paste0("rrse_", k)]] <- round(rrse(f$mod[[k]]$se), 2)
-  names(g)[-(1:2)] <- c("rrse_uni", "rrse_multi", "rrse_indireta")[seq_along(f$mod)]
+  ## o nome da coluna sai do rotulo da serie, nao da posicao: a taxa nao tem
+  ## univariado, entao a 1a coluna dela e o multivariado
+  CHAVE_RRSE <- c("Tendência - Mod. univariado"   = "rrse_uni",
+                  "Tendência - Mod. multivariado" = "rrse_multi",
+                  "Taxa calculada indiretamente"  = "rrse_indireta")
+  names(g)[-(1:2)] <- CHAVE_RRSE[f$leg]
   ganhos[[ind]] <- g
   for (k in 1:2) {
     regs <- if (k == 1) 1:4 else 5:8

@@ -388,10 +388,15 @@ ROTULO_Y <- list(desocupados = "Desocupados (mil pessoas)",
 suppressMessages(library(patchwork))
 source(file.path(RAIZ, "rotinas", "00_tema_graficos.R"))
 
-## Cores semanticas, na paleta do artigo (uma por posicao de f$mod):
+## Cores semanticas, na paleta do artigo, indexadas pelo ROTULO da serie e nao
+## pela posicao: assim o multivariado e vermelho em todas as figuras, mesmo
+## quando o conjunto de series muda de um indicador para outro.
 ##   estimativa direta = cinza | univariado = azul | multivariado = vermelho |
 ##   calculo indireto (so na taxa) = laranja
-COR_SERIE <- c("grey30", PAL_ARTIGO[1], PAL_ARTIGO[3], PAL_ARTIGO[2])
+COR_SERIE <- c("Estimativa direta"             = "grey30",
+               "Tendência - Mod. univariado"   = PAL_ARTIGO[1],
+               "Tendência - Mod. multivariado" = PAL_ARTIGO[3],
+               "Taxa calculada indiretamente"  = PAL_ARTIGO[2])
 ROT_IC    <- "IC 95% da estimativa direta"
 
 ## Escala comum do painel de CV, por indicador: de 0 ao maior CV da estimativa
@@ -409,7 +414,7 @@ painel <- function(f, i, ini, rot_y, cv_max = NA) {
   dt <- periodo_para_data(sprintf("%d_0%d", floor(as.numeric(time(y))), cycle(y)))
 
   lv <- c("Estimativa direta", f$leg)
-  stopifnot(length(f$mod) == length(f$leg), length(lv) <= length(COR_SERIE))
+  stopifnot(length(f$mod) == length(f$leg), all(lv %in% names(COR_SERIE)))
   empilha <- function(series) {
     d <- do.call(rbind, lapply(seq_along(series), function(k)
       data.frame(data = dt, valor = as.numeric(series[[k]]), serie = lv[k])))
@@ -425,7 +430,7 @@ painel <- function(f, i, ini, rot_y, cv_max = NA) {
 
   esqueleto <- function(d, ylab, lim = NULL) {
     ggplot(d, aes(data, valor, color = serie)) +
-      scale_color_manual(values = setNames(COR_SERIE[seq_along(lv)], lv)) +
+      scale_color_manual(values = COR_SERIE[lv]) +
       scale_x_date(breaks = seq(as.Date("2014-01-01"), as.Date("2026-01-01"), by = "2 years"),
                    date_labels = "%Y", date_minor_breaks = "1 year",
                    expand = expansion(mult = c(.01, .02))) +
@@ -506,16 +511,18 @@ for (ind in c("desocupados", "ocupados", "taxa")) {
   grava(tab_desemp(d, ind),  ind, paste0("diffvicio", SUFIXO[ind], ".tex"))
   grava(tab_pontual(d, ind), ind, paste0("est_pontual_", SUFIXO[ind], ".tex"))
 
-  ## figuras: azul = univariado, vermelho = multivariado; na taxa entra ainda o
-  ## cálculo indireto, em laranja (quarta série)
+  ## figuras: azul = univariado, vermelho = multivariado. Na taxa o univariado
+  ## NAO entra -- pedido de Denise Britz na reuniao de 22/09/2026 --, e o lugar
+  ## dele fica com o calculo indireto, em laranja.
   f <- list(Y = d$Y, SE = d$SE,
             mod = list(list(tr = d$tr_uni, se = d$se_uni),
                        list(tr = d$tr_mv,  se = d$se_mv)),
             leg = c("Tendência - Mod. univariado", "Tendência - Mod. multivariado"))
   if (ind == "taxa") {
     tt <- readRDS(file.path(RAIZ, "outputs", "taxa_final", "taxa_final.rds"))
-    f$mod[[3]] <- list(tr = tt$taxa_indireta * 100, se = tt$se_indireta * 100)
-    f$leg      <- c(f$leg, "Taxa calculada indiretamente")
+    f$mod <- list(list(tr = d$tr_mv, se = d$se_mv),
+                  list(tr = tt$taxa_indireta * 100, se = tt$se_indireta * 100))
+    f$leg <- c("Tendência - Mod. multivariado", "Taxa calculada indiretamente")
   }
   for (k in 1:2) {
     regs <- if (k == 1) 1:4 else 5:8
