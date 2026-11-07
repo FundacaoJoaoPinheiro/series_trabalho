@@ -53,7 +53,7 @@ rotulo <- function(cd) dplyr::case_when(
   cd == 3110            ~ "01 - Belo Horizonte",
   cd %in% c(3120, 3130) ~ "02 - Colar e Entorno Metropolitano de BH",
   cd == 3151            ~ "03 - Sul de Minas",
-  cd == 3152            ~ "04 - Triangulo Mineiro",
+  cd == 3152            ~ "04 - Triângulo Mineiro",
   cd == 3153            ~ "05 - Zona da Mata",
   cd %in% c(3154, 3140) ~ "06 - Norte de Minas",
   cd == 3155            ~ "07 - Vale do Rio Doce",
