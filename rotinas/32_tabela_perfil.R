@@ -19,7 +19,6 @@ suppressMessages({ library(dplyr); library(readxl); library(jsonlite) })
 
 DIR     <- "outputs/perfil_estratos"
 XLS     <- "C:/Dados/PIB_Municipios/PIB dos Munic\u00edpios - base de dados 2010-2023.xlsx"
-ANO_PIB <- 2023
 
 corr  <- read.csv(file.path(DIR, "correspondencia_municipios.csv"))
 micro <- read.csv(file.path(DIR, "perfil_microdados.csv"))
@@ -68,15 +67,22 @@ stopifnot(!anyNA(base$vab_tot))
 ## ---- cidade-polo: topo da hierarquia urbana do REGIC, desempate pela
 ## populacao. O desempate pelo PIB elegia municipios de PIB alto que nao sao
 ## polo regional (Extrema no Sul de Minas, Betim no entorno de BH).
-ORD_HIER <- c("Grande metr\u00f3pole nacional", "Metr\u00f3pole nacional",
-              "Metr\u00f3pole", "Capital regional", "Centro sub-regional",
-              "Centro de zona", "Centro local")
+## A planilha grafa as categorias do REGIC em caixa alta inicial ("Capital
+## Regional"), e nao como o relatorio do REGIC ("Capital regional"). Com a
+## grafia do relatorio o match caia para NA, rk virava 99 em todos os
+## municipios e o desempate hierarquico morria calado, sobrando so a
+## populacao. O stopifnot abaixo impede que isso volte a passar silencioso.
+ORD_HIER <- c("Grande Metr\u00f3pole Nacional", "Metr\u00f3pole Nacional",
+              "Metr\u00f3pole", "Capital Regional", "Centro Sub-Regional",
+              "Centro de Zona", "Centro Local")
 arq_pop <- file.path(DIR, "_cache", "pop_mun_sidra.json")
 pop <- as.data.frame(fromJSON(arq_pop))[-1, ]
 pop <- data.frame(cod_mun = as.numeric(pop$D1C), pop_mun = as.numeric(pop$V))
 
+stopifnot(all(base$hier %in% ORD_HIER))
+
 polo <- base |> left_join(pop, by = "cod_mun") |>
-  mutate(rk = match(hier, ORD_HIER), rk = ifelse(is.na(rk), 99L, rk)) |>
+  mutate(rk = match(hier, ORD_HIER)) |>
   group_by(regiao) |> arrange(rk, desc(pop_mun), .by_group = TRUE) |>
   summarise(polo = first(nome_mun), polo_hier = first(hier),
             polo_pop = first(pop_mun), .groups = "drop")
@@ -140,8 +146,9 @@ tex <- c(
          "estratos geogr\u00e1ficos da PNAD Cont\u00ednua (IBGE, geosservi\u00e7os). ",
          "Popula\u00e7\u00e3o, rendimento m\u00e9dio mensal habitual, taxa de ",
          "desocupa\u00e7\u00e3o e participa\u00e7\u00e3o na ocupa\u00e7\u00e3o de Minas ",
-         "Gerais referem-se a 2024; a atividade predominante, ao PIB dos ",
-         "Munic\u00edpios de ", ANO_PIB, ". CV \u00e9 o coeficiente de ",
+         "Gerais referem-se a 2024; a atividade predominante, ao valor ",
+         "adicionado bruto do PIB dos Munic\u00edpios de ", ANO_VAB,
+         ". CV \u00e9 o coeficiente de ",
          "varia\u00e7\u00e3o m\u00e9dio da estimativa direta de ocupados no ",
          "per\u00edodo analisado."),
   paste0(B, "end{flushleft}"), paste0(B, "end{table}"))
