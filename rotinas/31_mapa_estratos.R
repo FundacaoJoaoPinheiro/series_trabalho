@@ -93,13 +93,7 @@ g <- ggplot() +
     alpha = .92, min.segment.length = 0, segment.color = "grey30",
     box.padding = .35, seed = 1) +
   scale_fill_manual(values = clarear(PAL_ARTIGO[1:8]), guide = "none") +
-  labs(x = NULL, y = NULL,
-       caption = paste0(
-         "Fonte: elaboração própria a partir da malha municipal do IBGE (2022) e da camada de estratos
-",
-         "geográficos da PNAD Contínua (IBGE, geosserviços, PNADC:v_ibge_estpnadc_anual_poligono).
-",
-         "Projeção Albers Cônica Equivalente, datum SIRGAS 2000. Linhas brancas: limites municipais.")) +
+  labs(x = NULL, y = NULL) +
   annotation_scale(location = "br", width_hint = .28, height = unit(.12, "cm"),
                    text_cex = .62, line_width = .4, pad_y = unit(.45, "cm")) +
   annotation_north_arrow(location = "tr", which_north = "true",
@@ -109,7 +103,7 @@ g <- ggplot() +
   coord_sf(xlim = lim_x, ylim = lim_y, datum = NA, expand = FALSE) +
   tema_artigo(11) +
   theme(panel.grid = element_blank(), axis.text = element_blank(),
-        axis.ticks = element_blank(), plot.caption = element_text(size = 7),
+        axis.ticks = element_blank(),
         panel.background = element_rect(fill = "grey98", color = NA),
         panel.border = element_rect(fill = NA, color = "grey70", linewidth = .4))
 
@@ -117,6 +111,19 @@ ggsave(file.path(DIR, "mapa_estratos.pdf"), g, width = 7.5, height = 7.2,
        device = cairo_pdf)
 ggsave(file.path(DIR, "mapa_estratos.png"), g, width = 7.5, height = 7.2,
        dpi = 300, bg = "white")
+
+## A nota da figura NAO vai embutida na imagem: o manuscrito ja traz a linha de
+## Fonte em LaTeX, e duplicar ficaria feio e inconsistente. O texto e gravado
+## aqui para que a linha do .tex continue rastreavel a este script -- quem
+## mudar a fonte do dado muda aqui e copia para o manuscrito.
+fonte <- paste0(
+  "Fonte: elabora\u00e7\u00e3o pr\u00f3pria a partir da malha municipal do ",
+  "IBGE (2022) e da camada de estratos geogr\u00e1ficos da PNAD Cont\u00ednua ",
+  "(IBGE, geosservi\u00e7os, PNADC:v_ibge_estpnadc_anual_poligono). ",
+  "Nota: proje\u00e7\u00e3o Albers C\u00f4nica Equivalente, datum SIRGAS 2000. ",
+  "As linhas brancas s\u00e3o limites municipais.")
+con <- file(file.path(DIR, "mapa_estratos_fonte.txt"), open = "wb")
+writeLines(fonte, con, useBytes = TRUE); close(con)
 
 cat("gravado:", file.path(DIR, "mapa_estratos.pdf"), "e .png\n")
 cat("municipios por estrato:\n"); print(as.data.frame(count(corr, regiao)))
