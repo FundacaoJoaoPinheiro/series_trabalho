@@ -150,15 +150,19 @@ tex <- c(
          "em Minas Gerais}"),
   paste0(B, "label{tab:perfil}"), "%",
   paste0(B, "renewcommand{", B, "arraystretch}{0.8}"),
-  paste0(B, "scalebox{0.68}{%"),
+  ## resizebox, e nao o scalebox de fator fixo das outras tabelas: com nove
+  ## colunas o 0.68 estourava a margem direita e a coluna do CV saia da pagina.
+  ## O resizebox encaixa na mancha qualquer que seja a largura natural, entao
+  ## nao volta a estourar se um rotulo de estrato ou de cidade-polo crescer.
+  paste0(B, "resizebox{", B, "textwidth}{!}{%"),
   paste0(B, "begin{tabular}{lrlrrrrlr}"), paste0(B, "toprule"),
   paste0(paste(
     bf("Estrato Geogr\u00e1fico"), bf("Mun."), bf("Cidade-polo"),
     bf(mc("Popula\u00e7\u00e3o", paste0("(milh\u00f5es)"))),
     bf(mc("Ocupa\u00e7\u00e3o", paste0("(", pc, " de MG)"))),
     bf(mc("Rendimento", paste0("(R", B, "$)"))),
-    bf(mc("Taxa de", paste0("desocup. (", pc, ")"))),
-    bf(mc("Atividade predominante", paste0("(", pc, " do VAB)"))),
+    bf(mc("Desocupa\u00e7\u00e3o", paste0("(", pc, ")"))),
+    bf(mc("Atividade predom.", paste0("(", pc, " do VAB)"))),
     bf(mc("CV", paste0("(", pc, ")"))), sep = " & "), " ", B, B),
   paste0(B, "midrule"), linhas, paste0(B, "bottomrule"),
   paste0(B, "end{tabular}%"), "}",
