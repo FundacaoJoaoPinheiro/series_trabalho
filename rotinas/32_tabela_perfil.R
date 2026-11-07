@@ -120,11 +120,10 @@ print(as.data.frame(tab |> transmute(
   setor = predominante, pct = round(p_pred), cv_ocup)), row.names = FALSE)
 
 ## ---- .tex ------------------------------------------------------------------
-B   <- intToUtf8(92)
-fmt <- function(v, d = 1) formatC(v, format = "f", digits = d,
-                                  big.mark = ".", decimal.mark = ",")
-pc  <- paste0(B, "%")
-
+## Segue o padrao das outras tabelas do manuscrito (ver tabcomptaxa.tex no
+## Overleaf): table[H], captionsetup centralizado, caption antes do label,
+## arraystretch 0.8, scalebox, cabecalho em negrito com makecell, rotulo do
+## estrato no formato "01 - Nome" e a macro \fonte no lugar de um flushleft.
 ## Divergencia de vintage entre as duas fontes de ocupacao: os microdados
 ## atuais (29_) contra a base de estimativas diretas do artigo (28_), cujos
 ## pesos antecedem a revisao do IBGE. Calculada, nao fixada no texto.
@@ -132,43 +131,57 @@ DIV_OCUP <- 100 * abs(sum(tab$ocupados_mil) / sum(tab$ocupados_2024) - 1)
 message("divergencia de vintage na ocupacao: ",
         formatC(DIV_OCUP, format = "f", digits = 2), "%")
 
+B   <- intToUtf8(92)
+fmt <- function(v, d = 1) formatC(v, format = "f", digits = d,
+                                  big.mark = ".", decimal.mark = ",")
+pc  <- paste0(B, "%")
+bf  <- function(x) paste0(B, "textbf{", x, "}")
+mc  <- function(a, b) paste0(B, "makecell{", a, " ", B, B, " ", b, "}")
+
 linhas <- with(tab, sprintf("%s & %s & %s & %s & %s & %s & %s & %s (%s) & %s %s",
-  sub("^0", "", sub(" - ", ". ", regiao)), n_mun, polo,
+  regiao, n_mun, polo,
   fmt(populacao_mil / 1000, 2), fmt(part_ocup_mg_2024), fmt(rendimento_medio, 0),
   fmt(taxa_2024), predominante, fmt(p_pred, 0), fmt(cv_ocup), paste0(B, B)))
 
 tex <- c(
-  paste0(B, "begin{table}[htbp]"), paste0(B, "centering"),
-  paste0(B, "caption{Perfil dos estratos geogr\u00e1ficos da PNAD Cont\u00ednua em Minas Gerais}"),
-  paste0(B, "label{tab:perfil}"), paste0(B, "footnotesize"),
+  paste0(B, "begin{table}[H]"), paste0(B, "centering"),
+  paste0(B, "captionsetup{justification=centering}"),
+  paste0(B, "caption{Perfil dos estratos geogr\u00e1ficos da PNAD Cont\u00ednua ",
+         "em Minas Gerais}"),
+  paste0(B, "label{tab:perfil}"), "%",
+  paste0(B, "renewcommand{", B, "arraystretch}{0.8}"),
+  paste0(B, "scalebox{0.68}{%"),
   paste0(B, "begin{tabular}{lrlrrrrlr}"), paste0(B, "toprule"),
-  paste0("Estrato & Mun. & Cidade-polo & Pop. & Ocup. & Rend. & Taxa & ",
-         "Atividade predominante & CV ", B, B),
-  paste0(" & & & (milh\u00f5es) & (", pc, ") & (R$) & (", pc, ") & (", pc,
-         " do VAB) & (", pc, ") ", B, B),
+  paste0(paste(
+    bf("Estrato Geogr\u00e1fico"), bf("Mun."), bf("Cidade-polo"),
+    bf(mc("Popula\u00e7\u00e3o", paste0("(milh\u00f5es)"))),
+    bf(mc("Ocupa\u00e7\u00e3o", paste0("(", pc, " de MG)"))),
+    bf(mc("Rendimento", paste0("(R", B, "$)"))),
+    bf(mc("Taxa de", paste0("desocup. (", pc, ")"))),
+    bf(mc("Atividade predominante", paste0("(", pc, " do VAB)"))),
+    bf(mc("CV", paste0("(", pc, ")"))), sep = " & "), " ", B, B),
   paste0(B, "midrule"), linhas, paste0(B, "bottomrule"),
-  paste0(B, "end{tabular}"),
-  paste0(B, "begin{flushleft}", B, "scriptsize"),
-  paste0("Nota: a composi\u00e7\u00e3o municipal dos estratos vem da camada de ",
-         "estratos geogr\u00e1ficos da PNAD Cont\u00ednua (IBGE, geosservi\u00e7os); ",
-         "todos os 853 munic\u00edpios de Minas Gerais s\u00e3o atribu\u00eddos a ",
-         "um \u00fanico estrato. A atividade predominante \u00e9 a de maior ",
-         "participa\u00e7\u00e3o no valor adicionado bruto do estrato, no PIB dos ",
-         "Munic\u00edpios de ", ANO_VAB, ", \u00faltimo ano em que essa ",
-         "desagrega\u00e7\u00e3o est\u00e1 dispon\u00edvel; a cidade-polo \u00e9 o ",
-         "munic\u00edpio de maior hierarquia urbana do estrato no REGIC, com ",
-         "desempate pela popula\u00e7\u00e3o. Popula\u00e7\u00e3o e rendimento ",
-         "m\u00e9dio mensal habitual s\u00e3o calculados dos microdados de ",
-         "2024; participa\u00e7\u00e3o na ocupa\u00e7\u00e3o de Minas Gerais, taxa ",
-         "de desocupa\u00e7\u00e3o e CV v\u00eam da mesma base de estimativas ",
+  paste0(B, "end{tabular}%"), "}",
+  paste0(B, "fonte{A composi\u00e7\u00e3o municipal dos estratos vem da camada ",
+         "de estratos geogr\u00e1ficos da PNAD Cont\u00ednua (IBGE, ",
+         "geosservi\u00e7os, camada PNADC:v", B, "_ibge", B, "_estpnadc", B,
+         "_anual", B, "_poligono); todos os 853 munic\u00edpios de Minas ",
+         "Gerais s\u00e3o atribu\u00eddos a um \u00fanico estrato. A atividade ",
+         "predominante \u00e9 a de maior participa\u00e7\u00e3o no valor ",
+         "adicionado bruto do estrato, no PIB dos Munic\u00edpios de ",
+         ANO_VAB, ", \u00faltimo ano em que essa desagrega\u00e7\u00e3o est\u00e1 ",
+         "dispon\u00edvel; a cidade-polo \u00e9 o munic\u00edpio de maior ",
+         "hierarquia urbana do estrato no REGIC, com desempate pela ",
+         "popula\u00e7\u00e3o. Nota: popula\u00e7\u00e3o e rendimento m\u00e9dio ",
+         "mensal habitual s\u00e3o calculados dos microdados de 2024; a ",
+         "participa\u00e7\u00e3o na ocupa\u00e7\u00e3o de Minas Gerais, a taxa de ",
+         "desocupa\u00e7\u00e3o e o CV v\u00eam da mesma base de estimativas ",
          "diretas usada no restante do artigo, cujos pesos antecedem a ",
          "revis\u00e3o posterior do IBGE -- da\u00ed a ocupa\u00e7\u00e3o total ",
-         "divergir em ", fmt(DIV_OCUP), pc, " entre as duas fontes. CV ",
-         "\u00e9 o coeficiente ",
-         "de varia\u00e7\u00e3o m\u00e9dio da estimativa direta de ocupados no ",
-         "per\u00edodo analisado."),
-  paste0(B, "end{flushleft}"), paste0(B, "end{table}"))
-
+         "divergir em ", fmt(DIV_OCUP), pc, " entre as duas fontes. O CV ",
+         "\u00e9 o coeficiente de varia\u00e7\u00e3o m\u00e9dio da estimativa ",
+         "direta de ocupados no per\u00edodo analisado.}"),
+  paste0(B, "end{table}"))
 arq <- file.path(DIR, "tabperfil.tex")
 con <- file(arq, open = "wb"); writeLines(tex, con, useBytes = TRUE); close(con)
 cat("\ngravado:", arq, "\n")
