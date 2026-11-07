@@ -156,25 +156,28 @@ carrega <- function(ind) {
 ## TABELA 1 — hiperparâmetros
 ################################################################################
 tab_hiper <- function(d, ind) {
+  ## Sem as colunas de \\(\\sigma_L^2\\): a tendencia e suave em todos os estratos,
+  ## de modo que o parametro e zero por especificacao e a coluna sairia inteira
+  ## zerada. Mesmo motivo da sazonalidade, cuja coluna ja havia saido.
   lin <- function(rot, proc, cf, vu, vm)
-    sprintf("%s & %s & %s & %s & %s & %s & %s & %s & %s \\\\",
+    sprintf("%s & %s & %s & %s & %s & %s & %s \\\\",
             rot, proc, cf,
-            fmt_hp(vu[1]), fmt_hp(vu[2]), fmt_hp(vu[4]),
-            fmt_hp(vm[1]), fmt_hp(vm[2]), fmt_hp(vm[4]))
+            fmt_hp(vu[2]), fmt_hp(vu[4]),
+            fmt_hp(vm[2]), fmt_hp(vm[4]))
   cab <- paste0("\\textbf{Estrato geográfico} & \\textbf{Processo} & ",
                 "\\textbf{Coeficientes} & ",
-                "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & \\(\\hat{\\sigma}_I^2\\) & ",
-                "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & \\(\\hat{\\sigma}_I^2\\) \\\\")
+                "\\(\\hat{\\sigma}_R^2\\) & \\(\\hat{\\sigma}_I^2\\) & ",
+                "\\(\\hat{\\sigma}_R^2\\) & \\(\\hat{\\sigma}_I^2\\) \\\\")
   c("\\begin{table}[H]", "\\centering",
     "\\captionsetup{justification=centering}",
     sprintf("\\caption{Hiperparâmetros estimados para %s %s - modelos univariado e multivariado}",
             ART[ind], ROT_IND[ind]),
     sprintf("\\label{tab:hiper%s}", SUFIXO[ind]),
     "\\resizebox{\\textwidth}{!}{", "\\renewcommand{\\arraystretch}{0.85}",
-    "\\begin{tabular}{llccccccc}", "\\toprule",
-    paste0("& & & \\multicolumn{3}{c}{\\textbf{Modelo Univariado}} & ",
-           "\\multicolumn{3}{c}{\\textbf{Modelo Multivariado}} \\\\"),
-    "\\cmidrule(lr){4-6} \\cmidrule(lr){7-9}", cab, "\\midrule",
+    "\\begin{tabular}{llccccc}", "\\toprule",
+    paste0("& & & \\multicolumn{2}{c}{\\textbf{Modelo Univariado}} & ",
+           "\\multicolumn{2}{c}{\\textbf{Modelo Multivariado}} \\\\"),
+    "\\cmidrule(lr){4-5} \\cmidrule(lr){6-7}", cab, "\\midrule",
     sapply(1:P, function(i)
       lin(ROT[i], d$proc[i], d$coef[i], d$hp_uni[, i], d$hp_mv[, i])),
     "\\bottomrule", "\\end{tabular}}",
@@ -184,19 +187,17 @@ tab_hiper <- function(d, ind) {
            "razão pela qual as colunas \\textbf{Processo} e ",
            "\\textbf{Coeficientes} são comuns aos dois. Os coeficientes são ",
            "autorregressivos nos processos AR e de médias móveis nos MA. ",
-           "A sazonalidade é determinística em todos os estratos, e ",
-           "\\(\\hat{\\sigma}_L^2 = 0\\) indica tendência suave --- ",
-           "o parâmetro é fixado em zero, não estimado. A notação ",
-           "\\(<10^{-5}\\) distingue desse caso a estimativa positiva, porém ",
-           "desprezível, do componente irregular. ",
-           "a escolha entre as duas formas é feita por estrato, pelo BIC. ",
-           "Impõe-se \\(V(\\tilde{e}_t)=1\\), de modo que a variância do desenho ",
-           "amostral é preservada: dada essa condição, a variância da inovação de ",
-           "\\(\\tilde{e}_t\\) não é um parâmetro livre, e sim o único valor ",
-           "compatível com ela -- \\(1-\\hat{\\phi}^2\\) no AR(1), ",
-           "\\(1/(1+\\hat{\\theta}^2)\\) no MA(1) e, no caso geral, a ",
-           "solução da equação de Lyapunov. Sobre \\(\\sigma_I^2\\), ver a ",
-           "ressalva de identificação no texto.}"),
+           "A tendência é suave e a sazonalidade, determinística, em todos os ",
+           "estratos: \\(\\sigma_L^2\\) e \\(\\sigma_S^2\\) são fixados em zero por ",
+           "especificação, não estimados, e por isso não constam da tabela. ",
+           "A notação \\(<10^{-5}\\) indica estimativa positiva, porém desprezível, ",
+           "do componente irregular. Impõe-se \\(V(\\tilde{e}_t)=1\\), de modo que a ",
+           "variância do desenho amostral é preservada: dada essa condição, a ",
+           "variância da inovação de \\(\\tilde{e}_t\\) não é um parâmetro livre, e ",
+           "sim o único valor compatível com ela -- \\(1-\\hat{\\phi}^2\\) no AR(1), ",
+           "\\(1/(1+\\hat{\\theta}^2)\\) no MA(1) e, no caso geral, o valor que ",
+           "iguala a um a variância estacionária do processo. Sobre ",
+           "\\(\\sigma_I^2\\), ver a ressalva de identificação no texto.}"),
     "\\end{table}")
 }
 
