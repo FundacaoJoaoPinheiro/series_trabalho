@@ -48,11 +48,11 @@ ART <- c(desocupados = "o", ocupados = "o", taxa = "a")
 
 ## rótulos como aparecem no artigo (uma linha) e na versão em parbox
 ROT <- c("01 - Belo Horizonte",
-         "02 - Entorno e Colar Metropolitano de BH",
+         "02 - Colar e Entorno Metropolitano de BH",
          "03 - Sul de Minas", "04 - Triângulo Mineiro", "05 - Zona da Mata",
          "06 - Norte de Minas", "07 - Vale do Rio Doce", "08 - Central")
 ROT_BOX <- ROT
-ROT_BOX[2] <- paste0("\\raisebox{0em}{\\parbox[t]{2.8cm}{02 - Entorno e Colar ",
+ROT_BOX[2] <- paste0("\\raisebox{0em}{\\parbox[t]{2.8cm}{02 - Colar e Entorno ",
                      "\\\\[-2pt] Metropolitano de BH}}")
 
 ################################################################################
@@ -347,7 +347,7 @@ tab_comp_taxa <- function() {
   c("\\begin{table}[H]", "\\centering",
     "\\captionsetup{justification=centering}",
     paste0("\\caption{Comparação entre as duas estratégias para a taxa de desocupação ",
-           "- cálculo indireto e estimação direta pelo modelo multivariado}"),
+           "- cálculo indireto e modelagem da própria taxa pelo modelo multivariado}"),
     "\\label{tab:comptaxa}",
     "{%", "\\renewcommand{\\arraystretch}{0.8}", "\\scalebox{0.9}{%",
     "\\begin{tabular}{lccc}", "\\toprule",
@@ -356,7 +356,7 @@ tab_comp_taxa <- function() {
     paste0("\\multicolumn{1}{l}{\\textbf{Estrato Geográfico}} & ",
            "\\textbf{\\makecell{Estimativa \\\\ direta}} & ",
            "\\textbf{\\makecell{Cálculo \\\\ indireto}} & ",
-           "\\textbf{\\makecell{Modelo \\\\ direto}} \\\\"),
+           "\\textbf{\\makecell{Modelo da \\\\ própria taxa}} \\\\"),
     "\\midrule", linhas, "\\midrule",
     sprintf("\\textbf{Média} & \\textbf{%s} & \\textbf{%s} & \\textbf{%s} \\\\",
             fmt(mean(t2$cv_direta), 2), fmt(mean(t2$cv_indireta), 2),

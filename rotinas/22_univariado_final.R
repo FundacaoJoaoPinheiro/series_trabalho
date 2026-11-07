@@ -175,10 +175,17 @@ for (ind in c("desocupados", "ocupados", "taxa")) {
     phi <- le_coef(e$phi); theta <- le_coef(e$theta)
     ## tendencia por estrato: local linear x suave, decidida pelo BIC
     cand <- lapply(c(FALSE, TRUE), function(sm) ajusta_final(s$y, s$se, phi, theta, sm))
-    ## TENDENCIA=suave impoe a forma suave a todos os estratos, para a
-    ## verificacao de robustez da escolha por BIC; vazio = escolha por estrato
-    r    <- if (Sys.getenv("TENDENCIA", "") == "suave") cand[[2]]
-            else cand[[which.min(sapply(cand, function(z) z$bic))]]
+    ## A ESPECIFICACAO PUBLICADA e a tendencia suave em todos os estratos: e a
+    ## rodada C, decidida em 04/11/2026. O BIC prefere a forma suave em 20 dos 24
+    ## pares de estrato e indicador, e nos quatro restantes o custo esta
+    ## registrado na Conclusao; a uniformidade vale mais do que esse custo porque
+    ## a matriz de covariancia das inclinacoes do multivariado so correlaciona
+    ## objetos comparaveis quando todos os estratos levam a dinamica da tendencia
+    ## na inclinacao. TENDENCIA=por_estrato devolve a escolha caso a caso pelo
+    ## BIC, que agora e a verificacao de robustez, nao o padrao.
+    r    <- if (Sys.getenv("TENDENCIA", "") == "por_estrato")
+              cand[[which.min(sapply(cand, function(z) z$bic))]]
+            else cand[[2]]
 
     ix   <- (BURN+1):length(s$y)
     rrse <- mean((s$se[ix] - r$se_trend[ix]) / s$se[ix]) * 100

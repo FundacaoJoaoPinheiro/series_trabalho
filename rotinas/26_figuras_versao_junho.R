@@ -53,7 +53,7 @@ src25 <- readLines(file.path(RAIZ, "rotinas", "25_saidas_artigo.R"), encoding = 
 ini <- grep("^## FIGURAS", src25); fim <- grep("^## execução", src25)
 stopifnot(length(ini) == 1, length(fim) == 1, fim > ini)
 eval(parse(text = src25[(ini + 1):(fim - 2)], encoding = "UTF-8"))
-ROT <- c("01 - Belo Horizonte", "02 - Entorno e Colar Metropolitano de BH",
+ROT <- c("01 - Belo Horizonte", "02 - Colar e Entorno Metropolitano de BH",
          "03 - Sul de Minas", "04 - Triângulo Mineiro", "05 - Zona da Mata",
          "06 - Norte de Minas", "07 - Vale do Rio Doce", "08 - Central")
 NOMEFIG <- c(desocupados = "Desocupacao", ocupados = "Ocupacao", taxa = "TaxaDesoc")
