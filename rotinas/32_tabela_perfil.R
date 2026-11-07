@@ -125,6 +125,13 @@ fmt <- function(v, d = 1) formatC(v, format = "f", digits = d,
                                   big.mark = ".", decimal.mark = ",")
 pc  <- paste0(B, "%")
 
+## Divergencia de vintage entre as duas fontes de ocupacao: os microdados
+## atuais (29_) contra a base de estimativas diretas do artigo (28_), cujos
+## pesos antecedem a revisao do IBGE. Calculada, nao fixada no texto.
+DIV_OCUP <- 100 * abs(sum(tab$ocupados_mil) / sum(tab$ocupados_2024) - 1)
+message("divergencia de vintage na ocupacao: ",
+        formatC(DIV_OCUP, format = "f", digits = 2), "%")
+
 linhas <- with(tab, sprintf("%s & %s & %s & %s & %s & %s & %s & %s (%s) & %s %s",
   sub("^0", "", sub(" - ", ". ", regiao)), n_mun, polo,
   fmt(populacao_mil / 1000, 2), fmt(part_ocup_mg_2024), fmt(rendimento_medio, 0),
@@ -143,13 +150,22 @@ tex <- c(
   paste0(B, "end{tabular}"),
   paste0(B, "begin{flushleft}", B, "scriptsize"),
   paste0("Nota: a composi\u00e7\u00e3o municipal dos estratos vem da camada de ",
-         "estratos geogr\u00e1ficos da PNAD Cont\u00ednua (IBGE, geosservi\u00e7os). ",
-         "Popula\u00e7\u00e3o, rendimento m\u00e9dio mensal habitual, taxa de ",
-         "desocupa\u00e7\u00e3o e participa\u00e7\u00e3o na ocupa\u00e7\u00e3o de Minas ",
-         "Gerais referem-se a 2024; a atividade predominante, ao valor ",
-         "adicionado bruto do PIB dos Munic\u00edpios de ", ANO_VAB,
-         ". CV \u00e9 o coeficiente de ",
-         "varia\u00e7\u00e3o m\u00e9dio da estimativa direta de ocupados no ",
+         "estratos geogr\u00e1ficos da PNAD Cont\u00ednua (IBGE, geosservi\u00e7os); ",
+         "todos os 853 munic\u00edpios de Minas Gerais s\u00e3o atribu\u00eddos a ",
+         "um \u00fanico estrato. A atividade predominante \u00e9 a de maior ",
+         "participa\u00e7\u00e3o no valor adicionado bruto do estrato, no PIB dos ",
+         "Munic\u00edpios de ", ANO_VAB, ", \u00faltimo ano em que essa ",
+         "desagrega\u00e7\u00e3o est\u00e1 dispon\u00edvel; a cidade-polo \u00e9 o ",
+         "munic\u00edpio de maior hierarquia urbana do estrato no REGIC, com ",
+         "desempate pela popula\u00e7\u00e3o. Popula\u00e7\u00e3o e rendimento ",
+         "m\u00e9dio mensal habitual s\u00e3o calculados dos microdados de ",
+         "2024; participa\u00e7\u00e3o na ocupa\u00e7\u00e3o de Minas Gerais, taxa ",
+         "de desocupa\u00e7\u00e3o e CV v\u00eam da mesma base de estimativas ",
+         "diretas usada no restante do artigo, cujos pesos antecedem a ",
+         "revis\u00e3o posterior do IBGE -- da\u00ed a ocupa\u00e7\u00e3o total ",
+         "divergir em ", fmt(DIV_OCUP), pc, " entre as duas fontes. CV ",
+         "\u00e9 o coeficiente ",
+         "de varia\u00e7\u00e3o m\u00e9dio da estimativa direta de ocupados no ",
          "per\u00edodo analisado."),
   paste0(B, "end{flushleft}"), paste0(B, "end{table}"))
 
