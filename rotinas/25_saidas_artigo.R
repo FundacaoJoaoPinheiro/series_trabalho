@@ -366,7 +366,7 @@ tab_comp_taxa <- function() {
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
            "Nota: o cálculo indireto obtém a taxa a partir das tendências estimadas ",
            "do total de desocupados e do total de ocupados, com variância por ",
-           "linearização de Taylor sob a hipótese \\(\\mathrm{Cov}(\\hat{D}_L,T_L)=0\\), ",
+           "linearização de Taylor sob a hipótese \\(\\mathrm{Cov}(\\hat{D}_L,\\hat{O}_L)=0\\), ",
            "discutida no texto. As oito primeiras observações ",
            "foram descartadas do cálculo.}"),
     "\\end{table}")
