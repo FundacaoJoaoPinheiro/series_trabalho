@@ -107,7 +107,10 @@ tab <- corr |> count(regiao, name = "n_mun") |>
   left_join(polo, by = "regiao") |>
   mutate(k = k(regiao)) |>
   left_join(micro |> mutate(k = k(regiao)) |> select(-regiao), by = "k") |>
-  left_join(pnadc |> mutate(k = k(estrato)) |> select(-estrato), by = "k") |>
+  ## das estimativas do artigo entra SO o CV: e estatistica da serie (precisao
+  ## da estimativa direta na janela publicada), nao nivel de 2024, entao nao
+  ## compete com nada que venha dos microdados.
+  left_join(pnadc |> mutate(k = k(estrato)) |> select(k, cv_ocup), by = "k") |>
   arrange(k) |> select(-k)
 
 write.csv(tab, file.path(DIR, "tabela_perfil.csv"), row.names = FALSE)
@@ -115,8 +118,8 @@ write.csv(tab, file.path(DIR, "tabela_perfil.csv"), row.names = FALSE)
 cat("\n#### perfil dos estratos ####\n")
 print(as.data.frame(tab |> transmute(
   estrato = regiao, mun = n_mun, polo, hier = polo_hier,
-  pop_mi = round(populacao_mil / 1000, 2), part_ocup = part_ocup_mg_2024,
-  rend = rendimento_medio, taxa = taxa_2024,
+  pop_mi = round(populacao_mil / 1000, 2), part_ocup = part_ocup_mg,
+  rend = rendimento_medio, taxa = taxa,
   setor = predominante, pct = round(p_pred), cv_ocup)), row.names = FALSE)
 
 ## ---- .tex ------------------------------------------------------------------
@@ -124,13 +127,6 @@ print(as.data.frame(tab |> transmute(
 ## Overleaf): table[H], captionsetup centralizado, caption antes do label,
 ## arraystretch 0.8, scalebox, cabecalho em negrito com makecell, rotulo do
 ## estrato no formato "01 - Nome" e a macro \fonte no lugar de um flushleft.
-## Divergencia de vintage entre as duas fontes de ocupacao: os microdados
-## atuais (29_) contra a base de estimativas diretas do artigo (28_), cujos
-## pesos antecedem a revisao do IBGE. Calculada, nao fixada no texto.
-DIV_OCUP <- 100 * abs(sum(tab$ocupados_mil) / sum(tab$ocupados_2024) - 1)
-message("divergencia de vintage na ocupacao: ",
-        formatC(DIV_OCUP, format = "f", digits = 2), "%")
-
 B   <- intToUtf8(92)
 fmt <- function(v, d = 1) formatC(v, format = "f", digits = d,
                                   big.mark = ".", decimal.mark = ",")
@@ -140,8 +136,8 @@ mc  <- function(a, b) paste0(B, "makecell{", a, " ", B, B, " ", b, "}")
 
 linhas <- with(tab, sprintf("%s & %s & %s & %s & %s & %s & %s & %s (%s) & %s %s",
   regiao, n_mun, polo,
-  fmt(populacao_mil / 1000, 2), fmt(part_ocup_mg_2024), fmt(rendimento_medio, 0),
-  fmt(taxa_2024), predominante, fmt(p_pred, 0), fmt(cv_ocup), paste0(B, B)))
+  fmt(populacao_mil / 1000, 2), fmt(part_ocup_mg), fmt(rendimento_medio, 0),
+  fmt(taxa), predominante, fmt(p_pred, 0), fmt(cv_ocup), paste0(B, B)))
 
 tex <- c(
   paste0(B, "begin{table}[H]"), paste0(B, "centering"),
@@ -170,21 +166,18 @@ tex <- c(
          "de estratos geogr\u00e1ficos da PNAD Cont\u00ednua (IBGE, ",
          "geosservi\u00e7os, camada PNADC:v", B, "_ibge", B, "_estpnadc", B,
          "_anual", B, "_poligono); todos os 853 munic\u00edpios de Minas ",
-         "Gerais s\u00e3o atribu\u00eddos a um \u00fanico estrato. A atividade ",
-         "predominante \u00e9 a de maior participa\u00e7\u00e3o no valor ",
-         "adicionado bruto do estrato, no PIB dos Munic\u00edpios de ",
-         ANO_VAB, ", \u00faltimo ano em que essa desagrega\u00e7\u00e3o est\u00e1 ",
-         "dispon\u00edvel; a cidade-polo \u00e9 o munic\u00edpio de maior ",
-         "hierarquia urbana do estrato no REGIC, com desempate pela ",
-         "popula\u00e7\u00e3o. Nota: popula\u00e7\u00e3o e rendimento m\u00e9dio ",
-         "mensal habitual s\u00e3o calculados dos microdados de 2024; a ",
-         "participa\u00e7\u00e3o na ocupa\u00e7\u00e3o de Minas Gerais, a taxa de ",
-         "desocupa\u00e7\u00e3o e o CV v\u00eam da mesma base de estimativas ",
-         "diretas usada no restante do artigo, cujos pesos antecedem a ",
-         "revis\u00e3o posterior do IBGE -- da\u00ed a ocupa\u00e7\u00e3o total ",
-         "divergir em ", fmt(DIV_OCUP), pc, " entre as duas fontes. O CV ",
-         "\u00e9 o coeficiente de varia\u00e7\u00e3o m\u00e9dio da estimativa ",
-         "direta de ocupados no per\u00edodo analisado.}"),
+         "Gerais s\u00e3o atribu\u00eddos a um \u00fanico estrato. Popula\u00e7\u00e3o, ",
+         "participa\u00e7\u00e3o na ocupa\u00e7\u00e3o do estado, rendimento m\u00e9dio ",
+         "mensal habitual de todos os trabalhos e taxa de desocupa\u00e7\u00e3o ",
+         "s\u00e3o calculados dos microdados da PNAD Cont\u00ednua, na m\u00e9dia ",
+         "dos quatro trimestres de 2024. A atividade predominante \u00e9 a de ",
+         "maior participa\u00e7\u00e3o no valor adicionado bruto do estrato, no ",
+         "PIB dos Munic\u00edpios de ", ANO_VAB, ", \u00faltimo ano em que essa ",
+         "desagrega\u00e7\u00e3o est\u00e1 dispon\u00edvel; a cidade-polo \u00e9 o ",
+         "munic\u00edpio de maior hierarquia urbana do estrato no REGIC, com ",
+         "desempate pela popula\u00e7\u00e3o. O CV \u00e9 o coeficiente de ",
+         "varia\u00e7\u00e3o m\u00e9dio da estimativa direta do total de ocupados ",
+         "entre o primeiro trimestre de 2014 e o quarto de 2024.}"),
   paste0(B, "end{table}"))
 arq <- file.path(DIR, "tabperfil.tex")
 con <- file(arq, open = "wb"); writeLines(tex, con, useBytes = TRUE); close(con)

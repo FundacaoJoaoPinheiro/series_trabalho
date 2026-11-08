@@ -60,10 +60,17 @@ le <- function(arq) {
 mg <- bind_rows(lapply(arqs, le))
 stopifnot(!any(is.na(mg$regiao)))        # nenhum estrato de MG fora do agrupamento
 
+## Tudo o que a tabela de perfil mostra como nivel ou razao sai DAQUI, de uma
+## fonte so: populacao, ocupados, desocupados, taxa e rendimento, todos dos
+## mesmos microdados de 2024. Antes, ocupacao e taxa vinham dos .rds do artigo,
+## cujos pesos antecedem a revisao do IBGE, e a tabela misturava dois vintages
+## -- os ocupados nao fechavam entre as colunas. Desocupados nao custam leitura
+## nova: e a mesma VD4002, categoria 2.
 por_tri <- mg |>
   group_by(trimestre, regiao) |>
   summarise(pop = sum(peso),
             ocup = sum(peso[vd4002 == "1"], na.rm = TRUE),
+            desoc = sum(peso[vd4002 == "2"], na.rm = TRUE),
             rend = weighted.mean(vd4019[vd4002 == "1" & !is.na(vd4019)],
                                  peso[vd4002 == "1" & !is.na(vd4019)]),
             .groups = "drop")
@@ -72,17 +79,25 @@ perfil <- por_tri |>
   group_by(regiao) |>
   summarise(populacao_mil = round(mean(pop)/1000, 1),
             ocupados_mil  = round(mean(ocup)/1000, 1),
+            desocupados_mil = round(mean(desoc)/1000, 1),
             rendimento_medio = round(mean(rend), 0), .groups = "drop") |>
-  mutate(part_pop_mg = round(100*populacao_mil/sum(populacao_mil), 1), .after = populacao_mil)
+  mutate(part_pop_mg  = round(100*populacao_mil/sum(populacao_mil), 1),
+         part_ocup_mg = round(100*ocupados_mil/sum(ocupados_mil), 1),
+         taxa         = round(100*desocupados_mil/(desocupados_mil + ocupados_mil), 1)) |>
+  relocate(part_pop_mg, .after = populacao_mil) |>
+  relocate(part_ocup_mg, .after = ocupados_mil)
 
 mgtot <- por_tri |> group_by(trimestre) |>
-  summarise(pop = sum(pop), ocup = sum(ocup), .groups = "drop")
+  summarise(pop = sum(pop), ocup = sum(ocup), desoc = sum(desoc), .groups = "drop")
 rend_mg <- mg |> filter(vd4002 == "1", !is.na(vd4019)) |>
   summarise(r = weighted.mean(vd4019, peso)) |> pull(r)
 
 perfil <- bind_rows(perfil, data.frame(
-  regiao = "Minas Gerais", populacao_mil = round(mean(mgtot$pop)/1000, 1),
-  part_pop_mg = 100, ocupados_mil = round(mean(mgtot$ocup)/1000, 1),
+  regiao = "Minas Gerais",
+  populacao_mil = round(mean(mgtot$pop)/1000, 1), part_pop_mg = 100,
+  ocupados_mil = round(mean(mgtot$ocup)/1000, 1), part_ocup_mg = 100,
+  desocupados_mil = round(mean(mgtot$desoc)/1000, 1),
+  taxa = round(100*mean(mgtot$desoc)/(mean(mgtot$desoc) + mean(mgtot$ocup)), 1),
   rendimento_medio = round(rend_mg, 0)))
 
 write.csv(perfil, file.path(SAIDA, "perfil_microdados.csv"),
