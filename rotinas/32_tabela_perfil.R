@@ -134,8 +134,13 @@ pc  <- paste0(B, "%")
 bf  <- function(x) paste0(B, "textbf{", x, "}")
 mc  <- function(a, b) paste0(B, "makecell{", a, " ", B, B, " ", b, "}")
 
-linhas <- with(tab, sprintf("%s & %s & %s & %s & %s & %s & %s & %s (%s) & %s %s",
-  regiao, n_mun, polo,
+## sem a coluna da cidade-polo (decisao do Caio em 10/11/2026: com nove colunas a
+## tabela nao cabia em footnotesize); o rotulo longo do Colar quebra em duas linhas
+rot_tab <- sub("^02 - Colar e Entorno Metropolitano de BH$",
+               paste0(B, "makecell[l]{02 - Colar e Entorno", B, B, "Metropolitano de BH}"),
+               tab$regiao)
+linhas <- with(tab, sprintf("%s & %s & %s & %s & %s & %s & %s (%s) & %s %s",
+  rot_tab, n_mun,
   fmt(populacao_mil / 1000, 2), fmt(part_ocup_mg), fmt(rendimento_medio, 0),
   fmt(taxa), predominante, fmt(p_pred, 0), fmt(cv_ocup), paste0(B, B)))
 
@@ -153,9 +158,9 @@ tex <- c(
   ## adjustbox{max width}: letra em footnotesize como as demais tabelas; so reduz se
   ## a tabela for mais larga que a mancha (nunca amplia)
   paste0(B, "adjustbox{max width=", B, "linewidth}{%"),
-  paste0(B, "begin{tabular}{lrlrrrrlr}"), paste0(B, "toprule"),
+  paste0(B, "begin{tabular}{lrrrrrlr}"), paste0(B, "toprule"),
   paste0(paste(
-    bf("Estrato Geogr\u00e1fico"), bf("Mun."), bf("Cidade-polo"),
+    bf("Estrato Geogr\u00e1fico"), bf("Mun."),
     bf(mc("Popula\u00e7\u00e3o", paste0("(milh\u00f5es)"))),
     bf(mc("Ocupa\u00e7\u00e3o", paste0("(", pc, " de MG)"))),
     bf(mc("Rendimento", paste0("(R", B, "$)"))),
@@ -167,8 +172,8 @@ tex <- c(
   ## fonte enxuta (pedido do Caio em 10/11/2026): fontes listadas, sem descrever
   ## vari\u00e1vel por vari\u00e1vel; o CV vira nota
   paste0(B, "fonte{Elabora\u00e7\u00e3o pr\u00f3pria, com base em IBGE: PNAD ",
-         "Cont\u00ednua (m\u00e9dia de 2024), PIB dos Munic\u00edpios (", ANO_VAB,
-         ") e REGIC (2018). Nota: CV \u00e9 o coeficiente de varia\u00e7\u00e3o ",
+         "Cont\u00ednua (m\u00e9dia de 2024) e PIB dos Munic\u00edpios (", ANO_VAB,
+         "). Nota: CV \u00e9 o coeficiente de varia\u00e7\u00e3o ",
          "m\u00e9dio da estimativa direta do total de ocupados, do 1\u00ba ",
          "trimestre de 2014 ao 4\u00ba trimestre de 2024.}"),
   paste0(B, "end{table}"))
