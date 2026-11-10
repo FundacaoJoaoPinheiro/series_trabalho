@@ -140,7 +140,7 @@ linhas <- with(tab, sprintf("%s & %s & %s & %s & %s & %s & %s & %s (%s) & %s %s"
   fmt(taxa), predominante, fmt(p_pred, 0), fmt(cv_ocup), paste0(B, B)))
 
 tex <- c(
-  paste0(B, "begin{table}[H]"), paste0(B, "centering"),
+  paste0(B, "begin{table}[H]"), paste0(B, "centering"), paste0(B, "footnotesize"),
   paste0(B, "captionsetup{justification=centering}"),
   paste0(B, "caption{Perfil dos estratos geogr\u00e1ficos da PNAD Cont\u00ednua ",
          "em Minas Gerais}"),
@@ -150,7 +150,9 @@ tex <- c(
   ## colunas o 0.68 estourava a margem direita e a coluna do CV saia da pagina.
   ## O resizebox encaixa na mancha qualquer que seja a largura natural, entao
   ## nao volta a estourar se um rotulo de estrato ou de cidade-polo crescer.
-  paste0(B, "resizebox{", B, "textwidth}{!}{%"),
+  ## adjustbox{max width}: letra em footnotesize como as demais tabelas; so reduz se
+  ## a tabela for mais larga que a mancha (nunca amplia)
+  paste0(B, "adjustbox{max width=", B, "linewidth}{%"),
   paste0(B, "begin{tabular}{lrlrrrrlr}"), paste0(B, "toprule"),
   paste0(paste(
     bf("Estrato Geogr\u00e1fico"), bf("Mun."), bf("Cidade-polo"),
@@ -162,22 +164,13 @@ tex <- c(
     bf(mc("CV", paste0("(", pc, ")"))), sep = " & "), " ", B, B),
   paste0(B, "midrule"), linhas, paste0(B, "bottomrule"),
   paste0(B, "end{tabular}%"), "}",
-  paste0(B, "fonte{A composi\u00e7\u00e3o municipal dos estratos vem da camada ",
-         "de estratos geogr\u00e1ficos da PNAD Cont\u00ednua (IBGE, ",
-         "geosservi\u00e7os, camada PNADC:v", B, "_ibge", B, "_estpnadc", B,
-         "_anual", B, "_poligono); todos os 853 munic\u00edpios de Minas ",
-         "Gerais s\u00e3o atribu\u00eddos a um \u00fanico estrato. Popula\u00e7\u00e3o, ",
-         "participa\u00e7\u00e3o na ocupa\u00e7\u00e3o do estado, rendimento m\u00e9dio ",
-         "mensal habitual de todos os trabalhos e taxa de desocupa\u00e7\u00e3o ",
-         "s\u00e3o calculados dos microdados da PNAD Cont\u00ednua, na m\u00e9dia ",
-         "dos quatro trimestres de 2024. A atividade predominante \u00e9 a de ",
-         "maior participa\u00e7\u00e3o no valor adicionado bruto do estrato, no ",
-         "PIB dos Munic\u00edpios de ", ANO_VAB, ", \u00faltimo ano em que essa ",
-         "desagrega\u00e7\u00e3o est\u00e1 dispon\u00edvel; a cidade-polo \u00e9 o ",
-         "munic\u00edpio de maior hierarquia urbana do estrato no REGIC, com ",
-         "desempate pela popula\u00e7\u00e3o. O CV \u00e9 o coeficiente de ",
-         "varia\u00e7\u00e3o m\u00e9dio da estimativa direta do total de ocupados ",
-         "entre o primeiro trimestre de 2014 e o quarto de 2024.}"),
+  ## fonte enxuta (pedido do Caio em 10/11/2026): fontes listadas, sem descrever
+  ## vari\u00e1vel por vari\u00e1vel; o CV vira nota
+  paste0(B, "fonte{Elabora\u00e7\u00e3o pr\u00f3pria, com base em IBGE: PNAD ",
+         "Cont\u00ednua (m\u00e9dia de 2024), PIB dos Munic\u00edpios (", ANO_VAB,
+         ") e REGIC (2018). Nota: CV \u00e9 o coeficiente de varia\u00e7\u00e3o ",
+         "m\u00e9dio da estimativa direta do total de ocupados, do 1\u00ba ",
+         "trimestre de 2014 ao 4\u00ba trimestre de 2024.}"),
   paste0(B, "end{table}"))
 arq <- file.path(DIR, "tabperfil.tex")
 con <- file(arq, open = "wb"); writeLines(tex, con, useBytes = TRUE); close(con)

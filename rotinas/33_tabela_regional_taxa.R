@@ -114,12 +114,13 @@ linhas <- sapply(1:P, function(i) sprintf(
   sub("^-", "\\\\(-\\\\)", fmt(tab$var_covid_fim_pp[i])), lista(i)))
 
 tex <- c(
-  "\\begin{table}[H]", "\\centering", "\\captionsetup{justification=centering}",
+  "\\begin{table}[H]", "\\centering", "\\footnotesize",
+  "\\captionsetup{justification=centering}",
   paste0("\\caption{Tendência da taxa de desocupação estimada pelo modelo multivariado ",
          "em momentos selecionados -- oito estratos geográficos}"),
   "\\label{tab:regional_taxa}", "",
   "\\renewcommand{\\arraystretch}{0.8}",
-  "\\resizebox{\\linewidth}{!}{%",
+  "\\adjustbox{max width=\\linewidth}{%",
   "\\begin{tabular}{@{}lcccccc@{}}", "\\toprule",
   paste0("\\textbf{Estrato Geográfico} & \\textbf{2014T4} & ",
          "\\textbf{\\makecell{Pico\\\\2015--2018}} & \\textbf{\\makecell{Pico\\\\2020--2021}} & ",
@@ -128,13 +129,10 @@ tex <- c(
          "\\textbf{\\makecell{Difere em 2024T4\\\\de (5\\%)}} \\\\"),
   "\\midrule", linhas, "\\bottomrule", "\\end{tabular}%", "}",
   paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
-         "Nota: tendência filtrada da taxa de desocupação (\\%), modelo multivariado ",
-         "da própria taxa; entre parênteses, o trimestre do pico. A última coluna lista ",
-         "os estratos dos quais a tendência difere a 5\\% em 2024T4, pela diferença ",
-         "entre as tendências e sua variância, que inclui a covariância estimada entre ",
-         "os estratos; sem ajuste para comparações múltiplas. Dos 28 pares, ",
-         n_mod, " diferem pelo modelo e ", n_dir,
-         " pelas estimativas diretas do mesmo trimestre.}"),
+         "Nota: tendência filtrada (\\%) do modelo multivariado da própria taxa; ",
+         "entre parênteses, o trimestre do pico. A última coluna lista os estratos ",
+         "dos quais a tendência difere a 5\\% em 2024T4, considerando a covariância ",
+         "entre estratos, sem ajuste para comparações múltiplas.}"),
   "\\end{table}")
 
 d <- file.path(ARTIGO, "resultados", "Taxa de desocupação")
