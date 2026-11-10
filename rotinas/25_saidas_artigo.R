@@ -78,7 +78,8 @@ coef_proc <- function(x) {
 fmt_hp <- function(x) {
   if (!is.finite(x)) return("--")
   if (x <= 1e-9) return("0")
-  if (x < 1e-5)  return("\\(<10^{-5}\\)")
+  ## (10/11/2026, pedido do Caio) sem a notacao <10^-5: o valor sai com as
+  ## mesmas 4 casas de sigma_R, isto e, 0,0000 para o irregular desprezivel
   fmt(x)
 }
 ## p-valor com estrelas: * 10%, ** 5%, *** 1%
@@ -181,11 +182,7 @@ tab_hiper <- function(d, ind) {
     sapply(1:P, function(i)
       lin(ROT[i], d$proc[i], d$coef[i], d$hp_uni[, i], d$hp_mv[, i])),
     "\\bottomrule", "\\end{tabular}}",
-    paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
-           "Nota: o processo do erro amostral é identificado por estrato e é comum ",
-           "aos dois modelos; os coeficientes são autorregressivos (AR) ou de médias ",
-           "móveis (MA). \\(\\sigma_L^2\\) e \\(\\sigma_S^2\\) são fixados em zero por ",
-           "especificação; \\(<10^{-5}\\) indica estimativa positiva, porém desprezível.}"),
+    "\\fonte{Elaboração própria, com base nos dados da PNAD Contínua.}",
     "\\end{table}")
 }
 
