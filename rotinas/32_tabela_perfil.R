@@ -95,7 +95,12 @@ vab <- base |> group_by(regiao) |>
             .groups = "drop") |>
   mutate(p_agro = 100 * vab_agro / vab_tot, p_ind = 100 * vab_ind / vab_tot,
          p_serv = 100 * vab_serv / vab_tot, p_adm = 100 * vab_adm / vab_tot,
-         pib_bi = pib / 1e6)
+         pib_bi = pib / 1e6,
+         ## peso da agropecuaria (comentado no texto da Secao 2, fora da tabela):
+         ## Triangulo 16,7% e Norte 16,6% do VAB de cada estrato, ante 7,4% em MG;
+         ## o Triangulo detem 37,4% do VAB agropecuario do estado (2021, conferido
+         ## tambem pela SIDRA 5938 em 10/11/2026)
+         part_agro_mg = 100 * vab_agro / sum(vab_agro))
 M <- as.matrix(vab[, c("p_agro", "p_ind", "p_serv", "p_adm")])
 vab$predominante <- ATIV[max.col(M, ties.method = "first")]
 vab$p_pred       <- apply(M, 1, max)
@@ -103,7 +108,8 @@ vab$p_pred       <- apply(M, 1, max)
 ## ---- junta tudo ------------------------------------------------------------
 k <- function(x) substr(x, 1, 2)
 tab <- corr |> count(regiao, name = "n_mun") |>
-  left_join(vab |> select(regiao, pib_bi, predominante, p_pred), by = "regiao") |>
+  left_join(vab |> select(regiao, pib_bi, predominante, p_pred, p_agro,
+                          part_agro_mg), by = "regiao") |>
   left_join(polo, by = "regiao") |>
   mutate(k = k(regiao)) |>
   left_join(micro |> mutate(k = k(regiao)) |> select(-regiao), by = "k") |>
