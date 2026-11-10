@@ -52,9 +52,12 @@ b8 <- readRDS(file.path(RAIZ, "baseestr8reg.rds"))
 r8 <- setdiff(names(b8), "09 - Minas Gerais")
 d3 <- ordena(longo(b8, r8, "Taxa.de.desocupação", mult = 100), r8)
 stopifnot(!any(grepl("Mata de Minas", levels(d3$grupo))), "05-Zona da Mata" %in% levels(d3$grupo))
+## formato da figura que está no Overleaf: rótulos sem número, eixo x "Período",
+## legenda em 2 linhas e proporção mais achatada (não altera a paginação)
+levels(d3$grupo) <- sub("^\\d+ ?- ?", "", levels(d3$grupo))
 g3 <- grafico_linha(d3, titulo = NULL, subtitulo = NULL, fonte = NULL,
-                    ylab = "Taxa de desocupação (%)")
-ggsave(file.path(SAIDA, "03_TaxaDesoc.png"), g3, width = 10, height = 5.6, dpi = 135, bg = "white")
+                    ylab = "Taxa de desocupação (%)", nrow_leg = 2) + ggplot2::labs(x = "Período")
+ggsave(file.path(SAIDA, "03_TaxaDesoc.png"), g3, width = 10, height = 4.3, dpi = 135, bg = "white")
 
 cat("Figura 2: ", length(r10), " estratos, ", min(d2$data), " a ", max(d2$data),
     " | CV máximo ", round(max(d2$valor, na.rm = TRUE), 1), "%\n", sep = "")
