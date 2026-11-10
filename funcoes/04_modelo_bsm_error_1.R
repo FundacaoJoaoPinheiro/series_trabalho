@@ -87,9 +87,9 @@ f.modelo_bsm_error_1<-function(y,i0){
   # modelo$ts.sm.seasonal <- modelo[["sm"]][,3]
   modelo$ts.sm.sampling_error_std <- modelo[["sm"]][, 6]
   modelo$ts.sm.sampling_error     <- modelo[["sm"]][, 6] * as.numeric(se_db)
-  modelo$ts.sm.signal <- modelo$ts.trend +modelo$ts.seasonal
-  modelo$ts.sm.irregular <- modelo$ts.original-(modelo$ts.signal+modelo$ts.sampling_error )
-  modelo$ts.sm.seasonal_adj <- modelo$ts.trend+modelo$ts.irregular 
+  modelo$ts.sm.signal <- modelo$ts.sm.trend + modelo$ts.sm.seasonal
+  modelo$ts.sm.irregular <- modelo$ts.original - (modelo$ts.sm.signal + modelo$ts.sm.sampling_error)
+  modelo$ts.sm.seasonal_adj <- modelo$ts.sm.trend + modelo$ts.sm.irregular
   
   # calculo erro padrão
   mse.list_bsm_error_1.sm = dlmSvd2var(modelo[["smoothed"]][["U.S"]], modelo[["smoothed"]][["D.S"]])
