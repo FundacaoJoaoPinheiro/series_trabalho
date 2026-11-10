@@ -1,0 +1,182 @@
+## 32_tabela_perfil.R
+## Tabela de perfil dos oito estratos para a Secao 2 do artigo.
+##
+## Junta tres insumos ja produzidos:
+##   30_correspondencia_municipios.R -> quais municipios compoem cada estrato
+##   29_perfil_microdados.R          -> populacao e rendimento (PNADc 2024)
+##   28_perfil_estratos.R            -> ocupacao, taxa e CV direto (base do artigo)
+## mais a planilha do PIB dos Municipios (IBGE) para o porte economico, a
+## atividade predominante e a cidade-polo.
+##
+## Nota de codificacao: o R no Windows le este arquivo em cp1252, entao os
+## padroes de busca dos nomes de coluna sao ASCII e os acentos da saida entram
+## por escape Unicode. Nao troque por texto acentuado literal.
+##
+## Saidas: outputs/perfil_estratos/tabela_perfil.csv
+##         outputs/perfil_estratos/tabperfil.tex
+
+suppressMessages({ library(dplyr); library(readxl); library(jsonlite) })
+
+DIR     <- "outputs/perfil_estratos"
+XLS     <- "C:/Dados/PIB_Municipios/PIB dos Munic\u00edpios - base de dados 2010-2023.xlsx"
+
+corr  <- read.csv(file.path(DIR, "correspondencia_municipios.csv"))
+micro <- read.csv(file.path(DIR, "perfil_microdados.csv"))
+pnadc <- read.csv(file.path(DIR, "perfil_estratos.csv"))
+
+## ---- PIB dos Municipios ----------------------------------------------------
+pib0 <- read_excel(XLS, guess_max = 20000)
+nm   <- names(pib0)
+col  <- function(p) {
+  h <- grep(p, nm, fixed = TRUE)
+  if (!length(h)) stop("coluna nao encontrada: ", p)
+  nm[h[1]]
+}
+ANO_PIB <- max(pib0[[col("Ano")]][!is.na(pib0[[col("Produto Interno Bruto, ")]])])
+ANO_VAB <- max(pib0[[col("Ano")]][!is.na(pib0[[col("bruto da Agropecu")]])])
+message("PIB: ", ANO_PIB, " | VAB por atividade: ", ANO_VAB)
+
+pega <- function(ano) pib0 |>
+  filter(.data[[col("Ano")]] == ano,
+         .data[[col("digo da Unidade da Federa")]] == 31)
+
+pib <- pega(ANO_PIB) |>
+  transmute(
+    cod_mun   = as.numeric(.data[[col("digo do Munic")]]),
+    nome_mun  = .data[[col("Nome do Munic")]],
+    hier      = .data[[col("Hierarquia Urbana (principais")]],
+    pib       = as.numeric(.data[[col("Produto Interno Bruto, ")]]))
+
+## VAB por atividade, no ultimo ano em que a planilha o traz
+vabm <- pega(ANO_VAB) |>
+  transmute(
+    cod_mun  = as.numeric(.data[[col("digo do Munic")]]),
+    vab_agro = as.numeric(.data[[col("bruto da Agropecu")]]),
+    vab_ind  = as.numeric(.data[[col("bruto da Ind")]]),
+    vab_serv = as.numeric(.data[[col("bruto dos Servi")]]),
+    vab_adm  = as.numeric(.data[[col("bruto da Administra")]])) |>
+  ## "Valor adicionado bruto total" vem vazia na planilha: soma as componentes
+  mutate(vab_tot = vab_agro + vab_ind + vab_serv + vab_adm)
+
+stopifnot(nrow(pib) == 853L, nrow(vabm) == 853L,
+          !anyNA(pib$pib), !anyNA(vabm$vab_tot))
+
+base <- corr |> left_join(pib, by = "cod_mun") |> left_join(vabm, by = "cod_mun")
+stopifnot(!anyNA(base$vab_tot))
+
+## ---- cidade-polo: topo da hierarquia urbana do REGIC, desempate pela
+## populacao. O desempate pelo PIB elegia municipios de PIB alto que nao sao
+## polo regional (Extrema no Sul de Minas, Betim no entorno de BH).
+## A planilha grafa as categorias do REGIC em caixa alta inicial ("Capital
+## Regional"), e nao como o relatorio do REGIC ("Capital regional"). Com a
+## grafia do relatorio o match caia para NA, rk virava 99 em todos os
+## municipios e o desempate hierarquico morria calado, sobrando so a
+## populacao. O stopifnot abaixo impede que isso volte a passar silencioso.
+ORD_HIER <- c("Grande Metr\u00f3pole Nacional", "Metr\u00f3pole Nacional",
+              "Metr\u00f3pole", "Capital Regional", "Centro Sub-Regional",
+              "Centro de Zona", "Centro Local")
+arq_pop <- file.path(DIR, "_cache", "pop_mun_sidra.json")
+pop <- as.data.frame(fromJSON(arq_pop))[-1, ]
+pop <- data.frame(cod_mun = as.numeric(pop$D1C), pop_mun = as.numeric(pop$V))
+
+stopifnot(all(base$hier %in% ORD_HIER))
+
+polo <- base |> left_join(pop, by = "cod_mun") |>
+  mutate(rk = match(hier, ORD_HIER)) |>
+  group_by(regiao) |> arrange(rk, desc(pop_mun), .by_group = TRUE) |>
+  summarise(polo = first(nome_mun), polo_hier = first(hier),
+            polo_pop = first(pop_mun), .groups = "drop")
+
+## ---- composicao do VAB -----------------------------------------------------
+ATIV <- c("Agropecu\u00e1ria", "Ind\u00fastria", "Servi\u00e7os",
+          "Adm. p\u00fablica")
+vab <- base |> group_by(regiao) |>
+  summarise(across(c(vab_agro, vab_ind, vab_serv, vab_adm, vab_tot, pib), sum),
+            .groups = "drop") |>
+  mutate(p_agro = 100 * vab_agro / vab_tot, p_ind = 100 * vab_ind / vab_tot,
+         p_serv = 100 * vab_serv / vab_tot, p_adm = 100 * vab_adm / vab_tot,
+         pib_bi = pib / 1e6)
+M <- as.matrix(vab[, c("p_agro", "p_ind", "p_serv", "p_adm")])
+vab$predominante <- ATIV[max.col(M, ties.method = "first")]
+vab$p_pred       <- apply(M, 1, max)
+
+## ---- junta tudo ------------------------------------------------------------
+k <- function(x) substr(x, 1, 2)
+tab <- corr |> count(regiao, name = "n_mun") |>
+  left_join(vab |> select(regiao, pib_bi, predominante, p_pred), by = "regiao") |>
+  left_join(polo, by = "regiao") |>
+  mutate(k = k(regiao)) |>
+  left_join(micro |> mutate(k = k(regiao)) |> select(-regiao), by = "k") |>
+  ## das estimativas do artigo entra SO o CV: e estatistica da serie (precisao
+  ## da estimativa direta na janela publicada), nao nivel de 2024, entao nao
+  ## compete com nada que venha dos microdados.
+  left_join(pnadc |> mutate(k = k(estrato)) |> select(k, cv_ocup), by = "k") |>
+  arrange(k) |> select(-k)
+
+write.csv(tab, file.path(DIR, "tabela_perfil.csv"), row.names = FALSE)
+
+cat("\n#### perfil dos estratos ####\n")
+print(as.data.frame(tab |> transmute(
+  estrato = regiao, mun = n_mun, polo, hier = polo_hier,
+  pop_mi = round(populacao_mil / 1000, 2), part_ocup = part_ocup_mg,
+  rend = rendimento_medio, taxa = taxa,
+  setor = predominante, pct = round(p_pred), cv_ocup)), row.names = FALSE)
+
+## ---- .tex ------------------------------------------------------------------
+## Segue o padrao das outras tabelas do manuscrito (ver tabcomptaxa.tex no
+## Overleaf): table[H], captionsetup centralizado, caption antes do label,
+## arraystretch 0.8, scalebox, cabecalho em negrito com makecell, rotulo do
+## estrato no formato "01 - Nome" e a macro \fonte no lugar de um flushleft.
+B   <- intToUtf8(92)
+fmt <- function(v, d = 1) formatC(v, format = "f", digits = d,
+                                  big.mark = ".", decimal.mark = ",")
+pc  <- paste0(B, "%")
+bf  <- function(x) paste0(B, "textbf{", x, "}")
+mc  <- function(a, b) paste0(B, "makecell{", a, " ", B, B, " ", b, "}")
+
+## sem a coluna da cidade-polo (decisao do Caio em 10/11/2026: com nove colunas a
+## tabela nao cabia em footnotesize); o rotulo longo do Colar quebra em duas linhas
+rot_tab <- sub("^02 - Colar e Entorno Metropolitano de BH$",
+               paste0(B, "makecell[l]{02 - Colar e Entorno", B, B, "Metropolitano de BH}"),
+               tab$regiao)
+linhas <- with(tab, sprintf("%s & %s & %s & %s & %s & %s & %s (%s) & %s %s",
+  rot_tab, n_mun,
+  fmt(populacao_mil / 1000, 2), fmt(part_ocup_mg), fmt(rendimento_medio, 0),
+  fmt(taxa), predominante, fmt(p_pred, 0), fmt(cv_ocup), paste0(B, B)))
+
+tex <- c(
+  paste0(B, "begin{table}[H]"), paste0(B, "centering"), paste0(B, "footnotesize"),
+  paste0(B, "captionsetup{justification=centering}"),
+  paste0(B, "caption{Perfil dos estratos geogr\u00e1ficos da PNAD Cont\u00ednua ",
+         "em Minas Gerais}"),
+  paste0(B, "label{tab:perfil}"), "%",
+  paste0(B, "renewcommand{", B, "arraystretch}{0.8}"),
+  ## resizebox, e nao o scalebox de fator fixo das outras tabelas: com nove
+  ## colunas o 0.68 estourava a margem direita e a coluna do CV saia da pagina.
+  ## O resizebox encaixa na mancha qualquer que seja a largura natural, entao
+  ## nao volta a estourar se um rotulo de estrato ou de cidade-polo crescer.
+  ## adjustbox{max width}: letra em footnotesize como as demais tabelas; so reduz se
+  ## a tabela for mais larga que a mancha (nunca amplia)
+  paste0(B, "adjustbox{max width=", B, "linewidth}{%"),
+  paste0(B, "begin{tabular}{lrrrrrlr}"), paste0(B, "toprule"),
+  paste0(paste(
+    bf("Estrato Geogr\u00e1fico"), bf("Mun."),
+    bf(mc("Popula\u00e7\u00e3o", paste0("(milh\u00f5es)"))),
+    bf(mc("Ocupa\u00e7\u00e3o", paste0("(", pc, " de MG)"))),
+    bf(mc("Rendimento", paste0("(R", B, "$)"))),
+    bf(mc("Desocupa\u00e7\u00e3o", paste0("(", pc, ")"))),
+    bf(mc("Atividade predom.", paste0("(", pc, " do VAB)"))),
+    bf(mc("CV", paste0("(", pc, ")"))), sep = " & "), " ", B, B),
+  paste0(B, "midrule"), linhas, paste0(B, "bottomrule"),
+  paste0(B, "end{tabular}%"), "}",
+  ## fonte enxuta (pedido do Caio em 10/11/2026): fontes listadas, sem descrever
+  ## vari\u00e1vel por vari\u00e1vel; o CV vira nota
+  paste0(B, "fonte{Elabora\u00e7\u00e3o pr\u00f3pria, com base em IBGE: PNAD ",
+         "Cont\u00ednua (m\u00e9dia de 2024) e PIB dos Munic\u00edpios (", ANO_VAB,
+         "). Nota: CV \u00e9 o coeficiente de varia\u00e7\u00e3o ",
+         "m\u00e9dio da estimativa direta do total de ocupados, do 1\u00ba ",
+         "trimestre de 2014 ao 4\u00ba trimestre de 2024.}"),
+  paste0(B, "end{table}"))
+arq <- file.path(DIR, "tabperfil.tex")
+con <- file(arq, open = "wb"); writeLines(tex, con, useBytes = TRUE); close(con)
+cat("\ngravado:", arq, "\n")

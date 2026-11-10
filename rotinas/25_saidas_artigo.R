@@ -48,11 +48,11 @@ ART <- c(desocupados = "o", ocupados = "o", taxa = "a")
 
 ## rótulos como aparecem no artigo (uma linha) e na versão em parbox
 ROT <- c("01 - Belo Horizonte",
-         "02 - Entorno e Colar Metropolitano de BH",
+         "02 - Colar e Entorno Metropolitano de BH",
          "03 - Sul de Minas", "04 - Triângulo Mineiro", "05 - Zona da Mata",
          "06 - Norte de Minas", "07 - Vale do Rio Doce", "08 - Central")
 ROT_BOX <- ROT
-ROT_BOX[2] <- paste0("\\raisebox{0em}{\\parbox[t]{2.8cm}{02 - Entorno e Colar ",
+ROT_BOX[2] <- paste0("\\raisebox{0em}{\\parbox[t]{2.8cm}{02 - Colar e Entorno ",
                      "\\\\[-2pt] Metropolitano de BH}}")
 
 ################################################################################
@@ -61,6 +61,26 @@ ROT_BOX[2] <- paste0("\\raisebox{0em}{\\parbox[t]{2.8cm}{02 - Entorno e Colar ",
 fmt <- function(x, d = 4) {
   s <- formatC(x, format = "f", digits = d, big.mark = "")
   gsub("\\.", ",", s)
+}
+## coeficientes do processo ARMA identificado (AR primeiro, MA depois), na
+## ordem em que entram no processo: e o que a condicao V(e~)=1 toma como dado
+coef_proc <- function(x) {
+  v <- c(x$phi, x$theta)
+  if (is.null(v) || !length(v)) return("--")
+  ## sinal de menos tipografico, nao hifen (a celula e composta em modo texto)
+  paste(sub("^-", "\\\\(-\\\\)", fmt(v, 3)), collapse = "; ")
+}
+## variancias da tabela de hiperparametros. Imprimir 0,0000 para tudo que e
+## pequeno confunde duas coisas diferentes: o parametro FIXADO em zero pela
+## especificacao (tendencia suave, sazonalidade deterministica -- o piso 1e-10
+## do dlm) e a estimativa positiva porem desprezivel (o irregular, que fica na
+## casa de 1e-6 e nao e identificavel). A tabela passa a distinguir as duas.
+fmt_hp <- function(x) {
+  if (!is.finite(x)) return("--")
+  if (x <= 1e-9) return("0")
+  ## (10/11/2026, pedido do Caio) sem a notacao <10^-5: o valor sai com as
+  ## mesmas 4 casas de sigma_R, isto e, 0,0000 para o irregular desprezivel
+  fmt(x)
 }
 ## p-valor com estrelas: * 10%, ** 5%, *** 1%
 pstar <- function(p) {
@@ -124,6 +144,7 @@ carrega <- function(ind) {
        sin_uni = sapply(cod, function(k) uni[[k]]$corrigido$sinal),
        hp_uni = sapply(cod, function(k) uni[[k]]$corrigido$hp),
        proc = sapply(cod, function(k) uni[[k]]$processo),
+       coef = sapply(cod, function(k) coef_proc(uni[[k]])),
        diag_uni = sapply(cod, function(k) c(
          sw = uni[[k]]$corrigido$shapiro,
          lb = uni[[k]]$corrigido$ljung,
@@ -136,35 +157,32 @@ carrega <- function(ind) {
 ## TABELA 1 — hiperparâmetros
 ################################################################################
 tab_hiper <- function(d, ind) {
-  lin <- function(rot, v, proc)
-    sprintf("%s & %s & %s & %s & %s & %s & %s \\\\", rot, proc,
-            fmt(v[1]), fmt(v[2]), fmt(v[3]), fmt(v[4]), fmt(v[5]))
+  ## Sem as colunas de \\(\\sigma_L^2\\): a tendencia e suave em todos os estratos,
+  ## de modo que o parametro e zero por especificacao e a coluna sairia inteira
+  ## zerada. Mesmo motivo da sazonalidade, cuja coluna ja havia saido.
+  lin <- function(rot, proc, cf, vu, vm)
+    sprintf("%s & %s & %s & %s & %s & %s & %s \\\\",
+            rot, proc, cf,
+            fmt_hp(vu[2]), fmt_hp(vu[4]),
+            fmt_hp(vm[2]), fmt_hp(vm[4]))
   cab <- paste0("\\textbf{Estrato geográfico} & \\textbf{Processo} & ",
-                "\\(\\hat{\\sigma}_L^2\\) & \\(\\hat{\\sigma}_R^2\\) & ",
-                "\\(\\hat{\\sigma}_S^2\\) & \\(\\hat{\\sigma}_I^2\\) & ",
-                "\\(\\hat{\\sigma}_{\\tilde{e}}^2\\) \\\\")
-  c("\\begin{table}[H]", "\\centering",
+                "\\textbf{Coeficientes} & ",
+                "\\(\\hat{\\sigma}_R^2\\) & \\(\\hat{\\sigma}_I^2\\) & ",
+                "\\(\\hat{\\sigma}_R^2\\) & \\(\\hat{\\sigma}_I^2\\) \\\\")
+  c("\\begin{table}[H]", "\\centering", "\\footnotesize",
     "\\captionsetup{justification=centering}",
     sprintf("\\caption{Hiperparâmetros estimados para %s %s - modelos univariado e multivariado}",
             ART[ind], ROT_IND[ind]),
     sprintf("\\label{tab:hiper%s}", SUFIXO[ind]),
-    "\\scalebox{0.92}{", "\\renewcommand{\\arraystretch}{0.85}",
+    "\\adjustbox{max width=\\linewidth}{%", "\\renewcommand{\\arraystretch}{0.85}",
     "\\begin{tabular}{llccccc}", "\\toprule",
-    "& & \\multicolumn{5}{c}{\\textbf{Modelo Univariado}} \\\\",
-    "\\cmidrule(lr){3-7}", cab, "\\midrule",
-    sapply(1:P, function(i) lin(ROT[i], d$hp_uni[, i], d$proc[i])),
-    "\\midrule",
-    "& & \\multicolumn{5}{c}{\\textbf{Modelo Multivariado}} \\\\",
-    "\\cmidrule(lr){3-7}", cab, "\\midrule",
+    paste0("& & & \\multicolumn{2}{c}{\\textbf{Modelo Univariado}} & ",
+           "\\multicolumn{2}{c}{\\textbf{Modelo Multivariado}} \\\\"),
+    "\\cmidrule(lr){4-5} \\cmidrule(lr){6-7}", cab, "\\midrule",
     sapply(1:P, function(i)
-      lin(ROT[i], c(d$hp_mv[, i], d$hp_uni[5, i]), d$proc[i])),
+      lin(ROT[i], d$proc[i], d$coef[i], d$hp_uni[, i], d$hp_mv[, i])),
     "\\bottomrule", "\\end{tabular}}",
-    paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
-           "Nota: o processo do erro amostral é identificado individualmente por ",
-           "estrato (Seção \\ref{sec:metodologia}), e ",
-           "\\(\\hat{\\sigma}_{\\tilde{e}}^2\\) é derivada dos coeficientes do ",
-           "processo, por isso coincidindo nos dois modelos. Sobre ",
-           "\\(\\sigma_I^2\\), ver a ressalva de identificação no texto.}"),
+    "\\fonte{Elaboração própria, com base nos dados da PNAD Contínua.}",
     "\\end{table}")
 }
 
@@ -175,12 +193,12 @@ tab_diag <- function(d, ind) {
   lin <- function(rot, v)
     sprintf("%s & %s & %s & %s \\\\", rot, pstar(v[1]), pstar(v[2]), pstar(v[3]))
   cab <- "\\textbf{Estrato geográfico} & Shapiro-Wilk & Ljung-Box & H \\\\"
-  c("\\begin{table}[H]", "\\centering",
+  c("\\begin{table}[H]", "\\centering", "\\footnotesize",
     "\\captionsetup{justification=centering}",
     sprintf("\\caption{Teste de diagnóstico do resíduo para %s %s - modelos univariado e multivariado}",
             ART[ind], ROT_IND[ind]),
     sprintf("\\label{tab:diag%s}", SUFIXO[ind]),
-    "\\scalebox{1}{", "\\renewcommand{\\arraystretch}{0.7}",
+    "\\adjustbox{max width=\\linewidth}{%", "\\renewcommand{\\arraystretch}{0.7}",
     "\\begin{tabular}{lccc}", "\\toprule",
     "& \\multicolumn{3}{c}{\\textbf{Modelo Univariado}} \\\\",
     "\\cmidrule(lr){2-4}", cab, "\\midrule",
@@ -191,9 +209,8 @@ tab_diag <- function(d, ind) {
     sapply(1:P, function(i) lin(ROT[i], d$diag_mv[, i])),
     "\\bottomrule", "\\end{tabular}}",
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
-           "Nota: * representa rejeição de \\(H_0\\) a 10\\%, ** a 5\\% e *** a 1\\%. ",
-           "As oito primeiras observações foram descartadas, em razão do período de ",
-           "estabilização do filtro de Kalman.}"),
+           "Nota: * rejeição de \\(H_0\\) a 10\\%, ** a 5\\% e *** a 1\\%; descartadas ",
+           "as oito primeiras observações (estabilização do filtro de Kalman).}"),
     "\\end{table}")
 }
 
@@ -213,28 +230,24 @@ tab_corr <- function(d, ind) {
   })
   ev_txt <- paste(fmt(ev[ev > 1e-3], 3), collapse = "; ")
   n_peq  <- sum(ev <= 1e-3)
-  c("\\begin{table}[H]", "\\centering",
+  c("\\begin{table}[H]", "\\centering", "\\footnotesize",
     "\\captionsetup{justification=centering}",
     sprintf("\\caption{Correlação estimada entre os distúrbios das inclinações - modelo multivariado - %s}",
             ROT_IND[ind]),
     sprintf("\\label{tab:matriz_correlacao_%s}", SUFIXO[ind]), "",
     "\\renewcommand{\\arraystretch}{0.8}", "",
-    "\\resizebox{\\linewidth}{!}{%",
+    "\\adjustbox{max width=\\linewidth}{%",
     "\\begin{tabular}{@{}p{2.8cm}c*{8}{c}@{}}", "\\toprule",
     paste0("\\textbf{Estrato Geográfico} & \\(\\hat{\\sigma}_R^2\\) & ",
            paste(sprintf("\\textbf{%d}", 1:P), collapse = " & "), " \\\\"),
     "\\midrule", linhas, "\\bottomrule", "\\end{tabular}%", "}", "",
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
            "Nota: ",
-           sprintf("autovalores estimados de \\(\\Sigma_R\\): %s%s. ", ev_txt,
+           sprintf("autovalores de \\(\\Sigma_R\\): %s%s; ", ev_txt,
                    if (n_peq == 0) "" else sprintf(" e %s inferior%s a \\(10^{-3}\\)",
                      if (n_peq == 1) "1 valor" else paste(n_peq, "valores"),
                      if (n_peq == 1) "" else "es")),
-           sprintf(paste0("Posto numérico de %d em %d; posto \\textbf{efetivo} de %d, ",
-                          "contando os autovalores que retêm ao menos 1\\%% do maior. "),
-                   posto, P, efet),
-           "As correlações devem, portanto, ser lidas em conjunto, e não ",
-           "isoladamente.}"),
+           sprintf("posto efetivo %d (autovalores com ao menos 1\\%% do maior).}", efet)),
     "\\end{table}")
 }
 
@@ -247,12 +260,12 @@ tab_desemp <- function(d, ind) {
     sprintf("%s & %s & %s & %s & %s \\\\", ROT[i],
             fmt(d$rrse_uni[i], 2), fmt(mv$rrse[i], 2),
             fmt(d$vicio_uni[i], 2), fmt(mv$vicio[i], 2)))
-  c("\\begin{table}[H]", "\\centering",
+  c("\\begin{table}[H]", "\\centering", "\\footnotesize",
     "\\captionsetup{justification=centering}",
     sprintf("\\caption{Medidas de desempenho dos modelos univariado e multivariado - %s}",
             ROT_IND[ind]),
     sprintf("\\label{tab:diffvicio%s}", SUFIXO[ind]),
-    "{%", "\\renewcommand{\\arraystretch}{0.8}", "\\scalebox{0.95}{%",
+    "{%", "\\renewcommand{\\arraystretch}{0.8}", "\\adjustbox{max width=\\linewidth}{%",
     "\\begin{tabular}{lcccc}", "\\toprule",
     paste0("& \\multicolumn{2}{c}{\\textbf{\\makecell{Diferença relativa média \\\\ ",
            "do erro padrão (\\%)}}} & \\multicolumn{2}{c}{\\textbf{Vício relativo (\\%)}} \\\\"),
@@ -264,8 +277,8 @@ tab_desemp <- function(d, ind) {
             fmt(mean(d$rrse_uni), 2), fmt(mean(mv$rrse), 2)),
     "\\bottomrule", "\\end{tabular}%", "}", "}",
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
-           "Nota: as oito primeiras observações de cada série foram descartadas do ",
-           "cálculo, em razão do período de estabilização do filtro de Kalman.}"),
+           "Nota: descartadas as oito primeiras observações de cada série ",
+           "(estabilização do filtro de Kalman).}"),
     "\\end{table}")
 }
 
@@ -283,13 +296,13 @@ tab_pontual <- function(d, ind) {
             fmt(th, dg), fmt(100*ste/th, 2),
             fmt(th - 1.96*ste, dg), fmt(th + 1.96*ste, dg))
   })
-  c("\\begin{table}[H]", "\\centering",
+  c("\\begin{table}[H]", "\\centering", "\\footnotesize",
     "\\captionsetup{justification=centering}",
     sprintf(paste0("\\caption{Resultados pontuais do modelo multivariado para %s %s ",
                    "- 4\\textordmasculine{} trimestre de 2024}"), ART[ind], ROT_IND[ind]),
     sprintf("\\label{tab:pontual_%s}", SUFIXO[ind]), "",
     "\\renewcommand{\\arraystretch}{0.8}",
-    "\\resizebox{\\linewidth}{!}{%",
+    "\\adjustbox{max width=\\linewidth}{%",
     "\\begin{tabular}{@{}p{2.8cm}cccccc@{}}", "\\toprule",
     paste0("\\textbf{Estrato Geográfico} & $\\hat{y}$ & $CV(\\hat{y})$ & IC 95\\% & ",
            "$\\hat{\\theta}$ & $CV(\\hat{\\theta})$ & IC 95\\% \\\\"),
@@ -309,39 +322,31 @@ tab_comp_taxa <- function() {
   tt <- readRDS(file.path(RAIZ, "outputs", "taxa_final", "taxa_final.rds"))
   t2 <- tt$desempenho
   linhas <- sapply(1:P, function(i)
-    sprintf("%s & %s & %s & %s & %s & %s \\\\", ROT[i],
+    sprintf("%s & %s & %s & %s \\\\", ROT[i],
             fmt(t2$cv_direta[i], 2), fmt(t2$cv_indireta[i], 2),
-            fmt(t2$cv_direta_mod[i], 2),
-            fmt(t2$ganho_indireta[i], 2), fmt(t2$ganho_direta[i], 2)))
-  c("\\begin{table}[H]", "\\centering",
+            fmt(t2$cv_direta_mod[i], 2)))
+  c("\\begin{table}[H]", "\\centering", "\\footnotesize",
     "\\captionsetup{justification=centering}",
     paste0("\\caption{Comparação entre as duas estratégias para a taxa de desocupação ",
-           "- cálculo indireto e estimação direta pelo modelo multivariado}"),
+           "- cálculo indireto e modelagem da própria taxa pelo modelo multivariado}"),
     "\\label{tab:comptaxa}",
-    "{%", "\\renewcommand{\\arraystretch}{0.8}", "\\scalebox{0.9}{%",
-    "\\begin{tabular}{lccccc}", "\\toprule",
-    paste0("& \\multicolumn{3}{c}{\\textbf{Coeficiente de variação médio (\\%)}} & ",
-           "\\multicolumn{2}{c}{\\textbf{\\makecell{Diferença relativa média \\\\ ",
-           "do erro padrão (\\%)}}} \\\\"),
-    "\\cmidrule(lr){2-4} \\cmidrule(lr){5-6}",
+    "{%", "\\renewcommand{\\arraystretch}{0.8}", "\\adjustbox{max width=\\linewidth}{%",
+    "\\begin{tabular}{lccc}", "\\toprule",
+    "& \\multicolumn{3}{c}{\\textbf{Coeficiente de variação médio (\\%)}} \\\\",
+    "\\cmidrule(lr){2-4}",
     paste0("\\multicolumn{1}{l}{\\textbf{Estrato Geográfico}} & ",
            "\\textbf{\\makecell{Estimativa \\\\ direta}} & ",
            "\\textbf{\\makecell{Cálculo \\\\ indireto}} & ",
-           "\\textbf{\\makecell{Modelo \\\\ direto}} & ",
-           "\\textbf{\\makecell{Cálculo \\\\ indireto}} & ",
-           "\\textbf{\\makecell{Modelo \\\\ direto}} \\\\"),
+           "\\textbf{\\makecell{Modelo da \\\\ própria taxa}} \\\\"),
     "\\midrule", linhas, "\\midrule",
-    sprintf("\\textbf{Média} & \\textbf{%s} & \\textbf{%s} & \\textbf{%s} & \\textbf{%s} & \\textbf{%s} \\\\",
+    sprintf("\\textbf{Média} & \\textbf{%s} & \\textbf{%s} & \\textbf{%s} \\\\",
             fmt(mean(t2$cv_direta), 2), fmt(mean(t2$cv_indireta), 2),
-            fmt(mean(t2$cv_direta_mod), 2),
-            fmt(mean(t2$ganho_indireta), 2), fmt(mean(t2$ganho_direta), 2)),
+            fmt(mean(t2$cv_direta_mod), 2)),
     "\\bottomrule", "\\end{tabular}%", "}", "}",
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
-           "Nota: o cálculo indireto obtém a taxa a partir das tendências estimadas ",
-           "do total de desocupados e do total de ocupados, com variância por ",
-           "linearização de Taylor sob a hipótese \\(\\mathrm{Cov}(\\hat{D}_L,T_L)=0\\), ",
-           "discutida no texto. As oito primeiras observações ",
-           "foram descartadas do cálculo.}"),
+           "Nota: o cálculo indireto combina as tendências do total de desocupados ",
+           "e do total de ocupados, com variância por linearização de Taylor (ver ",
+           "texto); descartadas as oito primeiras observações.}"),
     "\\end{table}")
 }
 
@@ -388,38 +393,55 @@ ROTULO_Y <- list(desocupados = "Desocupados (mil pessoas)",
 suppressMessages(library(patchwork))
 source(file.path(RAIZ, "rotinas", "00_tema_graficos.R"))
 
-## Cores semanticas, na paleta do artigo:
-##   estimativa direta = cinza | univariado (ou indireta) = azul | multivariado = vermelho
-COR_SERIE <- c("grey30", PAL_ARTIGO[1], PAL_ARTIGO[3])
+## Cores semanticas, na paleta do artigo, indexadas pelo ROTULO da serie e nao
+## pela posicao: assim o multivariado e vermelho em todas as figuras, mesmo
+## quando o conjunto de series muda de um indicador para outro.
+##   estimativa direta = cinza | univariado = azul | multivariado = vermelho |
+##   calculo indireto (so na taxa) = laranja
+COR_SERIE <- c("Estimativa direta"             = "grey30",
+               "Tendência - Mod. univariado"   = PAL_ARTIGO[1],
+               "Tendência - Mod. multivariado" = PAL_ARTIGO[3],
+               "Taxa calculada indiretamente"  = PAL_ARTIGO[2])
 ROT_IC    <- "IC 95% da estimativa direta"
 
-painel <- function(f, i, ini, rot_y) {
+## Escala comum do painel de CV, por indicador: de 0 ao maior CV da estimativa
+## direta em 2014Q1-2024Q4 (20,8 / 13,2 / 19,3), arredondado para cima. Vale
+## para todos os estratos e para as duas versões (junho e revisada), de modo que
+## os painéis sejam comparáveis entre si.
+CV_MAX <- c(desocupados = 22, ocupados = 14, taxa = 20)
+
+## f$Y, f$SE: estimativa direta e EP do desenho (52 x 8)
+## f$mod: lista de series de modelo, cada uma list(tr = 52x8, se = 52x8)
+## f$leg: rotulo de cada serie de f$mod, na mesma ordem
+painel <- function(f, i, ini, rot_y, cv_max = NA) {
   ts_ <- function(v) window(ts(v, start = c(2012, 1), frequency = 4), start = ini)
   y  <- ts_(f$Y[, i]);    se <- ts_(f$SE[, i])
-  tu <- ts_(f$tr_a[, i]); su <- ts_(f$se_a[, i])
-  tm <- ts_(f$tr_b[, i]); sm <- ts_(f$se_b[, i])
   dt <- periodo_para_data(sprintf("%d_0%d", floor(as.numeric(time(y))), cycle(y)))
 
-  lv <- c("Estimativa direta", f$leg[1], f$leg[2])
-  linha_df <- function(a, b, c) {
-    d <- rbind(data.frame(data = dt, valor = as.numeric(a), serie = lv[1]),
-               data.frame(data = dt, valor = as.numeric(b), serie = lv[2]),
-               data.frame(data = dt, valor = as.numeric(c), serie = lv[3]))
+  lv <- c("Estimativa direta", f$leg)
+  stopifnot(length(f$mod) == length(f$leg), all(lv %in% names(COR_SERIE)))
+  empilha <- function(series) {
+    d <- do.call(rbind, lapply(seq_along(series), function(k)
+      data.frame(data = dt, valor = as.numeric(series[[k]]), serie = lv[k])))
     d$serie <- factor(d$serie, levels = lv); d
   }
-  d_niv <- linha_df(y, tu, tm)
-  d_cv  <- linha_df(100 * se / y, 100 * su / tu, 100 * sm / tm)
+  tr <- lapply(f$mod, function(m) ts_(m$tr[, i]))
+  sd <- lapply(f$mod, function(m) ts_(m$se[, i]))
+  d_niv <- empilha(c(list(y), tr))
+  d_cv  <- empilha(c(list(100 * se / y), Map(function(s, t) 100 * s / t, sd, tr)))
   ic    <- data.frame(data = dt,
                       li = as.numeric(y - 1.96 * se),
                       ls = as.numeric(y + 1.96 * se))
 
-  esqueleto <- function(d, ylab) {
+  esqueleto <- function(d, ylab, lim = NULL) {
     ggplot(d, aes(data, valor, color = serie)) +
-      scale_color_manual(values = setNames(COR_SERIE, lv)) +
+      scale_color_manual(values = COR_SERIE[lv]) +
       scale_x_date(breaks = seq(as.Date("2014-01-01"), as.Date("2026-01-01"), by = "2 years"),
                    date_labels = "%Y", date_minor_breaks = "1 year",
                    expand = expansion(mult = c(.01, .02))) +
-      scale_y_continuous(labels = label_number(big.mark = ".", decimal.mark = ",")) +
+      scale_y_continuous(labels = label_number(big.mark = ".", decimal.mark = ","),
+                         limits = lim,
+                         expand = if (is.null(lim)) waiver() else expansion(mult = c(0, .02))) +
       labs(x = NULL, y = ylab) +
       tema_artigo(11) +
       theme(plot.title   = element_text(face = "bold", size = 11.5),
@@ -431,17 +453,50 @@ painel <- function(f, i, ini, rot_y) {
                 aes(data, ymin = li, ymax = ls, fill = ROT_IC), alpha = .16) +
     scale_fill_manual(values = setNames("grey45", ROT_IC)) +
     geom_line(linewidth = .65)
-  p_cv <- esqueleto(d_cv, "Coeficiente de variação (%)") + geom_line(linewidth = .65)
+  if (!is.na(cv_max) && max(d_cv$valor, na.rm = TRUE) > cv_max)
+    warning(sprintf("CV acima de CV_MAX (%.1f > %.0f) no estrato %d: a linha será cortada",
+                    max(d_cv$valor, na.rm = TRUE), cv_max, i))
+  p_cv <- esqueleto(d_cv, "Coeficiente de variação (%)",
+                    lim = if (is.na(cv_max)) NULL else c(0, cv_max)) + geom_line(linewidth = .65)
   list(niv = p_niv, cv = p_cv)
 }
 
-figura <- function(f, regs, arq, ini, rot_y, rot) {
-  ps <- lapply(regs, function(i) painel(f, i, ini, rot_y))
+figura <- function(f, regs, arq, ini, rot_y, rot, cv_max = NA) {
+  ps <- lapply(regs, function(i) painel(f, i, ini, rot_y, cv_max))
   linhas <- lapply(seq_along(regs), function(k)
     (ps[[k]]$niv + labs(title = rot[regs[k]])) | (ps[[k]]$cv + labs(title = " ")))
   g <- Reduce(`/`, linhas) + plot_layout(guides = "collect") &
        theme(legend.position = "bottom")
-  ggsave(arq, g, width = 10, height = 12.6, dpi = 120, bg = "white")
+  ## 3,15 pol por estrato (4 estratos = 12,6, a altura da figura do artigo) mais a legenda
+  ggsave(arq, g, width = 10, height = 3.15 * length(regs) + 0.4 * (length(regs) == 1),
+         dpi = 120, bg = "white")
+}
+
+## ANTES x DEPOIS de um estrato numa figura só (duas linhas: nível | CV), com
+## fontes maiores, para projeção. fa/fd são os objetos f das duas versões.
+figura_comparacao <- function(fa, fd, i, arq, ini, rot_y, rot, cv_max = NA,
+                              rotulos = c("ANTES · junho", "DEPOIS · revisado")) {
+  pa <- painel(fa, i, ini, rot_y, cv_max); pd <- painel(fd, i, ini, rot_y, cv_max)
+  la <- (pa$niv + labs(title = paste0(rotulos[1], " — ", rot[i]))) | (pa$cv + labs(title = " "))
+  ld <- (pd$niv + labs(title = paste0(rotulos[2], " — ", rot[i]))) | (pd$cv + labs(title = " "))
+  g <- (la / ld) + plot_layout(guides = "collect") &
+       theme(legend.position = "bottom",
+             text = element_text(size = 12.5), axis.text = element_text(size = 11.5),
+             axis.title = element_text(size = 12.5), legend.text = element_text(size = 12),
+             legend.key.width = unit(14, "pt"), legend.spacing.x = unit(4, "pt"),
+             plot.title = element_text(size = 13.5, face = "bold"))
+  ggsave(arq, g, width = 10, height = 5.4, dpi = 150, bg = "white")
+}
+
+## uma figura por estrato (nível | CV numa linha), escala comum e livre, em <dir>/por_estrato/
+figuras_por_estrato <- function(f, dir, ind, cv_max) {
+  d <- file.path(dir, "por_estrato"); dir.create(d, showWarnings = FALSE)
+  for (i in 1:8) {
+    arq <- file.path(d, sprintf("Figura_%s_estrato_%02d.png", NOMEFIG[ind], i))
+    figura(f, i, arq, INICIO[[ind]], ROTULO_Y[[ind]], ROT, cv_max)
+    figura(f, i, sub("\\.png$", "_semescala.png", arq), INICIO[[ind]], ROTULO_Y[[ind]], ROT, NA)
+  }
+  cat("  gravadas: 16 figuras por estrato em", d, "\n")
 }
 
 ################################################################################
@@ -461,23 +516,35 @@ for (ind in c("desocupados", "ocupados", "taxa")) {
   grava(tab_desemp(d, ind),  ind, paste0("diffvicio", SUFIXO[ind], ".tex"))
   grava(tab_pontual(d, ind), ind, paste0("est_pontual_", SUFIXO[ind], ".tex"))
 
-  ## figuras: azul = univariado (ou cálculo indireto, na taxa), vermelho = multivariado
-  f <- list(Y = d$Y, SE = d$SE, tr_b = d$tr_mv, se_b = d$se_mv,
-            tr_a = d$tr_uni, se_a = d$se_uni,
-            leg = c("Tendência - Mod. univariado", "Tendência - Mod. multivariado"))
-  if (ind == "taxa") {
-    tt <- readRDS(file.path(RAIZ, "outputs", "taxa_final", "taxa_final.rds"))
-    f$tr_a <- tt$taxa_indireta * 100
-    f$se_a <- tt$se_indireta   * 100
-    f$leg  <- c("Taxa calculada indiretamente", "Tendência - Mod. multivariado")
-  }
-  for (k in 1:2) {
-    regs <- if (k == 1) 1:4 else 5:8
-    arq  <- paste0("Figura_", NOMEFIG[ind], "_", k, ".png")
-    figura(f, regs, file.path(FIGS, arq), INICIO[[ind]], ROTULO_Y[[ind]], ROT)
-    file.copy(file.path(FIGS, arq),
-              file.path(ARTIGO, "resultados", PASTA[ind], arq), overwrite = TRUE)
-    cat("  gravado:", file.path(PASTA[ind], arq), "\n")
+  ## SO_TABELAS=1 regrava só as tabelas (pula as figuras)
+  if (Sys.getenv("SO_TABELAS") != "1") {
+    ## figuras: azul = univariado, vermelho = multivariado. Na taxa o univariado
+    ## NAO entra -- pedido de Denise Britz na reuniao de 22/09/2026 --, e o lugar
+    ## dele fica com o calculo indireto, em laranja.
+    f <- list(Y = d$Y, SE = d$SE,
+              mod = list(list(tr = d$tr_uni, se = d$se_uni),
+                         list(tr = d$tr_mv,  se = d$se_mv)),
+              leg = c("Tendência - Mod. univariado", "Tendência - Mod. multivariado"))
+    if (ind == "taxa") {
+      tt <- readRDS(file.path(RAIZ, "outputs", "taxa_final", "taxa_final.rds"))
+      f$mod <- list(list(tr = d$tr_mv, se = d$se_mv),
+                    list(tr = tt$taxa_indireta * 100, se = tt$se_indireta * 100))
+      f$leg <- c("Tendência - Mod. multivariado", "Taxa calculada indiretamente")
+    }
+    for (k in 1:2) {
+      regs <- if (k == 1) 1:4 else 5:8
+      arq  <- paste0("Figura_", NOMEFIG[ind], "_", k, ".png")
+      figura(f, regs, file.path(FIGS, arq), INICIO[[ind]], ROTULO_Y[[ind]], ROT, CV_MAX[ind])
+      file.copy(file.path(FIGS, arq),
+                file.path(ARTIGO, "resultados", PASTA[ind], arq), overwrite = TRUE)
+      cat("  gravado:", file.path(PASTA[ind], arq), "\n")
+      ## a mesma figura com o eixo de CV livre em cada estrato (só para consulta;
+      ## a do artigo é a de escala comum)
+      figura(f, regs, file.path(FIGS, sub("\\.png$", "_semescala.png", arq)),
+             INICIO[[ind]], ROTULO_Y[[ind]], ROT, cv_max = NA)
+    }
+    figuras_por_estrato(f, FIGS, ind, CV_MAX[ind])
+    saveRDS(f, file.path(FIGS, paste0("series_figuras_", ind, ".rds")))   # p/ a comparação antes x depois (rotina 26)
   }
 
   sintese[[ind]] <- c(uni = mean(d$rrse_uni), mv = mean(d$m$desempenho$rrse),
