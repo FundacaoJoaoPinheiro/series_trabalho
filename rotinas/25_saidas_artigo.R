@@ -218,7 +218,10 @@ tab_diag <- function(d, ind) {
 ## TABELA 3 — matriz de correlação
 ################################################################################
 tab_corr <- function(d, ind) {
-  C  <- d$m$Corr_R; s2 <- diag(d$m$Sigma_R); ev <- d$m$autovalores
+  ## A coluna de \(\hat{\sigma}_R^2\) saiu em 20/11/2026 (decisao do Caio): ela
+  ## repetia, celula por celula, a coluna "Multivariado" da tabela dos
+  ## hiperparametros, que desde o mesmo dia esta no corpo do texto (tab:hiper).
+  C  <- d$m$Corr_R; ev <- d$m$autovalores
   tol <- 1e-8 * max(abs(ev)); posto <- sum(ev > tol)
   ## posto EFETIVO: autovalores que carregam variância relevante (>= 1% do maior).
   ## É essa a leitura substantiva -- o posto numérico apenas atesta que a matriz
@@ -226,7 +229,7 @@ tab_corr <- function(d, ind) {
   efet <- sum(ev >= 0.01 * max(ev))
   linhas <- sapply(1:P, function(i) {
     cel <- sapply(1:P, function(j) if (j < i) fmt(C[i, j], 4) else if (j == i) "1" else "")
-    sprintf("%s & %s & %s \\\\", ROT_BOX[i], fmt(s2[i], 4), paste(cel, collapse = " & "))
+    sprintf("%s & %s \\\\", ROT_BOX[i], paste(cel, collapse = " & "))
   })
   ev_txt <- paste(fmt(ev[ev > 1e-3], 3), collapse = "; ")
   n_peq  <- sum(ev <= 1e-3)
@@ -237,8 +240,8 @@ tab_corr <- function(d, ind) {
     sprintf("\\label{tab:matriz_correlacao_%s}", SUFIXO[ind]), "",
     "\\renewcommand{\\arraystretch}{0.8}", "",
     "\\adjustbox{max width=\\linewidth}{%",
-    "\\begin{tabular}{@{}p{2.8cm}c*{8}{c}@{}}", "\\toprule",
-    paste0("\\textbf{Estrato Geográfico} & \\(\\hat{\\sigma}_R^2\\) & ",
+    "\\begin{tabular}{@{}p{2.8cm}*{8}{c}@{}}", "\\toprule",
+    paste0("\\textbf{Estrato Geográfico} & ",
            paste(sprintf("\\textbf{%d}", 1:P), collapse = " & "), " \\\\"),
     "\\midrule", linhas, "\\bottomrule", "\\end{tabular}%", "}", "",
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
