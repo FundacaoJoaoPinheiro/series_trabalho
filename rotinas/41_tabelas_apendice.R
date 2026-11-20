@@ -74,15 +74,18 @@ tex_h <- c(
   "\\label{tab:hiper}",
   "\\adjustbox{max width=\\linewidth}{%", "\\renewcommand{\\arraystretch}{0.85}",
   "\\begin{tabular}{llccc}", "\\toprule",
-  "& & & \\multicolumn{2}{c}{\\(\\hat{\\sigma}_R^2\\)} \\\\",
-  "\\cmidrule(lr){4-5}",
+  paste0("& \\multicolumn{2}{c}{Erro amostral \\(\\tilde{e}_t\\)} & ",
+         "\\multicolumn{2}{c}{Inclina\u00e7\u00e3o: \\(\\hat{\\sigma}_R^2\\)} \\\\"),
+  "\\cmidrule(lr){2-3} \\cmidrule(lr){4-5}",
   paste0("\\textbf{Estrato geogr\u00e1fico} & \\textbf{Processo} & \\textbf{Coeficientes} & ",
          "\\textbf{Univariado} & \\textbf{Multivariado} \\\\"),
   "\\midrule", corpo_h, "\\bottomrule", "\\end{tabular}}",
   paste0("\\fonte{Elabora\u00e7\u00e3o pr\u00f3pria, com base nos dados da PNAD Cont\u00ednua. ",
-         "Nota: processo e coeficientes s\u00e3o os do erro amostral, comuns aos dois ",
-         "modelos; \\(\\hat{\\sigma}_I^2\\) foi estimada em valor praticamente nulo em ",
-         "todos os casos e \u00e9 omitida.}"),
+         "Nota: \\(\\tilde{e}_t\\) \u00e9 o erro amostral padronizado (Equa\u00e7\u00e3o ",
+         "\\ref{eq:erro_escalonado}) e \\(\\hat{\\sigma}_R^2\\), a vari\u00e2ncia do dist\u00farbio ",
+         "da inclina\u00e7\u00e3o (Equa\u00e7\u00e3o \\ref{eq:inclinacao}); processo e coeficientes s\u00e3o ",
+         "comuns aos dois modelos. \\(\\hat{\\sigma}_I^2\\) foi estimada em valor ",
+         "praticamente nulo em todos os casos e \u00e9 omitida.}"),
   "\\end{table}")
 grava(tex_h, "tabhiper_modelos.tex")
 
