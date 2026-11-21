@@ -80,6 +80,25 @@ for (i in 1:P) for (j in 1:P) if (i != j) {
 n_mod <- sum(difere_mod[upper.tri(difere_mod)])
 n_dir <- sum(difere_dir[upper.tri(difere_dir)])
 
+## ---------------------------------------------------------------------------
+## ajuste de multiplicidade (20/11/2026)
+## São 28 comparações simultâneas; a 5% sem ajuste espera-se mais de uma
+## rejeição só por acaso. Holm controla o erro por família e é o padrão
+## defensável. A coluna da tabela continua SEM ajuste -- é uma listagem
+## descritiva --, mas as duas contagens entram na nota e no texto.
+## ---------------------------------------------------------------------------
+## pval, e nao pv: pv ja e a matriz do pico da Covid, definida acima.
+pval <- function(dif, vr) 2 * pnorm(-abs(dif) / sqrt(vr))
+pm <- pd <- numeric(0)
+for (i in 1:(P - 1)) for (j in (i + 1):P) {
+  pm <- c(pm, pval(TR[t_fim, i] - TR[t_fim, j],
+                   V_fim[i, i] + V_fim[j, j] - 2 * V_fim[i, j]))
+  pd <- c(pd, pval(Y[t_fim, i] - Y[t_fim, j], SE[t_fim, i]^2 + SE[t_fim, j]^2))
+}
+stopifnot(length(pm) == 28, sum(pm < 0.05) == n_mod, sum(pd < 0.05) == n_dir)
+n_mod_holm <- sum(p.adjust(pm, "holm") < 0.05)
+n_dir_holm <- sum(p.adjust(pd, "holm") < 0.05)
+
 lista <- function(i) {
   k <- which(difere_mod[i, ])
   if (!length(k)) "--" else paste(sprintf("%02d", k), collapse = ", ")
@@ -132,14 +151,20 @@ tex <- c(
          "Nota: tendência filtrada (\\%) do modelo multivariado da própria taxa; ",
          "entre parênteses, o trimestre do pico. A última coluna lista os estratos ",
          "dos quais a tendência difere a 5\\% em 2024T4, considerando a covariância ",
-         "entre estratos, sem ajuste para comparações múltiplas.}"),
+         "entre estratos, sem ajuste para comparações múltiplas. Sob o ajuste de ",
+         sprintf("Holm para as 28 comparações simultâneas, %d pares permanecem ", n_mod_holm),
+         sprintf("distintos pela tendência do modelo, contra %d pelas estimativas ", n_dir_holm),
+         "diretas.}"),
   "\\end{table}")
 
 d <- file.path(ARTIGO, "resultados", "Taxa de desocupação")
 con <- file(file.path(d, "tabregional_taxa.tex"), open = "w", encoding = "UTF-8")
 writeLines(tex, con); close(con)
 
-cat("Pares que diferem em 2024T4: modelo", n_mod, "| direta", n_dir, "de 28\n")
+cat("Pares que diferem em 2024T4 (sem ajuste): modelo", n_mod, "| direta", n_dir, "de 28
+")
+cat("Sob Holm: modelo", n_mod_holm, "| direta", n_dir_holm, "de 28
+")
 print(format(tab[, c("estrato", "pre_2014T4", "pico_crise", "tri_pico_crise",
                      "pico_covid", "tri_pico_covid", "fim_2024T4", "ic_inf", "ic_sup",
                      "var_covid_fim_pp", "difere_de")], digits = 3), row.names = FALSE)
