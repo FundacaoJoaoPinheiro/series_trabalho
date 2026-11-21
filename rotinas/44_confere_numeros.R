@@ -67,6 +67,10 @@ carrega <- function(ind) {
        tr = est[, B_NIVEL],
        se_tr = sapply(B_NIVEL, function(i)
          dropFirst(sapply(mse, function(x) sqrt(x[i, i])))),
+       ## mse alinhado com dropFirst: necessario para a covariancia ENTRE
+       ## estratos, que entra nas comparacoes entre pares (Holm) e nos
+       ## residuos padronizados usados no teste de normalidade sem 2020.
+       mse = mse[-1], flt = flt,
        sin = est[, B_NIVEL] + est[, B_SAZ1] + est[, B_SAZ3])
 }
 D <- carrega("desocupados"); O <- carrega("ocupados"); T. <- carrega("taxa")
@@ -300,27 +304,77 @@ conf("pares distinguiveis pelas diretas (de 28)", 5, pares_direta, 0)
 
 ## =============================================================== CONCLUSAO
 secao("Conclusao -- robustez")
-conf("DR univariado com tendencia caso a caso, desocupados", 12.4,
-     dr_pipe("desocupados", "univariado", "por_estrato"))
 conf("DR univariado da rodada C, desocupados", 12.1,
      dr_pipe("desocupados", "univariado", "C"))
-conf("DR com c_t x 0,8, desocupados",  7.1,
-     dr_pipe("desocupados", "univariado", "ct_0.8"))
-conf("DR com c_t x 1,2, desocupados", 17.0,
-     dr_pipe("desocupados", "univariado", "ct_1.2"))
 
-vi <- read.csv(file.path(RAIZ, "outputs/robustez_2026-11-10/vies_rotacao/vies_1a_entrevista.csv"),
+## SAIRAM DO MANUSCRITO EM 20/11/2026, por decisao do Caio, e por isso deixaram
+## de ser conferidas aqui: a DR com a tendencia escolhida caso a caso (12,4), a
+## DR com c_t multiplicado por 0,8 e por 1,2 (7,1 e 17,0) e todo o bloco do
+## vies de grupo de rotacao (MDE de 8% a 15%, vies de 3,5% a 5,2%). Os numeros
+## continuam nos outputs; as afirmacoes nao existem mais na prosa.
+
+## =============================================================== 20/11/2026
+secao("Apendices e acrescimos de 20/11/2026")
+
+## -- custo das restricoes: Secao 3 e Tabela A.2 do Apendice A ---------------
+es <- read.csv(file.path(RAIZ, "outputs", "teste_especificacoes.csv"),
                stringsAsFactors = FALSE)
-## o CSV traz, alem dos oito estratos, duas linhas agregadas ("09 - Minas
-## Gerais" e "Media dos 8 estratos") com MDE bem menor, porque a amostra e
-## maior. O texto fala dos ESTRATOS: sem este filtro o minimo cai de 8,2 para
-## 4,6 e a conferencia acusa um erro que nao existe.
-vi <- vi[grepl("^0[1-8]", vi$estrato), ]
-vd <- vi[vi$indicador == "desocupados", ]; vo <- vi[vi$indicador == "ocupados", ]
-conf("MDE minimo por estrato, desocupados",  8.0, min(vd$mde), 0.25)
-conf("MDE maximo por estrato, desocupados", 15.0, max(vd$mde), 0.25)
-conf("vies da 1a entrevista, ocupados: minimo", 3.5, min(vo$vies), 0.05)
-conf("vies da 1a entrevista, ocupados: maximo", 5.2, max(vo$vies), 0.05)
+ew <- reshape(es[, c("ind", "estrato", "espec", "ll")],
+              idvar = c("ind", "estrato"), timevar = "espec", direction = "wide")
+## leituras CONDICIONAIS, que sao as que a tabela reporta:
+##   C -> D  custo de impor sigma2_S = 0 dada a tendencia suave
+##   B -> D  custo de impor sigma2_L = 0 dada a sazonalidade deterministica
+conf("sazonalidade deterministica: casos acima de 1,92", 1,
+     sum(ew$ll.C - ew$ll.D > 1.92), 0)
+conf("custo maximo da sazonalidade deterministica", 3.99,
+     max(ew$ll.C - ew$ll.D), 0.01)
+conf("tendencia suave: casos acima de 1,92", 4,
+     sum(ew$ll.B - ew$ll.D > 1.92), 0)
+
+## -- multiplicidade: Secao 4.4, conclusao e nota da Tabela 9 ----------------
+V_fim <- T.$mse[[52]][B_NIVEL, B_NIVEL]
+pm <- pd <- numeric(0)
+for (i in 1:7) for (j in (i + 1):8) {
+  dm <- T.$tr[52, i] - T.$tr[52, j]
+  pm <- c(pm, 2 * pnorm(-abs(dm) / sqrt(V_fim[i, i] + V_fim[j, j] - 2 * V_fim[i, j])))
+  dd <- T.$Y[52, i] - T.$Y[52, j]
+  pd <- c(pd, 2 * pnorm(-abs(dd) / sqrt(T.$SE[52, i]^2 + T.$SE[52, j]^2)))
+}
+conf("pares pelo modelo sob Holm (de 28)", 11, sum(p.adjust(pm, "holm") < 0.05), 0)
+conf("pares pelas diretas sob Holm (de 28)", 1, sum(p.adjust(pd, "holm") < 0.05), 0)
+
+## -- benchmark contra Minas Gerais: Apendice D ------------------------------
+## Le o CSV do 46_, que e quem estima o modelo estadual. Aqui nao se reestima:
+## o 46_ leva minutos e a conferencia tem de ser rapida.
+bm_arq <- file.path(RAIZ, "outputs", "benchmark_mg.csv")
+if (file.exists(bm_arq)) {
+  bm <- read.csv(bm_arq, stringsAsFactors = FALSE)
+  g <- function(i, col) bm[[col]][bm$ind == i]
+  conf("benchmark: diferenca relativa, desocupados", -1.45, g("desocupados", "dif_rel"), 0.01)
+  conf("benchmark: diferenca relativa, ocupados",    -1.56, g("ocupados", "dif_rel"), 0.01)
+  conf("benchmark: diferenca relativa, taxa",        -0.20, g("taxa", "dif_rel"), 0.01)
+  conf("benchmark: trimestres compativeis, desocupados", 44, g("desocupados", "dentro"), 0)
+  conf("benchmark: trimestres compativeis, ocupados",    28, g("ocupados", "dentro"), 0)
+  conf("benchmark: trimestres compativeis, taxa",        44, g("taxa", "dentro"), 0)
+} else {
+  cat("  [pulado] outputs/benchmark_mg.csv ausente -- rode o 46_benchmark_mg.R\n")
+}
+
+## -- normalidade sem 2020: Secao 4.2 ----------------------------------------
+## 2012T1 = 1, logo 2020T2 = 34 e 2020T3 = 35.
+ro <- as.matrix(residuals(O$flt, type = "standardized", sd = FALSE))
+i1 <- IDX; i2 <- setdiff(IDX, c(34, 35))
+sw <- function(ix) sum(vapply(1:8, function(i) shapiro.test(ro[ix, i])$p.value, 0) < 0.05)
+conf("ocupados: rejeicoes de normalidade com 2020", 5, sw(i1), 0)
+conf("ocupados: rejeicoes de normalidade sem 2020", 1, sw(i2), 0)
+conf("residuo padronizado mais extremo em 2020T2", -5.1, min(ro[34, ]), 0.05)
+conf("residuo padronizado menos extremo em 2020T2", -1.9, max(ro[34, ]), 0.05)
+## O texto diz "p < 0,01" e nao um valor: 0,0025 cai no fio da navalha do
+## arredondamento a tres casas (0,002 ou 0,003 conforme a convencao). A primeira
+## versao da frase trazia 0,004, que e o p-valor COM 2020 -- erro pego por esta
+## propria afirmacao.
+conf("Belo Horizonte: Shapiro-Wilk sem 2020 fica abaixo de 0,01", 1,
+     as.numeric(shapiro.test(ro[i2, 1])$p.value < 0.01), 0)
 
 ## =============================================================== varredura
 tex <- Sys.getenv("ARTIGO_TEX", unset = "")
