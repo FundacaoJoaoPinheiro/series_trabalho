@@ -331,7 +331,7 @@ tab_comp_taxa <- function() {
   c("\\begin{table}[H]", "\\centering", "\\footnotesize",
     "\\captionsetup{justification=centering}",
     paste0("\\caption{Comparação entre as duas estratégias para a taxa de desocupação ",
-           "- cálculo indireto e modelagem da própria taxa pelo modelo multivariado}"),
+           "- taxa derivada dos totais e modelo da própria taxa}"),
     "\\label{tab:comptaxa}",
     "{%", "\\renewcommand{\\arraystretch}{0.8}", "\\adjustbox{max width=\\linewidth}{%",
     "\\begin{tabular}{lccc}", "\\toprule",
@@ -339,7 +339,7 @@ tab_comp_taxa <- function() {
     "\\cmidrule(lr){2-4}",
     paste0("\\multicolumn{1}{l}{\\textbf{Estrato Geográfico}} & ",
            "\\textbf{\\makecell{Estimativa \\\\ direta}} & ",
-           "\\textbf{\\makecell{Cálculo \\\\ indireto}} & ",
+           "\\textbf{\\makecell{Taxa derivada \\\\ dos totais}} & ",
            "\\textbf{\\makecell{Modelo da \\\\ própria taxa}} \\\\"),
     "\\midrule", linhas, "\\midrule",
     sprintf("\\textbf{Média} & \\textbf{%s} & \\textbf{%s} & \\textbf{%s} \\\\",
@@ -347,8 +347,8 @@ tab_comp_taxa <- function() {
             fmt(mean(t2$cv_direta_mod), 2)),
     "\\bottomrule", "\\end{tabular}%", "}", "}",
     paste0("\\fonte{Elaboração própria, com base nos dados da PNAD Contínua. ",
-           "Nota: o cálculo indireto combina as tendências do total de desocupados ",
-           "e do total de ocupados, com variância por linearização de Taylor (ver ",
+           "Nota: a taxa derivada dos totais combina as tendências estimadas do total ",
+           "de desocupados e do total de ocupados, com variância por linearização de Taylor (ver ",
            "texto); descartadas as oito primeiras observações.}"),
     "\\end{table}")
 }
@@ -400,11 +400,15 @@ source(file.path(RAIZ, "rotinas", "00_tema_graficos.R"))
 ## pela posicao: assim o multivariado e vermelho em todas as figuras, mesmo
 ## quando o conjunto de series muda de um indicador para outro.
 ##   estimativa direta = cinza | univariado = azul | multivariado = vermelho |
-##   calculo indireto (so na taxa) = laranja
+##   taxa derivada dos totais (so na taxa) = laranja
+## Na taxa o rotulo do multivariado e "Modelo da propria taxa" (mesma cor
+## vermelha): e o mesmo modelo multivariado, mas ali o contraste que importa e
+## COM O QUE se modelou, nao a especificacao -- padronizacao de 20/11/2026.
 COR_SERIE <- c("Estimativa direta"             = "grey30",
                "Tendência - Mod. univariado"   = PAL_ARTIGO[1],
                "Tendência - Mod. multivariado" = PAL_ARTIGO[3],
-               "Taxa calculada indiretamente"  = PAL_ARTIGO[2])
+               "Modelo da própria taxa"        = PAL_ARTIGO[3],
+               "Taxa derivada dos totais"      = PAL_ARTIGO[2])
 ROT_IC    <- "IC 95% da estimativa direta"
 
 ## Escala comum do painel de CV, por indicador: de 0 ao maior CV da estimativa
@@ -523,7 +527,7 @@ for (ind in c("desocupados", "ocupados", "taxa")) {
   if (Sys.getenv("SO_TABELAS") != "1") {
     ## figuras: azul = univariado, vermelho = multivariado. Na taxa o univariado
     ## NAO entra -- pedido de Denise Britz na reuniao de 22/09/2026 --, e o lugar
-    ## dele fica com o calculo indireto, em laranja.
+    ## dele fica com a taxa derivada dos totais, em laranja.
     f <- list(Y = d$Y, SE = d$SE,
               mod = list(list(tr = d$tr_uni, se = d$se_uni),
                          list(tr = d$tr_mv,  se = d$se_mv)),
@@ -532,7 +536,7 @@ for (ind in c("desocupados", "ocupados", "taxa")) {
       tt <- readRDS(file.path(RAIZ, "outputs", "taxa_final", "taxa_final.rds"))
       f$mod <- list(list(tr = d$tr_mv, se = d$se_mv),
                     list(tr = tt$taxa_indireta * 100, se = tt$se_indireta * 100))
-      f$leg <- c("Tendência - Mod. multivariado", "Taxa calculada indiretamente")
+      f$leg <- c("Modelo da própria taxa", "Taxa derivada dos totais")
     }
     for (k in 1:2) {
       regs <- if (k == 1) 1:4 else 5:8
