@@ -41,7 +41,8 @@ f.modelo_bsm_error_1<-function(y,i0){
   modelo$ts.slope <- modelo[["m"]][,2]
   modelo$ts.seasonal <- modelo[["m"]][,3]+modelo[["m"]][,5]
   # modelo$ts.seasonal <- modelo[["m"]][,3]
-  modelo$ts.sampling_error <- modelo[["m"]][,6]
+  modelo$ts.sampling_error_std <- modelo[["m"]][, 6]
+  modelo$ts.sampling_error     <- modelo[["m"]][, 6] * as.numeric(se_db)
   modelo$ts.signal <- modelo$ts.trend +modelo$ts.seasonal
   modelo$ts.irregular <- modelo$ts.original-(modelo$ts.signal+modelo$ts.sampling_error )
   modelo$ts.seasonal_adj <- modelo$ts.trend+modelo$ts.irregular 
@@ -84,10 +85,11 @@ f.modelo_bsm_error_1<-function(y,i0){
   modelo$ts.sm.slope <- modelo[["sm"]][,2]
   modelo$ts.sm.seasonal <- modelo[["sm"]][,3]+modelo[["sm"]][,5]
   # modelo$ts.sm.seasonal <- modelo[["sm"]][,3]
-  modelo$ts.sm.sampling_error <- modelo[["sm"]][,6]
-  modelo$ts.sm.signal <- modelo$ts.trend +modelo$ts.seasonal
-  modelo$ts.sm.irregular <- modelo$ts.original-(modelo$ts.signal+modelo$ts.sampling_error )
-  modelo$ts.sm.seasonal_adj <- modelo$ts.trend+modelo$ts.irregular 
+  modelo$ts.sm.sampling_error_std <- modelo[["sm"]][, 6]
+  modelo$ts.sm.sampling_error     <- modelo[["sm"]][, 6] * as.numeric(se_db)
+  modelo$ts.sm.signal <- modelo$ts.sm.trend + modelo$ts.sm.seasonal
+  modelo$ts.sm.irregular <- modelo$ts.original - (modelo$ts.sm.signal + modelo$ts.sm.sampling_error)
+  modelo$ts.sm.seasonal_adj <- modelo$ts.sm.trend + modelo$ts.sm.irregular
   
   # calculo erro padrão
   mse.list_bsm_error_1.sm = dlmSvd2var(modelo[["smoothed"]][["U.S"]], modelo[["smoothed"]][["D.S"]])

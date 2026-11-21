@@ -52,7 +52,9 @@ O <- componente("ocupados")
 TL   <- D$trend + O$trend
 r    <- D$trend / TL
 varT <- D$var + O$var                       # Cov(D,O) assumida nula
-varr <- (1 / TL^2) * D$var + (D$trend^2 / TL^4) * varT
+## mesma correcao do 24_taxa_final.R: Cov(D,T) = V(D) + Cov(D,O) nao e zero
+## sob a hipotese Cov(D,O) = 0. Em D e O a linearizacao nao tem termo a largar.
+varr <- (O$trend^2 * D$var + D$trend^2 * O$var) / TL^4
 se_r <- sqrt(varr)
 
 ## --- comparacao com a estimativa direta da taxa ------------------------------

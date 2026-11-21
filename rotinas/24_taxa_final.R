@@ -8,10 +8,30 @@
 ##   DIRETA    tendência do modelo multivariado aplicado à própria taxa
 ##
 ## HIPÓTESE DECLARADA: Cov(D_L, O_L) = 0. Os dois componentes vêm de modelos
-## separados, então a covariância não está disponível. O viés tem direção
-## conhecida: desocupados e ocupados são negativamente correlacionados na
-## prática, logo Cov(D_L, T_L) > 0 e o termo descartado REDUZIRIA a variância —
-## a variância aqui calculada tende a ser uma sobre-estimativa.
+## estimados separadamente, então essa covariância não está disponível.
+##
+## ATENÇÃO à álgebra, que já esteve errada aqui. Escrita em D e T = D + O, a
+## linearização tem três termos:
+##     V(r) = V(D)/T² + D²·V(T)/T⁴ − 2·(D/T³)·Cov(D,T)
+## e o código calculava só os dois primeiros. Mas Cov(D,T) = Cov(D, D+O) =
+## V(D) + Cov(D,O), que SOB A PRÓPRIA HIPÓTESE vale V(D) — não zero. Descartar
+## o terceiro termo não era "assumir Cov(D,O) = 0": era assumir, além disso,
+## Cov(D,T) = 0, o que contradiz a primeira hipótese.
+##
+## Escrita em D e O, a linearização com Cov(D,O) = 0 não tem termo a descartar:
+##     V(r) = [O²·V(D) + D²·V(O)] / T⁴
+## É o que se calcula agora. A diferença para a fórmula antiga é exatamente
+## 2·D·V(D)/T³, e ela derrubou o CV médio do cálculo indireto de 7,61 % para
+## 7,03 % (de 5,3 % a 10,6 % por estrato). A conclusão do artigo não muda: o
+## modelo da própria taxa segue melhor (6,38 %).
+##
+## LIMITE conhecido: Cov(D,O) não é zero nos dados. Medida design-based nos
+## microdados de 2024 (pnadc_design + svytotal dos dois indicadores), a
+## correlação vai de −0,25 em Belo Horizonte a +0,27 no Vale do Rio Doce,
+## trocando de sinal entre regiões. Não dá para usar esse número aqui — ele é
+## dos estimadores diretos, não das tendências do filtro —, mas registra que a
+## hipótese é aproximação, e que o erro que ela deixa (−4 % a +10 %) é menor e
+## de sinal variável, contra os +2 % a +17 % sistemáticos da fórmula antiga.
 ################################################################################
 
 suppressMessages(library(dlm))
@@ -44,8 +64,8 @@ D <- componente("desocupados"); O <- componente("ocupados")
 ## --- taxa indireta e variância por linearização de Taylor -------------------
 TL   <- D$trend + O$trend
 r    <- D$trend / TL
-varT <- D$var + O$var                       # Cov(D,O) assumida nula
-varr <- (1/TL^2) * D$var + (D$trend^2 / TL^4) * varT
+## linearização em D e O, com Cov(D,O) = 0 (ver cabeçalho)
+varr <- (O$trend^2 * D$var + D$trend^2 * O$var) / TL^4
 se_r <- sqrt(varr)
 
 ## --- taxa direta: multivariado aplicado à própria taxa ----------------------

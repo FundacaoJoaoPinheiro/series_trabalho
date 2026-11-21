@@ -14,7 +14,10 @@
 ##  25–32  trig sin H1   33–40  trig H2         41+    blocos ARMA por estrato,
 ##                                                     concatenados, r_i = max(p_i, q_i+1)
 ##
-## PARÂMETROS (60): 8 nível + 8 sazonal + 8 irregular + 36 Cholesky.
+## PARÂMETROS: (estratos com nível livre) + 8 irregular + 36 Cholesky.
+## A sazonalidade é determinística em todos os estratos e a tendência é suave
+## naqueles em que o BIC do univariado a escolheu — as duas decisões vêm do
+## passo 3, em outputs/univariado_final/resumo_univariado_final.csv.
 ## A variância da inovação do erro amostral NÃO é estimada — vem da restrição.
 ################################################################################
 
@@ -43,14 +46,22 @@ PRC <- sapply(COD, function(k) uni[[k]]$processo)
 BL  <- lapply(COD, function(k) blocos(uni[[k]]$phi, uni[[k]]$theta))
 R_I <- sapply(BL, function(b) b$r)
 S2  <- sapply(BL, function(b) 1 / P_est(b$G, b$v, 1)[1,1])   # Var(ẽ)=1
+## covariancia estacionaria de cada bloco ARMA, para a condicao inicial
+PM  <- lapply(seq_len(P), function(i) P_est(BL[[i]]$G, BL[[i]]$v, S2[i]))
 
 INI  <- 40 + c(0, cumsum(R_I)[-P])      # posição inicial do bloco ARMA de cada estrato
 NS   <- 40 + sum(R_I)
 N_CH <- P*(P+1)/2
-IDX  <- list(nivel = 1:8, saz = 9:16, irreg = 17:24, chol = 25:60)
+## tendência suave por estrato, herdada do passo 3
+SMOOTH <- sapply(COD, function(k) isTRUE(uni[[k]]$smooth))
+LIV    <- which(!SMOOTH)            # estratos que mantêm o nível livre
+N_LIV  <- length(LIV)
+NPAR   <- N_LIV + P + N_CH
+IDX  <- list(nivel = seq_len(N_LIV), irreg = N_LIV + seq_len(P),
+             chol = N_LIV + P + seq_len(N_CH))
 B_NIVEL <- 1:8; B_INCL <- 9:16; B_SAZ1 <- 17:24; B_SAZ2 <- 25:32; B_SAZ3 <- 33:40
 
-cat("Indicador:", INDICADOR, "| estados:", NS, "| parâmetros: 60\n")
+cat("Indicador:", INDICADOR, "| estados:", NS, "| parâmetros:", NPAR, "| nível livre em", N_LIV, "de", P, "estratos:", paste(COD[LIV], collapse = " "), "\n")
 cat("processos:", paste(COD, PRC, sep="="), "\n")
 cat("r_i:", R_I, "| inovações derivadas:", round(S2, 4), "\n\n")
 
@@ -83,10 +94,10 @@ monta_mv <- function(pp) {
            W = diag(1e-10, NS), m0 = rep(0, NS), C0 = diag(1e6, NS),
            JFF = JFF, X = SE)
   W <- matrix(0, NS, NS)
-  W[cbind(B_NIVEL, B_NIVEL)] <- exp(pp[IDX$nivel])
-  ## distúrbio sazonal nos TRÊS estados trigonométricos de cada estrato
-  ## (issue #8): cos H1 (17-24), sen H1 (25-32) e Nyquist H2 (33-40)
-  for (bl in list(B_SAZ1, B_SAZ2, B_SAZ3)) W[cbind(bl, bl)] <- exp(pp[IDX$saz])
+  ## nível: distúrbio só nos estratos cuja tendência não é suave
+  if (N_LIV) W[cbind(B_NIVEL[LIV], B_NIVEL[LIV])] <- exp(pp[IDX$nivel])
+  ## sazonalidade determinística: sem distúrbio nos três estados
+  ## trigonométricos (cos H1, sen H1, Nyquist H2) de nenhum estrato
 
   ## bloco 8x8 das inclinações por Cholesky
   L <- matrix(0, P, P); pc <- pp[IDX$chol]; k <- 1
@@ -100,6 +111,16 @@ monta_mv <- function(pp) {
   }
   d <- diag(W); diag(W)[d == 0] <- 1e-10
   m$W <- W
+
+  ## C0: difuso nos 40 estados estruturais (nao estacionarios) e, em cada bloco
+  ## ARMA, a covariancia estacionaria implicada por Var(e~)=1. Com 1e6 nos oito
+  ## blocos o filtro comeca contradizendo a restricao, e paga por isso.
+  C0 <- diag(1e6, NS)
+  for (i in 1:P) {
+    ix <- (INI[i]+1):(INI[i]+R_I[i])
+    C0[ix, ix] <- PM[[i]]
+  }
+  m$C0 <- C0
   m
 }
 
@@ -114,14 +135,20 @@ objetivo <- function(pp) {
 ################################################################################
 hp  <- sapply(COD, function(k) uni[[k]]$corrigido$hp)   # 5 x 8
 flr <- function(v) log(pmax(v, 1e-8))
-p0 <- numeric(60)
-p0[IDX$nivel] <- flr(hp[1, ])
-p0[IDX$saz]   <- flr(hp[3, ])
+p0 <- numeric(NPAR)
+if (N_LIV) p0[IDX$nivel] <- flr(hp[1, LIV])
 p0[IDX$irreg] <- flr(hp[4, ])
 esc <- median(sqrt(pmax(hp[2, ], 1e-8)))
 pc0 <- numeric(N_CH); k <- 1
 for (j in 1:P) for (i in j:P) {
-  pc0[k] <- if (i==j) log(sqrt(max(hp[2,i], 1e-8))) else 0.3*esc
+  ## Fora da diagonal, o valor inicial e ZERO -- estratos independentes. Partir
+  ## de 0,3*esc (a mesma constante para os 28) e perigoso: onde a verossimilhanca
+  ## e plana nessas direcoes, o L-BFGS-B nao move o parametro e a "estimativa"
+  ## publicada e o proprio chute. Foi o que aconteceu no total de ocupados: 27
+  ## dos 28 terminaram a menos de 1e-3 do valor inicial, produzindo uma matriz de
+  ## covariancia com blocos de valores identicos. Partindo de zero, a direcao nao
+  ## identificada devolve correlacao nula, que e a hipotese nula honesta.
+  pc0[k] <- if (i==j) log(sqrt(max(hp[2,i], 1e-8))) else 0
   k <- k+1
 }
 p0[IDX$chol] <- pc0
@@ -140,11 +167,47 @@ if (Sys.getenv("QUENTE", "0") == "1") {
 
 LIM <- 20
 p0  <- pmin(pmax(p0, -LIM+1), LIM-1)
+stopifnot(length(p0) == NPAR)
+
+## MULTI-START DO BLOCO DE CHOLESKY. O L-BFGS-B praticamente nao move esses 36
+## parametros no total de ocupados: 27 dos 28 fora da diagonal terminam a menos
+## de 1e-3 de onde comecaram, e partidas diferentes chegam a verossimilhancas que
+## diferem em varios pontos -- ou seja, nao e planura, e o otimizador que nao
+## explora o bloco. O ponto de partida nao pode, portanto, ser um chute unico.
+## Testam-se tres e fica o de maior verossimilhanca:
+##   zero       estratos independentes (a hipotese nula)
+##   constante  a convencao anterior, 0,3 * escala mediana
+##   empirica   Cholesky da covariancia implicada pela correlacao das primeiras
+##              diferencas das tendencias univariadas (palpite informado)
+par_de_L <- function(L) { v <- numeric(N_CH); k <- 1
+  for (j in 1:P) for (i in j:P) { v[k] <- if (i==j) log(max(L[i,j], 1e-8)) else L[i,j]; k <- k+1 }
+  v }
+dsq <- sqrt(pmax(hp[2, ], 1e-8))
+L_zero  <- diag(dsq, P)
+L_const <- diag(dsq, P); L_const[lower.tri(L_const)] <- 0.3*esc
+TR <- sapply(COD, function(k) uni[[k]]$corrigido$trend)
+Ce <- suppressWarnings(cor(diff(TR))); Ce[!is.finite(Ce)] <- 0
+L_emp <- try(t(chol(diag(dsq, P) %*% Ce %*% diag(dsq, P) + diag(1e-8, P))), silent = TRUE)
+if (inherits(L_emp, "try-error")) L_emp <- L_const
+PARTIDAS <- list(zero = L_zero, constante = L_const, empirica = L_emp)
 cat("otimizando...\n"); flush.console()
 t0 <- Sys.time()
-fit <- optim(p0, objetivo, method = "L-BFGS-B",
-             lower = rep(-LIM, 60), upper = rep(LIM, 60),
-             control = list(maxit = MAXIT))
+fit <- NULL
+for (nm in names(PARTIDAS)) {
+  pp0 <- p0; pp0[IDX$chol] <- pmin(pmax(par_de_L(PARTIDAS[[nm]]), -LIM+1), LIM-1)
+  ti <- Sys.time()
+  r  <- try(optim(pp0, objetivo, method = "L-BFGS-B",
+                  lower = rep(-LIM, NPAR), upper = rep(LIM, NPAR),
+                  control = list(maxit = MAXIT)), silent = TRUE)
+  if (inherits(r, "try-error") || !is.finite(r$value)) { cat("  partida", nm, "falhou
+"); next }
+  cat("  partida ", nm, ": conv = ", r$convergence, " | logLik = ", round(-r$value, 3),
+      " | ", round(as.numeric(difftime(Sys.time(), ti, units = "mins")), 1), " min
+", sep = "")
+  flush.console()
+  if (is.null(fit) || r$value < fit$value) { fit <- r; p0 <- pp0 }
+}
+stopifnot(!is.null(fit))
 cat("conv =", fit$convergence, "| logLik =", round(-fit$value, 3),
     "|", round(as.numeric(difftime(Sys.time(), t0, units="mins")), 1), "min\n")
 
@@ -206,7 +269,7 @@ for (tent in 0:MAX_REINICIO) {
   flush.console()
   t1 <- Sys.time()
   fit <- optim(pt$par, objetivo, method = "L-BFGS-B",
-               lower = rep(-LIM, 60), upper = rep(LIM, 60),
+               lower = rep(-LIM, NPAR), upper = rep(LIM, NPAR),
                control = list(maxit = MAXIT))
   cat("  conv =", fit$convergence, "| logLik =", round(-fit$value, 3),
       "|", round(as.numeric(difftime(Sys.time(), t1, units = "mins")), 1), "min\n")
@@ -214,6 +277,17 @@ for (tent in 0:MAX_REINICIO) {
 cat("\n")
 
 ################################################################################
+## quanto os parametros fora da diagonal do Cholesky sairam do valor inicial:
+## se ficarem colados no inicio, a dependencia NAO foi identificada pelos dados
+pc_fim <- fit$par[IDX$chol]; pc_ini <- p0[IDX$chol]
+od <- which(sapply(seq_len(N_CH), function(k) { kk <- 0; achou <- FALSE
+  for (j in 1:P) for (i in j:P) { kk <- kk + 1; if (kk == k && i != j) achou <- TRUE }
+  achou }))
+cat("Cholesky fora da diagonal: ", sum(abs(pc_fim[od] - pc_ini[od]) < 1e-3), " de ", length(od),
+    " a menos de 1e-3 do valor inicial (desvio maximo ",
+    format(max(abs(pc_fim[od] - pc_ini[od])), digits = 3), ")
+", sep = "")
+
 mod <- monta_mv(fit$par)
 Sigma_R <- mod$W[B_INCL, B_INCL]
 dR <- sqrt(diag(Sigma_R)); Corr_R <- Sigma_R / outer(dR, dR)
@@ -245,6 +319,7 @@ cat("\nganho médio:", round(mean(des$rrse), 2), "% | univariado:",
     round(mean(sapply(COD, function(k) uni[[k]]$rrse)), 2), "%\n")
 
 saveRDS(list(fit = fit, mod = mod, Sigma_R = Sigma_R, Corr_R = Corr_R,
+             smooth = SMOOTH, npar = NPAR,
              autovalores = ev, desempenho = des, rotulos = ROT, processos = PRC,
              perturbacao = pt, INI = INI, R_I = R_I),
         file.path(SAIDA, paste0("multivariado_", INDICADOR, ".rds")))

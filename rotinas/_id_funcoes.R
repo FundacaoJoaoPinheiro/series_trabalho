@@ -23,14 +23,24 @@ P_est <- function(G, v, s2) {
   matrix(solve(diag(r*r) - kronecker(G, G), as.vector(s2 * (v %*% t(v)))), r, r)
 }
 
-## modelo estrutural com erro amostral e Var(e~) = 1
-monta <- function(se, phi, theta) {
+## modelo estrutural com erro amostral e Var(e~) = 1.
+## smooth = TRUE  -> tendencia suave: sigma2_L = 0, so a inclinacao tem disturbio
+## sazdet = TRUE  -> sazonalidade deterministica: sigma2_S = 0
+## Os defaults reproduzem a formulacao usada na identificacao (19_/20_), que NAO
+## deve mudar. O vetor de parametros encolhe conforme as restricoes; os nomes
+## ficam no atributo "nomes" do resultado.
+monta <- function(se, phi, theta, smooth = FALSE, sazdet = FALSE) {
   b <- blocos(phi, theta)
   p11 <- try(P_est(b$G, b$v, 1)[1,1], silent = TRUE)
   if (inherits(p11, "try-error") || !is.finite(p11) || p11 <= 0) return(NULL)
   s2 <- 1 / p11
+  ## covariancia estacionaria do bloco ARMA, da mesma equacao de Lyapunov que
+  ## fixa a inovacao; por construcao Pm[1,1] = 1, que e a condicao V(e~) = 1
+  Pm <- P_est(b$G, b$v, s2)
   ns <- 5 + b$r
-  function(pp) {
+  nomes <- c(if (!smooth) "L", "R", if (!sazdet) "S", "I")
+  fn <- function(pp) {
+    v <- setNames(as.list(exp(pp)), nomes)
     m <- dlmModPoly(2) + dlmModTrig(4) + dlmModReg(se, addInt = FALSE)
     if (b$r > 1) {
       m$FF <- cbind(m$FF, matrix(0, 1, b$r - 1))
@@ -40,17 +50,25 @@ monta <- function(se, phi, theta) {
     m$GG[6:ns, 6:ns] <- b$G
     W <- matrix(0, ns, ns)
     W[6:ns, 6:ns] <- s2 * (b$v %*% t(b$v))
-    W[1,1] <- exp(pp[1]); W[2,2] <- exp(pp[2])
+    W[1,1] <- if (smooth) 0 else v$L
+    W[2,2] <- v$R
     ## O distúrbio sazonal vai nos TRÊS estados trigonométricos, não só no
     ## primeiro (issue #8): com s = 4, dlmModTrig gera o par (cos, sen) da
     ## harmônica 1 mais o estado único da frequência de Nyquist. Aplicar a
     ## variância só ao estado 3 quebraria a simetria do par harmônico.
-    W[3,3] <- W[4,4] <- W[5,5] <- exp(pp[3])
+    W[3,3] <- W[4,4] <- W[5,5] <- if (sazdet) 0 else v$S
     d <- diag(W); diag(W)[d == 0] <- 1e-10
-    m$W <- W; m$V <- exp(pp[4])
-    m$m0 <- rep(0, ns); m$C0 <- diag(x = 1e6, ns)
+    m$W <- W; m$V <- v$I
+    ## C0 difuso (1e6) apenas nos estados NAO estacionarios -- nivel, inclinacao
+    ## e os tres trigonometricos. O estado do erro amostral e estacionario e tem
+    ## variancia 1 por imposicao: inicializa-lo com 1e6 contradiz o proprio W e
+    ## custa verossimilhanca nos primeiros trimestres.
+    C0 <- matrix(0, ns, ns); diag(C0)[1:5] <- 1e6; C0[6:ns, 6:ns] <- Pm
+    m$m0 <- rep(0, ns); m$C0 <- C0
     m
   }
+  attr(fn, "nomes") <- nomes
+  fn
 }
 
 ## ---- derivação dos candidatos a partir da FAC ------------------------------
